@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "lab",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "codecov": "istanbul cover lab --report lcovonly  -- -l  && codecov"
   },
   "repository": {
     "type": "git",
@@ -18,12 +19,14 @@
   },
   "homepage": "https://github.com/DEFRA/water-abstraction-import#readme",
   "devDependencies": {
-    "eslint": "^4.17.0",
+    "codecov": "^3.1.0",
+    "eslint": "^5.0.0",
     "eslint-config-standard": "^11.0.0-beta.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^6.0.0",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^4.0.0",
+    "istanbul": "^0.4.5",
     "lab": "^15.5.0",
     "sinon": "^6.0.0"
   },
@@ -40,6 +43,8 @@
     "hapi-pg-rest-api": "https://github.com/DEFRA/hapi-pg-rest-api.git",
     "hoek": "^4.2.1",
     "joi": "^13.1.2",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.5",
     "winston": "^2.4.4"
   }
 }

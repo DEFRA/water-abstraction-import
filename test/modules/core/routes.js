@@ -7,7 +7,6 @@ const server = require('../../../index');
 
 experiment('status', () => {
   it('exists', async () => {
-
     const request = { method: 'GET', url: '/status' };
     const response = await server.inject(request);
 
