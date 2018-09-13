@@ -10,4 +10,14 @@ const status = {
   path: '/status'
 };
 
-module.exports = [status];
+const testing = {
+  method: 'GET',
+  handler: () => 'testing',
+  options: {
+    auth: false,
+    description: 'For testing'
+  },
+  path: '/etl/testing'
+};
+
+module.exports = [status, testing];
