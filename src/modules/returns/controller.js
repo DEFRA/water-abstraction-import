@@ -7,7 +7,7 @@ const {
   transformWeeklyLine,
   transformLine
 } = require('./lib/transformers');
-const { flatMap } = require('lodash');
+const { pick, flatMap } = require('lodash');
 
 /**
  * Gets all the current versions that have a created_date
@@ -29,6 +29,13 @@ const getVersions = async (request, h) => {
   try {
     const pagination = { perPage: 2000 };
     const response = await versions.findMany(filter, {}, pagination);
+
+    if (response.data.length) {
+      response.data = response.data.map(version => {
+        return pick(version, 'version_id', 'return_id', 'nil_return');
+      });
+    }
+
     return response;
   } catch (err) {
     console.error(err);
@@ -97,9 +104,12 @@ const getLinesForVersion = async (request, h) => {
     const lines = flatMap(linesResponse, linesTransformer);
 
     return {
-      nil_return: version.nil_return,
-      return: transformReturn(returnData),
-      lines
+      error: null,
+      data: {
+        nil_return: version.nil_return,
+        return: transformReturn(returnData),
+        lines
+      }
     };
   } catch (err) {
     console.error(err);
