@@ -27,7 +27,7 @@ const getVersions = async (request, h) => {
   }
 
   try {
-    const pagination = { perPage: 2000 };
+    const pagination = Object.assign({ perPage: 2000 }, request.query.pagination);
     const response = await versions.findMany(filter, {}, pagination);
 
     if (response.data.length) {
