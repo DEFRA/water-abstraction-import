@@ -237,4 +237,15 @@ experiment('transformQuantity', () => {
     expect(transformers.transformQuantity(123.123456)).to.equal('123.123');
     expect(transformers.transformQuantity(123.129999)).to.equal('123.130');
   });
+
+  it('returns null if the quantity is null', async () => {
+    const val = transformers.transformQuantity(null);
+    expect(val).to.equal(null);
+  });
+
+  it('returns null if the quantity is a string representation of null', async () => {
+    expect(transformers.transformQuantity('null')).to.be.null();
+    expect(transformers.transformQuantity('NULL')).to.be.null();
+    expect(transformers.transformQuantity('Null')).to.be.null();
+  });
 });
