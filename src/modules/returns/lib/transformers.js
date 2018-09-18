@@ -25,6 +25,10 @@ const transformReturn = returnData => {
 };
 
 const transformQuantity = (quantity = 0) => {
+  if (quantity === null || toUpper(quantity) === 'NULL') {
+    return null;
+  }
+
   const val = quantity.toString();
   return val.includes('.') ? parseFloat(val).toFixed(3) : val;
 };
