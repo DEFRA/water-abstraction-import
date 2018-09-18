@@ -11,7 +11,11 @@ const getVersions = {
     validate: {
       query: {
         start: Joi.string().isoDate().required(),
-        end: Joi.string().isoDate().optional()
+        end: Joi.string().isoDate().optional(),
+        pagination: Joi.object().keys({
+          page: Joi.number(),
+          perPage: Joi.number()
+        }).optional()
       }
     }
   },

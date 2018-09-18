@@ -33,12 +33,24 @@ experiment('transformReturn', () => {
     expect(transformed.end_date).to.equal(returnResponse.end_date);
   });
 
+  it('includes a nald_ret_lines style date_from value', async () => {
+    expect(transformed.nald_date_from).to.equal('20171030000000');
+  });
+
   it('includes the regionCode', async () => {
     expect(transformed.regionCode).to.equal(returnResponse.metadata.nald.regionCode);
   });
 
   it('includes the formatId', async () => {
     expect(transformed.formatId).to.equal(returnResponse.metadata.nald.formatId);
+  });
+
+  it('includes the received_date', async () => {
+    expect(transformed.received_date).to.equal(returnResponse.received_date);
+  });
+
+  it('includes a nald_ret_lines style ret_date  value', async () => {
+    expect(transformed.nald_ret_date).to.equal('20180913000000');
   });
 
   it('does not include any other keys', async () => {
@@ -49,7 +61,10 @@ experiment('transformReturn', () => {
       'end_date',
       'status',
       'regionCode',
-      'formatId'
+      'formatId',
+      'nald_date_from',
+      'received_date',
+      'nald_ret_date'
     ];
 
     expect(difference(Object.keys(transformed), allowed)).to.have.length(0);
@@ -63,8 +78,16 @@ experiment('transformLine', () => {
     transformed = transformers.transformLine(monthlyLineResponse);
   });
 
-  it('includes the quantity', async () => {
-    expect(transformed.quantity).to.equal(monthlyLineResponse.quantity);
+  it('returns an integer if the quantity is an integer', async () => {
+    const line = Object.assign({}, monthlyLineResponse, { quantity: 123 });
+    const transformedLine = transformers.transformLine(line);
+    expect(transformedLine.quantity).to.equal('123');
+  });
+
+  it('rounds to three decimal places when the quantity has decimal places', async () => {
+    const line = Object.assign({}, monthlyLineResponse, { quantity: 123.456789 });
+    const transformedLine = transformers.transformLine(line);
+    expect(transformedLine.quantity).to.equal('123.457');
   });
 
   it('includes the start_date', async () => {
@@ -87,6 +110,14 @@ experiment('transformLine', () => {
     expect(transformed.unit).to.equal(monthlyLineResponse.unit);
   });
 
+  it('includes a nald style time_period', async () => {
+    expect(transformed.nald_time_period).to.equal('M');
+  });
+
+  it('includes a nald style reading_type', async () => {
+    expect(transformed.nald_reading_type).to.equal('M');
+  });
+
   it('does not include any other keys', async () => {
     const allowed = [
       'quantity',
@@ -94,7 +125,9 @@ experiment('transformLine', () => {
       'end_date',
       'time_period',
       'reading_type',
-      'unit'
+      'unit',
+      'nald_reading_type',
+      'nald_time_period'
     ];
 
     expect(difference(Object.keys(transformed), allowed)).to.have.length(0);
@@ -135,7 +168,7 @@ experiment('transformWeeklyLine', () => {
 
   it('the first 6 days have a value of zero', async () => {
     const firstSix = transformed.slice(0, 6);
-    const allZero = firstSix.every(line => line.quantity === 0);
+    const allZero = firstSix.every(line => line.quantity === '0');
     expect(allZero).to.be.true();
   });
 
@@ -166,7 +199,9 @@ experiment('transformWeeklyLine', () => {
       'end_date',
       'time_period',
       'reading_type',
-      'unit'
+      'unit',
+      'nald_reading_type',
+      'nald_time_period'
     ];
 
     expect(difference(Object.keys(transformed[0]), allowed)).to.have.length(0);
@@ -174,5 +209,32 @@ experiment('transformWeeklyLine', () => {
 
   it('throws if the time_period is not week', async () => {
     expect(() => transformers.transformWeeklyLineLine(monthlyLineResponse)).to.throw();
+  });
+});
+
+experiment('transformQuantity', () => {
+  it('returns a string representation on an integer for an integer input', async () => {
+    const val = transformers.transformQuantity(123);
+    expect(val).to.equal('123');
+  });
+
+  it('returns a string representation on an integer for a string representation of an integer input', async () => {
+    const val = transformers.transformQuantity('123');
+    expect(val).to.equal('123');
+  });
+
+  it('returns a string representation on a float for a float input', async () => {
+    const val = transformers.transformQuantity(123);
+    expect(val).to.equal('123');
+  });
+
+  it('returns a string representation on a float for a string representation of a float input', async () => {
+    const val = transformers.transformQuantity('123');
+    expect(val).to.equal('123');
+  });
+
+  it('floats are rounded to three decimal places', async () => {
+    expect(transformers.transformQuantity(123.123456)).to.equal('123.123');
+    expect(transformers.transformQuantity(123.129999)).to.equal('123.130');
   });
 });
