@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "lab",
+    "test:travis": "lab -c -t 55 -m 0 -r lcov -o lcov.info -r console -o stdout",
     "lint": "eslint .",
     "codecov": "istanbul cover lab --report lcovonly  -- -l  && codecov"
   },
