@@ -4,10 +4,5 @@
 module.exports = {
   // This version global seems to be introduced by sinon.
   globals: 'version,payload',
-  coverage: true,
-  threshold: 55,
-  'coverage-exclude': ['src/lib/logger'],
-  reporter: ['lcov', 'console'],
-  output: ['lcov.info', 'stdout'],
   verbose: true
 };
