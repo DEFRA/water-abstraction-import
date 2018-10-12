@@ -110,6 +110,10 @@ experiment('transformLine', () => {
     expect(transformed.unit).to.equal(monthlyLineResponse.unit);
   });
 
+  it('includes the user unit', async () => {
+    expect(transformed.user_unit).to.equal(monthlyLineResponse.user_unit);
+  });
+
   it('includes a nald style time_period', async () => {
     expect(transformed.nald_time_period).to.equal('M');
   });
@@ -126,6 +130,7 @@ experiment('transformLine', () => {
       'time_period',
       'reading_type',
       'unit',
+      'user_unit',
       'nald_reading_type',
       'nald_time_period'
     ];
@@ -192,6 +197,12 @@ experiment('transformWeeklyLine', () => {
     })).to.be.true();
   });
 
+  it('includes the user unit', async () => {
+    expect(transformed.every(line => {
+      return line.user_unit === weeklyLineResponse.user_unit;
+    })).to.be.true();
+  });
+
   it('does not include any other keys', async () => {
     const allowed = [
       'quantity',
@@ -200,6 +211,7 @@ experiment('transformWeeklyLine', () => {
       'time_period',
       'reading_type',
       'unit',
+      'user_unit',
       'nald_reading_type',
       'nald_time_period'
     ];

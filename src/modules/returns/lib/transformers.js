@@ -43,7 +43,7 @@ const transformLine = lineData => {
   if (lineData.time_period === 'week') {
     throw new Error('Please use transformWeeklyLine for weekly lines');
   }
-  const paths = ['start_date', 'end_date', 'time_period', 'reading_type', 'unit'];
+  const paths = ['start_date', 'end_date', 'time_period', 'reading_type', 'unit', 'user_unit'];
   const line = pick(lineData, paths);
   line.quantity = transformQuantity(lineData.quantity);
   line.nald_reading_type = getUpperCasedFirstCharacter(line.reading_type);
