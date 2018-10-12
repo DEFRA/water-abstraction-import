@@ -132,7 +132,8 @@ experiment('transformLine', () => {
       'unit',
       'user_unit',
       'nald_reading_type',
-      'nald_time_period'
+      'nald_time_period',
+      'nald_units'
     ];
 
     expect(difference(Object.keys(transformed), allowed)).to.have.length(0);
@@ -213,7 +214,8 @@ experiment('transformWeeklyLine', () => {
       'unit',
       'user_unit',
       'nald_reading_type',
-      'nald_time_period'
+      'nald_time_period',
+      'nald_units'
     ];
 
     expect(difference(Object.keys(transformed[0]), allowed)).to.have.length(0);
@@ -259,5 +261,23 @@ experiment('transformQuantity', () => {
     expect(transformers.transformQuantity('null')).to.be.null();
     expect(transformers.transformQuantity('NULL')).to.be.null();
     expect(transformers.transformQuantity('Null')).to.be.null();
+  });
+});
+
+experiment('transformUnits', () => {
+  it('Transforms gallons to I (imperial)', async () => {
+    expect(transformers.transformUnits('gal')).to.equal('I');
+  });
+
+  it('Transforms cubic metres to M (metric)', async () => {
+    expect(transformers.transformUnits('m³')).to.equal('M');
+  });
+
+  it('Transforms litres to M (metric)', async () => {
+    expect(transformers.transformUnits('l')).to.equal('M');
+  });
+
+  it('Transforms megalitres to M (metric)', async () => {
+    expect(transformers.transformUnits('Ml')).to.equal('M');
   });
 });

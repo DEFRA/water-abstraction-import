@@ -7,6 +7,7 @@ const {
   transformWeeklyLine,
   transformLine
 } = require('./lib/transformers');
+const { generateNilLines } = require('./lib/generate-nil-lines');
 const { pick, flatMap } = require('lodash');
 
 /**
@@ -101,7 +102,8 @@ const getLinesForVersion = async (request, h) => {
 
     const returnData = await getReturn(version.return_id);
     const linesTransformer = getLinesTransformer(returnData);
-    const lines = flatMap(linesResponse, linesTransformer);
+    const linesData = version.nil_return ? generateNilLines(returnData, version) : linesResponse;
+    const lines = flatMap(linesData, linesTransformer);
 
     return {
       error: null,
