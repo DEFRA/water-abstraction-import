@@ -107,6 +107,8 @@ const getLinesForVersion = async (request, h) => {
       error: null,
       data: {
         nil_return: version.nil_return,
+        under_query: false,
+        under_query_comment: '',
         return: transformReturn(returnData),
         lines
       }
