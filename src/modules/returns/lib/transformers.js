@@ -36,6 +36,20 @@ const transformQuantity = (quantity = 0) => {
 const getUpperCasedFirstCharacter = flow(first, toUpper);
 
 /**
+ * Transforms user units to NALD unit flag
+ * Gallons `gal` are transformed to I (imperial) in NALD
+ * All other units (m3, l, Ml) are transformed to M (metric) in NALD
+ * @param {String} unit - from user_unit property
+ * @return {String} NALD unit flag
+ */
+const transformUnits = (unit) => {
+  if (unit.toLowerCase() === 'gal') {
+    return 'I';
+  }
+  return 'M';
+};
+
+/**
  * Takes a WRLS line object and converts to a smaller object ready
  * for loading into NALD
  */
@@ -43,11 +57,12 @@ const transformLine = lineData => {
   if (lineData.time_period === 'week') {
     throw new Error('Please use transformWeeklyLine for weekly lines');
   }
-  const paths = ['start_date', 'end_date', 'time_period', 'reading_type', 'unit'];
+  const paths = ['start_date', 'end_date', 'time_period', 'reading_type', 'unit', 'user_unit'];
   const line = pick(lineData, paths);
   line.quantity = transformQuantity(lineData.quantity);
   line.nald_reading_type = getUpperCasedFirstCharacter(line.reading_type);
   line.nald_time_period = getUpperCasedFirstCharacter(line.time_period);
+  line.nald_units = transformUnits(line.user_unit);
   return line;
 };
 
@@ -81,5 +96,6 @@ module.exports = {
   transformReturn,
   transformLine,
   transformWeeklyLine,
-  transformQuantity
+  transformQuantity,
+  transformUnits
 };
