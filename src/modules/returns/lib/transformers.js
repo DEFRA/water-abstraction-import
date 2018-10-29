@@ -19,7 +19,7 @@ const transformReturn = returnData => {
   const transformed = pick(returnData, 'returns_frequency', 'licence_ref', 'start_date', 'end_date', 'status', 'received_date');
   transformed.regionCode = get(returnData, 'metadata.nald.regionCode');
   transformed.formatId = get(returnData, 'metadata.nald.formatId');
-  transformed.nald_date_from = getNaldStyleDate(transformed.start_date);
+  transformed.nald_date_from = getNaldStyleDate(moment(transformed.start_date).startOf('month').format('YYYY-MM-DD'));
   transformed.nald_ret_date = getNaldStyleDate(transformed.received_date);
   return transformed;
 };
