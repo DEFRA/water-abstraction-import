@@ -78,7 +78,7 @@ const transformWeeklyLine = lineData => {
 
   const dailies = range(7).reduce((lines, daysForward) => {
     const date = getFutureDate(lineData.start_date, daysForward);
-    const quantity = daysForward === 6 ? lineData.quantity : 0;
+    const quantity = daysForward === 6 ? lineData.quantity : null;
 
     const dailyLine = transformLine(Object.assign({}, lineData, {
       start_date: date,
