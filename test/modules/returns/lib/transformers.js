@@ -172,9 +172,9 @@ experiment('transformWeeklyLine', () => {
     expect(transformed[6].end_date).to.equal('2017-11-04');
   });
 
-  it('the first 6 days have a value of zero', async () => {
+  it('the first 6 days have a value of null', async () => {
     const firstSix = transformed.slice(0, 6);
-    const allZero = firstSix.every(line => line.quantity === '0');
+    const allZero = firstSix.every(line => line.quantity === null);
     expect(allZero).to.be.true();
   });
 

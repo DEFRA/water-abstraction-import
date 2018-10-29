@@ -190,7 +190,7 @@ const getAbsPeriod = (returnData) => {
 const mapLine = (line, absPeriod) => {
   const { startDate, endDate, timePeriod } = line;
 
-  const isInPeriod = isDateWithinAbstractionPeriod(startDate, absPeriod) || isDateWithinAbstractionPeriod(endDate, absPeriod);
+  const isInPeriod = isDateWithinAbstractionPeriod(endDate, absPeriod);
 
   return {
     start_date: startDate,
