@@ -33,8 +33,8 @@ experiment('transformReturn', () => {
     expect(transformed.end_date).to.equal(returnResponse.end_date);
   });
 
-  it('includes a nald_ret_lines style date_from value', async () => {
-    expect(transformed.nald_date_from).to.equal('20171030000000');
+  it('includes a nald_ret_lines style date_from value: the first of the month containing the return start date', async () => {
+    expect(transformed.nald_date_from).to.equal('20171001000000');
   });
 
   it('includes the regionCode', async () => {
@@ -172,9 +172,9 @@ experiment('transformWeeklyLine', () => {
     expect(transformed[6].end_date).to.equal('2017-11-04');
   });
 
-  it('the first 6 days have a value of zero', async () => {
+  it('the first 6 days have a value of null', async () => {
     const firstSix = transformed.slice(0, 6);
-    const allZero = firstSix.every(line => line.quantity === '0');
+    const allZero = firstSix.every(line => line.quantity === null);
     expect(allZero).to.be.true();
   });
 
@@ -279,5 +279,25 @@ experiment('transformUnits', () => {
 
   it('Transforms megalitres to M (metric)', async () => {
     expect(transformers.transformUnits('Ml')).to.equal('M');
+  });
+});
+
+experiment('filterLines', () => {
+  it('Should filter daily return lines outside return cycle for weekly return', async () => {
+    const lines = transformers.transformWeeklyLine(weeklyLineResponse);
+    const filtered = transformers.filterLines(returnResponse, lines);
+    const dates = filtered.map(row => row.start_date);
+    expect(dates[0]).to.equal(returnResponse.start_date);
+  });
+
+  it('Should pass lines unchanged for non-weekly', async () => {
+    const ret = {
+      ...returnResponse,
+      returns_frequency: 'day'
+    };
+    const lines = transformers.transformWeeklyLine(weeklyLineResponse);
+    const filtered = transformers.filterLines(ret, lines);
+
+    expect(filtered).to.equal(lines);
   });
 });

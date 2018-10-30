@@ -2,6 +2,7 @@
 
 const moment = require('moment');
 const { flow, toUpper, first, range, get, pick } = require('lodash');
+const { isDateWithinReturnCycle } = require('./date-helpers');
 
 const DATE_FORMAT = 'YYYY-MM-DD';
 
@@ -19,7 +20,7 @@ const transformReturn = returnData => {
   const transformed = pick(returnData, 'returns_frequency', 'licence_ref', 'start_date', 'end_date', 'status', 'received_date');
   transformed.regionCode = get(returnData, 'metadata.nald.regionCode');
   transformed.formatId = get(returnData, 'metadata.nald.formatId');
-  transformed.nald_date_from = getNaldStyleDate(transformed.start_date);
+  transformed.nald_date_from = getNaldStyleDate(moment(transformed.start_date).startOf('month').format('YYYY-MM-DD'));
   transformed.nald_ret_date = getNaldStyleDate(transformed.received_date);
   return transformed;
 };
@@ -78,7 +79,7 @@ const transformWeeklyLine = lineData => {
 
   const dailies = range(7).reduce((lines, daysForward) => {
     const date = getFutureDate(lineData.start_date, daysForward);
-    const quantity = daysForward === 6 ? lineData.quantity : 0;
+    const quantity = daysForward === 6 ? lineData.quantity : null;
 
     const dailyLine = transformLine(Object.assign({}, lineData, {
       start_date: date,
@@ -92,10 +93,25 @@ const transformWeeklyLine = lineData => {
   return dailies;
 };
 
+/**
+ * Filters lines to ensure that they are all within the return cycle
+ * @param {Object} returnData - return row from return service
+ * @param {Array} lines - array of return lines
+ * @return {Array} array of filtered return lines
+ */
+const filterLines = (returnData, lines) => {
+  const { returns_frequency: frequency } = returnData;
+  if (frequency !== 'week') {
+    return lines;
+  }
+  return lines.filter(line => isDateWithinReturnCycle(returnData, line.end_date));
+};
+
 module.exports = {
   transformReturn,
   transformLine,
   transformWeeklyLine,
   transformQuantity,
-  transformUnits
+  transformUnits,
+  filterLines
 };
