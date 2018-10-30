@@ -5,7 +5,8 @@ const { lines, returns, versions } = require('../../lib/connectors/returns');
 const {
   transformReturn,
   transformWeeklyLine,
-  transformLine
+  transformLine,
+  filterLines
 } = require('./lib/transformers');
 const { generateNilLines } = require('./lib/generate-nil-lines');
 const { pick, flatMap } = require('lodash');
@@ -112,7 +113,7 @@ const getLinesForVersion = async (request, h) => {
         under_query: false,
         under_query_comment: '',
         return: transformReturn(returnData),
-        lines
+        lines: filterLines(returnData, lines)
       }
     };
   } catch (err) {

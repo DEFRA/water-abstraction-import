@@ -2,6 +2,7 @@
 
 const moment = require('moment');
 const { flow, toUpper, first, range, get, pick } = require('lodash');
+const { isDateWithinReturnCycle } = require('./date-helpers');
 
 const DATE_FORMAT = 'YYYY-MM-DD';
 
@@ -92,10 +93,21 @@ const transformWeeklyLine = lineData => {
   return dailies;
 };
 
+/**
+ * Filters lines to ensure that they are all within the return cycle
+ * @param {Object} returnData - return row from return service
+ * @param {Array} lines - array of return lines
+ * @return {Array} array of filtered return lines
+ */
+const filterLines = (returnData, lines) => {
+  return lines.filter(line => isDateWithinReturnCycle(returnData, line.end_date));
+};
+
 module.exports = {
   transformReturn,
   transformLine,
   transformWeeklyLine,
   transformQuantity,
-  transformUnits
+  transformUnits,
+  filterLines
 };
