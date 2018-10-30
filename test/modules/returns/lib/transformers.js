@@ -281,3 +281,23 @@ experiment('transformUnits', () => {
     expect(transformers.transformUnits('Ml')).to.equal('M');
   });
 });
+
+experiment('filterLines', () => {
+  it('Should filter daily return lines outside return cycle for weekly return', async () => {
+    const lines = transformers.transformWeeklyLine(weeklyLineResponse);
+    const filtered = transformers.filterLines(returnResponse, lines);
+    const dates = filtered.map(row => row.start_date);
+    expect(dates[0]).to.equal(returnResponse.start_date);
+  });
+
+  it('Should pass lines unchanged for non-weekly', async () => {
+    const ret = {
+      ...returnResponse,
+      returns_frequency: 'day'
+    };
+    const lines = transformers.transformWeeklyLine(weeklyLineResponse);
+    const filtered = transformers.filterLines(ret, lines);
+
+    expect(filtered).to.equal(lines);
+  });
+});

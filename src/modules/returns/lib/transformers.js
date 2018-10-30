@@ -100,6 +100,10 @@ const transformWeeklyLine = lineData => {
  * @return {Array} array of filtered return lines
  */
 const filterLines = (returnData, lines) => {
+  const { returns_frequency: frequency } = returnData;
+  if (frequency !== 'week') {
+    return lines;
+  }
   return lines.filter(line => isDateWithinReturnCycle(returnData, line.end_date));
 };
 
