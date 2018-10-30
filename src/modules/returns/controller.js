@@ -8,7 +8,7 @@ const {
   transformLine,
   filterLines
 } = require('./lib/transformers');
-const { generateNilLines, isDateWithinReturnCycle } = require('./lib/generate-nil-lines');
+const { generateNilLines } = require('./lib/generate-nil-lines');
 const { pick, flatMap } = require('lodash');
 
 /**
