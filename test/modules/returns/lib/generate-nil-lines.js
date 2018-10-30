@@ -11,7 +11,8 @@ const {
   getRequiredLines,
   isDateWithinAbstractionPeriod,
   getAbsPeriod,
-  mapLine
+  mapLine,
+  isDateWithinReturnCycle
 } = require('../../../../src/modules/returns/lib/generate-nil-lines');
 
 const sameYear = {
