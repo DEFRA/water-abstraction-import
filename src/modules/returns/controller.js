@@ -40,7 +40,7 @@ const getVersions = async (request, h) => {
 
     return response;
   } catch (err) {
-    console.error(err);
+    request.log('error', err);
     throw err;
   }
 };
@@ -65,17 +65,12 @@ const getReturn = async returnID => {
   return data[0];
 };
 
-const getLines = async versionID => {
+const getLines = async (request, versionID) => {
   const filter = { version_id: versionID };
   const pagination = { perPage: 2000 };
 
-  try {
-    const { data } = await lines.findMany(filter, {}, pagination);
-    return data;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
+  const { data } = await lines.findMany(filter, {}, pagination);
+  return data;
 };
 
 const getLinesTransformer = returnData => {
@@ -117,7 +112,7 @@ const getLinesForVersion = async (request, h) => {
       }
     };
   } catch (err) {
-    console.error(err);
+    request.log('error', err);
     throw err;
   }
 };
