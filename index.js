@@ -65,7 +65,7 @@ const start = async function () {
 };
 
 process.on('unhandledRejection', (err) => {
-  console.log(err);
+  logger.error(err);
   process.exit(1);
 });
 
