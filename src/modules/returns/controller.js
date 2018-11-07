@@ -51,10 +51,9 @@ const getReturn = async returnID => {
   return data[0];
 };
 
-const getLines = async (request, versionID) => {
+const getLines = async versionID => {
   const filter = { version_id: versionID };
   const pagination = { perPage: 2000 };
-
   const { data } = await lines.findMany(filter, {}, pagination);
   return data;
 };
