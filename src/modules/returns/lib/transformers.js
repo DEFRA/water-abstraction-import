@@ -19,6 +19,8 @@ const getNaldStyleDate = date => moment(date, DATE_FORMAT).format('YYYYMMDD00000
 const transformReturn = (returnData, addFields = []) => {
   const pickFields = ['returns_frequency', 'licence_ref', 'start_date', 'end_date', 'status', 'received_date', 'under_query', 'under_query_comment', ...addFields];
   const transformed = pick(returnData, pickFields);
+
+  transformed.under_query_comment = returnData.under_query_comment || '';
   transformed.regionCode = get(returnData, 'metadata.nald.regionCode');
   transformed.formatId = get(returnData, 'metadata.nald.formatId');
   transformed.nald_date_from = getNaldStyleDate(moment(transformed.start_date).startOf('month').format('YYYY-MM-DD'));
