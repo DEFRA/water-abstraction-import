@@ -2,6 +2,7 @@
 
 const Boom = require('boom');
 const { lines, returns, versions } = require('../../lib/connectors/returns');
+const { events } = require('../../lib/connectors/water');
 const {
   transformReturn,
   transformWeeklyLine,
@@ -9,7 +10,9 @@ const {
   filterLines
 } = require('./lib/transformers');
 const { generateNilLines } = require('./lib/generate-nil-lines');
-const { pick, flatMap } = require('lodash');
+const { flatMap } = require('lodash');
+
+const { getVersionFilter, getEventFilter, getPagination } = require('./lib/api-helpers');
 
 /**
  * Gets all the current versions that have a created_date
@@ -18,29 +21,12 @@ const { pick, flatMap } = require('lodash');
  * Can optionally supply an 'end' query param to cap the range.
  */
 const getVersions = async (request, h) => {
-  const { start, end } = request.query;
-  const filter = {
-    current: true,
-    created_at: { $gte: start }
-  };
-
-  if (end) {
-    filter.created_at.$lte = end;
-  }
-
   try {
-    const pagination = Object.assign({ perPage: 2000 }, request.query.pagination);
-    const response = await versions.findMany(filter, {}, pagination);
-
-    if (response.data.length) {
-      response.data = response.data.map(version => {
-        return pick(version, 'version_id', 'return_id', 'nil_return');
-      });
-    }
-
-    return response;
+    const filter = getVersionFilter(request);
+    const pagination = getPagination(request);
+    return versions.findMany(filter, {}, pagination, ['version_id', 'return_id', 'nil_return']);
   } catch (err) {
-    console.error(err);
+    request.log('error', err);
     throw err;
   }
 };
@@ -68,14 +54,8 @@ const getReturn = async returnID => {
 const getLines = async versionID => {
   const filter = { version_id: versionID };
   const pagination = { perPage: 2000 };
-
-  try {
-    const { data } = await lines.findMany(filter, {}, pagination);
-    return data;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
+  const { data } = await lines.findMany(filter, {}, pagination);
+  return data;
 };
 
 const getLinesTransformer = returnData => {
@@ -117,12 +97,40 @@ const getLinesForVersion = async (request, h) => {
       }
     };
   } catch (err) {
-    console.error(err);
+    request.log('error', err);
+    throw err;
+  }
+};
+
+const fetchReturn = async (row) => {
+  const returnId = row['?column?'];
+  const data = await getReturn(returnId);
+  return transformReturn(data, ['return_id']);
+};
+
+/**
+ * Gets returns where a return.status event has been recorded within a
+ * certain date range
+ */
+const getReturns = async (request, h) => {
+  try {
+    const filter = getEventFilter(request);
+    const pagination = getPagination(request);
+
+    const response = await events.findMany(filter, {}, pagination, ['metadata->>returnId']);
+
+    const tasks = response.data.map(row => fetchReturn(row));
+
+    response.data = await Promise.all(tasks);
+    return response;
+  } catch (err) {
+    request.log('error', err);
     throw err;
   }
 };
 
 module.exports = {
   getVersions,
-  getLinesForVersion
+  getLinesForVersion,
+  getReturns
 };

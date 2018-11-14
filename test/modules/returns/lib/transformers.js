@@ -64,10 +64,16 @@ experiment('transformReturn', () => {
       'formatId',
       'nald_date_from',
       'received_date',
-      'nald_ret_date'
+      'nald_ret_date',
+      'under_query',
+      'under_query_comment'
     ];
 
     expect(difference(Object.keys(transformed), allowed)).to.have.length(0);
+  });
+
+  it('under_query_comment is transformed to empty string if null', async () => {
+    expect(transformed.under_query_comment).to.equal('');
   });
 });
 
