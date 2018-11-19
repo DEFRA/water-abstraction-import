@@ -1,5 +1,6 @@
 const moment = require('moment');
 const { pick, mapValues } = require('lodash');
+const naldDates = require('../../../lib/nald-dates');
 
 /**
  * Get required daily return lines
@@ -65,18 +66,18 @@ const getYears = (startDate, endDate) => {
  * @return {Array} list of required return lines
  */
 const getWeeks = (startDate, endDate) => {
-  const datePtr = moment(startDate);
+  let datePtr = naldDates.getWeek(startDate);
   const lines = [];
-  datePtr.startOf('week');
+
   do {
     lines.push({
-      startDate: datePtr.startOf('week').format('YYYY-MM-DD'),
-      endDate: datePtr.endOf('week').format('YYYY-MM-DD'),
+      startDate: datePtr.start.format('YYYY-MM-DD'),
+      endDate: datePtr.end.format('YYYY-MM-DD'),
       timePeriod: 'week'
     });
-    datePtr.add(1, 'week');
+    datePtr = naldDates.getWeek(datePtr.start.add(1, 'week'));
   }
-  while (datePtr.isSameOrBefore(endDate, 'month'));
+  while (datePtr.end.isSameOrBefore(endDate, 'day'));
 
   return lines;
 };

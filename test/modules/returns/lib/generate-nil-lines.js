@@ -1,5 +1,8 @@
 'use strict';
 
+const moment = require('moment');
+moment.locale('en-gb');
+
 const { experiment, it } = module.exports.lab = require('lab').script();
 const { expect } = require('code');
 const { uniq } = require('lodash');
@@ -148,6 +151,7 @@ experiment('getWeeks', () => {
   it('Should output `week` as the period', async () => {
     const days = getWeeks('2018-01-01', '2018-12-31');
     const periods = uniq(days.map(day => day.timePeriod));
+    expect(periods.length).to.equal(1);
     expect(periods).to.equal(['week']);
   });
 });
