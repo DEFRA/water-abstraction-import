@@ -4,5 +4,11 @@
 module.exports = {
   // This version global seems to be introduced by sinon.
   globals: 'version,payload,fetch,Response,Headers,Request',
-  verbose: true
+  verbose: true,
+
+  'coverage-exclude': [
+    'node_modules',
+    'src/lib/logger/vendor',
+    'test'
+  ]
 };
