@@ -57,7 +57,7 @@ const start = async function () {
 
     if (!module.parent) {
       await server.start();
-      const name = process.env.servicename;
+      const name = process.env.SERVICE_NAME;
       const uri = server.info.uri;
       server.log('info', `Service ${name} running at: ${uri}`);
     }
