@@ -11,6 +11,7 @@ const {
 } = require('./lib/transformers');
 const { generateNilLines } = require('./lib/generate-nil-lines');
 const { flatMap } = require('lodash');
+const logger = require('../../lib/logger');
 
 const { getVersionFilter, getEventFilter, getPagination } = require('./lib/api-helpers');
 
@@ -26,7 +27,7 @@ const getVersions = async (request, h) => {
     const pagination = getPagination(request);
     return versions.findMany(filter, {}, pagination, ['version_id', 'return_id', 'nil_return']);
   } catch (err) {
-    request.log('error', err);
+    logger.error('getVersions error', err);
     throw err;
   }
 };
@@ -97,7 +98,7 @@ const getLinesForVersion = async (request, h) => {
       }
     };
   } catch (err) {
-    request.log('error', err);
+    logger.error('getLinesForVersion error', err);
     throw err;
   }
 };
@@ -124,7 +125,7 @@ const getReturns = async (request, h) => {
     response.data = await Promise.all(tasks);
     return response;
   } catch (err) {
-    request.log('error', err);
+    logger.error('getReturns error', err);
     throw err;
   }
 };
