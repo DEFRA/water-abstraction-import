@@ -1,7 +1,7 @@
 'use strict';
 
 const moment = require('moment');
-const { returns: { date: { getPeriodStart }}} = require('@envage/water-abstraction-helpers');
+const { returns: { date: { getPeriodStart } } } = require('@envage/water-abstraction-helpers');
 const { flow, toUpper, first, range, get, pick } = require('lodash');
 const { isDateWithinReturnCycle } = require('./date-helpers');
 
