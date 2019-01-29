@@ -2,7 +2,7 @@
 
 const { beforeEach, experiment, it } = module.exports.lab = require('lab').script();
 const { expect } = require('code');
-const { difference } = require('lodash');
+const { difference, cloneDeep, set } = require('lodash');
 
 const transformers = require('../../../../src/modules/returns/lib/transformers');
 
@@ -34,7 +34,7 @@ experiment('transformReturn', () => {
   });
 
   it('includes a nald_ret_lines style date_from value: the first of the month containing the return start date', async () => {
-    expect(transformed.nald_date_from).to.equal('20171001000000');
+    expect(transformed.nald_date_from).to.equal('20171101000000');
   });
 
   it('includes the regionCode', async () => {
@@ -66,7 +66,8 @@ experiment('transformReturn', () => {
       'received_date',
       'nald_ret_date',
       'under_query',
-      'under_query_comment'
+      'under_query_comment',
+      'return_cycle_start'
     ];
 
     expect(difference(Object.keys(transformed), allowed)).to.have.length(0);
@@ -74,6 +75,10 @@ experiment('transformReturn', () => {
 
   it('under_query_comment is transformed to empty string if null', async () => {
     expect(transformed.under_query_comment).to.equal('');
+  });
+
+  it('Should return a date for return_cycle_start if the isSummer flag is set in the metadata', async () => {
+    expect(transformed.return_cycle_start).to.equal('2017-11-01');
   });
 });
 
@@ -305,5 +310,27 @@ experiment('filterLines', () => {
     const filtered = transformers.filterLines(ret, lines);
 
     expect(filtered).to.equal(lines);
+  });
+});
+
+experiment('getReturnCycleStart', () => {
+  it('Should return undefined if the isSummer flag is missing in the metadata', async () => {
+    const data = cloneDeep(returnResponse);
+    delete data.metadata.isSummer;
+    const cycleStart = transformers.getReturnCycleStart(data);
+    expect(cycleStart).to.equal(undefined);
+  });
+
+  it('Should return a summer cycle if the isSummer flag is true', async () => {
+    const data = cloneDeep(returnResponse);
+    const cycleStart = transformers.getReturnCycleStart(data);
+    expect(cycleStart).to.equal('2017-11-01');
+  });
+
+  it('Should return a winter cycle if the isSummer flag is false', async () => {
+    const data = cloneDeep(returnResponse);
+    set(data, 'metadata.isSummer', false);
+    const cycleStart = transformers.getReturnCycleStart(data);
+    expect(cycleStart).to.equal('2017-04-01');
   });
 });
