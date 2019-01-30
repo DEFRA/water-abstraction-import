@@ -1,6 +1,7 @@
 'use strict';
 
 const moment = require('moment');
+const { returns: { date: { getPeriodStart } } } = require('@envage/water-abstraction-helpers');
 const { flow, toUpper, first, range, get, pick } = require('lodash');
 const { isDateWithinReturnCycle } = require('./date-helpers');
 
@@ -11,6 +12,20 @@ const getFutureDate = (date, daysForward) => {
 };
 
 const getNaldStyleDate = date => moment(date, DATE_FORMAT).format('YYYYMMDD000000');
+
+/**
+ * Given return data from the return service, calculates the return cycle
+ * start date for the return.
+ * Relies on metadata.isSummer being defined
+ * @param  {Object} returnData - row of data from returns service
+ * @return {String}            - date in format 'YYYY-MM-DD'
+ */
+const getReturnCycleStart = (returnData) => {
+  const isSummer = get(returnData, 'metadata.isSummer', undefined);
+  if (typeof isSummer !== 'undefined') {
+    return getPeriodStart(returnData.start_date, isSummer);
+  }
+};
 
 /**
  * Takes a WRLS return object and converts to a smaller object ready
@@ -25,6 +40,8 @@ const transformReturn = (returnData, addFields = []) => {
   transformed.formatId = get(returnData, 'metadata.nald.formatId');
   transformed.nald_date_from = getNaldStyleDate(moment(transformed.start_date).startOf('month').format('YYYY-MM-DD'));
   transformed.nald_ret_date = getNaldStyleDate(transformed.received_date);
+  transformed.return_cycle_start = getReturnCycleStart(returnData);
+
   return transformed;
 };
 
@@ -116,5 +133,6 @@ module.exports = {
   transformWeeklyLine,
   transformQuantity,
   transformUnits,
-  filterLines
+  filterLines,
+  getReturnCycleStart
 };
