@@ -3,7 +3,7 @@
   "regime": "water",
   "licence_type": "abstraction",
   "licence_ref": "test-licence-id",
-  "start_date": "2017-10-30",
+  "start_date": "2017-11-01",
   "end_date": "2018-10-31",
   "returns_frequency": "week",
   "status": "complete",
@@ -54,7 +54,8 @@
       }
     ],
     "isCurrent": true,
-    "description": "Water Abstraction"
+    "description": "Water Abstraction",
+    "isSummer": true
   },
   "created_at": "2018-09-13T16:41:24.000Z",
   "updated_at": "2018-09-13T16:47:25.000Z",
