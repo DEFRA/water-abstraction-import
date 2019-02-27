@@ -1,8 +1,8 @@
 {
   "version": 2,
   "exclude_patterns": [
-    "test",
+    "coverage",
     "node_modules",
-    "src/lib/logger/vendor"
+    "test"
   ]
 }

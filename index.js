@@ -15,7 +15,7 @@ const config = require('./config');
 const routes = require('./src/routes.js');
 
 // Initialise logger
-const logger = require('./src/lib/logger');
+const { logger } = require('@envage/water-abstraction-helpers');
 const goodWinstonStream = new GoodWinston({ winston: logger });
 logger.init(config.logger);
 
