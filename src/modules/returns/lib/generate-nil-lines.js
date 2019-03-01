@@ -1,6 +1,6 @@
 const moment = require('moment');
 const { pick, mapValues } = require('lodash');
-const returnLines = require('@envage/water-abstraction-helpers/src/returns/lines');
+const returnLines = require('@envage/water-abstraction-helpers').returns.lines;
 
 /**
  * Checks whether a supplied day/month is the same or after a reference day/month
