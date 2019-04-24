@@ -8,7 +8,6 @@ module.exports = {
 
   'coverage-exclude': [
     'node_modules',
-    'src/lib/logger/vendor',
     'test'
   ]
 };

@@ -11,7 +11,7 @@ const {
 } = require('./lib/transformers');
 const { generateNilLines } = require('./lib/generate-nil-lines');
 const { flatMap } = require('lodash');
-const logger = require('../../lib/logger');
+const { logger } = require('@envage/water-abstraction-helpers');
 
 const { getVersionFilter, getEventFilter, getPagination } = require('./lib/api-helpers');
 
