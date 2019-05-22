@@ -15,9 +15,8 @@ const config = require('./config');
 const routes = require('./src/routes.js');
 
 // Initialise logger
-const { logger } = require('@envage/water-abstraction-helpers');
+const { logger } = require('./src/logger');
 const goodWinstonStream = new GoodWinston({ winston: logger });
-logger.init(config.logger);
 
 // Define server
 const server = Hapi.server(config.server);
