@@ -1,6 +1,6 @@
 {
   "name": "water-abstraction-import",
-  "version": "1.20.1",
+  "version": "1.22.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^4.1.1",
-    "@envage/water-abstraction-helpers": "^1.0.4",
+    "@envage/water-abstraction-helpers": "^2.4.0",
     "airbrake-js": "^1.5.0",
     "blipp": "^3.0.0",
     "boom": "^5.2.0",
