@@ -19,7 +19,7 @@ module.exports = {
   },
 
   server: {
-    port: process.env.PORT,
+    port: 8007,
     router: {
       stripTrailingSlash: true
     }
