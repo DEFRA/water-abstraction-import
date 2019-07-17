@@ -1,8 +1,10 @@
 'use strict';
 
+const controller = require('./controller');
+
 const status = {
   method: 'GET',
-  handler: () => 'ok',
+  handler: controller.getStatus,
   options: {
     auth: false,
     description: 'Checks if the service is alive'
@@ -12,10 +14,10 @@ const status = {
 
 const testing = {
   method: 'GET',
-  handler: () => 'testing',
+  handler: controller.getStatus,
   options: {
     auth: false,
-    description: 'For testing'
+    description: 'For testing etl path mapping'
   },
   path: '/etl/testing'
 };
