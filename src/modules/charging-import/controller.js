@@ -1,4 +1,4 @@
-const { importChargingData } = require('./index');
+const chargingImport = require('./index');
 
 /**
  * Run SQL queries to import charge versions / elements into
@@ -6,7 +6,7 @@ const { importChargingData } = require('./index');
  * @return {Promise}
  */
 const postImportChargingData = async () => {
-  await importChargingData();
+  await chargingImport.importChargingData();
 
   return {
     error: null
