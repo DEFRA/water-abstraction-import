@@ -5,5 +5,3 @@ const cron = require('node-cron');
 cron.schedule('0 3 * * *', () => {
   chargingImport.importChargingData();
 });
-
-console.log('Date:', new Date());
