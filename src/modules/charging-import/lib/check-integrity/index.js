@@ -1,8 +1,7 @@
 const { pool } = require('../../../../lib/connectors/db');
 const queries = require('./queries');
 
-const { mapChargeVersion, mapChargeElement, mapChargeAgreement } = require('./mappers');
-
+const mappers = require('./mappers');
 const { addError, createError, verifyRow } = require('./helpers');
 
 const verifyTable = async (sourceQuery, targetQuery, targetMapper) => {
@@ -29,9 +28,9 @@ const verifyTable = async (sourceQuery, targetQuery, targetMapper) => {
 
 const verify = async () => {
   const tasks = [
-    verifyTable(queries.sourceChargeVersions, queries.targetChargeVersions, mapChargeVersion),
-    verifyTable(queries.sourceChargeElements, queries.targetChargeElements, mapChargeElement),
-    verifyTable(queries.sourceChargeAgreements, queries.targetChargeAgreements, mapChargeAgreement)
+    verifyTable(queries.sourceChargeVersions, queries.targetChargeVersions, mappers.mapChargeVersion),
+    verifyTable(queries.sourceChargeElements, queries.targetChargeElements, mappers.mapChargeElement),
+    verifyTable(queries.sourceChargeAgreements, queries.targetChargeAgreements, mappers.mapChargeAgreement)
   ];
 
   const results = await Promise.all(tasks);
