@@ -1,6 +1,7 @@
-const { pool } = require('../../lib/connectors/db');
+const { pool } = require('../../../lib/connectors/db');
 const queries = require('./queries');
-const { logger } = require('../../logger');
+const { logger } = require('../../../logger');
+const checkIntegrity = require('./check-integrity');
 
 /**
  * Run SQL queries to import charge versions / elements into
@@ -21,6 +22,14 @@ const importChargingData = async () => {
 
   for (let query of arr) {
     await pool.query(query);
+  }
+
+  logger.info(`Charge data imported, verifying`);
+
+  const result = await checkIntegrity.verify();
+
+  if (result.totalErrors > 0) {
+    logger.error(`Error in charge data import`, result);
   }
 
   logger.info(`Charge data import complete`);

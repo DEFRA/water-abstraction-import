@@ -1,4 +1,4 @@
-const chargingImport = require('./index');
+const chargingImport = require('./lib/import');
 
 /**
  * Run SQL queries to import charge versions / elements into

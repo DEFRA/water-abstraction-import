@@ -1,12 +1,12 @@
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('lab').script();
 const { expect } = require('code');
 const controller = require('../../../src/modules/charging-import/controller');
-const chargingImport = require('../../../src/modules/charging-import');
+const chargingImport = require('../../../src/modules/charging-import/lib/import');
 const { logger } = require('../../../src/logger');
 const sandbox = require('sinon').createSandbox();
 const { pool } = require('../../../src/lib/connectors/db');
 
-const queries = require('../../../src/modules/charging-import/queries');
+const queries = require('../../../src/modules/charging-import/lib/queries');
 
 experiment('modules/charging-import/controller.js', () => {
 
