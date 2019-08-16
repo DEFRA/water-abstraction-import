@@ -77,6 +77,15 @@ source=EXCLUDED.source
 
 `;
 
+// Deletes charge versions that are no longer present in the NALD import
+const cleanupChargeVersions = `
+DELETE FROM water.charge_versions WHERE charge_version_id IN (
+  SELECT v.charge_version_id FROM water_import.charge_versions v
+  LEFT JOIN import."NALD_CHG_VERSIONS" iv ON v.licence_id=iv."AABL_ID"::integer AND v.version=iv."VERS_NO"::integer AND v.region_code=iv."FGAC_REGION_CODE"::integer
+  WHERE iv."AABL_ID" IS NULL
+)
+`;
+
 const importChargeElements = `
 INSERT INTO water.charge_elements
 (charge_element_id, charge_version_id, external_id, abstraction_period_start_day, abstraction_period_start_month,
@@ -157,6 +166,15 @@ time_limited_end_date=EXCLUDED.time_limited_end_date,
 description=EXCLUDED.description, date_updated=EXCLUDED.date_updated
 `;
 
+// Deletes charge elements that are no longer present in the NALD import
+const cleanupChargeElements = `
+DELETE FROM water.charge_elements
+WHERE charge_element_id IN (
+  SELECT e.charge_element_id FROM water_import.charge_elements e
+  LEFT JOIN import."NALD_CHG_ELEMENTS" ie ON e.element_id=ie."ID"::integer AND e.region_code=ie."FGAC_REGION_CODE"::integer AND e.licence_id=ie."ACVR_AABL_ID"::integer AND e.version=ie."ACVR_VERS_NO"::integer
+  WHERE ie."ID" IS NULL
+)`;
+
 const importChargeAgreements = `
 INSERT INTO water.charge_agreements
 
@@ -185,9 +203,20 @@ charge_element_id=EXCLUDED.charge_element_id, agreement_code=EXCLUDED.agreement_
 start_date=EXCLUDED.start_date, end_date= EXCLUDED.end_date, signed_date=EXCLUDED.signed_date,
 file_reference=EXCLUDED.file_reference, description=EXCLUDED.description, date_updated=EXCLUDED.date_updated`;
 
+// Deletes charge agreements that are no longer present in the NALD import
+const cleanupChargeAgreements = `
+DELETE FROM water.charge_agreements WHERE charge_agreement_id IN (
+  SELECT a.charge_agreement_id FROM water_import.charge_agreements a
+  LEFT JOIN import."NALD_CHG_AGRMNTS" ia ON a.element_id=ia."ACEL_ID"::integer AND a.afsa_code=ia."AFSA_CODE" AND a.start_date=ia."EFF_ST_DATE"::date
+  WHERE ia."ACEL_ID" IS NULL
+)`;
+
 exports.createChargeVersionGuids = createChargeVersionGuids;
 exports.createChargeElementGuids = createChargeElementGuids;
 exports.createChargeAgreementGuids = createChargeAgreementGuids;
 exports.importChargeVersions = importChargeVersions;
+exports.cleanupChargeVersions = cleanupChargeVersions;
 exports.importChargeElements = importChargeElements;
+exports.cleanupChargeElements = cleanupChargeElements;
 exports.importChargeAgreements = importChargeAgreements;
+exports.cleanupChargeAgreements = cleanupChargeAgreements;

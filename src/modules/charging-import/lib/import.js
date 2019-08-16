@@ -17,7 +17,10 @@ const importChargingData = async () => {
     queries.createChargeAgreementGuids,
     queries.importChargeVersions,
     queries.importChargeElements,
-    queries.importChargeAgreements
+    queries.importChargeAgreements,
+    queries.cleanupChargeAgreements,
+    queries.cleanupChargeElements,
+    queries.cleanupChargeVersions
   ];
 
   for (let query of arr) {
