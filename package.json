@@ -8,7 +8,8 @@
     "test:travis": "lab -c -t 55 -m 0 -r lcov -o coverage/lcov.info -r console -o stdout",
     "lint": "eslint .",
     "codecov": "codecov",
-    "version": "auto-changelog -p --commit-limit false && git add CHANGELOG.md"
+    "version": "auto-changelog -p --commit-limit false && git add CHANGELOG.md",
+    "db:migrate": "echo \"Placeholder to allow deploy script to run\""
   },
   "repository": {
     "type": "git",
