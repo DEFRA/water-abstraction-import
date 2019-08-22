@@ -18,6 +18,9 @@ const routes = require('./src/routes.js');
 const { logger } = require('./src/logger');
 const goodWinstonStream = new GoodWinston({ winston: logger });
 
+// Initialise cron jobs
+require('./src/cron.js');
+
 // Define server
 const server = Hapi.server(config.server);
 

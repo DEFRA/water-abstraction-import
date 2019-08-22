@@ -18,6 +18,13 @@ module.exports = {
     airbrakeLevel: 'error'
   },
 
+  pg: {
+    connectionString: process.env.DATABASE_URL,
+    max: 8,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000
+  },
+
   server: {
     port: 8007,
     router: {
