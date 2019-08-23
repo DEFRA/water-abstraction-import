@@ -5,11 +5,11 @@ const { logger } = require('../../../../src/logger');
 const sandbox = require('sinon').createSandbox();
 const { pool } = require('../../../../src/lib/connectors/db');
 
-const queries = require('../../../../src/modules/charging-import/lib/queries');
+const chargingQueries = require('../../../../src/modules/charging-import/lib/queries/charging');
+const purposesQueries = require('../../../../src/modules/charging-import/lib/queries/purposes');
 const checkIntegrity = require('../../../../src/modules/charging-import/lib/check-integrity');
 
 experiment('modules/charging-import/index.js', () => {
-
   beforeEach(async() => {
     sandbox.stub(logger, 'info');
     sandbox.stub(logger, 'error');
@@ -22,7 +22,6 @@ experiment('modules/charging-import/index.js', () => {
   });
 
   experiment('importChargingData', () => {
-
     experiment('when there are no errors', () => {
       beforeEach(async() => {
         checkIntegrity.verify.resolves({
@@ -39,14 +38,16 @@ experiment('modules/charging-import/index.js', () => {
         expect(logger.error.callCount).to.equal(0);
       });
 
-
       test('runs each query in sequence', async() => {
-          expect(pool.query.getCall(0).args[0]).to.equal(queries.createChargeVersionGuids);
-          expect(pool.query.getCall(1).args[0]).to.equal(queries.createChargeElementGuids);
-          expect(pool.query.getCall(2).args[0]).to.equal(queries.createChargeAgreementGuids);
-          expect(pool.query.getCall(3).args[0]).to.equal(queries.importChargeVersions);
-          expect(pool.query.getCall(4).args[0]).to.equal(queries.importChargeElements);
-          expect(pool.query.getCall(5).args[0]).to.equal(queries.importChargeAgreements);
+          expect(pool.query.getCall(0).args[0]).to.equal(purposesQueries.importPrimaryPurposes);
+          expect(pool.query.getCall(1).args[0]).to.equal(purposesQueries.importSecondaryPurposes);
+          expect(pool.query.getCall(2).args[0]).to.equal(purposesQueries.importUses);
+          expect(pool.query.getCall(3).args[0]).to.equal(chargingQueries.createChargeVersionGuids);
+          expect(pool.query.getCall(4).args[0]).to.equal(chargingQueries.createChargeElementGuids);
+          expect(pool.query.getCall(5).args[0]).to.equal(chargingQueries.createChargeAgreementGuids);
+          expect(pool.query.getCall(6).args[0]).to.equal(chargingQueries.importChargeVersions);
+          expect(pool.query.getCall(7).args[0]).to.equal(chargingQueries.importChargeElements);
+          expect(pool.query.getCall(8).args[0]).to.equal(chargingQueries.importChargeAgreements);
       });
     });
 
@@ -61,11 +62,6 @@ experiment('modules/charging-import/index.js', () => {
       test('logs error message', async() => {
         expect(logger.error.callCount).to.equal(1);
       });
-
     });
-
-
   });
-
-
 });
