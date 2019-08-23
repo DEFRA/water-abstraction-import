@@ -22,7 +22,7 @@ INSERT INTO water_import.charge_agreements
 (element_id, afsa_code, start_date, region_code)
 SELECT a."ACEL_ID"::integer,
 a."AFSA_CODE",
-a."EFF_ST_DATE"::date,
+to_date(a."EFF_ST_DATE", 'DD/MM/YYYY') as "EFF_ST_DATE",
 a."FGAC_REGION_CODE"::integer
 FROM import."NALD_CHG_AGRMNTS" a
 ON CONFLICT DO NOTHING`;
@@ -31,8 +31,13 @@ const importChargeVersions = `INSERT INTO water.charge_versions
 (charge_version_id, licence_ref, scheme, external_id, version_number, start_date, status, apportionment,
 error, end_date, billed_upto_date, region_code, date_created, date_updated, source)
 
-SELECT cv.charge_version_id, l."LIC_NO" AS licence_ref, 'alcs' AS scheme, v."AABL_ID"::integer AS external_id,
-v."VERS_NO"::integer AS version_number, v."EFF_ST_DATE"::date AS start_date,
+SELECT
+  cv.charge_version_id,
+  l."LIC_NO" AS licence_ref,
+  'alcs' AS scheme,
+  v."AABL_ID"::integer AS external_id,
+  v."VERS_NO"::integer AS version_number,
+  to_date(v."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date,
 
 (CASE v."STATUS"
   WHEN 'SUPER' THEN 'superseded'
@@ -50,9 +55,15 @@ CASE v."IN_ERROR_STATUS"
   WHEN 'N' THEN false
 END AS error,
 
-NULLIF(v."EFF_END_DATE", 'null')::date AS end_date,
+case v."EFF_END_DATE"
+  when 'null' then null
+  else to_date(v."EFF_END_DATE", 'DD/MM/YYYY')
+end AS end_date,
 
-NULLIF(v."BILLED_UPTO_DATE", 'null')::date AS billed_upto_date,
+case v."BILLED_UPTO_DATE"
+  when 'null' then null
+  else to_date(v."BILLED_UPTO_DATE", 'DD/MM/YYYY')
+end AS billed_upto_date,
 
 v."FGAC_REGION_CODE"::integer AS region,
 
@@ -73,9 +84,7 @@ status=EXCLUDED.status, apportionment=EXCLUDED.apportionment,
 error=EXCLUDED.error, end_date=EXCLUDED.end_date,
 billed_upto_date=EXCLUDED.billed_upto_date,
 region_code=EXCLUDED.region_code, date_updated=EXCLUDED.date_updated,
-source=EXCLUDED.source
-
-`;
+source=EXCLUDED.source;`;
 
 // Deletes charge versions that are no longer present in the NALD import
 const cleanupChargeVersions = `
@@ -135,15 +144,20 @@ e."FCTS_OVERRIDDEN"::boolean AS factors_overridden,
 
 NULLIF(e."BILLABLE_ANN_QTY", 'null')::numeric AS billable_annual_quantity,
 
-NULLIF(e."TIMELTD_ST_DATE", 'null')::date AS time_limited_start_date,
+  case e."TIMELTD_ST_DATE"
+    when 'null' then null
+    else to_date(e."TIMELTD_ST_DATE", 'DD/MM/YYYY')
+  end AS time_limited_start_date,
 
-NULLIF(e."TIMELTD_END_DATE", 'null')::date AS time_limited_end_date,
+  case e."TIMELTD_END_DATE"
+    when 'null' then null
+    else to_date(e."TIMELTD_END_DATE", 'DD/MM/YYYY')
+  end AS time_limited_end_date,
 
-NULLIF(e."DESCR", 'null') AS description,
+  NULLIF(e."DESCR", 'null') AS description,
 
-NOW() AS date_created,
-NOW() AS date_updated
-
+  NOW() AS date_created,
+  NOW() AS date_updated
 
 FROM import."NALD_CHG_ELEMENTS" e
 JOIN water_import.charge_elements ie ON e."ID"::integer=ie.element_id AND e."ACVR_AABL_ID"::integer = ie.licence_id AND e."FGAC_REGION_CODE"::integer = ie.region_code
@@ -163,8 +177,7 @@ factors_overridden=EXCLUDED.factors_overridden,
 billable_annual_quantity=EXCLUDED.billable_annual_quantity,
 time_limited_start_date=EXCLUDED.time_limited_start_date,
 time_limited_end_date=EXCLUDED.time_limited_end_date,
-description=EXCLUDED.description, date_updated=EXCLUDED.date_updated
-`;
+description=EXCLUDED.description, date_updated=EXCLUDED.date_updated;`;
 
 // Deletes charge elements that are no longer present in the NALD import
 const cleanupChargeElements = `
@@ -182,20 +195,36 @@ INSERT INTO water.charge_agreements
 end_date, signed_date, file_reference, description, date_created,
 date_updated)
 
-SELECT ia.charge_agreement_id, ie.charge_element_id,
-a."AFSA_CODE"::water.charge_agreement_code AS agreement_code,
-a."EFF_ST_DATE"::date AS start_date,
-NULLIF(a."EFF_END_DATE", 'null')::date AS end_date,
-NULLIF(a."SIGNED_DATE", 'null')::date AS signed_date,
-NULLIF(a."FILE_REF", 'null') AS file_reference,
-NULLIF(a."TEXT", 'null') AS description,
-NOW() AS date_created,
-NOW() AS date_updated
+SELECT
+  ia.charge_agreement_id,
+  ie.charge_element_id,
+  a."AFSA_CODE"::water.charge_agreement_code AS agreement_code,
+  to_date(a."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date,
+
+  case a."EFF_END_DATE"
+    when 'null' then null
+    else to_date(a."EFF_END_DATE", 'DD/MM/YYYY')
+  end AS end_date,
+
+  case a."SIGNED_DATE"
+    when 'null' then null
+    else to_date(a."SIGNED_DATE", 'DD/MM/YYYY')
+  end AS signed_date,
+
+  NULLIF(a."FILE_REF", 'null') AS file_reference,
+  NULLIF(a."TEXT", 'null') AS description,
+  NOW() AS date_created,
+  NOW() AS date_updated
 
 FROM import."NALD_CHG_AGRMNTS" a
-JOIN water_import.charge_agreements ia ON a."ACEL_ID"::integer=ia.element_id AND a."EFF_ST_DATE"::date=ia.start_date AND a."FGAC_REGION_CODE"::integer=ia.region_code
-AND a."AFSA_CODE"=ia.afsa_code
-JOIN water_import.charge_elements ie ON a."ACEL_ID"::integer=ie.element_id AND a."FGAC_REGION_CODE"::integer=ie.region_code
+  JOIN water_import.charge_agreements ia
+    ON a."ACEL_ID"::integer = ia.element_id
+      AND to_date(a."EFF_ST_DATE", 'DD/MM/YYYY') = ia.start_date
+      AND a."FGAC_REGION_CODE"::integer=ia.region_code
+      AND a."AFSA_CODE"=ia.afsa_code
+  JOIN water_import.charge_elements ie
+    ON a."ACEL_ID"::integer=ie.element_id
+      AND a."FGAC_REGION_CODE"::integer=ie.region_code
 
 ON CONFLICT (charge_agreement_id) DO UPDATE
 SET
@@ -206,8 +235,12 @@ file_reference=EXCLUDED.file_reference, description=EXCLUDED.description, date_u
 // Deletes charge agreements that are no longer present in the NALD import
 const cleanupChargeAgreements = `
 DELETE FROM water.charge_agreements WHERE charge_agreement_id IN (
-  SELECT a.charge_agreement_id FROM water_import.charge_agreements a
-  LEFT JOIN import."NALD_CHG_AGRMNTS" ia ON a.element_id=ia."ACEL_ID"::integer AND a.afsa_code=ia."AFSA_CODE" AND a.start_date=ia."EFF_ST_DATE"::date
+  SELECT a.charge_agreement_id
+  FROM water_import.charge_agreements a
+    LEFT JOIN import."NALD_CHG_AGRMNTS" ia
+      ON a.element_id=ia."ACEL_ID"::integer
+        AND a.afsa_code=ia."AFSA_CODE"
+        AND a.start_date=to_date(ia."EFF_ST_DATE", 'DD/MM/YYYY')
   WHERE ia."ACEL_ID" IS NULL
 )`;
 

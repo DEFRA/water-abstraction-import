@@ -23,7 +23,7 @@ const importChargingData = async () => {
     queries.cleanupChargeVersions
   ];
 
-  for (let query of arr) {
+  for (const query of arr) {
     await pool.query(query);
   }
 
