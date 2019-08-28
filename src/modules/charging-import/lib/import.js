@@ -1,5 +1,6 @@
 const { pool } = require('../../../lib/connectors/db');
-const queries = require('./queries');
+const chargingQueries = require('./queries/charging');
+const purposesQueries = require('./queries/purposes');
 const { logger } = require('../../../logger');
 const checkIntegrity = require('./check-integrity');
 
@@ -12,15 +13,18 @@ const importChargingData = async () => {
   logger.info(`Starting charge data import`);
 
   const arr = [
-    queries.createChargeVersionGuids,
-    queries.createChargeElementGuids,
-    queries.createChargeAgreementGuids,
-    queries.importChargeVersions,
-    queries.importChargeElements,
-    queries.importChargeAgreements,
-    queries.cleanupChargeAgreements,
-    queries.cleanupChargeElements,
-    queries.cleanupChargeVersions
+    purposesQueries.importPrimaryPurposes,
+    purposesQueries.importSecondaryPurposes,
+    purposesQueries.importUses,
+    chargingQueries.createChargeVersionGuids,
+    chargingQueries.createChargeElementGuids,
+    chargingQueries.createChargeAgreementGuids,
+    chargingQueries.importChargeVersions,
+    chargingQueries.importChargeElements,
+    chargingQueries.importChargeAgreements,
+    chargingQueries.cleanupChargeAgreements,
+    chargingQueries.cleanupChargeElements,
+    chargingQueries.cleanupChargeVersions
   ];
 
   for (const query of arr) {
