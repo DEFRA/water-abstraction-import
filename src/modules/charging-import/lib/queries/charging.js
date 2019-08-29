@@ -198,7 +198,7 @@ date_updated)
 SELECT
   ia.charge_agreement_id,
   ie.charge_element_id,
-  a."AFSA_CODE"::water.charge_agreement_code AS agreement_code,
+  a."AFSA_CODE" AS agreement_code,
   to_date(a."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date,
 
   case a."EFF_END_DATE"
