@@ -1,6 +1,7 @@
 const { pool } = require('../../../lib/connectors/db');
 const chargingQueries = require('./queries/charging');
 const purposesQueries = require('./queries/purposes');
+const financialAgreementTypeQueries = require('./queries/financial-agreement-types');
 const { logger } = require('../../../logger');
 const checkIntegrity = require('./check-integrity');
 
@@ -13,6 +14,7 @@ const importChargingData = async () => {
   logger.info(`Starting charge data import`);
 
   const arr = [
+    financialAgreementTypeQueries.importFinancialAgreementTypes,
     purposesQueries.importPrimaryPurposes,
     purposesQueries.importSecondaryPurposes,
     purposesQueries.importUses,
