@@ -1,7 +1,9 @@
 const chargingImport = require('./modules/charging-import/lib/import');
+const crmImport = require('./modules/crm/lib/import');
 const cron = require('node-cron');
 
 // Set up cron job to import data daily at 3am
-cron.schedule('0 3 * * *', () => {
-  chargingImport.importChargingData();
+cron.schedule('0 3 * * *', async () => {
+  await chargingImport.importChargingData();
+  await crmImport.importCRMData();
 });
