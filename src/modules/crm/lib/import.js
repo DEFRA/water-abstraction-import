@@ -2,6 +2,7 @@ const { pool } = require('../../../lib/connectors/db');
 const queries = require('./queries/');
 const { logger } = require('../../../logger');
 const importInvoiceAddresses = require('./import-invoice-addresses');
+const importDocumentBillingRoles = require('./import-document-billing-roles');
 
 /**
  * Run SQL queries to import charge versions / elements into
@@ -24,6 +25,9 @@ const importCRMData = async () => {
     await pool.query(query);
   }
 
+  logger.info(`CRM data: import billing roles`);
+  await importDocumentBillingRoles.importDocumentBillingRoles();
+  logger.info(`CRM data: import invoice account addresses`);
   await importInvoiceAddresses.importInvoiceAddresses();
 
   logger.info(`CRM data imported`);

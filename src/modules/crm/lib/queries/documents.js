@@ -34,4 +34,38 @@ ON CONFLICT (regime, document_type, version_number, document_ref)
   DO UPDATE SET start_date=EXCLUDED.start_date, end_date=EXCLUDED.end_date,
   status=EXCLUDED.status, external_id=EXCLUDED.external_id`;
 
+const getDocumentChargeVersions = `
+
+SELECT d.document_id, ia.company_id, ia.invoice_account_id, 
+d.start_date, d.end_date, cv.start_date AS cv_start_date, cv.end_date AS cv_end_date,
+r.role_id
+FROM crm_v2.documents d
+JOIN import."NALD_ABS_LIC_VERSIONS" lv ON 
+  SPLIT_PART(d.external_id, ':', 1)=lv."FGAC_REGION_CODE" 
+  AND SPLIT_PART(d.external_id, ':', 2)=lv."AABL_ID"
+  AND SPLIT_PART(d.external_id, ':', 3)=lv."ISSUE_NO"
+  AND SPLIT_PART(d.external_id, ':', 4)=lv."INCR_NO"
+LEFT JOIN (
+
+  SELECT cv."AIIA_IAS_CUST_REF", cv."AABL_ID", cv."FGAC_REGION_CODE", cv."STATUS",
+    to_date(cv."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date, 
+    to_date(NULLIF(cv."EFF_END_DATE", 'null'), 'DD/MM/YYYY') AS end_date 
+  FROM import."NALD_CHG_VERSIONS" cv
+
+  JOIN (
+    SELECT cv."AABL_ID", cv."EFF_ST_DATE", "FGAC_REGION_CODE",  MAX(cv."VERS_NO"::integer)::varchar AS max_version
+    FROM import."NALD_CHG_VERSIONS" cv 
+    WHERE cv."STATUS" <> 'DRAFT' 
+    GROUP BY cv."EFF_ST_DATE", cv."AABL_ID", cv."FGAC_REGION_CODE"
+  ) cv_inner ON cv."AABL_ID"=cv_inner."AABL_ID" AND cv."VERS_NO"=cv_inner.max_version AND cv."FGAC_REGION_CODE"=cv_inner."FGAC_REGION_CODE" 
+
+) cv ON 
+  lv."AABL_ID"=cv."AABL_ID" AND cv."FGAC_REGION_CODE"=lv."FGAC_REGION_CODE" 
+  AND cv.start_date <= d.start_date
+  AND (cv.end_date IS NULL OR cv.end_date>=d.start_date)
+JOIN crm_v2.invoice_accounts ia ON cv."AIIA_IAS_CUST_REF"=ia.ias_account_number
+JOIN crm_v2.roles r ON r.name='billing'
+`;
+
 exports.importDocumentHeaders = importDocumentHeaders;
+exports.getDocumentChargeVersions = getDocumentChargeVersions;
