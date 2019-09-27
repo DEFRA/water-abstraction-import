@@ -1,6 +1,7 @@
 const { pool } = require('../../../lib/connectors/db');
-const documentQueries = require('./queries/documents');
+const queries = require('./queries/');
 const { logger } = require('../../../logger');
+const importInvoiceAddresses = require('./import-invoice-addresses');
 
 /**
  * Run SQL queries to import charge versions / elements into
@@ -11,12 +12,19 @@ const importCRMData = async () => {
   logger.info(`Starting CRM data import`);
 
   const arr = [
-    documentQueries.importDocumentHeaders
+    queries.documents.importDocumentHeaders,
+    queries.companies.importInvoiceCompanies,
+    queries.contacts.importInvoiceContacts,
+    queries.companyContacts.importInvoiceCompanyContacts,
+    queries.invoiceAccounts.importInvoiceAccounts,
+    queries.addresses.importInvoiceAddresses
   ];
 
   for (const query of arr) {
     await pool.query(query);
   }
+
+  await importInvoiceAddresses.importInvoiceAddresses();
 
   logger.info(`CRM data imported`);
 };

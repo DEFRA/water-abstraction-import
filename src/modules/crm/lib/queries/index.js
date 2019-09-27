@@ -3,5 +3,6 @@ module.exports = {
   companies: require('./companies'),
   companyContacts: require('./company-contacts'),
   contacts: require('./contacts'),
+  documents: require('./documents'),
   invoiceAccounts: require('./invoice-accounts')
 };
