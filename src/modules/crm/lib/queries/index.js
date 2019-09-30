@@ -4,5 +4,7 @@ module.exports = {
   companyContacts: require('./company-contacts'),
   contacts: require('./contacts'),
   documents: require('./documents'),
-  invoiceAccounts: require('./invoice-accounts')
+  documentRoles: require('./document-roles'),
+  invoiceAccounts: require('./invoice-accounts'),
+  invoiceAccountAddresses: require('./invoice-account-addresses')
 };

@@ -10,6 +10,13 @@ const groupByIASNumber = data => groupBy(data, row => row.IAS_CUST_REF);
 
 const groupByDate = data => groupBy(data, row => row.start_date);
 
+/**
+ * Maps the address changes into the minimum possible set of rows
+ * Where an address is the same for adjacent rows, they are merged.
+ * End date on preceding row set to 1 day before start date of current row
+ * @param  {Array} rows - row data from DB query
+ * @return {Array}      - de-duplicated/mapped data for insertion to CRM
+ */
 const deduplicateAddressChanges = rows => {
   const grouped = mapValues(groupByIASNumber(rows), rows => {
     const dateGroups = groupByDate(rows);
@@ -40,26 +47,26 @@ const deduplicateAddressChanges = rows => {
   return flatMap(Object.values(grouped));
 };
 
+/**
+ * Inserts an invoice account record in the CRM
+ * @param  {Object} row - row of data
+ * @return {Promise}
+ */
 const insertInvoiceAddress = row => {
-  const query = `
-  INSERT INTO crm_v2.invoice_account_addresses
-    (invoice_account_id, address_id, start_date, end_date, date_created, date_updated)
-  VALUES
-    ($1, $2, $3, $4, NOW(), NOW())
-  ON CONFLICT (invoice_account_id, start_date) DO UPDATE SET 
-    end_date=EXCLUDED.end_date,
-    date_updated=EXCLUDED.date_updated`;
-
   const params = [
     row.invoice_account_id,
     row.address_id,
     row.start_date,
     row.endDate
   ];
-
-  return pool.query(query, params);
+  return pool.query(queries.invoiceAccountAddresses.insertInvoiceAccountAddress, params);
 };
 
+/**
+ * Inserts multiple invoice account records
+ * @param  {Array}  arr - array of invoice account rows
+ * @return {Promise}    - resolves when all inserted/failed
+ */
 const insertInvoiceAddresses = async arr => {
   for (let row of arr) {
     try {
@@ -73,9 +80,14 @@ const insertInvoiceAddresses = async arr => {
 };
 
 const importInvoiceAddresses = async () => {
-  const { rows } = await pool.query(queries.invoiceAccounts.getIASAccounts);
-  const arr = deduplicateAddressChanges(rows);
-  return insertInvoiceAddresses(arr);
+  try {
+    const { rows } = await pool.query(queries.invoiceAccounts.getIASAccounts);
+    const arr = deduplicateAddressChanges(rows);
+    return insertInvoiceAddresses(arr);
+  } catch (err) {
+    logger.error(`Error importing CRM invoice addresses`, err);
+    throw err;
+  }
 };
 
 exports.importInvoiceAddresses = importInvoiceAddresses;
