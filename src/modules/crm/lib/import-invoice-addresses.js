@@ -1,4 +1,4 @@
-const { groupBy, mapValues, flatMap, last, get, uniqWith, pick } = require('lodash');
+const { groupBy, mapValues, flatMap, last, get } = require('lodash');
 const moment = require('moment');
 const { pool } = require('../../../lib/connectors/db');
 const queries = require('./queries');

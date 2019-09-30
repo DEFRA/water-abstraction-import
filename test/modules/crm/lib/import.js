@@ -5,13 +5,17 @@ const { logger } = require('../../../../src/logger');
 const sandbox = require('sinon').createSandbox();
 const { pool } = require('../../../../src/lib/connectors/db');
 
-const documentQueries = require('../../../../src/modules/crm/lib/queries/documents');
+const queries = require('../../../../src/modules/crm/lib/queries/');
+const importInvoiceAddresses = require('../../../../src/modules/crm/lib/import-invoice-addresses');
+const importDocumentBillingRoles = require('../../../../src/modules/crm/lib/import-document-billing-roles');
 
 experiment('modules/crm-import/controller.js', () => {
   beforeEach(async() => {
     sandbox.stub(logger, 'info');
     sandbox.stub(logger, 'error');
     sandbox.stub(pool, 'query');
+    sandbox.stub(importInvoiceAddresses, 'importInvoiceAddresses');
+    sandbox.stub(importDocumentBillingRoles, 'importDocumentBillingRoles');
   });
 
   afterEach(async() => {
@@ -25,7 +29,7 @@ experiment('modules/crm-import/controller.js', () => {
       });
 
       test('logs info messages', async() => {
-        expect(logger.info.callCount).to.equal(2);
+        expect(logger.info.callCount).to.equal(4);
       });
 
       test('does not log error messages', async() => {
@@ -33,7 +37,12 @@ experiment('modules/crm-import/controller.js', () => {
       });
 
       test('runs each query in sequence', async() => {
-          expect(pool.query.getCall(0).args[0]).to.equal(documentQueries.importDocumentHeaders);
+          expect(pool.query.getCall(0).args[0]).to.equal(queries.documents.importDocumentHeaders);
+          expect(pool.query.getCall(1).args[0]).to.equal(queries.companies.importInvoiceCompanies);
+          expect(pool.query.getCall(2).args[0]).to.equal(queries.contacts.importInvoiceContacts);
+          expect(pool.query.getCall(3).args[0]).to.equal(queries.companyContacts.importInvoiceCompanyContacts);
+          expect(pool.query.getCall(4).args[0]).to.equal(queries.invoiceAccounts.importInvoiceAccounts);
+          expect(pool.query.getCall(5).args[0]).to.equal(queries.addresses.importInvoiceAddresses);
       });
     });
 
