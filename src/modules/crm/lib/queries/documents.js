@@ -67,12 +67,14 @@ LEFT JOIN (
     GROUP BY cv."EFF_ST_DATE", cv."AABL_ID", cv."FGAC_REGION_CODE"
   ) cv_inner ON cv."AABL_ID"=cv_inner."AABL_ID" AND cv."VERS_NO"=cv_inner.max_version AND cv."FGAC_REGION_CODE"=cv_inner."FGAC_REGION_CODE"
 
+  ORDER BY to_date(cv."EFF_ST_DATE", 'DD/MM/YYYY'), cv."VERS_NO"::integer
 ) cv ON
   lv."AABL_ID"=cv."AABL_ID" AND cv."FGAC_REGION_CODE"=lv."FGAC_REGION_CODE"
   AND cv.start_date <= d.start_date
   AND (cv.end_date IS NULL OR cv.end_date>=d.start_date)
 JOIN crm_v2.invoice_accounts ia ON cv."AIIA_IAS_CUST_REF"=ia.ias_account_number
 JOIN crm_v2.roles r ON r.name='billing'
+ORDER BY d.version_number 
 `;
 
 exports.importDocumentHeaders = importDocumentHeaders;

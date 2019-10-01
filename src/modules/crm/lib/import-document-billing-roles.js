@@ -1,4 +1,4 @@
-const { groupBy, mapValues, flatMap } = require('lodash');
+const { groupBy, mapValues, flatMap, last } = require('lodash');
 const moment = require('moment');
 const { pool } = require('../../../lib/connectors/db');
 const { logger } = require('../../../logger');
@@ -8,12 +8,14 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 
 const groupByDocumentId = data => groupBy(data, row => row.document_id);
 
-const shouldAddRow = (acc, row) => {
-  if (acc.length === 0) {
-    return true;
-  }
-  return row.invoice_account_id !== acc[acc.length - 1].invoiceAccountId;
-};
+const isInvoiceAccountMatch = (acc, row) =>
+  row.invoice_account_id === last(acc).invoiceAccountId;
+
+const shouldAddRow = (acc, row) =>
+  (acc.length === 0) || !isInvoiceAccountMatch(acc, row);
+
+const shouldUpdateRow = (acc, row) =>
+  (acc.length > 0) && isInvoiceAccountMatch(acc, row);
 
 const getStartDate = row => {
   const timestamps = [row.start_date, row.cv_start_date].map(str => moment(str).unix());
@@ -56,11 +58,13 @@ const insertBillingRoles = async arr => {
 
 const mapBillingRoles = data => {
   const groups = groupByDocumentId(data);
-  const mapped = mapValues(groups, arr => arr.reduce((acc, row) => {
+  const mapped = mapValues(groups, arr => arr.reduce((acc, row, i) => {
+    // We need to add a new row if there is a change in invoice account ID
     if (shouldAddRow(acc, row)) {
       acc.push(mapRow(row));
-    } else if (row.cv_end_date) {
-      acc[acc.length - 1].endDate = row.cv_end_date;
+    } else if (shouldUpdateRow(acc, row)) {
+      // Otherwise we need to update the previous row end date
+      last(acc).endDate = row.cv_end_date;
     }
     return acc;
   }, []));
@@ -73,4 +77,5 @@ const importDocumentBillingRoles = async () => {
   return insertBillingRoles(arr);
 };
 
+exports._mapBillingRoles = mapBillingRoles;
 exports.importDocumentBillingRoles = importDocumentBillingRoles;
