@@ -6,10 +6,6 @@ const { logger } = require('../../../logger');
 
 const DATE_FORMAT = 'YYYY-MM-DD';
 
-const groupByIASNumber = data => groupBy(data, row => row.IAS_CUST_REF);
-
-const groupByDate = data => groupBy(data, row => row.start_date);
-
 /**
  * Maps the address changes into the minimum possible set of rows
  * Where an address is the same for adjacent rows, they are merged.
@@ -18,8 +14,8 @@ const groupByDate = data => groupBy(data, row => row.start_date);
  * @return {Array}      - de-duplicated/mapped data for insertion to CRM
  */
 const deduplicateAddressChanges = rows => {
-  const grouped = mapValues(groupByIASNumber(rows), rows => {
-    const dateGroups = groupByDate(rows);
+  const grouped = mapValues(groupBy(rows, row => row.IAS_CUST_REF), iasGroupRows => {
+    const dateGroups = groupBy(iasGroupRows, row => row.start_date);
 
     // Select the last change that happened on a particular date
     const uniqueDateRows = Object.values(dateGroups).map(last);
