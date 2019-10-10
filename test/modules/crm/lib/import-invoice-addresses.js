@@ -6,7 +6,6 @@ const { logger } = require('../../../../src/logger');
 const queries = require('../../../../src/modules/crm/lib/queries/');
 const { pool } = require('../../../../src/lib/connectors/db');
 
-
 const data = [{
   IAS_CUST_REF: 'ias_number_1',
   ACON_AADD_ID: 'address_1',
@@ -33,9 +32,7 @@ const data = [{
   address_id: 'address_2'
 }];
 
-
 experiment('modules/crm/lib/import-invoice-addresses', () => {
-
   beforeEach(async () => {
     sandbox.stub(pool, 'query');
     sandbox.stub(logger, 'error');
@@ -46,7 +43,6 @@ experiment('modules/crm/lib/import-invoice-addresses', () => {
   });
 
   experiment('importInvoiceAddresses', () => {
-
     experiment('when there are no errors', () => {
       beforeEach(async () => {
         pool.query.withArgs(queries.invoiceAccounts.getIASAccounts)
@@ -107,8 +103,7 @@ experiment('modules/crm/lib/import-invoice-addresses', () => {
         try {
           await importInvoiceAddresses.importInvoiceAddresses();
           fail();
-        }
-        catch (err) {
+        } catch (err) {
           expect(logger.error.callCount).to.equal(1);
           const [message] = logger.error.lastCall.args;
           expect(message).to.equal('Error importing CRM invoice addresses');

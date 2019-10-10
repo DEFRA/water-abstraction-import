@@ -6,7 +6,6 @@ const { expect } = require('code');
 const server = require('../../../index');
 
 experiment('modules/core/routes', () => {
-
   experiment('/status', () => {
     it('exists', async () => {
       const request = { method: 'GET', url: '/status' };

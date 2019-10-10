@@ -1,6 +1,6 @@
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('lab').script();
 const sandbox = require('sinon').createSandbox();
-const { expect, fail } = require('code');
+const { expect } = require('code');
 const importDocumentBillingRoles = require('../../../../src/modules/crm/lib/import-document-billing-roles');
 const { logger } = require('../../../../src/logger');
 const queries = require('../../../../src/modules/crm/lib/queries');
@@ -15,12 +15,11 @@ const defaults = {
   cv_start_date: '2017-08-05',
   cv_end_date: null,
   role_id: 'billing_role'
-}
+};
 
 const createRow = (data = {}) => Object.assign({}, defaults, data);
 
 experiment('modules/crm/lib/import-document-billing-roles', () => {
-
   beforeEach(async () => {
     sandbox.stub(pool, 'query');
     sandbox.stub(logger, 'error');
@@ -31,16 +30,14 @@ experiment('modules/crm/lib/import-document-billing-roles', () => {
   });
 
   experiment('importDocumentBillingRoles', async () => {
-    let result;
-
     beforeEach(async () => {
       pool.query.withArgs(queries.documents.getDocumentChargeVersions)
         .resolves({
           rows: [
             createRow({ start_date: '2018-01-01', cv_start_date: '2017-08-01' })
           ]
-        })
-      result = await importDocumentBillingRoles.importDocumentBillingRoles();
+        });
+      await importDocumentBillingRoles.importDocumentBillingRoles();
     });
 
     test('uses the correct query to load document roles from the database', async () => {
@@ -65,7 +62,7 @@ experiment('modules/crm/lib/import-document-billing-roles', () => {
         null
       ]);
     });
-  })
+  });
 
   experiment('_mapBillingRole', () => {
     experiment('when the charge version starts before the document', async () => {
@@ -108,7 +105,6 @@ experiment('modules/crm/lib/import-document-billing-roles', () => {
       test('the start date is charge version start date', async () => {
         expect(result[0].startDate).to.equal('2018-02-01');
       });
-
     });
 
     experiment('when there are 2 charge versions for the same invoice account', () => {
@@ -134,8 +130,6 @@ experiment('modules/crm/lib/import-document-billing-roles', () => {
         expect(result[0].endDate).to.equal(null);
       });
     });
-
-
 
     experiment('when there are several charge versions for the different invoice accounts', () => {
       let data, result;
