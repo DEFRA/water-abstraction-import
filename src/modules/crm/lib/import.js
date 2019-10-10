@@ -3,6 +3,7 @@ const queries = require('./queries/');
 const { logger } = require('../../../logger');
 const importInvoiceAddresses = require('./import-invoice-addresses');
 const importDocumentBillingRoles = require('./import-document-billing-roles');
+const importLicenceHolderRoles = require('./import-licence-holder-roles');
 
 /**
  * Run SQL queries to import charge versions / elements into
@@ -14,8 +15,8 @@ const importCRMData = async () => {
 
   const arr = [
     queries.documents.importDocumentHeaders,
-    queries.companies.importInvoiceCompanies,
-    queries.contacts.importInvoiceContacts,
+    queries.companies.importCompanies,
+    queries.contacts.importContacts,
     queries.companyContacts.importInvoiceCompanyContacts,
     queries.invoiceAccounts.importInvoiceAccounts,
     queries.addresses.importInvoiceAddresses
@@ -29,6 +30,9 @@ const importCRMData = async () => {
   await importDocumentBillingRoles.importDocumentBillingRoles();
   logger.info(`CRM data: import invoice account addresses`);
   await importInvoiceAddresses.importInvoiceAddresses();
+
+  logger.info('CRM data: import licence holder roles');
+  await importLicenceHolderRoles.importLicenceHolderRoles();
 
   logger.info(`CRM data imported`);
 };
