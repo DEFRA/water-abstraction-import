@@ -31,7 +31,7 @@ const importCRMData = async () => {
   logger.info(`CRM data: import invoice account addresses`);
   await importInvoiceAddresses.importInvoiceAddresses();
 
-  logger.info('CRM data: import licece holder roles');
+  logger.info('CRM data: import licence holder roles');
   await importLicenceHolderRoles.importLicenceHolderRoles();
 
   logger.info(`CRM data imported`);

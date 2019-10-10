@@ -7,7 +7,7 @@ const getKey = obj =>
   `${obj.company_id}_${obj.address_id}_${obj.contact_id}`;
 
 /**
- * Predicate to determine if the invoice account ID for the provided row matches
+ * Predicate to determine if the licence holder for the provided row matches
  * the last row in the accumulator
  * @param {Array} acc - array.reduce accumulator
  * @param {Object} row - the current row in the reduce
@@ -17,7 +17,7 @@ const isCompanyAddressContactMatch = (acc, row) =>
   getKey(row) === getKey(last(acc));
 
 /**
- * Predicate to determine if a new document billing role should be added to the
+ * Predicate to determine if a new document licence holder role should be added to the
  * accumulator
  * @param {Array} acc - array.reduce accumulator
  * @param {Object} row - the current row in the reduce
@@ -96,6 +96,10 @@ const insertLicenceHolderRoles = async arr => {
   }
 };
 
+/**
+ * Imports licence holder document roles into CRM v2 database
+ * using the NALD_ABS_LIC_VERSIONS data
+ */
 const importLicenceHolderRoles = async () => {
   const { rows } = await pool.query(queries.documents.getLicenceHolderCompanies);
   const arr = mapLicenceHolderRoles(rows);
