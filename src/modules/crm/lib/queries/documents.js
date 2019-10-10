@@ -77,5 +77,28 @@ JOIN crm_v2.roles r ON r.name='billing'
 ORDER BY d.version_number 
 `;
 
+const getLicenceHolderCompanies = `
+SELECT d.document_id, c.company_id, a.address_id, co.contact_id,
+to_date(lv."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date,
+to_date(NULLIF(lv."EFF_END_DATE", 'null'), 'DD/MM/YYYY') AS end_date,
+r.role_id 
+
+FROM crm_v2.documents d  
+
+LEFT JOIN import."NALD_ABS_LIC_VERSIONS" lv ON
+  SPLIT_PART(d.external_id, ':', 1)=lv."FGAC_REGION_CODE"
+  AND SPLIT_PART(d.external_id, ':', 2)=lv."AABL_ID"
+  AND SPLIT_PART(d.external_id, ':', 3)=lv."ISSUE_NO"
+  AND lv."STATUS"<>'draft'
+  
+JOIN crm_v2.companies c ON CONCAT_WS(':', lv."FGAC_REGION_CODE", lv."ACON_APAR_ID")=c.external_id
+JOIN crm_v2.addresses a ON CONCAT_WS(':', lv."FGAC_REGION_CODE", lv."ACON_AADD_ID")=a.external_id
+LEFT JOIN crm_v2.contacts co ON c.external_id=co.external_id
+JOIN crm_v2.roles r ON r.name='licenceHolder'
+
+ORDER BY d.document_id, lv."INCR_NO"::integer
+`;
+
 exports.importDocumentHeaders = importDocumentHeaders;
 exports.getDocumentChargeVersions = getDocumentChargeVersions;
+exports.getLicenceHolderCompanies = getLicenceHolderCompanies;
