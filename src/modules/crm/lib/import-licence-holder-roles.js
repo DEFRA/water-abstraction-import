@@ -76,7 +76,7 @@ const insertLicenceHolderRole = row => {
     row.address_id,
     row.role_id,
     row.start_date,
-    row.endDate
+    row.end_date
   ];
   return pool.query(queries.documentRoles.insertLicenceHolderRole, params);
 };
