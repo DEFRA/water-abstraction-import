@@ -1,6 +1,6 @@
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('lab').script();
 const sandbox = require('sinon').createSandbox();
-const { expect, fail } = require('code');
+const { expect } = require('code');
 const importLicenceHolderRoles = require('../../../../src/modules/crm/lib/import-licence-holder-roles');
 const { logger } = require('../../../../src/logger');
 const queries = require('../../../../src/modules/crm/lib/queries');
@@ -34,9 +34,7 @@ const data = [
   }
 ];
 
-
 experiment('modules/crm/lib/import-licence-holder-roles', () => {
-
   beforeEach(async () => {
     sandbox.stub(pool, 'query');
     sandbox.stub(logger, 'error');
@@ -47,15 +45,14 @@ experiment('modules/crm/lib/import-licence-holder-roles', () => {
   });
 
   experiment('importLicenceHolderRoles', () => {
-    let result;
-
     experiment('when there are no errors', () => {
       beforeEach(async () => {
         pool.query.withArgs(queries.documents.getLicenceHolderCompanies)
           .resolves({
             rows: data
-          })
-        result = await importLicenceHolderRoles.importLicenceHolderRoles();
+          });
+
+        await importLicenceHolderRoles.importLicenceHolderRoles();
       });
 
       test('data is loaded from the database with the correct query', async () => {
@@ -68,7 +65,6 @@ experiment('modules/crm/lib/import-licence-holder-roles', () => {
         const [query] = pool.query.lastCall.args;
         expect(query).to.equal(queries.documentRoles.insertLicenceHolderRole);
       });
-
 
       test('merges rows where the only difference is the date range', async () => {
         const [, params] = pool.query.getCall(1).args;
@@ -95,7 +91,6 @@ experiment('modules/crm/lib/import-licence-holder-roles', () => {
           null
         ]);
       });
-
     });
 
     experiment('when a DB write operation fails', async () => {
@@ -103,10 +98,9 @@ experiment('modules/crm/lib/import-licence-holder-roles', () => {
         pool.query.withArgs(queries.documents.getLicenceHolderCompanies)
           .resolves({
             rows: data
-          })
+          });
         pool.query.withArgs(queries.documentRoles.insertLicenceHolderRole).rejects();
         await importLicenceHolderRoles.importLicenceHolderRoles();
-
       });
 
       test('errors are logged', async () => {

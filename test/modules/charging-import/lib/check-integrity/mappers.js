@@ -1,12 +1,9 @@
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('lab').script();
+const { test, experiment } = exports.lab = require('lab').script();
 const { expect } = require('code');
 const mappers = require('../../../../../src/modules/charging-import/lib/check-integrity/mappers.js');
-const sandbox = require('sinon').createSandbox();
 
 experiment('modules/charging-import/lib/check-integrity/mappers.js', () => {
-
   experiment('mapChargeVersion', () => {
-
     const createChargeVersion = (options = {}) => ({
       external_id: 123,
       version_number: 100,
@@ -20,7 +17,7 @@ experiment('modules/charging-import/lib/check-integrity/mappers.js', () => {
       ...options
     });
 
-    test('maps imported charge version data back to original format', async() => {
+    test('maps imported charge version data back to original format', async () => {
       const result = mappers.mapChargeVersion(createChargeVersion());
       expect(result).to.equal({
         AABL_ID: '123',
@@ -35,14 +32,14 @@ experiment('modules/charging-import/lib/check-integrity/mappers.js', () => {
       });
     });
 
-    test('maps superseded status', async() => {
+    test('maps superseded status', async () => {
       const result = mappers.mapChargeVersion(createChargeVersion({
         status: 'superseded'
       }));
       expect(result.STATUS).to.equal('SUPER');
     });
 
-    test('maps draft status', async() => {
+    test('maps draft status', async () => {
       const result = mappers.mapChargeVersion(createChargeVersion({
         status: 'draft'
       }));
@@ -50,9 +47,7 @@ experiment('modules/charging-import/lib/check-integrity/mappers.js', () => {
     });
   });
 
-
   experiment('mapChargeElement', () => {
-
     const createChargeElement = (options = {}) => ({
       external_id: 123,
       abstraction_period_start_day: 1,
@@ -75,7 +70,7 @@ experiment('modules/charging-import/lib/check-integrity/mappers.js', () => {
       ...options
     });
 
-    test('maps imported charge element data back to original format', async() => {
+    test('maps imported charge element data back to original format', async () => {
       const result = mappers.mapChargeElement(createChargeElement());
       expect(result).to.equal({
         ID: '123',
@@ -101,7 +96,6 @@ experiment('modules/charging-import/lib/check-integrity/mappers.js', () => {
   });
 
   experiment('mapChargeAgreement', () => {
-
     const createChargeAgreement = (options = {}) => ({
       agreement_code: 'INST',
       start_date: '2017-08-01',
@@ -111,7 +105,7 @@ experiment('modules/charging-import/lib/check-integrity/mappers.js', () => {
       description: 'Text here'
     });
 
-    test('maps imported charge agreement data back to original format', async() => {
+    test('maps imported charge agreement data back to original format', async () => {
       const result = mappers.mapChargeAgreement(createChargeAgreement());
       expect(result).to.equal({
         AFSA_CODE: 'INST',
@@ -123,5 +117,4 @@ experiment('modules/charging-import/lib/check-integrity/mappers.js', () => {
       });
     });
   });
-
 });

@@ -10,7 +10,6 @@ const importInvoiceAddresses = require('../../../../src/modules/crm/lib/import-i
 const importDocumentBillingRoles = require('../../../../src/modules/crm/lib/import-document-billing-roles');
 const importLicenceHolderRoles = require('../../../../src/modules/crm/lib/import-licence-holder-roles');
 
-
 experiment('modules/crm-import/controller.js', () => {
   beforeEach(async () => {
     sandbox.stub(logger, 'info');
@@ -48,6 +47,5 @@ experiment('modules/crm-import/controller.js', () => {
         expect(pool.query.getCall(5).args[0]).to.equal(queries.addresses.importInvoiceAddresses);
       });
     });
-
   });
 });
