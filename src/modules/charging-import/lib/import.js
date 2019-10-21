@@ -6,14 +6,7 @@ const { logger } = require('../../../logger');
 const checkIntegrity = require('./check-integrity');
 const importLicenceAgreements = require('./import-licence-agreements');
 
-/**
- * Run SQL queries to import charge versions / elements into
- * water service tables from NALD import tables
- * @return {Promise}
- */
-const importChargingData = async () => {
-  logger.info(`Starting charge data import`);
-
+const runQueries = async () => {
   const arr = [
     financialAgreementTypeQueries.importFinancialAgreementTypes,
     purposesQueries.importPrimaryPurposes,
@@ -33,7 +26,17 @@ const importChargingData = async () => {
   for (const query of arr) {
     await pool.query(query);
   }
+};
 
+/**
+ * Run SQL queries to import charge versions / elements into
+ * water service tables from NALD import tables
+ * @return {Promise}
+ */
+const importChargingData = async () => {
+  logger.info(`Starting charge data import`);
+
+  await runQueries();
   await importLicenceAgreements.importLicenceAgreements();
 
   logger.info(`Charge data imported, verifying`);

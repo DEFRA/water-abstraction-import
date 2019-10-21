@@ -41,24 +41,6 @@ const insertRow = row => {
 };
 
 /**
- * Gets account-level agreements from NALD import data
- * @return {Promise<Array>}
- */
-const getAccountAgreements = async () => {
-  const { rows } = await pool.query(queries.getAccountAgreements);
-  return rows;
-};
-
-/**
- * Gets two-part tariff agreements from NALD import data
- * @return {Promise<Array>}
- */
-const getTwoPartTariffAgreements = async () => {
-  const { rows } = await pool.query(queries.getTwoPartTariffAgreements);
-  return rows;
-};
-
-/**
  * Imports account-level and two-part tariff agreements from NALD data
  * and writes to water.licence_agreements
  * In NALD, section 130 are at account level, and section 127 are at charge element level
@@ -67,11 +49,13 @@ const getTwoPartTariffAgreements = async () => {
  */
 const importLicenceAgreements = async () => {
   const arr = await Promise.all([
-    getAccountAgreements(),
-    getTwoPartTariffAgreements()
+    pool.query(queries.getAccountAgreements),
+    pool.query(queries.getTwoPartTariffAgreements)
   ]);
 
-  const mapped = mapLicenceAgreements(flatMap(arr));
+  const rows = flatMap(arr.map(obj => obj.rows));
+
+  const mapped = mapLicenceAgreements(rows);
 
   return bluebird.each(mapped, insertRow);
 };
