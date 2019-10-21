@@ -9,6 +9,7 @@ const chargingQueries = require('../../../../src/modules/charging-import/lib/que
 const financialAgreementTypeQueries = require('../../../../src/modules/charging-import/lib/queries/financial-agreement-types');
 const purposesQueries = require('../../../../src/modules/charging-import/lib/queries/purposes');
 const checkIntegrity = require('../../../../src/modules/charging-import/lib/check-integrity');
+const importLicenceAgreements = require('../../../../src/modules/charging-import/lib/import-licence-agreements');
 
 experiment('modules/charging-import/index.js', () => {
   beforeEach(async () => {
@@ -16,6 +17,7 @@ experiment('modules/charging-import/index.js', () => {
     sandbox.stub(logger, 'error');
     sandbox.stub(pool, 'query');
     sandbox.stub(checkIntegrity, 'verify');
+    sandbox.stub(importLicenceAgreements, 'importLicenceAgreements');
   });
 
   afterEach(async () => {

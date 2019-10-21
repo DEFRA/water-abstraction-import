@@ -4,6 +4,7 @@ const purposesQueries = require('./queries/purposes');
 const financialAgreementTypeQueries = require('./queries/financial-agreement-types');
 const { logger } = require('../../../logger');
 const checkIntegrity = require('./check-integrity');
+const importLicenceAgreements = require('./import-licence-agreements');
 
 /**
  * Run SQL queries to import charge versions / elements into
@@ -32,6 +33,8 @@ const importChargingData = async () => {
   for (const query of arr) {
     await pool.query(query);
   }
+
+  await importLicenceAgreements.importLicenceAgreements();
 
   logger.info(`Charge data imported, verifying`);
 
