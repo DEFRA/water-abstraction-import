@@ -7,25 +7,25 @@ const queries = require('../../../../src/modules/crm/lib/queries/');
 const { pool } = require('../../../../src/lib/connectors/db');
 
 const data = [{
-  IAS_CUST_REF: 'ias_number_1',
+  IAS_CUST_REF: 'invoice_account_number_1',
   ACON_AADD_ID: 'address_1',
   start_date: '2015-04-04',
   invoice_account_id: 'invoice_account_1',
   address_id: 'address_1'
 }, {
-  IAS_CUST_REF: 'ias_number_1',
+  IAS_CUST_REF: 'invoice_account_number_1',
   ACON_AADD_ID: 'address_1',
   start_date: '2016-05-05',
   invoice_account_id: 'invoice_account_1',
   address_id: 'address_1'
 }, {
-  IAS_CUST_REF: 'ias_number_1',
+  IAS_CUST_REF: 'invoice_account_number_1',
   ACON_AADD_ID: 'address_2',
   start_date: '2017-06-06',
   invoice_account_id: 'invoice_account_1',
   address_id: 'address_2'
 }, {
-  IAS_CUST_REF: 'ias_number_2',
+  IAS_CUST_REF: 'invoice_account_number_2',
   ACON_AADD_ID: 'address_2',
   start_date: '2015-08-01',
   invoice_account_id: 'invoice_account_2',
@@ -124,7 +124,7 @@ experiment('modules/crm/lib/import-invoice-addresses', () => {
       test('an error is logged', async () => {
         expect(logger.error.callCount).to.equal(1);
         const [message] = logger.error.lastCall.args;
-        expect(message).to.equal('Error importing CRM invoice address ias_number_1');
+        expect(message).to.equal('Error importing CRM invoice address invoice_account_number_1');
       });
     });
   });
