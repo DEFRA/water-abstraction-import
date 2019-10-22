@@ -14,8 +14,8 @@ const DATE_FORMAT = 'YYYY-MM-DD';
  * @return {Array}      - de-duplicated/mapped data for insertion to CRM
  */
 const deduplicateAddressChanges = rows => {
-  const grouped = mapValues(groupBy(rows, row => row.IAS_CUST_REF), iasGroupRows => {
-    const dateGroups = groupBy(iasGroupRows, row => row.start_date);
+  const grouped = mapValues(groupBy(rows, row => row.IAS_CUST_REF), invoiceGroupRows => {
+    const dateGroups = groupBy(invoiceGroupRows, row => row.start_date);
 
     // Select the last change that happened on a particular date
     const uniqueDateRows = Object.values(dateGroups).map(last);

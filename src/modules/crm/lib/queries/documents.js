@@ -72,25 +72,25 @@ LEFT JOIN (
   lv."AABL_ID"=cv."AABL_ID" AND cv."FGAC_REGION_CODE"=lv."FGAC_REGION_CODE"
   AND (d.end_date IS NULL OR cv.start_date <= d.end_date)
   AND (cv.end_date IS NULL OR cv.end_date>=d.start_date)
-JOIN crm_v2.invoice_accounts ia ON cv."AIIA_IAS_CUST_REF"=ia.ias_account_number
+JOIN crm_v2.invoice_accounts ia ON cv."AIIA_IAS_CUST_REF"=ia.invoice_account_number
 JOIN crm_v2.roles r ON r.name='billing'
-ORDER BY d.version_number 
+ORDER BY d.version_number
 `;
 
 const getLicenceHolderCompanies = `
 SELECT d.document_id, c.company_id, a.address_id, co.contact_id,
 to_date(lv."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date,
 to_date(NULLIF(lv."EFF_END_DATE", 'null'), 'DD/MM/YYYY') AS end_date,
-r.role_id 
+r.role_id
 
-FROM crm_v2.documents d  
+FROM crm_v2.documents d
 
 LEFT JOIN import."NALD_ABS_LIC_VERSIONS" lv ON
   SPLIT_PART(d.external_id, ':', 1)=lv."FGAC_REGION_CODE"
   AND SPLIT_PART(d.external_id, ':', 2)=lv."AABL_ID"
   AND SPLIT_PART(d.external_id, ':', 3)=lv."ISSUE_NO"
   AND lv."STATUS"<>'draft'
-  
+
 JOIN crm_v2.companies c ON CONCAT_WS(':', lv."FGAC_REGION_CODE", lv."ACON_APAR_ID")=c.external_id
 JOIN crm_v2.addresses a ON CONCAT_WS(':', lv."FGAC_REGION_CODE", lv."ACON_AADD_ID")=a.external_id
 LEFT JOIN crm_v2.contacts co ON c.external_id=co.external_id
