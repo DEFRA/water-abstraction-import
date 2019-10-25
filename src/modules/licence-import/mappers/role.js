@@ -72,9 +72,10 @@ const mapBillingRoles = (document, chargeVersions, context) => {
   );
 
   const merged = helpers.charging.dateRangeSplitter(document, roles, 'billingRole');
+  const filtered = merged.filter(doc => doc.billingRole !== null);
 
   document.roles.push(
-    ...merged.map(doc => ({
+    ...filtered.map(doc => ({
       ...doc.billingRole,
       startDate: doc.effectiveStartDate,
       endDate: doc.effectiveEndDate
