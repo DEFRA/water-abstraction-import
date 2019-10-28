@@ -136,5 +136,77 @@ experiment('modules/licence-import/index.js', () => {
         expect(result.endDate).to.equal('2018-04-13');
       });
     });
+
+    experiment('when there are multiple licence versions', async () => {
+      let result, licence;
+
+      beforeEach(async () => {
+        licence = data.createLicence();
+        importConnector.getLicence.resolves(
+          licence
+        );
+        importConnector.getLicenceVersions.resolves([
+          data.createVersion(licence, {
+            EFF_ST_DATE: '01/04/2016',
+            EFF_END_DATE: '25/12/2016',
+            ISSUE_NO: '100',
+            INCR_NO: '1'
+          }),
+          data.createVersion(licence, {
+            EFF_ST_DATE: '26/12/2016',
+            EFF_END_DATE: '04/07/2017',
+            ISSUE_NO: '100',
+            INCR_NO: '2'
+          }),
+          data.createVersion(licence, {
+            EFF_ST_DATE: '05/07/2017',
+            EFF_END_DATE: null,
+            ISSUE_NO: '101',
+            INCR_NO: '1'
+          })
+        ]);
+        result = await importLicence('01/123', context);
+      });
+
+      test('each licence issue number maps to a new document', async () => {
+        expect(result.documents.length).to.equal(2);
+      });
+
+      test('the first document is merged from both increments within the issue', async () => {
+        const [doc] = result.documents;
+        expect(doc.startDate).to.equal('2016-04-01');
+        expect(doc.endDate).to.equal('2017-07-04');
+        expect(doc.externalId).to.equal('1:123:100:2');
+        expect(doc.issueNumber).to.equal(100);
+      });
+
+      test('the licence holder role for the first document is merged from both increments within the issue', async () => {
+        const { roles } = result.documents[0];
+        expect(roles.length).to.equal(1);
+        expect(roles[0].startDate).to.equal('2016-04-01');
+        expect(roles[0].endDate).to.equal('2017-07-04');
+        expect(roles[0].company.externalId).to.equal('1:1000');
+        expect(roles[0].contact).to.equal(null);
+        expect(roles[0].address.externalId).to.equal('1:1000');
+      });
+
+      test('the second document is mapped correctly', async () => {
+        const [, doc] = result.documents;
+        expect(doc.startDate).to.equal('2017-07-05');
+        expect(doc.endDate).to.equal(null);
+        expect(doc.externalId).to.equal('1:123:101:1');
+        expect(doc.issueNumber).to.equal(101);
+      });
+
+      test('the licence holder role for the second document is mapped correctly', async () => {
+        const { roles } = result.documents[1];
+        expect(roles.length).to.equal(1);
+        expect(roles[0].startDate).to.equal('2017-07-05');
+        expect(roles[0].endDate).to.equal(null);
+        expect(roles[0].company.externalId).to.equal('1:1000');
+        expect(roles[0].contact).to.equal(null);
+        expect(roles[0].address.externalId).to.equal('1:1000');
+      });
+    });
   });
 });

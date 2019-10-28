@@ -33,7 +33,7 @@ const importLicence = async (licenceNumber, context) => {
     doc.roles.push(...roles);
   });
 
-  // Two-part tariff agreements - section 127/130
+  // Agreements - section 127/130
   licence.agreements = mappers.agreement.mapAgreements(licenceData.tptAgreements, licenceData.accountAgreements);
 
   const finalLicence = mappers.licence.omitNaldData(licence);
