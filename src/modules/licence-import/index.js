@@ -37,7 +37,6 @@ const importLicence = async (licenceNumber, context) => {
   licence.agreements = mappers.agreement.mapAgreements(licenceData.tptAgreements, licenceData.accountAgreements);
 
   const finalLicence = mappers.licence.omitNaldData(licence);
-  console.log(JSON.stringify(finalLicence, null, 2));
 
   return finalLicence;
 };

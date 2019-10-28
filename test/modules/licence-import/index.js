@@ -12,6 +12,10 @@ experiment('modules/licence-import/index.js', () => {
   beforeEach(async () => {
     sandbox.stub(importConnector, 'getLicence');
     sandbox.stub(importConnector, 'getLicenceVersions');
+    sandbox.stub(importConnector, 'getTwoPartTariffAgreements').resolves([]);
+    sandbox.stub(importConnector, 'getAccountAgreements').resolves([]);
+    sandbox.stub(importConnector, 'getChargeVersions').resolves([]);
+
     sandbox.stub(importConnector, 'getAllParties').resolves([
       data.createCompany(),
       data.createPerson()
