@@ -208,5 +208,60 @@ experiment('modules/licence-import/index.js', () => {
         expect(roles[0].address.externalId).to.equal('1:1000');
       });
     });
+
+    experiment('when a licence has charge versions', async () => {
+      let result, licence;
+
+      beforeEach(async () => {
+        licence = data.createLicence();
+        importConnector.getLicence.resolves(
+          licence
+        );
+        importConnector.getChargeVersions.resolves([{
+          EFF_ST_DATE: '01/04/2016',
+          EFF_END_DATE: '31/10/2016',
+          IAS_CUST_REF: 'invoice_account_1'
+        }, {
+          EFF_ST_DATE: '01/11/2016',
+          EFF_END_DATE: 'null',
+          IAS_CUST_REF: 'invoice_account_2'
+        }]);
+        importConnector.getLicenceVersions.resolves([
+          data.createVersion(licence, {
+            EFF_ST_DATE: '01/04/2016',
+            EFF_END_DATE: '25/12/2016',
+            ISSUE_NO: '100',
+            INCR_NO: '1'
+          }),
+          data.createVersion(licence, {
+            EFF_ST_DATE: '26/12/2016',
+            EFF_END_DATE: null,
+            ISSUE_NO: '101',
+            INCR_NO: '1'
+          })
+        ]);
+        result = await importLicence('01/123', context);
+      });
+
+      test('there are 2 billing roles over the time range of the first document', async () => {
+        const roles = result.documents[0].roles.filter(role => role.role === 'billing');
+        expect(roles.length).to.equal(2);
+        expect(roles[0].startDate).to.equal('2016-04-01');
+        expect(roles[0].endDate).to.equal('2016-10-31');
+        expect(roles[0].invoiceAccount.invoiceAccountNumber).to.equal('invoice_account_1');
+
+        expect(roles[1].startDate).to.equal('2016-11-01');
+        expect(roles[1].endDate).to.equal('2016-12-25');
+        expect(roles[1].invoiceAccount.invoiceAccountNumber).to.equal('invoice_account_2');
+      });
+
+      test('there is 1 billing role over the time range of the second document', async () => {
+        const roles = result.documents[1].roles.filter(role => role.role === 'billing');
+        expect(roles.length).to.equal(1);
+        expect(roles[0].startDate).to.equal('2016-12-26');
+        expect(roles[0].endDate).to.equal(null);
+        expect(roles[0].invoiceAccount.invoiceAccountNumber).to.equal('invoice_account_2');
+      });
+    });
   });
 });

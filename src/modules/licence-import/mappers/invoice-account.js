@@ -1,5 +1,5 @@
 const mapInvoiceAccount = chargeVersion => ({
-  iasAccountNumber: chargeVersion.IAS_CUST_REF
+  invoiceAccountNumber: chargeVersion.IAS_CUST_REF
 });
 
 exports.mapInvoiceAccount = mapInvoiceAccount;
