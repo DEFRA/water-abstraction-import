@@ -12,6 +12,20 @@ const statuses = {
 };
 const mapStatus = status => statuses[status];
 
+const getDocumentEndDate = (licenceVersions, licence) => {
+  // Map to a document
+  // the start date is from the first increment, and the end date from the last
+  const endDates = [
+    licence.endDate,
+    last(licenceVersions).EFF_END_DATE
+  ]
+    .map(str.mapNull)
+    .filter(identity)
+    .map(date.mapNaldDate);
+
+  return date.getMinDate(endDates);
+};
+
 const mapDocuments = (data, licence) => {
   // Remove draft rows
   const filtered = data.filter(row => row.STATUS !== 'DRAFT');
@@ -20,25 +34,15 @@ const mapDocuments = (data, licence) => {
   const issueGroups = groupBy(filtered, row => parseInt(row.ISSUE_NO));
 
   return Object.values(issueGroups).map(issueGroup => {
-    // Sort rows within issue number by increment number
-    const sorted = sortBy(issueGroup, row => parseInt(row.incrementNumber));
-
-    // Map to a document
-    // the start date is from the first increment, and the end date from the last
-    const endDates = [
-      licence.endDate,
-      last(sorted).EFF_END_DATE
-    ]
-      .map(str.mapNull)
-      .filter(identity)
-      .map(date.mapNaldDate);
+    // Sort group by increment number
+    const sorted = sortBy(issueGroup, row => parseInt(row.INCR_NO));
 
     return {
       documentRef: licence.licenceNumber,
       issueNumber: parseInt(sorted[0].ISSUE_NO),
       status: mapStatus(sorted[0].STATUS),
       startDate: date.mapNaldDate(sorted[0].EFF_ST_DATE),
-      endDate: date.getMinDate(endDates),
+      endDate: getDocumentEndDate(sorted, licence),
       externalId: mapExternalId(last(sorted)),
       roles: [],
       _nald: sorted

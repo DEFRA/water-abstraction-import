@@ -14,7 +14,11 @@ const mapLicence = data => {
 
   return {
     licenceNumber: data.LIC_NO,
+    startDate: date.mapNaldDate(data.ORIG_EFF_DATE),
     endDate: date.getMinDate(endDates),
+    documents: [],
+    agreements: [],
+    externalId: `${data.FGAC_REGION_CODE}:${data.ID}`,
     _nald: data
   };
 };

@@ -1,5 +1,6 @@
 module.exports = {
   address: require('./address'),
+  agreement: require('./agreement'),
   company: require('./company'),
   contact: require('./contact'),
   date: require('./date'),

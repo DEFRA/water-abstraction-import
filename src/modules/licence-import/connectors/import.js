@@ -20,18 +20,18 @@ const getAllAddresses = async () => {
   return rows;
 };
 
-// const getParty = async (regionCode, partyId) => {
-//   const { rows: [row] } = await pool.query(queries.getParty, [regionCode, partyId]);
-//   return row;
-// };
-
-// const getAddress = async (regionCode, addressId) => {
-//   const { rows: [row] } = await pool.query(queries.getAddress, [regionCode, addressId]);
-//   return row;
-// };
-
 const getChargeVersions = async (regionCode, licenceId) => {
   const { rows } = await pool.query(queries.getChargeVersions, [regionCode, licenceId]);
+  return rows;
+};
+
+const getTwoPartTariffAgreements = async (regionCode, licenceId) => {
+  const { rows } = await pool.query(queries.getTwoPartTariffAgreements, [regionCode, licenceId]);
+  return rows;
+};
+
+const getAccountAgreements = async (regionCode, licenceId) => {
+  const { rows } = await pool.query(queries.getAccountAgreements, [regionCode, licenceId]);
   return rows;
 };
 
@@ -40,3 +40,5 @@ exports.getLicenceVersions = getLicenceVersions;
 exports.getChargeVersions = getChargeVersions;
 exports.getAllAddresses = getAllAddresses;
 exports.getAllParties = getAllParties;
+exports.getTwoPartTariffAgreements = getTwoPartTariffAgreements;
+exports.getAccountAgreements = getAccountAgreements;

@@ -22,8 +22,16 @@ exports.getChargeVersions = `SELECT * FROM import."NALD_CHG_VERSIONS" cv
   WHERE cv."FGAC_REGION_CODE"=$1 AND cv."AABL_ID"=$2 
   ORDER BY cv."VERS_NO"::integer`;
 
-exports.getChargeAgreements = `SELECT a.* FROM import."NALD_CHG_VERSIONS" cv
+exports.getTwoPartTariffAgreements = `SELECT a.* FROM import."NALD_CHG_VERSIONS" cv
 JOIN import."NALD_CHG_ELEMENTS" e ON cv."FGAC_REGION_CODE"=e."FGAC_REGION_CODE" AND cv."VERS_NO"=e."ACVR_VERS_NO" AND cv."AABL_ID"=e."ACVR_AABL_ID" 
 JOIN import."NALD_CHG_AGRMNTS" a ON e."FGAC_REGION_CODE"=a."FGAC_REGION_CODE" AND e."ID"=a."ACEL_ID"
-WHERE cv."FGAC_REGION_CODE"=$1 AND cv."AABL_ID"=$2 
+WHERE cv."FGAC_REGION_CODE"=$1 AND cv."AABL_ID"=$2 AND a."AFSA_CODE"='S127'
 ORDER BY cv."VERS_NO"::integer`;
+
+exports.getAccountAgreements = `SELECT * FROM import."NALD_LH_AGRMNTS" ag
+JOIN (
+  SELECT DISTINCT cv."FGAC_REGION_CODE", cv."AIIA_ALHA_ACC_NO" 
+  FROM import."NALD_CHG_VERSIONS" cv 
+  WHERE cv."FGAC_REGION_CODE"=$1 AND cv."AABL_ID"=$2 AND cv."STATUS"<>'DRAFT' 
+) cv ON ag."FGAC_REGION_CODE"=cv."FGAC_REGION_CODE" AND ag."ALHA_ACC_NO"=cv."AIIA_ALHA_ACC_NO"
+`;
