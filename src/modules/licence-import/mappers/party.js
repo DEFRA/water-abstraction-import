@@ -1,17 +1,7 @@
+const { set } = require('lodash');
 const contact = require('./contact');
 const company = require('./company');
-const { set } = require('lodash');
-
-const regionSkeleton = {
-  1: {},
-  2: {},
-  3: {},
-  4: {},
-  5: {},
-  6: {},
-  7: {},
-  8: {}
-};
+const { createRegionSkeleton } = require('./region-skeleton');
 
 /**
  * Maps parties to a hash containing companies and contacts
@@ -24,6 +14,6 @@ const mapParties = parties => parties.reduce((acc, party) => {
     contact: contact.mapContact(party)
   });
   return acc;
-}, regionSkeleton);
+}, createRegionSkeleton());
 
 exports.mapParties = mapParties;

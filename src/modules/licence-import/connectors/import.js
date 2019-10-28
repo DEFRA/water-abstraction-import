@@ -1,39 +1,34 @@
 const { pool } = require('../../../lib/connectors/db');
 const queries = require('../queries');
 
-const getLicence = async licenceNumber => {
-  const { rows: [row] } = await pool.query(queries.getLicence, [licenceNumber]);
+const findOne = async (query, params) => {
+  const { rows: [row] } = await pool.query(query, params);
   return row;
 };
 
-const getLicenceVersions = async (regionCode, licenceId) => {
-  const { rows } = await pool.query(queries.getLicenceVersions, [regionCode, licenceId]);
+const findMany = async (query, params) => {
+  const { rows } = await pool.query(query, params);
   return rows;
 };
 
-const getAllParties = async () => {
-  const { rows } = await pool.query(queries.getAllParties);
-  return rows;
-};
-const getAllAddresses = async () => {
-  const { rows } = await pool.query(queries.getAllAddresses);
-  return rows;
-};
+const getLicence = licenceNumber =>
+  findOne(queries.getLicence, [licenceNumber]);
 
-const getChargeVersions = async (regionCode, licenceId) => {
-  const { rows } = await pool.query(queries.getChargeVersions, [regionCode, licenceId]);
-  return rows;
-};
+const getLicenceVersions = (regionCode, licenceId) =>
+  findMany(queries.getLicenceVersions, [regionCode, licenceId]);
 
-const getTwoPartTariffAgreements = async (regionCode, licenceId) => {
-  const { rows } = await pool.query(queries.getTwoPartTariffAgreements, [regionCode, licenceId]);
-  return rows;
-};
+const getAllParties = () => findMany(queries.getAllParties);
 
-const getAccountAgreements = async (regionCode, licenceId) => {
-  const { rows } = await pool.query(queries.getAccountAgreements, [regionCode, licenceId]);
-  return rows;
-};
+const getAllAddresses = () => findMany(queries.getAllAddresses);
+
+const getChargeVersions = (regionCode, licenceId) =>
+  findMany(queries.getChargeVersions, [regionCode, licenceId]);
+
+const getTwoPartTariffAgreements = (regionCode, licenceId) =>
+  findMany(queries.getTwoPartTariffAgreements, [regionCode, licenceId]);
+
+const getAccountAgreements = (regionCode, licenceId) =>
+  findMany(queries.getAccountAgreements, [regionCode, licenceId]);
 
 exports.getLicence = getLicence;
 exports.getLicenceVersions = getLicenceVersions;

@@ -1,5 +1,6 @@
 const { set } = require('lodash');
 const str = require('./str');
+const { createRegionSkeleton } = require('./region-skeleton');
 
 const mapAddress = address => ({
   address1: str.mapNull(address.ADDR_LINE1),
@@ -14,21 +15,10 @@ const mapAddress = address => ({
   _nald: address
 });
 
-const regionSkeleton = {
-  1: {},
-  2: {},
-  3: {},
-  4: {},
-  5: {},
-  6: {},
-  7: {},
-  8: {}
-};
-
 const mapAddresses = addresses => addresses.reduce((acc, address) => {
   set(acc, `${address.FGAC_REGION_CODE}.${address.ID}`, mapAddress(address));
   return acc;
-}, regionSkeleton);
+}, createRegionSkeleton());
 
 exports.mapAddress = mapAddress;
 exports.mapAddresses = mapAddresses;
