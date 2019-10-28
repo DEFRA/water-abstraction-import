@@ -38,15 +38,20 @@ const importLicence = async (licenceNumber, context) => {
 
   const finalLicence = mappers.licence.omitNaldData(licence);
   console.log(JSON.stringify(finalLicence, null, 2));
+
+  return finalLicence;
 };
 
-const run = async () => {
-  try {
-    const context = await getContext();
-    await importLicence('01/120', context);
-  } catch (err) {
-    console.error(err);
-  }
-};
+exports.getContext = getContext;
+exports.importLicence = importLicence;
 
-run();
+// const run = async () => {
+//   try {
+//     const context = await getContext();
+//     await importLicence('', context);
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
+
+// run();

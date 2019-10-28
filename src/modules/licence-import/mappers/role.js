@@ -1,4 +1,4 @@
-const { last, omit, isEqual, get } = require('lodash');
+const { last, isEqual, get } = require('lodash');
 const helpers = require('@envage/water-abstraction-helpers');
 
 const invoiceAccount = require('./invoice-account');
