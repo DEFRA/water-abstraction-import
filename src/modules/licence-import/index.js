@@ -1,8 +1,9 @@
-// @TODO
-// - get list of licences
-// - import each licence individually
-// - write data to target tables
-
+/**
+ * Loads the CRM v2 data model for a given licence from NALD data in the database,
+ * ready to store in service tables
+ * @TODO
+ * - write data to target tables
+ */
 const mappers = require('./mappers');
 const connectors = require('./connectors');
 
@@ -15,6 +16,12 @@ const getContext = async () => {
   };
 };
 
+/**
+ * Gets the CRM v2 licence model from data in the import database
+ * @param {String} licenceNumber - The licence to load
+ * @param {Object} context - a hash of NALD address/party data keyed by [regionCode][id]
+ * @return {Promise<Object>} - the CRM v2 licence model
+ */
 const importLicence = async (licenceNumber, context) => {
   const licenceData = await connectors.getLicenceData(licenceNumber);
 
@@ -43,14 +50,3 @@ const importLicence = async (licenceNumber, context) => {
 
 exports.getContext = getContext;
 exports.importLicence = importLicence;
-
-// const run = async () => {
-//   try {
-//     const context = await getContext();
-//     await importLicence('', context);
-//   } catch (err) {
-//     console.error(err);
-//   }
-// };
-
-// run();

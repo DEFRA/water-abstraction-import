@@ -1,4 +1,4 @@
-const { groupBy, sortBy, last, identity, uniq } = require('lodash');
+const { groupBy, sortBy, last, identity } = require('lodash');
 const date = require('./date');
 const str = require('./str');
 
@@ -50,12 +50,4 @@ const mapDocuments = (data, licence) => {
   });
 };
 
-const mapPartyIds = data =>
-  uniq(data.map(row => row.ACON_APAR_ID));
-
-const mapAddressIds = data =>
-  uniq(data.map(row => row.ACON_AADD_ID));
-
 exports.mapDocuments = mapDocuments;
-exports.mapPartyIds = mapPartyIds;
-exports.mapAddressIds = mapAddressIds;
