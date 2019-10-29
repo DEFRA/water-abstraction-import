@@ -53,8 +53,15 @@ const createAddress = overrides => Object.assign({}, {
   COUNTRY: 'ENGLAND'
 }, overrides);
 
+const createAgreement = overrides => Object.assign({}, {
+  AFSA_CODE: 'S130U',
+  EFF_ST_DATE: '14/02/2017',
+  EFF_END_DATE: '14/02/2018'
+}, overrides);
+
 exports.createLicence = createLicence;
 exports.createVersion = createVersion;
 exports.createCompany = createCompany;
 exports.createPerson = createPerson;
 exports.createAddress = createAddress;
+exports.createAgreement = createAgreement;

@@ -263,5 +263,76 @@ experiment('modules/licence-import/index.js', () => {
         expect(roles[0].invoiceAccount.invoiceAccountNumber).to.equal('invoice_account_2');
       });
     });
+
+    experiment('when a licence has a section 130 agreement', async () => {
+      let result, licence;
+
+      beforeEach(async () => {
+        licence = data.createLicence();
+        importConnector.getLicence.resolves(
+          licence
+        );
+        importConnector.getLicenceVersions.resolves([
+          data.createVersion(licence)
+        ]);
+        importConnector.getAccountAgreements.resolves([
+          data.createAgreement(),
+          data.createAgreement({
+            EFF_ST_DATE: '15/02/2018',
+            EFF_END_DATE: 'null'
+          }),
+          data.createAgreement({
+            AFSA_CODE: 'S130T'
+          })
+        ]);
+        result = await importLicence('01/123', context);
+      });
+
+      test('agreements with the same code are merged if their date ranges are adjacent', async () => {
+        const agreements = result.agreements.filter(agreement => agreement.agreementCode === 'S130U');
+        expect(agreements.length).to.equal(1);
+        expect(agreements[0].startDate).to.equal('2017-02-14');
+        expect(agreements[0].endDate).to.equal(null);
+      });
+
+      test('agreements are not merged if they have a different code', async () => {
+        const agreements = result.agreements.filter(agreement => agreement.agreementCode === 'S130T');
+        expect(agreements.length).to.equal(1);
+        expect(agreements[0].startDate).to.equal('2017-02-14');
+        expect(agreements[0].endDate).to.equal('2018-02-14');
+      });
+    });
+
+    experiment('when a licence charge element has a section 127 agreement', async () => {
+      let result, licence;
+
+      beforeEach(async () => {
+        licence = data.createLicence();
+        importConnector.getLicence.resolves(
+          licence
+        );
+        importConnector.getLicenceVersions.resolves([
+          data.createVersion(licence)
+        ]);
+        importConnector.getTwoPartTariffAgreements.resolves([
+          data.createAgreement({
+            AFSA_CODE: 'S127'
+          }),
+          data.createAgreement({
+            AFSA_CODE: 'S127',
+            EFF_ST_DATE: '15/02/2018',
+            EFF_END_DATE: 'null'
+          })
+        ]);
+        result = await importLicence('01/123', context);
+      });
+
+      test('agreements are merged if their date ranges are adjacent', async () => {
+        const { agreements } = result;
+        expect(agreements.length).to.equal(1);
+        expect(agreements[0].startDate).to.equal('2017-02-14');
+        expect(agreements[0].endDate).to.equal(null);
+      });
+    });
   });
 });
