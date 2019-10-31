@@ -29,5 +29,17 @@ const getLicenceData = async licenceNumber => {
   };
 };
 
+const getCompanyData = async (regionCode, partyId) => {
+  const [invoiceAccounts, licenceVersions] = await Promise.all([
+    importConnector.getInvoiceAccounts(regionCode, partyId),
+    importConnector.getPartyLicenceVersions(regionCode, partyId)
+  ]);
+  return {
+    invoiceAccounts,
+    licenceVersions
+  };
+};
+
 exports.getContextData = getContextData;
 exports.getLicenceData = getLicenceData;
+exports.getCompanyData = getCompanyData;
