@@ -13,7 +13,7 @@ experiment('modules/licence-import/index.js', () => {
     sandbox.stub(importConnector, 'getLicence');
     sandbox.stub(importConnector, 'getLicenceVersions');
     sandbox.stub(importConnector, 'getTwoPartTariffAgreements').resolves([]);
-    sandbox.stub(importConnector, 'getAccountAgreements').resolves([]);
+    sandbox.stub(importConnector, 'getSection130Agreements').resolves([]);
     sandbox.stub(importConnector, 'getChargeVersions').resolves([]);
 
     sandbox.stub(importConnector, 'getAllParties').resolves([
@@ -275,7 +275,7 @@ experiment('modules/licence-import/index.js', () => {
         importConnector.getLicenceVersions.resolves([
           data.createVersion(licence)
         ]);
-        importConnector.getAccountAgreements.resolves([
+        importConnector.getSection130Agreements.resolves([
           data.createAgreement(),
           data.createAgreement({
             EFF_ST_DATE: '15/02/2018',

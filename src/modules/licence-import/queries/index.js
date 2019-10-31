@@ -2,7 +2,8 @@ exports.getLicence = `SELECT * FROM import."NALD_ABS_LICENCES" l WHERE l."LIC_NO
 
 exports.getLicenceVersions = `SELECT * FROM import."NALD_ABS_LIC_VERSIONS" v
   WHERE v."FGAC_REGION_CODE"=$1
-  AND v."AABL_ID"=$2`;
+  AND v."AABL_ID"=$2
+  AND v."STATUS"<>'DRAFT'`;
 
 exports.getParty = `SELECT * FROM import."NALD_PARTIES" p 
   WHERE p."FGAC_REGION_CODE"=$1 
@@ -28,10 +29,11 @@ JOIN import."NALD_CHG_AGRMNTS" a ON e."FGAC_REGION_CODE"=a."FGAC_REGION_CODE" AN
 WHERE cv."FGAC_REGION_CODE"=$1 AND cv."AABL_ID"=$2 AND a."AFSA_CODE"='S127'
 ORDER BY cv."VERS_NO"::integer`;
 
-exports.getAccountAgreements = `SELECT * FROM import."NALD_LH_AGRMNTS" ag
+exports.getSection130Agreements = `SELECT * FROM import."NALD_LH_AGRMNTS" ag
 JOIN (
   SELECT DISTINCT cv."FGAC_REGION_CODE", cv."AIIA_ALHA_ACC_NO" 
   FROM import."NALD_CHG_VERSIONS" cv 
   WHERE cv."FGAC_REGION_CODE"=$1 AND cv."AABL_ID"=$2 AND cv."STATUS"<>'DRAFT' 
 ) cv ON ag."FGAC_REGION_CODE"=cv."FGAC_REGION_CODE" AND ag."ALHA_ACC_NO"=cv."AIIA_ALHA_ACC_NO"
+AND ag."AFSA_CODE" IN ('S127', 'S130S', 'S130T', 'S130U', 'S130W')
 `;

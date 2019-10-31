@@ -27,8 +27,8 @@ const getChargeVersions = (regionCode, licenceId) =>
 const getTwoPartTariffAgreements = (regionCode, licenceId) =>
   findMany(queries.getTwoPartTariffAgreements, [regionCode, licenceId]);
 
-const getAccountAgreements = (regionCode, licenceId) =>
-  findMany(queries.getAccountAgreements, [regionCode, licenceId]);
+const getSection130Agreements = (regionCode, licenceId) =>
+  findMany(queries.getSection130Agreements, [regionCode, licenceId]);
 
 exports.getLicence = getLicence;
 exports.getLicenceVersions = getLicenceVersions;
@@ -36,4 +36,4 @@ exports.getChargeVersions = getChargeVersions;
 exports.getAllAddresses = getAllAddresses;
 exports.getAllParties = getAllParties;
 exports.getTwoPartTariffAgreements = getTwoPartTariffAgreements;
-exports.getAccountAgreements = getAccountAgreements;
+exports.getSection130Agreements = getSection130Agreements;

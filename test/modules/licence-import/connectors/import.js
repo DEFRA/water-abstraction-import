@@ -107,16 +107,16 @@ experiment('modules/licence-import/connectors/import', () => {
     });
   });
 
-  experiment('getAccountAgreements', () => {
+  experiment('getSection130Agreements', () => {
     test('calls pool.query with the correct arguments', async () => {
-      await importConnector.getAccountAgreements(regionCode, licenceId);
+      await importConnector.getSection130Agreements(regionCode, licenceId);
       const [query, params] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.getAccountAgreements);
+      expect(query).to.equal(queries.getSection130Agreements);
       expect(params).to.equal([regionCode, licenceId]);
     });
 
     test('resolves with all rows found', async () => {
-      const result = await importConnector.getAccountAgreements(regionCode, licenceId);
+      const result = await importConnector.getSection130Agreements(regionCode, licenceId);
       expect(result).to.equal(data);
     });
   });

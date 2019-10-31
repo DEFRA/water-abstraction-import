@@ -27,11 +27,8 @@ const getDocumentEndDate = (licenceVersions, licence) => {
 };
 
 const mapDocuments = (data, licence) => {
-  // Remove draft rows
-  const filtered = data.filter(row => row.STATUS !== 'DRAFT');
-
   // Group licence versions by issue number
-  const issueGroups = groupBy(filtered, row => parseInt(row.ISSUE_NO));
+  const issueGroups = groupBy(data, row => parseInt(row.ISSUE_NO));
 
   return Object.values(issueGroups).map(issueGroup => {
     // Sort group by increment number
