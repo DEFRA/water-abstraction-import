@@ -1,6 +1,6 @@
 const date = require('./date');
 const str = require('./str');
-const { identity, cloneDeep } = require('lodash');
+const { identity, omit, isArray, isObject, mapValues, cloneDeep } = require('lodash');
 
 const mapLicence = data => {
   const endDates = [
@@ -23,24 +23,20 @@ const mapLicence = data => {
   };
 };
 
-const omitNaldData = licence => {
-  const copy = cloneDeep(licence);
-  delete copy._nald;
-  copy.documents.forEach(doc => {
-    delete doc._nald;
-    doc.roles.forEach(role => {
-      if (role.company) {
-        delete role.company._nald;
-      }
-      if (role.address) {
-        delete role.address._nald;
-      }
-      if (role.contact) {
-        delete role.contact._nald;
-      }
-    });
-  });
-  return copy;
+/**
+ * Deep cleans up any _nald keys in a deep object
+ * @param {Object}
+ * @return {Object}
+ */
+const omitNaldData = value => {
+  if (isArray(value)) {
+    return value.map(omitNaldData);
+  }
+  if (isObject(value)) {
+    const val = omit(value, '_nald');
+    return mapValues(val, omitNaldData);
+  }
+  return value;
 };
 
 exports.mapLicence = mapLicence;
