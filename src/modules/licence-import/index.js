@@ -4,6 +4,7 @@
  * @TODO
  * - write data to target tables
  */
+const { cloneDeep } = require('lodash');
 const mappers = require('./mappers');
 const connectors = require('./connectors');
 
@@ -48,5 +49,18 @@ const importLicence = async (licenceNumber, context) => {
   return finalLicence;
 };
 
+const importCompany = async (regionCode, partyId, context) => {
+  const company = cloneDeep(context.parties[regionCode][partyId].company);
+
+  const companyData = await connectors.getCompanyData(regionCode, partyId);
+
+  company.invoiceAccounts = mappers.invoiceAccount.mapInvoiceAccounts(companyData.invoiceAccounts, context);
+  company.addresses = mappers.companyAddress.mapCompanyAddresses(companyData.licenceVersions, context);
+  company.contacts = mappers.companyContact.mapCompanyContacts(context.parties[regionCode][partyId].contact, companyData.licenceVersions);
+
+  return mappers.licence.omitNaldData(company);
+};
+
 exports.getContext = getContext;
 exports.importLicence = importLicence;
+exports.importCompany = importCompany;
