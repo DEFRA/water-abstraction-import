@@ -41,7 +41,7 @@ const importLicence = async (licenceNumber, context) => {
   });
 
   // Agreements - section 127/130
-  licence.agreements = mappers.agreement.mapAgreements(licenceData.tptAgreements, licenceData.accountAgreements);
+  licence.agreements = mappers.agreement.mapAgreements(licenceData.tptAgreements, licenceData.section130Agreements);
 
   const finalLicence = mappers.licence.omitNaldData(licence);
 
