@@ -59,9 +59,17 @@ const createAgreement = overrides => Object.assign({}, {
   EFF_END_DATE: '14/02/2018'
 }, overrides);
 
+const createInvoiceAccount = overrides => Object.assign({}, {
+  FGAC_REGION_CODE: '1',
+  IAS_CUST_REF: 'X1234',
+  ACON_AADD_ID: '1000',
+  IAS_XFER_DATE: '05/04/2016 11:24:02'
+}, overrides);
+
 exports.createLicence = createLicence;
 exports.createVersion = createVersion;
 exports.createCompany = createCompany;
 exports.createPerson = createPerson;
 exports.createAddress = createAddress;
 exports.createAgreement = createAgreement;
+exports.createInvoiceAccount = createInvoiceAccount;

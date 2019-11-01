@@ -345,6 +345,11 @@ experiment('modules/licence-import/index.js', () => {
         data.createVersion(licence, { AABL_ID: '10000', EFF_ST_DATE: '05/02/2014', ACON_AADD_ID: '1001', EFF_END_DATE: '02/09/2015' }),
         data.createVersion(licence, { AABL_ID: '10000', EFF_ST_DATE: '03/09/2014', ACON_AADD_ID: '1001', REV_DATE: '01/07/2016' })
       ]);
+      sandbox.stub(importConnector, 'getInvoiceAccounts').resolves([
+        data.createInvoiceAccount(),
+        data.createInvoiceAccount({ IAS_XFER_DATE: '02/06/2017 13:02:33' }),
+        data.createInvoiceAccount({ IAS_XFER_DATE: '02/06/2018 13:02:33', ACON_AADD_ID: '1001' })
+      ]);
     });
 
     experiment('for an organisation', () => {
@@ -396,6 +401,13 @@ experiment('modules/licence-import/index.js', () => {
         const [{ endDate }] = result.contacts;
         expect(endDate).to.equal(null);
       });
+    });
+
+    experiment('for people or organisations', () => {
+      let result;
+      beforeEach(async () => {
+        result = await importCompany(1, 1001, context);
+      });
 
       test('addresses are imported matching a licence versions', async () => {
         expect(result.addresses.length).to.equal(2);
@@ -411,6 +423,23 @@ experiment('modules/licence-import/index.js', () => {
         expect(address.startDate).to.equal('2014-02-05');
         expect(address.endDate).to.equal('2016-07-01');
         expect(address.address.externalId).to.equal('1:1001');
+      });
+
+      test('invoice accounts are imported', async () => {
+        expect(result.invoiceAccounts).to.be.an.array();
+        expect(result.invoiceAccounts.length).to.equal(1);
+        expect(result.invoiceAccounts[0].invoiceAccountNumber).to.equal('X1234');
+      });
+
+      test('invoice account addresses and date ranges are merged using the IAS_XFER_DATE field', async () => {
+        const { addresses } = result.invoiceAccounts[0];
+        expect(addresses.length).to.equal(2);
+        expect(addresses[0].startDate).to.equal('2016-04-05');
+        expect(addresses[0].endDate).to.equal('2018-06-01');
+        expect(addresses[0].address.externalId).to.equal('1:1000');
+        expect(addresses[1].startDate).to.equal('2018-06-02');
+        expect(addresses[1].endDate).to.equal(null);
+        expect(addresses[1].address.externalId).to.equal('1:1001');
       });
     });
   });
