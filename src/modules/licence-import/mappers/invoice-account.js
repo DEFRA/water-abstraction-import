@@ -1,9 +1,6 @@
-const moment = require('moment');
 const { groupBy, sortBy } = require('lodash');
 const helpers = require('@envage/water-abstraction-helpers');
 const date = require('./date');
-
-const TRANSFER_DATE_FORMAT = 'DD/MM/YYYY HH:mm:ss';
 
 const mapInvoiceAccount = chargeVersion => ({
   invoiceAccountNumber: chargeVersion.IAS_CUST_REF

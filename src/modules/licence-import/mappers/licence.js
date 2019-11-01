@@ -1,6 +1,6 @@
 const date = require('./date');
 const str = require('./str');
-const { identity, omit, isArray, isObject, mapValues, cloneDeep } = require('lodash');
+const { identity, omit, isArray, isObject, mapValues } = require('lodash');
 
 const mapLicence = data => {
   const endDates = [
