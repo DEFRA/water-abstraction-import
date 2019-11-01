@@ -1,6 +1,6 @@
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('lab').script();
 const { expect } = require('code');
-const { importLicence, getContext } = require('../../../src/modules/licence-import/index');
+const { importLicence, getContext, importCompany } = require('../../../src/modules/licence-import/index');
 const sandbox = require('sinon').createSandbox();
 const data = require('./data');
 
@@ -21,7 +21,8 @@ experiment('modules/licence-import/index.js', () => {
       data.createPerson()
     ]);
     sandbox.stub(importConnector, 'getAllAddresses').resolves([
-      data.createAddress()
+      data.createAddress(),
+      data.createAddress({ ID: '1001', 'ADDR_LINE1': 'THE NEW FARMHOUSE' })
     ]);
 
     context = await getContext();
@@ -332,6 +333,84 @@ experiment('modules/licence-import/index.js', () => {
         expect(agreements.length).to.equal(1);
         expect(agreements[0].startDate).to.equal('2017-02-14');
         expect(agreements[0].endDate).to.equal(null);
+      });
+    });
+  });
+
+  experiment('importCompany', () => {
+    beforeEach(async () => {
+      const licence = data.createLicence();
+      sandbox.stub(importConnector, 'getPartyLicenceVersions').resolves([
+        data.createVersion(licence),
+        data.createVersion(licence, { AABL_ID: '10000', EFF_ST_DATE: '05/02/2014', ACON_AADD_ID: '1001', EFF_END_DATE: '02/09/2015' }),
+        data.createVersion(licence, { AABL_ID: '10000', EFF_ST_DATE: '03/09/2014', ACON_AADD_ID: '1001', REV_DATE: '01/07/2016' })
+      ]);
+    });
+
+    experiment('for an organisation', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await importCompany(1, 1000, context);
+      });
+
+      test('company data is copied from the context passed in', async () => {
+        expect(result.type).to.equal('organisation');
+        expect(result.externalId).to.equal('1:1000');
+        expect(result.name).to.equal('BIG CO LTD');
+      });
+
+      test('the contacts array is empty', async () => {
+        expect(result.contacts).to.equal([]);
+      });
+    });
+
+    experiment('for a person', () => {
+      let result;
+
+      beforeEach(async () => {
+        result = await importCompany(1, 1001, context);
+      });
+
+      test('company data is copied from the context passed in', async () => {
+        expect(result.type).to.equal('person');
+        expect(result.externalId).to.equal('1:1001');
+        expect(result.name).to.equal('SIR JOHN DOE');
+      });
+
+      test('a contact is created for the person in the company', async () => {
+        expect(result.contacts.length).to.equal(1);
+        const [{ contact }] = result.contacts;
+        expect(contact.salutation).to.equal('SIR');
+        expect(contact.firstName).to.equal('JOHN');
+        expect(contact.lastName).to.equal('DOE');
+        expect(contact.externalId).to.equal('1:1001');
+      });
+
+      test('the start date of the contact is the earliest start date of a non-draft licence version', async () => {
+        const [{ startDate }] = result.contacts;
+        expect(startDate).to.equal('2014-02-05');
+      });
+
+      test('the end date of the contact is null', async () => {
+        const [{ endDate }] = result.contacts;
+        expect(endDate).to.equal(null);
+      });
+
+      test('addresses are imported matching a licence versions', async () => {
+        expect(result.addresses.length).to.equal(2);
+        const [address] = result.addresses;
+        expect(address.startDate).to.equal('2016-04-01');
+        expect(address.endDate).to.equal(null);
+        expect(address.address.externalId).to.equal('1:1000');
+      });
+
+      test('address date ranges are merged for multiple licence versions', async () => {
+        expect(result.addresses.length).to.equal(2);
+        const [, address] = result.addresses;
+        expect(address.startDate).to.equal('2014-02-05');
+        expect(address.endDate).to.equal('2016-07-01');
+        expect(address.address.externalId).to.equal('1:1001');
       });
     });
   });
