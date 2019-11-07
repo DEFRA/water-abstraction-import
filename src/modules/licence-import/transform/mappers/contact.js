@@ -17,9 +17,9 @@ const mapContact = party => {
     return null;
   }
   return {
-    salutation: party.SALUTATION,
+    salutation: str.mapNull(party.SALUTATION),
     firstName: mapFirstName(party),
-    lastName: party.NAME,
+    lastName: str.mapNull(party.NAME),
     externalId: `${party.FGAC_REGION_CODE}:${party.ID}`,
     _nald: party
   };

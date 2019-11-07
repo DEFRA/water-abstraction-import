@@ -8,7 +8,7 @@ module.exports = {
 
   jwt: {
     key: process.env.JWT_SECRET,
-    verifyOptions: { algorithms: [ 'HS256' ] }
+    verifyOptions: { algorithms: ['HS256'] }
   },
 
   logger: {
@@ -23,6 +23,12 @@ module.exports = {
     max: 8,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000
+  },
+
+  pgBoss: {
+    schema: 'water_import',
+    application_name: process.env.SERVICE_NAME,
+    newJobCheckIntervalSeconds: 5
   },
 
   server: {

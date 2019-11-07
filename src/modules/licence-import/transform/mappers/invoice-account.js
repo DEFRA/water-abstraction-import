@@ -1,6 +1,7 @@
 const { groupBy, sortBy } = require('lodash');
 const helpers = require('@envage/water-abstraction-helpers');
 const date = require('./date');
+const roles = require('./roles');
 
 const mapInvoiceAccount = chargeVersion => ({
   invoiceAccountNumber: chargeVersion.IAS_CUST_REF
@@ -12,6 +13,7 @@ const mapInvoiceAccountAddresses = (iasAccounts, context) => {
 
   // Map to new data structure
   const addresses = sorted.map((row, i, arr) => ({
+    role: roles.ROLE_BILLING,
     startDate: date.mapTransferDate(row.IAS_XFER_DATE),
     endDate: i === arr.length - 1 ? null : date.getPreviousDay(date.mapTransferDate(arr[i + 1].IAS_XFER_DATE)),
     address: context.addresses[row.FGAC_REGION_CODE][row.ACON_AADD_ID]
@@ -29,6 +31,8 @@ const mapInvoiceAccounts = (iasAccounts, context) => {
 
     return {
       invoiceAccountNumber: group[0].IAS_CUST_REF,
+      startDate: addresses[0].startDate,
+      endDate: null,
       addresses
     };
   });

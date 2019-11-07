@@ -1,14 +1,17 @@
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('lab').script();
 const { expect } = require('code');
-const queries = require('../../../../src/modules/licence-import/queries');
+const queries = require('../../../../../src/modules/licence-import/extract/connectors/queries');
 const sandbox = require('sinon').createSandbox();
-const { pool } = require('../../../../src/lib/connectors/db');
+const { pool } = require('../../../../../src/lib/connectors/db');
 
-const importConnector = require('../../../../src/modules/licence-import/connectors/import');
+const importConnector = require('../../../../../src/modules/licence-import/extract/connectors/index');
 
 const licenceNumber = 'licence_1';
 const licenceId = 123;
 const regionCode = 2;
+const partyId = 15;
+const partyIds = [19, 265];
+const addressIds = [124, 92];
 
 experiment('modules/licence-import/connectors/import', () => {
   const data = [{
@@ -118,6 +121,89 @@ experiment('modules/licence-import/connectors/import', () => {
     test('resolves with all rows found', async () => {
       const result = await importConnector.getSection130Agreements(regionCode, licenceId);
       expect(result).to.equal(data);
+    });
+  });
+
+  experiment('getInvoiceAccounts', () => {
+    test('calls pool.query with the correct arguments', async () => {
+      await importConnector.getInvoiceAccounts(regionCode, partyId);
+      const [query, params] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.getInvoiceAccounts);
+      expect(params).to.equal([regionCode, partyId]);
+    });
+
+    test('resolves with all rows found', async () => {
+      const result = await importConnector.getInvoiceAccounts(regionCode, partyId);
+      expect(result).to.equal(data);
+    });
+  });
+
+  experiment('getPartyLicenceVersions', () => {
+    test('calls pool.query with the correct arguments', async () => {
+      await importConnector.getPartyLicenceVersions(regionCode, partyId);
+      const [query, params] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.getPartyLicenceVersions);
+      expect(params).to.equal([regionCode, partyId]);
+    });
+
+    test('resolves with all rows found', async () => {
+      const result = await importConnector.getPartyLicenceVersions(regionCode, partyId);
+      expect(result).to.equal(data);
+    });
+  });
+
+  experiment('getParties', () => {
+    test('calls pool.query with the correct arguments', async () => {
+      await importConnector.getParties(regionCode, partyIds);
+      const [query, params] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.getParties);
+      expect(params).to.equal([regionCode, `19,265`]);
+    });
+
+    test('resolves with all rows found', async () => {
+      const result = await importConnector.getParties(regionCode, partyIds);
+      expect(result).to.equal(data);
+    });
+  });
+
+  experiment('getAddresses', () => {
+    test('calls pool.query with the correct arguments', async () => {
+      await importConnector.getAddresses(regionCode, addressIds);
+      const [query, params] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.getAddresses);
+      expect(params).to.equal([regionCode, `124,92`]);
+    });
+
+    test('resolves with all rows found', async () => {
+      const result = await importConnector.getAddresses(regionCode, addressIds);
+      expect(result).to.equal(data);
+    });
+  });
+
+  experiment('getAllLicenceNumbers', () => {
+    test('calls pool.query with the correct arguments', async () => {
+      await importConnector.getAllLicenceNumbers();
+      const [query] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.getAllLicenceNumbers);
+    });
+
+    test('resolves with all rows found', async () => {
+      const result = await importConnector.getAllLicenceNumbers(regionCode);
+      expect(result).to.equal(data);
+    });
+  });
+
+  experiment('getParty', () => {
+    test('calls pool.query with the correct arguments', async () => {
+      await importConnector.getParty(regionCode, partyId);
+      const [query, params] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.getParty);
+      expect(params).to.equal([regionCode, partyId]);
+    });
+
+    test('resolves with the first row found', async () => {
+      const result = await importConnector.getParty(regionCode, partyId);
+      expect(result).to.equal(data[0]);
     });
   });
 });

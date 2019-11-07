@@ -44,10 +44,20 @@ JOIN (
   FROM import."NALD_CHG_VERSIONS" cv 
   WHERE cv."STATUS"<>'DRAFT'
 ) cv ON i."IAS_CUST_REF"=cv."AIIA_IAS_CUST_REF" AND i."FGAC_REGION_CODE"=cv."FGAC_REGION_CODE" AND i."ALHA_ACC_NO"=cv."AIIA_ALHA_ACC_NO"
-WHERE i."FGAC_REGION_CODE"=$1 AND i."ACON_APAR_ID"=$2
+WHERE i."FGAC_REGION_CODE"=$1 AND i."ACON_APAR_ID"=$2 AND i."IAS_XFER_DATE"<>'null' 
 `;
 
 exports.getPartyLicenceVersions = `SELECT lv.*, l."REV_DATE", l."LAPSED_DATE", l."EXPIRY_DATE" FROM import."NALD_ABS_LIC_VERSIONS" lv 
 JOIN import."NALD_ABS_LICENCES" l ON lv."AABL_ID"=l."ID" AND lv."FGAC_REGION_CODE"=l."FGAC_REGION_CODE"
 WHERE lv."FGAC_REGION_CODE"=$1 AND lv."ACON_APAR_ID"=$2
 AND lv."STATUS"<>'DRAFT'`;
+
+exports.getParties = `SELECT * FROM import."NALD_PARTIES" p 
+WHERE p."FGAC_REGION_CODE"=$1 
+AND p."ID" =  any (string_to_array($2, ',')::text[])`;
+
+exports.getAddresses = `SELECT * FROM import."NALD_ADDRESSES" a
+WHERE a."FGAC_REGION_CODE"=$1 
+AND a."ID" =  any (string_to_array($2, ',')::text[])`;
+
+exports.getAllLicenceNumbers = `SELECT "LIC_NO" FROM import."NALD_ABS_LICENCES"`;

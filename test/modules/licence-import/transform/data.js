@@ -23,6 +23,7 @@ const createVersion = (licence, overrides) => Object.assign({}, {
 
 const createParty = overrides => Object.assign({}, {
   ID: '1000',
+  APAR_TYPE: 'ORG',
   FGAC_REGION_CODE: '1',
   NAME: 'BIG CO LTD',
   FORENAME: 'null',
@@ -62,9 +63,22 @@ const createAgreement = overrides => Object.assign({}, {
 const createInvoiceAccount = overrides => Object.assign({}, {
   FGAC_REGION_CODE: '1',
   IAS_CUST_REF: 'X1234',
+  ACON_APAR_ID: '1000',
   ACON_AADD_ID: '1000',
   IAS_XFER_DATE: '05/04/2016 11:24:02'
 }, overrides);
+
+const createChargeVersion = (licence, overrides) => Object.assign({}, {
+  AABL_ID: licence.ID,
+  FGAC_REGION_CODE: licence.FGAC_REGION_CODE,
+  VERS_NO: '1',
+  EFF_ST_DATE: '25/12/2015',
+  STATUS: 'CURRENT',
+  IAS_CUST_REF: 'X1234',
+  EFF_END_DATE: 'null',
+  ACON_APAR_ID: '1000',
+  ACON_AADD_ID: '1000'
+});
 
 exports.createLicence = createLicence;
 exports.createVersion = createVersion;
@@ -73,3 +87,5 @@ exports.createPerson = createPerson;
 exports.createAddress = createAddress;
 exports.createAgreement = createAgreement;
 exports.createInvoiceAccount = createInvoiceAccount;
+exports.createParty = createParty;
+exports.createChargeVersion = createChargeVersion;

@@ -28,7 +28,8 @@ const registerServerPlugins = async (server) => {
   // Third-party plugins
   await server.register({
     plugin: Good,
-    options: { ...config.good,
+    options: {
+      ...config.good,
       reporters: {
         winston: [goodWinstonStream]
       }
@@ -41,6 +42,10 @@ const registerServerPlugins = async (server) => {
 
   // JWT token auth
   await server.register(HapiAuthJwt2);
+
+  // // PG Boss message queue
+  await server.register(require('./src/plugins/pg-boss'));
+  // await server.register(require('./src/modules/licence-import/plugin'));
 };
 
 const configureServerAuthStrategy = (server) => {

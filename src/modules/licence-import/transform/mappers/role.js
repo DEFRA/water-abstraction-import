@@ -78,7 +78,7 @@ const mapLicenceHolderRoles = (document, context) => {
  * @param {Object} context - contains party and address data
  * @return {Object} document role
  */
-const createInvoiceAccountRole = (chargeVersion, context) => ({
+const createInvoiceAccountRole = chargeVersion => ({
   role: 'billing',
   startDate: date.mapNaldDate(chargeVersion.EFF_ST_DATE),
   endDate: date.mapNaldDate(chargeVersion.EFF_END_DATE),

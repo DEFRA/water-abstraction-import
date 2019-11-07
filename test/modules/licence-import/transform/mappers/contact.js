@@ -1,7 +1,7 @@
 const { test, experiment } = exports.lab = require('lab').script();
 const { expect } = require('code');
 
-const contact = require('../../../../src/modules/licence-import/mappers/contact');
+const contact = require('../../../../../src/modules/licence-import/transform/mappers/contact');
 
 experiment('modules/licence-import/mappers/contact', () => {
   experiment('mapContact', () => {

@@ -1,7 +1,7 @@
 const { test, experiment } = exports.lab = require('lab').script();
 const { expect } = require('code');
 
-const date = require('../../../../src/modules/licence-import/mappers/date');
+const date = require('../../../../../src/modules/licence-import/transform/mappers/date');
 
 experiment('modules/licence-import/mappers/date', () => {
   experiment('mapNaldDate', () => {
