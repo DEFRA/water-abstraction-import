@@ -78,7 +78,7 @@ const createChargeVersion = (licence, overrides) => Object.assign({}, {
   EFF_END_DATE: 'null',
   ACON_APAR_ID: '1000',
   ACON_AADD_ID: '1000'
-});
+}, overrides);
 
 exports.createLicence = createLicence;
 exports.createVersion = createVersion;
