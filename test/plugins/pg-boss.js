@@ -31,8 +31,15 @@ experiment('plugins/pg-boss.js', () => {
     });
 
     test('registering the server decorates it with PG Boss instance', async () => {
-      const { args } = server.decorate.lastCall;
+      const { args } = server.decorate.firstCall;
       expect(args[0]).to.equal('server');
+      expect(args[1]).to.equal('messageQueue');
+      expect(args[2] instanceof PgBoss).to.be.true();
+    });
+
+    test('registering the server decorates the request with PG Boss instance', async () => {
+      const { args } = server.decorate.secondCall;
+      expect(args[0]).to.equal('request');
       expect(args[1]).to.equal('messageQueue');
       expect(args[2] instanceof PgBoss).to.be.true();
     });

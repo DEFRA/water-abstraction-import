@@ -60,4 +60,19 @@ exports.getAddresses = `SELECT * FROM import."NALD_ADDRESSES" a
 WHERE a."FGAC_REGION_CODE"=$1 
 AND a."ID" =  any (string_to_array($2, ',')::text[])`;
 
-exports.getAllLicenceNumbers = `SELECT "LIC_NO" FROM import."NALD_ABS_LICENCES"`;
+exports.getAllLicenceNumbers = `
+SELECT l."LIC_NO", d.document_ref, l."FGAC_REGION_CODE", v."ACON_APAR_ID"
+FROM import."NALD_ABS_LICENCES" l
+JOIN import."NALD_ABS_LIC_VERSIONS" v ON l."FGAC_REGION_CODE"=v."FGAC_REGION_CODE" AND l."ID"=v."AABL_ID"
+
+LEFT JOIN (
+  SELECT * FROM crm_v2.documents
+) d ON l."LIC_NO"=d.document_ref
+
+WHERE document_ref IS NULL
+`;
+// exports.getAllLicenceNumbers = `
+// SELECT l."FGAC_REGION_CODE", l."LIC_NO", v."ACON_APAR_ID"
+// FROM import."NALD_ABS_LICENCES" l
+// JOIN import."NALD_ABS_LIC_VERSIONS" v ON l."FGAC_REGION_CODE"=v."FGAC_REGION_CODE" AND l."ID"=v."AABL_ID"
+// `;

@@ -45,7 +45,7 @@ const registerServerPlugins = async (server) => {
 
   // // PG Boss message queue
   await server.register(require('./src/plugins/pg-boss'));
-  // await server.register(require('./src/modules/licence-import/plugin'));
+  await server.register(require('./src/modules/licence-import/plugin'));
 };
 
 const configureServerAuthStrategy = (server) => {

@@ -28,6 +28,7 @@ const createBoss = () => {
 const register = async server => {
   const boss = createBoss();
   server.decorate('server', 'messageQueue', boss);
+  server.decorate('request', 'messageQueue', boss);
   await boss.start();
 };
 
