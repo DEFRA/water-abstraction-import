@@ -65,4 +65,18 @@ experiment('modules/licence-import/mappers/date', () => {
       expect(result).to.equal(null);
     });
   });
+
+  experiment('mapTransferDate', () => {
+    test('converts a full datestamp in NALD format to a date in YYYY-MM-DD format', async () => {
+      const result = date.mapTransferDate('04/12/2015 12:52:00');
+      expect(result).to.equal('2015-12-04');
+    });
+  });
+
+  experiment('getPreviousDay', () => {
+    test('gets a date 1 day before the specified date', async () => {
+      const result = date.getPreviousDay('2018-06-07');
+      expect(result).to.equal('2018-06-06');
+    });
+  });
 });
