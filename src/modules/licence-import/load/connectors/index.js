@@ -50,6 +50,11 @@ const createCompanyAddress = (company, address) => {
   return pool.query(queries.createCompanyAddress, params);
 };
 
+const createAgreement = (licence, agreement) => {
+  const params = [licence.licenceNumber, agreement.agreementCode, agreement.startDate, agreement.endDate];
+  return pool.query(queries.createAgreement, params);
+};
+
 exports.createDocument = createDocument;
 exports.createDocumentRole = createDocumentRole;
 exports.createCompany = createCompany;
@@ -59,3 +64,4 @@ exports.createInvoiceAccount = createInvoiceAccount;
 exports.createInvoiceAccountAddress = createInvoiceAccountAddress;
 exports.createCompanyContact = createCompanyContact;
 exports.createCompanyAddress = createCompanyAddress;
+exports.createAgreement = createAgreement;

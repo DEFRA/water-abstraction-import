@@ -105,3 +105,12 @@ ON CONFLICT (company_id, address_id, role_id) DO UPDATE SET
   end_date=EXCLUDED.end_date,
   date_updated=EXCLUDED.date_updated
 `;
+
+exports.createAgreement = `
+INSERT INTO water.licence_agreements (licence_ref, financial_agreement_type_id, start_date, end_date, date_created, date_updated)
+VALUES ($1, $2, $3, $4, NOW(), NOW())
+ON CONFLICT (licence_ref, financial_agreement_type_id, start_date) DO UPDATE SET 
+  end_date=EXCLUDED.end_date,
+  date_updated=EXCLUDED.date_updated
+`
+;

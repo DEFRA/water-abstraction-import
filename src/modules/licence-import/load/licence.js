@@ -12,6 +12,13 @@ const loadDocument = async document => {
   return loadDocumentRoles(document);
 };
 
+const loadAgreements = licence => {
+  const tasks = licence.agreements.map(agreement =>
+    connectors.createAgreement(licence, agreement)
+  );
+  return Promise.all(tasks);
+};
+
 /**
  * @TODO
  * - Licence agreements
@@ -19,7 +26,8 @@ const loadDocument = async document => {
  */
 const loadLicence = async licence => {
   const tasks = [
-    licence.documents.map(loadDocument)
+    licence.documents.map(loadDocument),
+    loadAgreements(licence)
   ];
   return Promise.all(tasks);
 };

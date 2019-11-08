@@ -4,9 +4,9 @@ const load = require('../load');
 const { logger } = require('../../../logger');
 
 module.exports = async job => {
-  logger.info(`Import licence ${job.data.licenceNumber}`);
-
   try {
+    logger.info(`Import licence ${job.data.licenceNumber}`);
+
     // Extract data
     const data = await extract.getLicenceData(job.data.licenceNumber);
 
@@ -16,7 +16,7 @@ module.exports = async job => {
     // Load licence to DB
     await load.licence.loadLicence(mapped);
   } catch (err) {
-    console.error(err);
+    logger.error('Import licence error', err);
     throw err;
   }
 };

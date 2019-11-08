@@ -4,9 +4,9 @@ const load = require('../load');
 const { logger } = require('../../../logger');
 
 module.exports = async job => {
-  logger.info(`Import company ${job.data.regionCode} ${job.data.partyId}`);
-
   try {
+    logger.info(`Import company ${job.data.regionCode} ${job.data.partyId}`);
+
     // Extract data
     const data = await extract.getCompanyData(job.data.regionCode, job.data.partyId);
 
@@ -16,7 +16,7 @@ module.exports = async job => {
     // Load to CRM database
     await load.company.loadCompany(mapped);
   } catch (err) {
-    console.error(err);
+    logger.error('Import company error', err);
     throw err;
   }
 };

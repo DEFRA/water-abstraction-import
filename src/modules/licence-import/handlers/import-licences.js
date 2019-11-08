@@ -18,7 +18,7 @@ module.exports = async job => {
       await server.messageQueue.publish(...jobs.importLicence(licenceNumber));
     }
   } catch (err) {
-    console.error(`Import licences error`, err);
+    logger.error(`Import licences error`, err);
     throw err;
   }
 };
