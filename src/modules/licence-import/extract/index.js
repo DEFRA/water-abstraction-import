@@ -1,14 +1,5 @@
 const importConnector = require('./connectors');
 
-const getContextData = async () => {
-  // Get all parties/addresses
-  const [parties, addresses] = await Promise.all([
-    importConnector.getAllParties(),
-    importConnector.getAllAddresses()
-  ]);
-  return { parties, addresses };
-};
-
 const getLicenceParties = (regionCode, versions, chargeVersions) => {
   const partyIds = [
     ...versions.map(row => row.ACON_APAR_ID),
@@ -77,7 +68,6 @@ const getCompanyData = async (regionCode, partyId) => {
   };
 };
 
-exports.getContextData = getContextData;
 exports.getLicenceData = getLicenceData;
 exports.getCompanyData = getCompanyData;
 exports.getAllParties = importConnector.getAllParties;
