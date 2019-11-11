@@ -48,10 +48,11 @@ country=EXCLUDED.country,
 date_updated=EXCLUDED.date_updated`;
 
 exports.createContact = `
-INSERT INTO crm_v2.contacts (salutation, first_name, last_name, external_id, date_created, date_updated)
-VALUES ($1, $2, $3, $4, NOW(), NOW())
+INSERT INTO crm_v2.contacts (salutation, initials, first_name, last_name, external_id, date_created, date_updated)
+VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
 ON CONFLICT (external_id) DO UPDATE SET
   salutation=EXCLUDED.salutation,
+  initials=EXCLUDED.initials,
   first_name=EXCLUDED.first_name,
   last_name=EXCLUDED.last_name,
   external_id=EXCLUDED.external_id,

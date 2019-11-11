@@ -67,6 +67,7 @@ const data = {
   },
   contact: {
     salutation: 'SIR',
+    initials: 'J',
     firstName: 'JOHN',
     lastName: 'DOE',
     externalId: '1:2040'
@@ -264,6 +265,7 @@ experiment('modules/licence-import/load/connectors', () => {
       const [, params] = pool.query.lastCall.args;
       expect(params).to.equal([
         data.contact.salutation,
+        data.contact.initials,
         data.contact.firstName,
         data.contact.lastName,
         data.contact.externalId

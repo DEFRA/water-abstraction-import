@@ -26,7 +26,7 @@ const createAddress = address => {
 };
 
 const createContact = contact => {
-  const params = [contact.salutation, contact.firstName, contact.lastName, contact.externalId];
+  const params = [contact.salutation, contact.initials, contact.firstName, contact.lastName, contact.externalId];
   return pool.query(queries.createContact, params);
 };
 

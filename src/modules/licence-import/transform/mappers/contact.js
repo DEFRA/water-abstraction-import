@@ -1,12 +1,5 @@
 const str = require('./str');
 
-const mapFirstName = party => {
-  if (party.FORENAME === 'null') {
-    return str.mapNull(party.INITIALS);
-  }
-  return str.mapNull(party.FORENAME);
-};
-
 /**
  * Maps NALD party to CRM contact
  * @param {Object} NALD party
@@ -18,7 +11,8 @@ const mapContact = party => {
   }
   return {
     salutation: str.mapNull(party.SALUTATION),
-    firstName: mapFirstName(party),
+    initials: str.mapNull(party.INITIALS),
+    firstName: str.mapNull(party.FORENAME),
     lastName: str.mapNull(party.NAME),
     externalId: `${party.FGAC_REGION_CODE}:${party.ID}`,
     _nald: party

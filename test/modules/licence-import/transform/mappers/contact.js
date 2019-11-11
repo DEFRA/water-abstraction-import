@@ -26,7 +26,8 @@ experiment('modules/licence-import/mappers/contact', () => {
 
       expect(result.externalId).to.equal('2:5');
       expect(result.lastName).to.equal('DOE');
-      expect(result.firstName).to.equal('J');
+      expect(result.firstName).to.equal(null);
+      expect(result.initials).to.equal('J');
       expect(result.salutation).to.equal('MR');
     });
 
