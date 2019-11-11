@@ -36,7 +36,7 @@ const mapDocuments = (data, licence) => {
 
     return {
       documentRef: licence.licenceNumber,
-      issueNumber: parseInt(sorted[0].ISSUE_NO),
+      versionNumber: parseInt(sorted[0].ISSUE_NO),
       status: mapStatus(sorted[0].STATUS),
       startDate: date.mapNaldDate(sorted[0].EFF_ST_DATE),
       endDate: getDocumentEndDate(sorted, licence),

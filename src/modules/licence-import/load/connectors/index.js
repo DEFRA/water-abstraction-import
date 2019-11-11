@@ -3,7 +3,7 @@ const { get } = require('lodash');
 const queries = require('./queries');
 
 const createDocument = async doc => {
-  const params = [doc.documentRef, doc.issueNumber, doc.status, doc.startDate, doc.endDate, doc.externalId];
+  const params = [doc.documentRef, doc.versionNumber, doc.status, doc.startDate, doc.endDate, doc.externalId];
   return pool.query(queries.createDocument, params);
 };
 

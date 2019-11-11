@@ -80,7 +80,7 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(result.documents.length).to.equal(1);
         const [doc] = result.documents;
         expect(doc.documentRef).to.equal('01/123');
-        expect(doc.issueNumber).to.equal(100);
+        expect(doc.versionNumber).to.equal(100);
         expect(doc.status).to.equal('current');
         expect(doc.startDate).to.equal('2016-04-01');
         expect(doc.endDate).to.equal(null);
@@ -122,10 +122,10 @@ experiment('modules/licence-import/transform/licence.js', () => {
 
       test('documents are created when an issue number changes, increment changes are merged', async () => {
         expect(result.documents.length).to.equal(2);
-        expect(result.documents[0].issueNumber).to.equal(1);
+        expect(result.documents[0].versionNumber).to.equal(1);
         expect(result.documents[0].startDate).to.equal('2015-04-02');
         expect(result.documents[0].endDate).to.equal('2015-08-12');
-        expect(result.documents[1].issueNumber).to.equal(2);
+        expect(result.documents[1].versionNumber).to.equal(2);
         expect(result.documents[1].startDate).to.equal('2015-08-13');
         expect(result.documents[1].endDate).to.equal(null);
       });
