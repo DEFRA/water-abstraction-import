@@ -14,8 +14,8 @@ const postImport = async request => {
       error: null
     };
   } catch (err) {
-    logger.error(`Error importing companies`, err);
-    return Boom.badImplementation(`Error importing companies`);
+    logger.error('Error importing companies', err);
+    return Boom.badImplementation('Error importing companies');
   };
 };
 

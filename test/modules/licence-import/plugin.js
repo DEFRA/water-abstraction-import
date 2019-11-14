@@ -8,7 +8,7 @@ const handlers = require('../../../src/modules/licence-import/handlers');
 const { expect } = require('code');
 
 experiment('modules/licence-import/plugin.js', () => {
-  let originalEnv = process.env.NODE_ENV;
+  const originalEnv = process.env.NODE_ENV;
   let server;
 
   beforeEach(async () => {

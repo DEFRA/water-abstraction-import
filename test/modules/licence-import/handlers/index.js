@@ -77,7 +77,7 @@ experiment('modules/licence-import/transform/handlers', () => {
             fail();
           } catch (err) {
             expect(logger.error.callCount).to.equal(1);
-            expect(logger.error.lastCall.args[0]).to.equal(`Import licences error`);
+            expect(logger.error.lastCall.args[0]).to.equal('Import licences error');
           }
         });
       });
@@ -130,7 +130,7 @@ experiment('modules/licence-import/transform/handlers', () => {
           fail();
         } catch (err) {
           expect(logger.error.callCount).to.equal(1);
-          expect(logger.error.lastCall.args[0]).to.equal(`Import licence error`);
+          expect(logger.error.lastCall.args[0]).to.equal('Import licence error');
         }
       });
     });
@@ -184,7 +184,7 @@ experiment('modules/licence-import/transform/handlers', () => {
           fail();
         } catch (err) {
           expect(logger.error.callCount).to.equal(1);
-          expect(logger.error.lastCall.args[0]).to.equal(`Import company error`);
+          expect(logger.error.lastCall.args[0]).to.equal('Import company error');
         }
       });
     });
