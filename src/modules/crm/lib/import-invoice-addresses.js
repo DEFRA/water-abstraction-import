@@ -64,7 +64,7 @@ const insertInvoiceAddress = row => {
  * @return {Promise}    - resolves when all inserted/failed
  */
 const insertInvoiceAddresses = async arr => {
-  for (let row of arr) {
+  for (const row of arr) {
     try {
       await insertInvoiceAddress(row);
     } catch (err) {
@@ -81,7 +81,7 @@ const importInvoiceAddresses = async () => {
     const arr = deduplicateAddressChanges(rows);
     return insertInvoiceAddresses(arr);
   } catch (err) {
-    logger.error(`Error importing CRM invoice addresses`, err);
+    logger.error('Error importing CRM invoice addresses', err);
     throw err;
   }
 };

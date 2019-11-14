@@ -92,13 +92,13 @@ const insertBillingRole = row => {
  * @return {Promise}
  */
 const insertBillingRoles = async arr => {
-  for (let row of arr) {
+  for (const row of arr) {
     try {
       await insertBillingRole(row);
     } catch (err) {
       // Note: currently we get a handful of errors because the IAS_CUST_REF is supposed
       // to have a unique party ID, but there are a few instances in NALD where it doesn't
-      logger.error(`Error importing CRM billing role`, err, row);
+      logger.error('Error importing CRM billing role', err, row);
     }
   }
 };

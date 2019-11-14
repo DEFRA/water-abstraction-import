@@ -11,7 +11,7 @@ const importLicenceHolderRoles = require('./import-licence-holder-roles');
  * @return {Promise}
  */
 const importCRMData = async () => {
-  logger.info(`Starting CRM data import`);
+  logger.info('Starting CRM data import');
 
   const arr = [
     queries.documents.importDocumentHeaders,
@@ -26,15 +26,15 @@ const importCRMData = async () => {
     await pool.query(query);
   }
 
-  logger.info(`CRM data: import billing roles`);
+  logger.info('CRM data: import billing roles');
   await importDocumentBillingRoles.importDocumentBillingRoles();
-  logger.info(`CRM data: import invoice account addresses`);
+  logger.info('CRM data: import invoice account addresses');
   await importInvoiceAddresses.importInvoiceAddresses();
 
   logger.info('CRM data: import licence holder roles');
   await importLicenceHolderRoles.importLicenceHolderRoles();
 
-  logger.info(`CRM data imported`);
+  logger.info('CRM data imported');
 };
 
 exports.importCRMData = importCRMData;

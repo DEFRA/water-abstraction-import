@@ -87,11 +87,11 @@ const insertLicenceHolderRole = row => {
  * @return {Promise}    - resolves when all inserted/failed
  */
 const insertLicenceHolderRoles = async arr => {
-  for (let row of arr) {
+  for (const row of arr) {
     try {
       await insertLicenceHolderRole(row);
     } catch (err) {
-      logger.error(`Error importing CRM licence holder role`, err, row);
+      logger.error('Error importing CRM licence holder role', err, row);
     }
   }
 };
