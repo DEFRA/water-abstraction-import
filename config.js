@@ -25,6 +25,12 @@ module.exports = {
     connectionTimeoutMillis: 5000
   },
 
+  pgBoss: {
+    schema: 'water_import',
+    application_name: process.env.SERVICE_NAME,
+    newJobCheckIntervalSeconds: 5
+  },
+
   server: {
     port: 8007,
     router: {

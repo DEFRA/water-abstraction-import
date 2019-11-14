@@ -226,6 +226,8 @@ FROM import."NALD_CHG_AGRMNTS" a
     ON a."ACEL_ID"::integer=ie.element_id
       AND a."FGAC_REGION_CODE"::integer=ie.region_code
 
+WHERE a."AFSA_CODE" NOT IN ('S127', 'S130S', 'S130T', 'S130U', 'S130W') 
+
 ON CONFLICT (charge_agreement_id) DO UPDATE
 SET
 charge_element_id=EXCLUDED.charge_element_id, agreement_code=EXCLUDED.agreement_code,
@@ -241,6 +243,7 @@ DELETE FROM water.charge_agreements WHERE charge_agreement_id IN (
       ON a.element_id=ia."ACEL_ID"::integer
         AND a.afsa_code=ia."AFSA_CODE"
         AND a.start_date=to_date(ia."EFF_ST_DATE", 'DD/MM/YYYY')
+        AND ia."AFSA_CODE" NOT IN ('S127', 'S130S', 'S130T', 'S130U', 'S130W')
   WHERE ia."ACEL_ID" IS NULL
 )`;
 
