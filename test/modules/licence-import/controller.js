@@ -49,7 +49,7 @@ experiment('modules/licence-import/controller.js', () => {
     test('an error is logged', async () => {
       expect(logger.error.callCount).to.equal(1);
       const [message] = logger.error.lastCall.args;
-      expect(message).to.equal(`Error importing companies`);
+      expect(message).to.equal('Error importing companies');
     });
 
     test('a Boom 500 error is returned', async () => {

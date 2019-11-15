@@ -157,7 +157,7 @@ experiment('modules/licence-import/connectors/import', () => {
       await importConnector.getParties(regionCode, partyIds);
       const [query, params] = pool.query.lastCall.args;
       expect(query).to.equal(queries.getParties);
-      expect(params).to.equal([regionCode, `19,265`]);
+      expect(params).to.equal([regionCode, '19,265']);
     });
 
     test('resolves with all rows found', async () => {
@@ -171,7 +171,7 @@ experiment('modules/licence-import/connectors/import', () => {
       await importConnector.getAddresses(regionCode, addressIds);
       const [query, params] = pool.query.lastCall.args;
       expect(query).to.equal(queries.getAddresses);
-      expect(params).to.equal([regionCode, `124,92`]);
+      expect(params).to.equal([regionCode, '124,92']);
     });
 
     test('resolves with all rows found', async () => {

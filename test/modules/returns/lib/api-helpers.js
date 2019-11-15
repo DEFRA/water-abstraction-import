@@ -19,7 +19,7 @@ experiment('getVersionFilter', () => {
 
     const data = getVersionFilter(request);
 
-    expect(data).to.equal({ current: true, created_at: { '$gte': '2018-04-01' } });
+    expect(data).to.equal({ current: true, created_at: { $gte: '2018-04-01' } });
   });
 
   it('Should get version filter with end date specified', async () => {
@@ -32,7 +32,7 @@ experiment('getVersionFilter', () => {
 
     const filter = getVersionFilter(request);
 
-    expect(filter).to.equal({ current: true, created_at: { '$gte': '2018-04-01', '$lte': '2018-05-12' } });
+    expect(filter).to.equal({ current: true, created_at: { $gte: '2018-04-01', $lte: '2018-05-12' } });
   });
 });
 
@@ -45,7 +45,7 @@ experiment('getEventFilter', () => {
     };
 
     const filter = getEventFilter(request);
-    expect(filter).to.equal({ created: { '$gte': '2018-04-01' }, type: 'return.status' });
+    expect(filter).to.equal({ created: { $gte: '2018-04-01' }, type: 'return.status' });
   });
 
   it('Should get event filter with end date specified', async () => {
@@ -57,7 +57,7 @@ experiment('getEventFilter', () => {
     };
 
     const filter = getEventFilter(request);
-    expect(filter).to.equal({ created: { '$gte': '2018-04-01', '$lte': '2018-06-01' }, type: 'return.status' });
+    expect(filter).to.equal({ created: { $gte: '2018-04-01', $lte: '2018-06-01' }, type: 'return.status' });
   });
 });
 
