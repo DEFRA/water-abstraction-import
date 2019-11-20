@@ -181,4 +181,60 @@ experiment('modules/licence-import/transform/handlers', () => {
       });
     });
   });
+
+  experiment('importCompany', () => {
+    let result;
+
+    beforeEach(async () => {
+      sandbox.stub(importCompanies, 'clear');
+    });
+
+    experiment('when there are no errors', () => {
+      beforeEach(async () => {
+        sandbox.stub(importCompanies, 'initialise').resolves([
+          {
+            region_code: 1,
+            party_id: 123
+          }
+        ]);
+        result = await handlers.importCompanies();
+      });
+
+      test('logs an info message', async () => {
+        expect(logger.info.calledWith(
+          'Import companies'
+        )).to.be.true();
+      });
+
+      test('clears existing import_companies table data', async () => {
+        expect(importCompanies.clear.called).to.be.true();
+      });
+
+      test('initialises the import_companies table with new data', async () => {
+        expect(importCompanies.initialise.called).to.be.true();
+      });
+
+      test('resolves with mapped list of region codes/party IDs', async () => {
+        expect(result).to.equal([{
+          regionCode: 1,
+          partyId: 123
+        }]);
+      });
+    });
+
+    experiment('when there are errors', () => {
+      beforeEach(async () => {
+        sandbox.stub(importCompanies, 'initialise').rejects();
+      });
+
+      test('an error is logged and rethrown', async () => {
+        try {
+          await handlers.importCompanies();
+          fail();
+        } catch (err) {
+          expect(logger.error.called).to.be.true();
+        }
+      });
+    });
+  });
 });
