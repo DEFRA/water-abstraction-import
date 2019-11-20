@@ -4,6 +4,7 @@ const handlers = require('../../../../src/modules/licence-import/handlers');
 const extract = require('../../../../src/modules/licence-import/extract');
 const transform = require('../../../../src/modules/licence-import/transform');
 const load = require('../../../../src/modules/licence-import/load');
+const importCompanies = require('../../../../src/modules/licence-import/connectors/import-companies');
 
 const { logger } = require('../../../../src/logger');
 
@@ -137,6 +138,7 @@ experiment('modules/licence-import/transform/handlers', () => {
         bar: 'foo'
       });
       sandbox.stub(load.company, 'loadCompany');
+      sandbox.stub(importCompanies, 'setImportedStatus');
     });
 
     experiment('when there are no errors', () => {
