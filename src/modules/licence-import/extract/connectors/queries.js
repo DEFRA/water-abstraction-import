@@ -15,12 +15,12 @@ exports.getAddress = `SELECT * FROM import."NALD_ADDRESSES" a
 
 exports.getAllAddresses = 'SELECT * FROM import."NALD_ADDRESSES"';
 
-exports.getAllParties = 'SELECT * FROM import."NALD_PARTIES"';
+exports.getAllParties = 'SELECT "FGAC_REGION_CODE", "ID" FROM import."NALD_PARTIES"';
 
 exports.getChargeVersions = `SELECT * FROM import."NALD_CHG_VERSIONS" cv
   JOIN import."NALD_IAS_INVOICE_ACCS" ia
   ON cv."AIIA_IAS_CUST_REF"=ia."IAS_CUST_REF" AND cv."FGAC_REGION_CODE"=ia."FGAC_REGION_CODE" AND cv."AIIA_ALHA_ACC_NO"=ia."ALHA_ACC_NO"
-  WHERE cv."FGAC_REGION_CODE"=$1 AND cv."AABL_ID"=$2
+  WHERE cv."FGAC_REGION_CODE"=$1 AND cv."AABL_ID"=$2 AND cv."STATUS"<>'DRAFT' 
   ORDER BY cv."VERS_NO"::integer`;
 
 exports.getTwoPartTariffAgreements = `SELECT a.* FROM import."NALD_CHG_VERSIONS" cv
@@ -61,7 +61,5 @@ WHERE a."FGAC_REGION_CODE"=$1
 AND a."ID" =  any (string_to_array($2, ',')::text[])`;
 
 exports.getAllLicenceNumbers = `
-SELECT l."FGAC_REGION_CODE", l."LIC_NO", v."ACON_APAR_ID"
-FROM import."NALD_ABS_LICENCES" l
-JOIN import."NALD_ABS_LIC_VERSIONS" v ON l."FGAC_REGION_CODE"=v."FGAC_REGION_CODE" AND l."ID"=v."AABL_ID" AND v."STATUS"<>'DRAFT'
+SELECT l."LIC_NO" FROM import."NALD_ABS_LICENCES" l
 `;

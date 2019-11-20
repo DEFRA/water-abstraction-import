@@ -24,9 +24,8 @@ experiment('modules/licence-import/transform/handlers', () => {
     beforeEach(async () => {
       sandbox.stub(server.messageQueue, 'publish');
       sandbox.stub(extract, 'getAllLicenceNumbers').resolves([
-        { LIC_NO: 'A', FGAC_REGION_CODE: '1', ACON_APAR_ID: '1' },
-        { LIC_NO: 'A', FGAC_REGION_CODE: '1', ACON_APAR_ID: '2' },
-        { LIC_NO: 'B', FGAC_REGION_CODE: '1', ACON_APAR_ID: '3' }
+        { LIC_NO: 'A' },
+        { LIC_NO: 'B' }
       ]);
     });
 
@@ -44,25 +43,16 @@ experiment('modules/licence-import/transform/handlers', () => {
           expect(extract.getAllLicenceNumbers.callCount).to.equal(1);
         });
 
-        test('import licence and company jobs are published for the first licence', async () => {
-          expect(server.messageQueue.publish.calledWith(
-            'import.licence', { licenceNumber: 'A' }
-          )).to.be.true();
-          expect(server.messageQueue.publish.calledWith(
-            'import.company', { regionCode: '1', partyId: '1' }
-          )).to.be.true();
-          expect(server.messageQueue.publish.calledWith(
-            'import.company', { regionCode: '1', partyId: '2' }
-          )).to.be.true();
+        test('import licence jobs are published for the first licence', async () => {
+          const [{ name, data }] = server.messageQueue.publish.getCall(0).args;
+          expect(name).to.equal('import.licence');
+          expect(data.licenceNumber).to.equal('A');
         });
 
-        test('import licence and company jobs are published for the second licence', async () => {
-          expect(server.messageQueue.publish.calledWith(
-            'import.licence', { licenceNumber: 'B' }
-          )).to.be.true();
-          expect(server.messageQueue.publish.calledWith(
-            'import.company', { regionCode: '1', partyId: '3' }
-          )).to.be.true();
+        test('import licence jobs are published for the second licence', async () => {
+          const [{ name, data }] = server.messageQueue.publish.getCall(1).args;
+          expect(name).to.equal('import.licence');
+          expect(data.licenceNumber).to.equal('B');
         });
       });
 

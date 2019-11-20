@@ -28,10 +28,10 @@ experiment('modules/licence-import/controller.js', () => {
       response = await controller.postImport(request);
     });
 
-    test('an "import licences" job is published', async () => {
+    test('an "import companies" job is published', async () => {
       expect(request.messageQueue.publish.callCount).to.equal(1);
-      const [jobType] = request.messageQueue.publish.lastCall.args;
-      expect(jobType).to.equal(jobs.IMPORT_LICENCES_JOB);
+      const [job] = request.messageQueue.publish.lastCall.args;
+      expect(job.name).to.equal(jobs.IMPORT_COMPANIES_JOB);
     });
 
     test('a success response is returned', async () => {
