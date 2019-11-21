@@ -4,6 +4,7 @@ const handlers = require('../../../../src/modules/licence-import/handlers');
 const extract = require('../../../../src/modules/licence-import/extract');
 const transform = require('../../../../src/modules/licence-import/transform');
 const load = require('../../../../src/modules/licence-import/load');
+const importCompanies = require('../../../../src/modules/licence-import/connectors/import-companies');
 
 const { logger } = require('../../../../src/logger');
 
@@ -24,9 +25,8 @@ experiment('modules/licence-import/transform/handlers', () => {
     beforeEach(async () => {
       sandbox.stub(server.messageQueue, 'publish');
       sandbox.stub(extract, 'getAllLicenceNumbers').resolves([
-        { LIC_NO: 'A', FGAC_REGION_CODE: '1', ACON_APAR_ID: '1' },
-        { LIC_NO: 'A', FGAC_REGION_CODE: '1', ACON_APAR_ID: '2' },
-        { LIC_NO: 'B', FGAC_REGION_CODE: '1', ACON_APAR_ID: '3' }
+        { LIC_NO: 'A' },
+        { LIC_NO: 'B' }
       ]);
     });
 
@@ -44,25 +44,16 @@ experiment('modules/licence-import/transform/handlers', () => {
           expect(extract.getAllLicenceNumbers.callCount).to.equal(1);
         });
 
-        test('import licence and company jobs are published for the first licence', async () => {
-          expect(server.messageQueue.publish.calledWith(
-            'import.licence', { licenceNumber: 'A' }
-          )).to.be.true();
-          expect(server.messageQueue.publish.calledWith(
-            'import.company', { regionCode: '1', partyId: '1' }
-          )).to.be.true();
-          expect(server.messageQueue.publish.calledWith(
-            'import.company', { regionCode: '1', partyId: '2' }
-          )).to.be.true();
+        test('import licence jobs are published for the first licence', async () => {
+          const [{ name, data }] = server.messageQueue.publish.getCall(0).args;
+          expect(name).to.equal('import.licence');
+          expect(data.licenceNumber).to.equal('A');
         });
 
-        test('import licence and company jobs are published for the second licence', async () => {
-          expect(server.messageQueue.publish.calledWith(
-            'import.licence', { licenceNumber: 'B' }
-          )).to.be.true();
-          expect(server.messageQueue.publish.calledWith(
-            'import.company', { regionCode: '1', partyId: '3' }
-          )).to.be.true();
+        test('import licence jobs are published for the second licence', async () => {
+          const [{ name, data }] = server.messageQueue.publish.getCall(1).args;
+          expect(name).to.equal('import.licence');
+          expect(data.licenceNumber).to.equal('B');
         });
       });
 
@@ -147,6 +138,7 @@ experiment('modules/licence-import/transform/handlers', () => {
         bar: 'foo'
       });
       sandbox.stub(load.company, 'loadCompany');
+      sandbox.stub(importCompanies, 'setImportedStatus');
     });
 
     experiment('when there are no errors', () => {
@@ -186,6 +178,134 @@ experiment('modules/licence-import/transform/handlers', () => {
           expect(logger.error.callCount).to.equal(1);
           expect(logger.error.lastCall.args[0]).to.equal('Import company error');
         }
+      });
+    });
+  });
+
+  experiment('importCompanies', () => {
+    let result;
+
+    beforeEach(async () => {
+      sandbox.stub(importCompanies, 'clear');
+    });
+
+    experiment('when there are no errors', () => {
+      beforeEach(async () => {
+        sandbox.stub(importCompanies, 'initialise').resolves([
+          {
+            region_code: 1,
+            party_id: 123
+          }
+        ]);
+        result = await handlers.importCompanies();
+      });
+
+      test('logs an info message', async () => {
+        expect(logger.info.calledWith(
+          'Import companies'
+        )).to.be.true();
+      });
+
+      test('clears existing import_companies table data', async () => {
+        expect(importCompanies.clear.called).to.be.true();
+      });
+
+      test('initialises the import_companies table with new data', async () => {
+        expect(importCompanies.initialise.called).to.be.true();
+      });
+
+      test('resolves with mapped list of region codes/party IDs', async () => {
+        expect(result).to.equal([{
+          regionCode: 1,
+          partyId: 123
+        }]);
+      });
+    });
+
+    experiment('when there are errors', () => {
+      beforeEach(async () => {
+        sandbox.stub(importCompanies, 'initialise').rejects();
+      });
+
+      test('an error is logged and rethrown', async () => {
+        try {
+          await handlers.importCompanies();
+          fail();
+        } catch (err) {
+          expect(logger.error.called).to.be.true();
+        }
+      });
+    });
+  });
+
+  experiment('onComplete importCompanies', () => {
+    let messageQueue;
+
+    beforeEach(async () => {
+      messageQueue = {
+        publish: sandbox.stub()
+      };
+      const job = {
+        data: {
+          response: {
+            value: [{
+              regionCode: 1,
+              partyId: 123
+            }]
+          }
+        }
+      };
+      await handlers.onCompleteImportCompanies(messageQueue, job);
+    });
+
+    test('a job is published to import each company', async () => {
+      const [{ name, data }] = messageQueue.publish.lastCall.args;
+      expect(name).to.equal('import.company');
+      expect(data).to.equal({
+        regionCode: 1, partyId: 123
+      });
+    });
+  });
+
+  experiment('onComplete importCompany', () => {
+    let messageQueue;
+
+    beforeEach(async () => {
+      sandbox.stub(importCompanies, 'getPendingCount');
+      messageQueue = {
+        deleteQueue: sandbox.stub(),
+        publish: sandbox.stub()
+      };
+    });
+
+    experiment('when there are still companies to import', () => {
+      beforeEach(async () => {
+        importCompanies.getPendingCount.resolves(5);
+        await handlers.onCompleteImportCompany(messageQueue);
+      });
+
+      test('the queue is not deleted', async () => {
+        expect(messageQueue.deleteQueue.called).to.be.false();
+      });
+
+      test('the import licences job is not published', async () => {
+        expect(messageQueue.publish.called).to.be.false();
+      });
+    });
+
+    experiment('when all the companies are imported', () => {
+      beforeEach(async () => {
+        importCompanies.getPendingCount.resolves(0);
+        await handlers.onCompleteImportCompany(messageQueue);
+      });
+
+      test('the queue is deleted', async () => {
+        expect(messageQueue.deleteQueue.called).to.be.true();
+      });
+
+      test('the import licences job is published', async () => {
+        const [{ name }] = messageQueue.publish.lastCall.args;
+        expect(name).to.equal('import.licences');
       });
     });
   });

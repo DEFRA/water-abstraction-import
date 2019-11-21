@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const jobs = require('./jobs');
 const handlers = require('./handlers');
+const { logger } = require('../../logger');
 
 const isImportTarget = () =>
   ['local', 'dev', 'development', 'test', 'preprod'].includes(process.env.NODE_ENV);
@@ -10,11 +11,19 @@ const getOptions = () => ({
   teamConcurrency: 5
 });
 
-const register = async server => {
-  if (!isImportTarget()) {
-    console.log(process.env.NODE_ENV, 'aborting');
-    return;
-  }
+const registerSubscribers = async server => {
+  // The first step is to import a list of all companies into the water_import.company_import table
+  await server.messageQueue.subscribe(jobs.IMPORT_COMPANIES_JOB, handlers.importCompanies);
+
+  // When the water_import.company_import table is ready, jobs are scheduled to import each company
+  await server.messageQueue.onComplete(jobs.IMPORT_COMPANIES_JOB,
+    job => handlers.onCompleteImportCompanies(server.messageQueue, job)
+  );
+
+  // Import licenced when all companies are imported
+  await server.messageQueue.onComplete(jobs.IMPORT_COMPANY_JOB,
+    job => handlers.onCompleteImportCompany(server.messageQueue, job)
+  );
 
   await server.messageQueue.subscribe(jobs.IMPORT_COMPANY_JOB, getOptions(), handlers.importCompany);
   await server.messageQueue.subscribe(jobs.IMPORT_LICENCES_JOB, handlers.importLicences);
@@ -22,8 +31,16 @@ const register = async server => {
 
   // Set up cron job to import companies daily at 4am
   cron.schedule('0 0 4 1/1 * * *', async () => {
-    await server.messageQueue.publish(...jobs.importLicences());
+    await server.messageQueue.publish(jobs.importCompanies());
   });
+};
+
+const register = server => {
+  if (!isImportTarget()) {
+    logger.info(`Aborting import, environment is: ${process.env.NODE_ENV}`);
+    return;
+  }
+  return registerSubscribers(server);
 };
 
 exports.plugin = {

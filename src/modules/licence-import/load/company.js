@@ -1,4 +1,4 @@
-const { uniqBy, flatMap } = require('lodash');
+const { uniqBy } = require('lodash');
 const connectors = require('./connectors');
 
 const getAddresses = company => {
@@ -28,13 +28,19 @@ const loadContacts = async company => {
   return Promise.all(tasks);
 };
 
-const loadInvoiceAccounts = async company => {
-  const tasks = company.invoiceAccounts.map(invoiceAccount => [
-    connectors.createInvoiceAccount(company, invoiceAccount),
-    ...invoiceAccount.addresses.map(address => connectors.createInvoiceAccountAddress(invoiceAccount, address))
-  ]);
+const loadInvoiceAccount = async (company, invoiceAccount) => {
+  await connectors.createInvoiceAccount(company, invoiceAccount);
+  const tasks = invoiceAccount.addresses.map(address =>
+    connectors.createInvoiceAccountAddress(invoiceAccount, address)
+  );
+  return Promise.all(tasks);
+};
 
-  return Promise.all(flatMap(tasks));
+const loadInvoiceAccounts = async company => {
+  const tasks = company.invoiceAccounts.map(invoiceAccount =>
+    loadInvoiceAccount(company, invoiceAccount)
+  );
+  return Promise.all(tasks);
 };
 
 const loadCompanyContacts = async company => {

@@ -9,7 +9,7 @@ const Boom = require('@hapi/boom');
  */
 const postImport = async request => {
   try {
-    await request.messageQueue.publish(...jobs.importLicences());
+    await request.messageQueue.publish(jobs.importCompanies());
     return {
       error: null
     };

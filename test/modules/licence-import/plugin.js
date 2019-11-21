@@ -15,7 +15,8 @@ experiment('modules/licence-import/plugin.js', () => {
     server = {
       messageQueue: {
         subscribe: sandbox.stub().resolves(),
-        publish: sandbox.stub().resolves()
+        publish: sandbox.stub().resolves(),
+        onComplete: sandbox.stub().resolves()
       }
     };
     sandbox.stub(cron, 'schedule');
@@ -39,12 +40,28 @@ experiment('modules/licence-import/plugin.js', () => {
         await plugin.register(server);
       });
 
-      test('adds subscriber for import company job', async () => {
-        console.log(server.messageQueue.subscribe.firstCall.args);
+      test('adds subscriber for import companies job', async () => {
+        expect(server.messageQueue.subscribe.calledWith(
+          jobs.IMPORT_COMPANIES_JOB, handlers.importCompanies
+        )).to.be.true();
+      });
 
+      test('adds on complete handler for import companies job', async () => {
+        const [job, func] = server.messageQueue.onComplete.firstCall.args;
+        expect(job).to.equal(jobs.IMPORT_COMPANIES_JOB);
+        expect(func).to.be.a.function();
+      });
+
+      test('adds subscriber for import company job', async () => {
         expect(server.messageQueue.subscribe.calledWith(
           jobs.IMPORT_COMPANY_JOB, options, handlers.importCompany
         )).to.be.true();
+      });
+
+      test('adds on complete handler for import company job', async () => {
+        const [job, func] = server.messageQueue.onComplete.secondCall.args;
+        expect(job).to.equal(jobs.IMPORT_COMPANY_JOB);
+        expect(func).to.be.a.function();
       });
 
       test('adds subscriber for import licences job', async () => {
