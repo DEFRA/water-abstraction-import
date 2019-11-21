@@ -239,7 +239,7 @@ experiment('modules/licence-import/transform/handlers', () => {
   });
 
   experiment('onComplete importCompanies', () => {
-    let result, messageQueue;
+    let messageQueue;
 
     beforeEach(async () => {
       messageQueue = {
@@ -268,7 +268,7 @@ experiment('modules/licence-import/transform/handlers', () => {
   });
 
   experiment('onComplete importCompany', () => {
-    let result, messageQueue;
+    let messageQueue;
 
     beforeEach(async () => {
       sandbox.stub(importCompanies, 'getPendingCount');
