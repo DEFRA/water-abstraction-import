@@ -182,7 +182,7 @@ experiment('modules/licence-import/transform/handlers', () => {
     });
   });
 
-  experiment('importCompany', () => {
+  experiment('importCompanies', () => {
     let result;
 
     beforeEach(async () => {
@@ -234,6 +234,78 @@ experiment('modules/licence-import/transform/handlers', () => {
         } catch (err) {
           expect(logger.error.called).to.be.true();
         }
+      });
+    });
+  });
+
+  experiment('onComplete importCompanies', () => {
+    let result, messageQueue;
+
+    beforeEach(async () => {
+      messageQueue = {
+        publish: sandbox.stub()
+      };
+      const job = {
+        data: {
+          response: {
+            value: [{
+              regionCode: 1,
+              partyId: 123
+            }]
+          }
+        }
+      };
+      await handlers.onCompleteImportCompanies(messageQueue, job);
+    });
+
+    test('a job is published to import each company', async () => {
+      const [{ name, data }] = messageQueue.publish.lastCall.args;
+      expect(name).to.equal('import.company');
+      expect(data).to.equal({
+        regionCode: 1, partyId: 123
+      });
+    });
+  });
+
+  experiment('onComplete importCompany', () => {
+    let result, messageQueue;
+
+    beforeEach(async () => {
+      sandbox.stub(importCompanies, 'getPendingCount');
+      messageQueue = {
+        deleteQueue: sandbox.stub(),
+        publish: sandbox.stub()
+      };
+    });
+
+    experiment('when there are still companies to import', () => {
+      beforeEach(async () => {
+        importCompanies.getPendingCount.resolves(5);
+        await handlers.onCompleteImportCompany(messageQueue);
+      });
+
+      test('the queue is not deleted', async () => {
+        expect(messageQueue.deleteQueue.called).to.be.false();
+      });
+
+      test('the import licences job is not published', async () => {
+        expect(messageQueue.publish.called).to.be.false();
+      });
+    });
+
+    experiment('when all the companies are imported', () => {
+      beforeEach(async () => {
+        importCompanies.getPendingCount.resolves(0);
+        await handlers.onCompleteImportCompany(messageQueue);
+      });
+
+      test('the queue is deleted', async () => {
+        expect(messageQueue.deleteQueue.called).to.be.true();
+      });
+
+      test('the import licences job is published', async () => {
+        const [{ name }] = messageQueue.publish.lastCall.args;
+        expect(name).to.equal('import.licences');
       });
     });
   });
