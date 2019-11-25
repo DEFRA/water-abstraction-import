@@ -58,19 +58,19 @@ const loadCompanyAddresses = async company => {
 };
 
 const loadCompany = async company => {
-  const entities = Promise.all([
+  const entities = await Promise.all([
     connectors.createCompany(company),
     loadAddresses(company),
     loadContacts(company)
   ]);
 
-  const relationships = Promise.all([
+  const relationships = await Promise.all([
     loadInvoiceAccounts(company),
     loadCompanyContacts(company),
     loadCompanyAddresses(company)
   ]);
 
-  return Promise.all([entities, relationships]);
+  return { entities, relationships };
 };
 
 exports.loadCompany = loadCompany;
