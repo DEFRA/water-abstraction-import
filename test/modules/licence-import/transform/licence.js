@@ -84,7 +84,7 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(doc.status).to.equal('current');
         expect(doc.startDate).to.equal('2016-04-01');
         expect(doc.endDate).to.equal(null);
-        expect(doc.externalId).to.equal('1:123:100:1');
+        expect(doc.externalId).to.equal('1:123:100');
         expect(doc.roles).to.be.an.array();
       });
 
