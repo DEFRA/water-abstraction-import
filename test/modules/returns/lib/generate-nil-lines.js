@@ -79,61 +79,91 @@ experiment('getMonths', () => {
   it('Should generate correct months', async () => {
     const months = getMonths('2018-01-01', '2018-12-31');
     expect(months).to.equal([
-      { startDate: '2018-01-01',
+      {
+        startDate: '2018-01-01',
         endDate: '2018-01-31',
-        timePeriod: 'month' },
-      { startDate: '2018-02-01',
+        timePeriod: 'month'
+      },
+      {
+        startDate: '2018-02-01',
         endDate: '2018-02-28',
-        timePeriod: 'month' },
-      { startDate: '2018-03-01',
+        timePeriod: 'month'
+      },
+      {
+        startDate: '2018-03-01',
         endDate: '2018-03-31',
-        timePeriod: 'month' },
-      { startDate: '2018-04-01',
+        timePeriod: 'month'
+      },
+      {
+        startDate: '2018-04-01',
         endDate: '2018-04-30',
-        timePeriod: 'month' },
-      { startDate: '2018-05-01',
+        timePeriod: 'month'
+      },
+      {
+        startDate: '2018-05-01',
         endDate: '2018-05-31',
-        timePeriod: 'month' },
-      { startDate: '2018-06-01',
+        timePeriod: 'month'
+      },
+      {
+        startDate: '2018-06-01',
         endDate: '2018-06-30',
-        timePeriod: 'month' },
-      { startDate: '2018-07-01',
+        timePeriod: 'month'
+      },
+      {
+        startDate: '2018-07-01',
         endDate: '2018-07-31',
-        timePeriod: 'month' },
-      { startDate: '2018-08-01',
+        timePeriod: 'month'
+      },
+      {
+        startDate: '2018-08-01',
         endDate: '2018-08-31',
-        timePeriod: 'month' },
-      { startDate: '2018-09-01',
+        timePeriod: 'month'
+      },
+      {
+        startDate: '2018-09-01',
         endDate: '2018-09-30',
-        timePeriod: 'month' },
-      { startDate: '2018-10-01',
+        timePeriod: 'month'
+      },
+      {
+        startDate: '2018-10-01',
         endDate: '2018-10-31',
-        timePeriod: 'month' },
-      { startDate: '2018-11-01',
+        timePeriod: 'month'
+      },
+      {
+        startDate: '2018-11-01',
         endDate: '2018-11-30',
-        timePeriod: 'month' },
-      { startDate: '2018-12-01',
+        timePeriod: 'month'
+      },
+      {
+        startDate: '2018-12-01',
         endDate: '2018-12-31',
-        timePeriod: 'month' } ]);
+        timePeriod: 'month'
+      }]);
   });
 
   it('Should generate a month if the start date is anywhere within the month', async () => {
     const months = getMonths('2018-03-15', '2018-03-16');
     expect(months).to.equal([
-      { startDate: '2018-03-01',
+      {
+        startDate: '2018-03-01',
         endDate: '2018-03-31',
-        timePeriod: 'month' }]);
+        timePeriod: 'month'
+      }]);
   });
 
   it('Should generate a month if the end date is anywhere within the month', async () => {
     const months = getMonths('2018-03-15', '2018-04-01');
     expect(months).to.equal([
-      { startDate: '2018-03-01',
+      {
+        startDate: '2018-03-01',
         endDate: '2018-03-31',
-        timePeriod: 'month' },
-      { startDate: '2018-04-01',
+        timePeriod: 'month'
+      },
+      {
+        startDate: '2018-04-01',
         endDate: '2018-04-30',
-        timePeriod: 'month' }]);
+        timePeriod: 'month'
+      }]);
   });
 });
 
@@ -236,36 +266,42 @@ experiment('Test mapLine', () => {
   it('Should return 0 quantity within abstraction period ', async () => {
     const line = { startDate: '2018-05-01', endDate: '2018-05-30', timePeriod: 'month' };
     const mapped = mapLine(line, absPeriod, 'month');
-    expect(mapped).to.equal({ start_date: '2018-05-01',
+    expect(mapped).to.equal({
+      start_date: '2018-05-01',
       end_date: '2018-05-30',
       quantity: 0,
       units: 'm³',
       user_unit: 'm³',
       reading_type: 'measured',
-      time_period: 'month' });
+      time_period: 'month'
+    });
   });
 
   it('Should return null quantity before abstraction period starts', async () => {
     const line = { startDate: '2018-03-11', endDate: '2018-03-17', timePeriod: 'week' };
     const mapped = mapLine(line, absPeriod, 'week');
-    expect(mapped).to.equal({ start_date: '2018-03-11',
+    expect(mapped).to.equal({
+      start_date: '2018-03-11',
       end_date: '2018-03-17',
       quantity: null,
       units: 'm³',
       user_unit: 'm³',
       reading_type: 'measured',
-      time_period: 'week' });
+      time_period: 'week'
+    });
   });
 
   it('Should return null quantity after abstraction period ends', async () => {
     const line = { startDate: '2018-11-11', endDate: '2018-11-11', timePeriod: 'day' };
     const mapped = mapLine(line, absPeriod, 'week');
-    expect(mapped).to.equal({ start_date: '2018-11-11',
+    expect(mapped).to.equal({
+      start_date: '2018-11-11',
       end_date: '2018-11-11',
       quantity: null,
       units: 'm³',
       user_unit: 'm³',
       reading_type: 'measured',
-      time_period: 'day' });
+      time_period: 'day'
+    });
   });
 });

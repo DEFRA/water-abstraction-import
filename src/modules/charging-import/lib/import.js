@@ -11,7 +11,7 @@ const checkIntegrity = require('./check-integrity');
  * @return {Promise}
  */
 const importChargingData = async () => {
-  logger.info(`Starting charge data import`);
+  logger.info('Starting charge data import');
 
   const arr = [
     financialAgreementTypeQueries.importFinancialAgreementTypes,
@@ -33,15 +33,15 @@ const importChargingData = async () => {
     await pool.query(query);
   }
 
-  logger.info(`Charge data imported, verifying`);
+  logger.info('Charge data imported, verifying');
 
   const result = await checkIntegrity.verify();
 
   if (result.totalErrors > 0) {
-    logger.error(`Error in charge data import`, result);
+    logger.error('Error in charge data import', result);
   }
 
-  logger.info(`Charge data import complete`);
+  logger.info('Charge data import complete');
 };
 
 exports.importChargingData = importChargingData;

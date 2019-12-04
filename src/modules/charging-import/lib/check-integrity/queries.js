@@ -24,6 +24,7 @@ exports.targetChargeElements = `
 exports.sourceChargeAgreements = `
   SELECT *
   FROM import."NALD_CHG_AGRMNTS" a
+  WHERE a."AFSA_CODE" NOT IN ('S127', 'S130S', 'S130T', 'S130U', 'S130W')
   ORDER BY a."FGAC_REGION_CODE"::integer, a."ACEL_ID"::integer, to_date(a."EFF_ST_DATE", 'DD/MM/YYYY'), a."AFSA_CODE";`;
 
 exports.targetChargeAgreements = `
