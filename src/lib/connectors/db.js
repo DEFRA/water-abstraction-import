@@ -1,7 +1,6 @@
 require('dotenv').config();
 const config = require('../../../config.js');
-const { Pool } = require('pg');
+const helpers = require('@envage/water-abstraction-helpers');
+const { logger } = require('../../logger');
 
-const pool = new Pool(config.pg);
-
-exports.pool = pool;
+exports.pool = helpers.db.createPool(config.pg, logger);
