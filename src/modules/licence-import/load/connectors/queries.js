@@ -123,7 +123,7 @@ exports.createLicence = `
     $3,
     $4
   )
-  on conflict (region_id, licence_ref) do update
+  on conflict (licence_ref) do update
   set
     is_water_undertaker=excluded.is_water_undertaker,
     regions=excluded.regions,
