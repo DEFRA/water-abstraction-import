@@ -1,6 +1,6 @@
-const { test, experiment, beforeEach } = exports.lab = require('lab').script();
+const { test, experiment, beforeEach } = exports.lab = require('@hapi/lab').script();
 const { transformLicence } = require('../../../../src/modules/licence-import/transform/licence');
-const { expect } = require('code');
+const { expect } = require('@hapi/code');
 
 const data = require('./data');
 const createSimpleLicence = () => {
@@ -188,6 +188,14 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(result.agreements[2].agreementCode).to.equal('S130');
         expect(result.agreements[2].startDate).to.equal('2015-04-02');
         expect(result.agreements[2].endDate).to.equal('2015-07-05');
+      });
+    });
+
+    experiment('isWaterUndertaker', () => {
+      test('is set to false when the AREP_EIUC_CODE does not end with "SWC"', async () => {
+        const rawData = createSimpleLicence();
+        const transformed = transformLicence(rawData);
+        expect(transformed.isWaterUndertaker).to.be.false();
       });
     });
   });

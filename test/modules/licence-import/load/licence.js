@@ -1,5 +1,5 @@
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('lab').script();
-const { expect } = require('code');
+const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
+const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
 
 const { loadLicence } = require('../../../../src/modules/licence-import/load/licence');
@@ -40,6 +40,7 @@ experiment('modules/licence-import/load/licence', () => {
     sandbox.stub(connectors, 'createDocumentRole');
     sandbox.stub(connectors, 'createDocument');
     sandbox.stub(connectors, 'createAgreement');
+    sandbox.stub(connectors, 'createLicence');
 
     licence = createLicence();
     await loadLicence(licence);
@@ -47,6 +48,10 @@ experiment('modules/licence-import/load/licence', () => {
 
   afterEach(async () => {
     sandbox.restore();
+  });
+
+  test('writes the licence,', async () => {
+    expect(connectors.createLicence.calledWith(licence)).to.be.true();
   });
 
   test('creates document', async () => {

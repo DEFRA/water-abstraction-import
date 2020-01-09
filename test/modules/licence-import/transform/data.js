@@ -6,7 +6,8 @@ const createLicence = overrides => Object.assign({}, {
   ORIG_EFF_DATE: '01/04/2016',
   EXPIRY_DATE: 'null',
   REV_DATE: 'null',
-  LAPSED_DATE: 'null'
+  LAPSED_DATE: 'null',
+  AREP_EIUC_CODE: 'SOOTH'
 }, overrides);
 
 const createVersion = (licence, overrides) => Object.assign({}, {

@@ -1,6 +1,6 @@
 'use strict';
 
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 const { lines, returns, versions } = require('../../lib/connectors/returns');
 const { events } = require('../../lib/connectors/water');
 const {

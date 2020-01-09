@@ -1,4 +1,4 @@
-const { test, experiment, beforeEach, afterEach, fail } = exports.lab = require('lab').script();
+const { test, experiment, beforeEach, afterEach, fail } = exports.lab = require('@hapi/lab').script();
 const sandbox = require('sinon').createSandbox();
 const handlers = require('../../../../src/modules/licence-import/handlers');
 const extract = require('../../../../src/modules/licence-import/extract');
@@ -9,7 +9,7 @@ const importCompanies = require('../../../../src/modules/licence-import/connecto
 const { logger } = require('../../../../src/logger');
 
 const server = require('../../../../index.js');
-const { expect } = require('code');
+const { expect } = require('@hapi/code');
 
 experiment('modules/licence-import/transform/handlers', () => {
   beforeEach(async () => {
