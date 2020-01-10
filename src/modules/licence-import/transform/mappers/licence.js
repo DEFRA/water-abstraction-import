@@ -1,6 +1,32 @@
 const date = require('./date');
 const str = require('./str');
-const { identity, omit, isArray, isObject, mapValues } = require('lodash');
+const {
+  endsWith,
+  identity,
+  omit,
+  isArray,
+  isObject,
+  mapValues
+} = require('lodash');
+
+const regions = {
+  AN: 'Anglian',
+  MD: 'Midlands',
+  NO: 'Northumbria',
+  NW: 'North West',
+  SO: 'Southern',
+  SW: 'South West (incl Wessex)',
+  TH: 'Thames',
+  WL: 'Wales',
+  YO: 'Yorkshire'
+};
+
+const getRegionData = licenceData => {
+  const historicalAreaCode = licenceData.AREP_AREA_CODE;
+  const regionPrefix = licenceData.AREP_EIUC_CODE.substr(0, 2);
+  const regionalChargeArea = regions[regionPrefix];
+  return { historicalAreaCode, regionalChargeArea };
+};
 
 const mapLicence = data => {
   const endDates = [
@@ -19,6 +45,9 @@ const mapLicence = data => {
     documents: [],
     agreements: [],
     externalId: `${data.FGAC_REGION_CODE}:${data.ID}`,
+    isWaterUndertaker: endsWith(data.AREP_EIUC_CODE, 'SWC'),
+    regions: getRegionData(data),
+    regionCode: parseInt(data.FGAC_REGION_CODE, 10),
     _nald: data
   };
 };

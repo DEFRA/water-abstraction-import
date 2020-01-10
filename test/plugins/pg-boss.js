@@ -1,5 +1,5 @@
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('lab').script();
-const { expect } = require('code');
+const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
+const { expect } = require('@hapi/code');
 const { pool } = require('../../src/lib/connectors/db');
 const { plugin } = require('../../src/plugins/pg-boss');
 const sandbox = require('sinon').createSandbox();

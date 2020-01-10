@@ -1,7 +1,7 @@
 'use strict';
 
-const { experiment, it } = module.exports.lab = require('lab').script();
-const { expect } = require('code');
+const { experiment, it } = module.exports.lab = require('@hapi/lab').script();
+const { expect } = require('@hapi/code');
 
 const {
   isDateWithinReturnCycle

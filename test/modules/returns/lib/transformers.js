@@ -1,7 +1,7 @@
 'use strict';
 
-const { beforeEach, experiment, it } = module.exports.lab = require('lab').script();
-const { expect } = require('code');
+const { beforeEach, experiment, it } = module.exports.lab = require('@hapi/lab').script();
+const { expect } = require('@hapi/code');
 const { difference, cloneDeep, set } = require('lodash');
 
 const transformers = require('../../../../src/modules/returns/lib/transformers');

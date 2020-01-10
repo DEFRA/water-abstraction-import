@@ -1,9 +1,9 @@
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('lab').script();
+const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
 const sandbox = require('sinon').createSandbox();
 const jobs = require('../../../src/modules/licence-import/jobs');
 const controller = require('../../../src/modules/licence-import/controller');
 const { logger } = require('../../../src/logger.js');
-const { expect } = require('code');
+const { expect } = require('@hapi/code');
 
 const createRequest = () => ({
   messageQueue: {
