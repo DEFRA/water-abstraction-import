@@ -1,6 +1,6 @@
-const { test, experiment, beforeEach } = exports.lab = require('lab').script();
+const { test, experiment, beforeEach } = exports.lab = require('@hapi/lab').script();
 const { transformCompany } = require('../../../../src/modules/licence-import/transform/company');
-const { expect } = require('code');
+const { expect } = require('@hapi/code');
 
 const data = require('./data');
 const createCompany = () => {

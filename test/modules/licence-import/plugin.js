@@ -1,11 +1,11 @@
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('lab').script();
+const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
 const sandbox = require('sinon').createSandbox();
 const cron = require('node-cron');
 const { plugin } = require('../../../src/modules/licence-import/plugin');
 const jobs = require('../../../src/modules/licence-import/jobs');
 const handlers = require('../../../src/modules/licence-import/handlers');
 
-const { expect } = require('code');
+const { expect } = require('@hapi/code');
 
 experiment('modules/licence-import/plugin.js', () => {
   const originalEnv = process.env.NODE_ENV;

@@ -1,5 +1,5 @@
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('lab').script();
-const { expect } = require('code');
+const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
+const { expect } = require('@hapi/code');
 const controller = require('../../../src/modules/charging-import/controller');
 const chargingImport = require('../../../src/modules/charging-import/lib/import');
 const sandbox = require('sinon').createSandbox();

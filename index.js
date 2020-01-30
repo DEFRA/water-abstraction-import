@@ -3,9 +3,9 @@ require('dotenv').config();
 
 // -------------- Require vendor code -----------------
 const Blipp = require('blipp');
-const Good = require('good');
+const Good = require('@hapi/good');
 const GoodWinston = require('good-winston');
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const HapiAuthJwt2 = require('hapi-auth-jwt2');
 const moment = require('moment');
 moment.locale('en-gb');
@@ -73,10 +73,19 @@ const start = async function () {
   }
 };
 
-process.on('unhandledRejection', (err) => {
-  logger.error(err);
+const processError = message => err => {
+  logger.error(message, err);
   process.exit(1);
-});
+};
+
+process
+  .on('unhandledRejection', processError('unhandledRejection'))
+  .on('uncaughtException', processError('uncaughtException'))
+  .on('SIGINT', async () => {
+    logger.info('stopping permit repo');
+    await server.stop();
+    return process.exit(0);
+  });
 
 start();
 

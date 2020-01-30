@@ -3,3 +3,4 @@
 lcov.info
 coverage
 *.swp
+.vscode

@@ -3,7 +3,7 @@ const date = require('./date');
 const str = require('./str');
 
 const mapExternalId = (row) =>
-  `${row.FGAC_REGION_CODE}:${row.AABL_ID}:${row.ISSUE_NO}:${row.INCR_NO}`;
+  `${row.FGAC_REGION_CODE}:${row.AABL_ID}:${row.ISSUE_NO}`;
 
 const statuses = {
   CURR: 'current',

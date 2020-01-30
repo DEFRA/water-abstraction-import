@@ -1,5 +1,5 @@
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('lab').script();
-const { expect } = require('code');
+const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
+const { expect } = require('@hapi/code');
 const queries = require('../../../../../src/modules/licence-import/extract/connectors/queries');
 const sandbox = require('sinon').createSandbox();
 const { pool } = require('../../../../../src/lib/connectors/db');
