@@ -8,7 +8,14 @@ const connectors = require('../../../../../src/modules/licence-import/load/conne
 
 const data = {
   licence: {
-    licenceNumber: '01/123'
+    licenceNumber: '01/123',
+    regionCode: 'A',
+    isWaterUndertaker: false,
+    regions: { regionalChargeArea: 'South West' },
+    startDate: '2002-05-03',
+    expiredDate: null,
+    lapsedDate: null,
+    revokedDate: null
   },
   agreement: {
     agreementCode: 'S127',
@@ -376,6 +383,31 @@ experiment('modules/licence-import/load/connectors', () => {
         data.agreement.agreementCode,
         data.agreement.startDate,
         data.agreement.endDate
+      ]);
+    });
+  });
+
+  experiment('createLicence', () => {
+    beforeEach(async () => {
+      await connectors.createLicence(data.licence);
+    });
+
+    test('uses the correct query', async () => {
+      const [query] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.createLicence);
+    });
+
+    test('uses the correct params', async () => {
+      const [, params] = pool.query.lastCall.args;
+      expect(params).to.equal([
+        data.licence.regionCode,
+        data.licence.licenceNumber,
+        data.licence.isWaterUndertaker,
+        data.licence.regions,
+        data.licence.startDate,
+        data.licence.expiredDate,
+        data.licence.lapsedDate,
+        data.licence.revokedDate
       ]);
     });
   });

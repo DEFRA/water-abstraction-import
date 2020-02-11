@@ -74,6 +74,27 @@ experiment('modules/licence-import/transform/mappers/licence', () => {
       });
     });
 
+    test('sets the expired date', async () => {
+      const input = { EXPIRY_DATE: '31/10/2012', AREP_EIUC_CODE: 'ANOTH' };
+
+      const mapped = mapLicence(input);
+      expect(mapped.expiredDate).to.equal('2012-10-31');
+    });
+
+    test('sets the lapsed date', async () => {
+      const input = { LAPSED_DATE: '01/05/2009', AREP_EIUC_CODE: 'ANOTH' };
+
+      const mapped = mapLicence(input);
+      expect(mapped.lapsedDate).to.equal('2009-05-01');
+    });
+
+    test('sets the revoked date', async () => {
+      const input = { REV_DATE: '30/06/2010', AREP_EIUC_CODE: 'ANOTH' };
+
+      const mapped = mapLicence(input);
+      expect(mapped.revokedDate).to.equal('2010-06-30');
+    });
+
     experiment('.regions', () => {
       test('sets the historicalAreaCode', async () => {
         const input = { AREP_AREA_CODE: 'TEST', AREP_EIUC_CODE: 'ANOTH' };
