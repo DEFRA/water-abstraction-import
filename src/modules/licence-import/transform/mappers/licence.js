@@ -48,6 +48,9 @@ const mapLicence = data => {
     isWaterUndertaker: endsWith(data.AREP_EIUC_CODE, 'SWC'),
     regions: getRegionData(data),
     regionCode: parseInt(data.FGAC_REGION_CODE, 10),
+    expiredDate: date.mapNaldDate(data.EXPIRY_DATE),
+    lapsedDate: date.mapNaldDate(data.LAPSED_DATE),
+    revokedDate: date.mapNaldDate(data.REV_DATE),
     _nald: data
   };
 };
