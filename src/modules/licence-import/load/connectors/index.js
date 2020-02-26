@@ -59,7 +59,11 @@ const createLicence = licence => pool.query(queries.createLicence, [
   licence.regionCode,
   licence.licenceNumber,
   licence.isWaterUndertaker,
-  licence.regions
+  licence.regions,
+  licence.startDate,
+  licence.expiredDate,
+  licence.lapsedDate,
+  licence.revokedDate
 ]);
 
 exports.createDocument = createDocument;
