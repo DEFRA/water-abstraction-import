@@ -33,8 +33,6 @@ experiment('modules/charging-import/plugin.js', () => {
 
   experiment('register', () => {
     experiment('on target environments', () => {
-      const options = { teamSize: 1000, teamConcurrency: 5 };
-
       beforeEach(async () => {
         process.env.NODE_ENV = 'test';
         await plugin.register(server);
