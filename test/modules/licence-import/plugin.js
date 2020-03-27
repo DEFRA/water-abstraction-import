@@ -28,7 +28,7 @@ experiment('modules/licence-import/plugin.js', () => {
   });
 
   test('has a plugin name', async () => {
-    expect(plugin.name).to.equal('importSchedule');
+    expect(plugin.name).to.equal('importLicenceData');
   });
 
   experiment('register', () => {
@@ -76,9 +76,9 @@ experiment('modules/licence-import/plugin.js', () => {
         )).to.be.true();
       });
 
-      test('schedules a cron job to run the import', async () => {
+      test('schedules a cron job to run the import every other day at 3:10pm', async () => {
         expect(cron.schedule.calledWith(
-          '0 0 4 1/1 * * *'
+          '10 15 */2 * *'
         )).to.be.true();
       });
     });

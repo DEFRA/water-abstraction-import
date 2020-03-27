@@ -2,9 +2,7 @@ const cron = require('node-cron');
 const jobs = require('./jobs');
 const handlers = require('./handlers');
 const { logger } = require('../../logger');
-
-const isImportTarget = () =>
-  ['local', 'dev', 'development', 'test', 'preprod'].includes(process.env.NODE_ENV);
+const isImportTarget = require('../../lib/is-import-target');
 
 const getOptions = () => ({
   teamSize: 1000,
@@ -29,8 +27,8 @@ const registerSubscribers = async server => {
   await server.messageQueue.subscribe(jobs.IMPORT_LICENCES_JOB, handlers.importLicences);
   await server.messageQueue.subscribe(jobs.IMPORT_LICENCE_JOB, getOptions(), handlers.importLicence);
 
-  // Set up cron job to import companies daily at 4am
-  cron.schedule('0 0 4 1/1 * * *', async () => {
+  // Set up cron job to import companies every other day at 3:10pm
+  cron.schedule('10 15 */2 * *', async () => {
     await server.messageQueue.publish(jobs.importCompanies());
   });
 };
@@ -44,6 +42,6 @@ const register = server => {
 };
 
 exports.plugin = {
-  name: 'importSchedule',
+  name: 'importLicenceData',
   register
 };

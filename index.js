@@ -10,6 +10,9 @@ const HapiAuthJwt2 = require('hapi-auth-jwt2');
 const moment = require('moment');
 moment.locale('en-gb');
 
+// -------------- Shared code --------------------------
+const helpers = require('@envage/water-abstraction-helpers');
+
 // -------------- Require project code -----------------
 const config = require('./config');
 const routes = require('./src/routes.js');
@@ -18,9 +21,6 @@ const db = require('./src/lib/connectors/db');
 // Initialise logger
 const { logger } = require('./src/logger');
 const goodWinstonStream = new GoodWinston({ winston: logger });
-
-// Initialise cron jobs
-require('./src/cron.js');
 
 // Define server
 const server = Hapi.server(config.server);
@@ -45,8 +45,20 @@ const registerServerPlugins = async (server) => {
   await server.register(HapiAuthJwt2);
 
   // // PG Boss message queue
-  await server.register(require('./src/plugins/pg-boss'));
-  await server.register(require('./src/modules/licence-import/plugin'));
+  await server.register({
+    plugin: helpers.hapiPgBoss,
+    options: {
+      db: {
+        executeSql: (...args) => db.pool.query(...args)
+      }
+    }
+  });
+
+  await server.register([{
+    plugin: require('./src/modules/licence-import/plugin')
+  }, {
+    plugin: require('./src/modules/charging-import/plugin')
+  }]);
 };
 
 const configureServerAuthStrategy = (server) => {
