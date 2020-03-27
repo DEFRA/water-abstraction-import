@@ -25,41 +25,32 @@ const goodWinstonStream = new GoodWinston({ winston: logger });
 // Define server
 const server = Hapi.server(config.server);
 
-const registerServerPlugins = async (server) => {
-  // Third-party plugins
-  await server.register({
-    plugin: Good,
-    options: {
-      ...config.good,
-      reporters: {
-        winston: [goodWinstonStream]
-      }
+const plugins = [{
+  plugin: Good,
+  options: {
+    ...config.good,
+    reporters: {
+      winston: [goodWinstonStream]
     }
-  });
-  await server.register({
-    plugin: Blipp,
-    options: config.blipp
-  });
-
-  // JWT token auth
-  await server.register(HapiAuthJwt2);
-
-  // // PG Boss message queue
-  await server.register({
-    plugin: helpers.hapiPgBoss,
-    options: {
-      db: {
-        executeSql: (...args) => db.pool.query(...args)
-      }
+  }
+},
+{
+  plugin: Blipp,
+  options: config.blipp
+},
+HapiAuthJwt2,
+{
+  plugin: helpers.hapiPgBoss,
+  options: {
+    ...config.pgBoss,
+    db: {
+      executeSql: (...args) => db.pool.query(...args)
     }
-  });
-
-  await server.register([{
-    plugin: require('./src/modules/licence-import/plugin')
-  }, {
-    plugin: require('./src/modules/charging-import/plugin')
-  }]);
-};
+  }
+},
+require('./src/modules/licence-import/plugin'),
+require('./src/modules/charging-import/plugin')
+];
 
 const configureServerAuthStrategy = (server) => {
   server.auth.strategy('jwt', 'jwt', {
@@ -71,7 +62,7 @@ const configureServerAuthStrategy = (server) => {
 
 const start = async function () {
   try {
-    await registerServerPlugins(server);
+    await server.register(plugins);
     configureServerAuthStrategy(server);
     server.route(routes);
 

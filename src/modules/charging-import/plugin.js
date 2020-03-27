@@ -25,5 +25,6 @@ const register = server => {
 
 exports.plugin = {
   name: 'importChargingData',
+  dependencies: ['pgBoss'],
   register
 };

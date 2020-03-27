@@ -8,7 +8,6 @@ const handlers = require('../../../src/modules/licence-import/handlers');
 const { expect } = require('@hapi/code');
 
 experiment('modules/licence-import/plugin.js', () => {
-  const originalEnv = process.env.NODE_ENV;
   let server;
 
   beforeEach(async () => {
@@ -24,19 +23,22 @@ experiment('modules/licence-import/plugin.js', () => {
 
   afterEach(async () => {
     sandbox.restore();
-    process.env.NODE_ENV = originalEnv;
   });
 
   test('has a plugin name', async () => {
     expect(plugin.name).to.equal('importLicenceData');
   });
 
+  test('requires pgBoss plugin', async () => {
+    expect(plugin.dependencies).to.equal(['pgBoss']);
+  });
+
   experiment('register', () => {
     experiment('on target environments', () => {
-      const options = { teamSize: 1000, teamConcurrency: 5 };
+      const options = { teamSize: 750, teamConcurrency: 1 };
 
       beforeEach(async () => {
-        process.env.NODE_ENV = 'test';
+        sandbox.stub(process.env, 'NODE_ENV').value('test');
         await plugin.register(server);
       });
 
@@ -85,7 +87,7 @@ experiment('modules/licence-import/plugin.js', () => {
 
     experiment('on production', () => {
       beforeEach(async () => {
-        process.env.NODE_ENV = 'production';
+        sandbox.stub(process.env, 'NODE_ENV').value('production');
         plugin.register(server);
       });
 

@@ -8,7 +8,6 @@ const chargingImport = require('../../../src/modules/charging-import/lib/import.
 const { expect } = require('@hapi/code');
 
 experiment('modules/charging-import/plugin.js', () => {
-  const originalEnv = process.env.NODE_ENV;
   let server;
 
   beforeEach(async () => {
@@ -24,17 +23,20 @@ experiment('modules/charging-import/plugin.js', () => {
 
   afterEach(async () => {
     sandbox.restore();
-    process.env.NODE_ENV = originalEnv;
   });
 
   test('has a plugin name', async () => {
     expect(plugin.name).to.equal('importChargingData');
   });
 
+  test('requires pgBoss plugin', async () => {
+    expect(plugin.dependencies).to.equal(['pgBoss']);
+  });
+
   experiment('register', () => {
     experiment('on target environments', () => {
       beforeEach(async () => {
-        process.env.NODE_ENV = 'test';
+        sandbox.stub(process.env, 'NODE_ENV').value('test');
         await plugin.register(server);
       });
 
@@ -53,7 +55,7 @@ experiment('modules/charging-import/plugin.js', () => {
 
     experiment('on production', () => {
       beforeEach(async () => {
-        process.env.NODE_ENV = 'production';
+        sandbox.stub(process.env, 'NODE_ENV').value('production');
         plugin.register(server);
       });
 
