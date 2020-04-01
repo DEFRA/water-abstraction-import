@@ -1,8 +1,7 @@
 const cron = require('node-cron');
 const jobs = require('./jobs');
 const handlers = require('./handlers');
-const { logger } = require('../../logger');
-const isImportTarget = require('../../lib/is-import-target');
+const { createRegister } = require('../../lib/plugin');
 
 const getOptions = () => ({
   teamSize: 750,
@@ -37,16 +36,8 @@ const registerSubscribers = async server => {
   });
 };
 
-const register = server => {
-  if (!isImportTarget()) {
-    logger.info(`Aborting import, environment is: ${process.env.NODE_ENV}`);
-    return;
-  }
-  return registerSubscribers(server);
-};
-
 exports.plugin = {
   name: 'importLicenceData',
   dependencies: ['pgBoss'],
-  register
+  register: server => createRegister(server, registerSubscribers)
 };

@@ -1,9 +1,8 @@
 const cron = require('node-cron');
 const jobs = require('./jobs');
-const { logger } = require('../../logger');
 
 const chargingImport = require('./lib/import');
-const isImportTarget = require('../../lib/is-import-target');
+const { createRegister } = require('../../lib/plugin');
 
 const registerSubscribers = async server => {
   // Import charging data
@@ -15,16 +14,8 @@ const registerSubscribers = async server => {
   });
 };
 
-const register = server => {
-  if (!isImportTarget()) {
-    logger.info(`Aborting import, environment is: ${process.env.NODE_ENV}`);
-    return;
-  }
-  return registerSubscribers(server);
-};
-
 exports.plugin = {
   name: 'importChargingData',
   dependencies: ['pgBoss'],
-  register
+  register: server => createRegister(server, registerSubscribers)
 };
