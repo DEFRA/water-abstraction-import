@@ -4,5 +4,6 @@ module.exports = {
   importCompanies: require('./import-companies'),
   onCompleteImportCompanies: require('./on-complete-import-companies'),
   importLicences: require('./import-licences'),
+  onCompleteImportLicences: require('./on-complete-import-licences'),
   importLicence: require('./import-licence')
 };

@@ -15,6 +15,7 @@ experiment('modules/licence-import/transform/handlers', () => {
   beforeEach(async () => {
     sandbox.stub(logger, 'error');
     sandbox.stub(logger, 'info');
+    sandbox.stub(server.messageQueue, 'publish');
   });
 
   afterEach(async () => {
@@ -23,7 +24,6 @@ experiment('modules/licence-import/transform/handlers', () => {
 
   experiment('importLicences', () => {
     beforeEach(async () => {
-      sandbox.stub(server.messageQueue, 'publish');
       sandbox.stub(extract, 'getAllLicenceNumbers').resolves([
         { LIC_NO: 'A' },
         { LIC_NO: 'B' }
@@ -31,9 +31,11 @@ experiment('modules/licence-import/transform/handlers', () => {
     });
 
     experiment('importLicences', () => {
+      let result;
+
       experiment('when there are no errors', () => {
         beforeEach(async () => {
-          await handlers.importLicences();
+          result = await handlers.importLicences();
         });
 
         test('an info message is logged', async () => {
@@ -44,16 +46,11 @@ experiment('modules/licence-import/transform/handlers', () => {
           expect(extract.getAllLicenceNumbers.callCount).to.equal(1);
         });
 
-        test('import licence jobs are published for the first licence', async () => {
-          const [{ name, data }] = server.messageQueue.publish.getCall(0).args;
-          expect(name).to.equal('import.licence');
-          expect(data.licenceNumber).to.equal('A');
-        });
-
-        test('import licence jobs are published for the second licence', async () => {
-          const [{ name, data }] = server.messageQueue.publish.getCall(1).args;
-          expect(name).to.equal('import.licence');
-          expect(data.licenceNumber).to.equal('B');
+        test('the job resolves with the list of licences', async () => {
+          expect(result).to.equal([
+            { LIC_NO: 'A' },
+            { LIC_NO: 'B' }
+          ]);
         });
       });
 
@@ -71,6 +68,62 @@ experiment('modules/licence-import/transform/handlers', () => {
             expect(logger.error.lastCall.args[0]).to.equal('Import licences error');
           }
         });
+      });
+    });
+  });
+
+  experiment('onComplete importLicences', () => {
+    const job = {
+      data: {
+        request: {
+          name: 'test-name'
+        },
+        response: {
+          value: [
+            { LIC_NO: 'A' },
+            { LIC_NO: 'B' }
+          ]
+        }
+      }
+    };
+
+    experiment('when there are no errors', () => {
+      beforeEach(async () => {
+        await handlers.onCompleteImportLicences(server.messageQueue, job);
+      });
+
+      test('an info message is logged', async () => {
+        expect(logger.info.calledWith(
+          'Handling onComplete test-name'
+        )).to.be.true();
+      });
+
+      test('2 import jobs are published', async () => {
+        expect(server.messageQueue.publish.callCount).to.equal(2);
+      });
+
+      test('an import licence job is published for the first licence', async () => {
+        const [message] = server.messageQueue.publish.firstCall.args;
+        expect(message.name).to.equal('import.licence');
+        expect(message.data.licenceNumber).to.equal('A');
+      });
+
+      test('an import licence job is published for the second licence', async () => {
+        const [message] = server.messageQueue.publish.secondCall.args;
+        expect(message.name).to.equal('import.licence');
+        expect(message.data.licenceNumber).to.equal('B');
+      });
+    });
+
+    experiment('when there are errors', () => {
+      beforeEach(async () => {
+        server.messageQueue.publish.rejects();
+      });
+
+      test('an error is logged and thrown', async () => {
+        const func = () => handlers.onCompleteImportLicences(server.messageQueue, job);
+        await expect(func()).to.reject();
+        expect(logger.error.called).to.be.true();
       });
     });
   });

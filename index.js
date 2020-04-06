@@ -10,6 +10,9 @@ const HapiAuthJwt2 = require('hapi-auth-jwt2');
 const moment = require('moment');
 moment.locale('en-gb');
 
+// -------------- Shared code --------------------------
+const helpers = require('@envage/water-abstraction-helpers');
+
 // -------------- Require project code -----------------
 const config = require('./config');
 const routes = require('./src/routes.js');
@@ -19,35 +22,35 @@ const db = require('./src/lib/connectors/db');
 const { logger } = require('./src/logger');
 const goodWinstonStream = new GoodWinston({ winston: logger });
 
-// Initialise cron jobs
-require('./src/cron.js');
-
 // Define server
 const server = Hapi.server(config.server);
 
-const registerServerPlugins = async (server) => {
-  // Third-party plugins
-  await server.register({
-    plugin: Good,
-    options: {
-      ...config.good,
-      reporters: {
-        winston: [goodWinstonStream]
-      }
+const plugins = [{
+  plugin: Good,
+  options: {
+    ...config.good,
+    reporters: {
+      winston: [goodWinstonStream]
     }
-  });
-  await server.register({
-    plugin: Blipp,
-    options: config.blipp
-  });
-
-  // JWT token auth
-  await server.register(HapiAuthJwt2);
-
-  // // PG Boss message queue
-  await server.register(require('./src/plugins/pg-boss'));
-  await server.register(require('./src/modules/licence-import/plugin'));
-};
+  }
+},
+{
+  plugin: Blipp,
+  options: config.blipp
+},
+HapiAuthJwt2,
+{
+  plugin: helpers.hapiPgBoss,
+  options: {
+    ...config.pgBoss,
+    db: {
+      executeSql: (...args) => db.pool.query(...args)
+    }
+  }
+},
+require('./src/modules/licence-import/plugin'),
+require('./src/modules/charging-import/plugin')
+];
 
 const configureServerAuthStrategy = (server) => {
   server.auth.strategy('jwt', 'jwt', {
@@ -59,7 +62,7 @@ const configureServerAuthStrategy = (server) => {
 
 const start = async function () {
   try {
-    await registerServerPlugins(server);
+    await server.register(plugins);
     configureServerAuthStrategy(server);
     server.route(routes);
 

@@ -1,14 +1,11 @@
 const cron = require('node-cron');
 const jobs = require('./jobs');
 const handlers = require('./handlers');
-const { logger } = require('../../logger');
-
-const isImportTarget = () =>
-  ['local', 'dev', 'development', 'test', 'preprod'].includes(process.env.NODE_ENV);
+const { createRegister } = require('../../lib/plugin');
 
 const getOptions = () => ({
-  teamSize: 1000,
-  teamConcurrency: 5
+  teamSize: 750,
+  teamConcurrency: 1
 });
 
 const registerSubscribers = async server => {
@@ -27,23 +24,20 @@ const registerSubscribers = async server => {
 
   await server.messageQueue.subscribe(jobs.IMPORT_COMPANY_JOB, getOptions(), handlers.importCompany);
   await server.messageQueue.subscribe(jobs.IMPORT_LICENCES_JOB, handlers.importLicences);
+  await server.messageQueue.onComplete(jobs.IMPORT_LICENCES_JOB,
+    job => handlers.onCompleteImportLicences(server.messageQueue, job)
+  );
+
   await server.messageQueue.subscribe(jobs.IMPORT_LICENCE_JOB, getOptions(), handlers.importLicence);
 
-  // Set up cron job to import companies daily at 4am
-  cron.schedule('0 0 4 1/1 * * *', async () => {
+  // Set up cron job to import companies every other day at 3:10pm
+  cron.schedule('10 15 */2 * *', async () => {
     await server.messageQueue.publish(jobs.importCompanies());
   });
 };
 
-const register = server => {
-  if (!isImportTarget()) {
-    logger.info(`Aborting import, environment is: ${process.env.NODE_ENV}`);
-    return;
-  }
-  return registerSubscribers(server);
-};
-
 exports.plugin = {
-  name: 'importSchedule',
-  register
+  name: 'importLicenceData',
+  dependencies: ['pgBoss'],
+  register: server => createRegister(server, registerSubscribers)
 };
