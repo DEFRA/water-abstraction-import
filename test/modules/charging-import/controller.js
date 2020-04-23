@@ -14,14 +14,20 @@ experiment('modules/charging-import/controller.js', () => {
   });
 
   experiment('postImportChargingData', () => {
-    let response;
+    let response, request;
 
     beforeEach(async () => {
-      response = await controller.postImportChargingData();
+      request = {
+        messageQueue: {
+          publish: sandbox.stub()
+        }
+      };
+      response = await controller.postImportChargingData(request);
     });
 
-    test('imports the charging data', async () => {
-      expect(chargingImport.importChargingData.callCount).to.equal(1);
+    test('publishes a message to the message queue to begin the import', async () => {
+      const [message] = request.messageQueue.publish.lastCall.args;
+      expect(message.name).to.equal('import.charging-data');
     });
 
     test('resolves with { error : null } HTTP response', async () => {
