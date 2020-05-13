@@ -1,3 +1,5 @@
+'use strict';
+
 const { APIClient } = require('@envage/hapi-pg-rest-api');
 
 const rp = require('request-promise-native').defaults({
@@ -12,6 +14,4 @@ const events = new APIClient(rp, {
   }
 });
 
-module.exports = {
-  events
-};
+exports.events = events;
