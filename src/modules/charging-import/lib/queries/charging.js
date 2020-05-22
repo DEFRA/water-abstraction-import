@@ -90,7 +90,7 @@ status=EXCLUDED.status, apportionment=EXCLUDED.apportionment,
 error=EXCLUDED.error, end_date=EXCLUDED.end_date,
 billed_upto_date=EXCLUDED.billed_upto_date,
 region_code=EXCLUDED.region_code, date_updated=EXCLUDED.date_updated,
-source=EXCLUDED.source;`;
+source=EXCLUDED.source, invoice_account_id=EXCLUDED.invoice_account_id, company_id=EXCLUDED.company_id;`;
 
 // Deletes charge versions that are no longer present in the NALD import
 const cleanupChargeVersions = `
