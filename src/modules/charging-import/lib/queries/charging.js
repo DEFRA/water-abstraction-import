@@ -29,7 +29,7 @@ ON CONFLICT DO NOTHING`;
 
 const importChargeVersions = `INSERT INTO water.charge_versions
 (charge_version_id, licence_ref, scheme, external_id, version_number, start_date, status, apportionment,
-error, end_date, billed_upto_date, region_code, date_created, date_updated, source)
+error, end_date, billed_upto_date, region_code, date_created, date_updated, source, invoice_account_id, company_id)
 
 SELECT
   cv.charge_version_id,
@@ -71,11 +71,17 @@ NOW() AS date_created,
 
 NOW() AS date_updated,
 
-'nald' AS source
+'nald' AS source,
+
+ia.invoice_account_id,
+c.company_id
 
 FROM import."NALD_CHG_VERSIONS" v
 JOIN water_import.charge_versions cv ON v."AABL_ID"::integer=cv.licence_id AND v."FGAC_REGION_CODE"::integer=cv.region_code AND v."VERS_NO"::integer=cv.version
 JOIN import."NALD_ABS_LICENCES" l ON v."AABL_ID"=l."ID" AND v."FGAC_REGION_CODE"=l."FGAC_REGION_CODE"
+JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_REF" 
+JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
+JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
 
 ON CONFLICT (charge_version_id) DO UPDATE SET
 licence_ref=EXCLUDED.licence_ref, scheme=EXCLUDED.scheme, external_id=EXCLUDED.external_id,
@@ -84,7 +90,7 @@ status=EXCLUDED.status, apportionment=EXCLUDED.apportionment,
 error=EXCLUDED.error, end_date=EXCLUDED.end_date,
 billed_upto_date=EXCLUDED.billed_upto_date,
 region_code=EXCLUDED.region_code, date_updated=EXCLUDED.date_updated,
-source=EXCLUDED.source;`;
+source=EXCLUDED.source, invoice_account_id=EXCLUDED.invoice_account_id, company_id=EXCLUDED.company_id;`;
 
 // Deletes charge versions that are no longer present in the NALD import
 const cleanupChargeVersions = `
