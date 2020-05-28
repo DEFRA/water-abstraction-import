@@ -5,9 +5,10 @@ require('dotenv').config();
 const Blipp = require('blipp');
 const Good = require('@hapi/good');
 const GoodWinston = require('good-winston');
-const Hapi = require('@hapi/hapi');
+
 const HapiAuthJwt2 = require('hapi-auth-jwt2');
 const moment = require('moment');
+
 moment.locale('en-gb');
 
 // -------------- Shared code --------------------------
@@ -23,33 +24,35 @@ const { logger } = require('./src/logger');
 const goodWinstonStream = new GoodWinston({ winston: logger });
 
 // Define server
-const server = Hapi.server(config.server);
+const server = require('./server');
 
-const plugins = [{
-  plugin: Good,
-  options: {
-    ...config.good,
-    reporters: {
-      winston: [goodWinstonStream]
+const plugins = [
+  {
+    plugin: Good,
+    options: {
+      ...config.good,
+      reporters: {
+        winston: [goodWinstonStream]
+      }
     }
-  }
-},
-{
-  plugin: Blipp,
-  options: config.blipp
-},
-HapiAuthJwt2,
-{
-  plugin: helpers.hapiPgBoss,
-  options: {
-    ...config.pgBoss,
-    db: {
-      executeSql: (...args) => db.pool.query(...args)
+  },
+  {
+    plugin: Blipp,
+    options: config.blipp
+  },
+  HapiAuthJwt2,
+  {
+    plugin: helpers.hapiPgBoss,
+    options: {
+      ...config.pgBoss,
+      db: {
+        executeSql: (...args) => db.pool.query(...args)
+      }
     }
-  }
-},
-require('./src/modules/licence-import/plugin'),
-require('./src/modules/charging-import/plugin')
+  },
+  require('./src/modules/licence-import/plugin'),
+  require('./src/modules/charging-import/plugin'),
+  require('./src/modules/nald-import/plugin')
 ];
 
 const configureServerAuthStrategy = (server) => {
