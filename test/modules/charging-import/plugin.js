@@ -1,6 +1,9 @@
+'use strict';
+
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
 const sandbox = require('sinon').createSandbox();
 const cron = require('node-cron');
+
 const { plugin } = require('../../../src/modules/charging-import/plugin');
 const jobs = require('../../../src/modules/charging-import/jobs');
 const chargingImport = require('../../../src/modules/charging-import/lib/import.js');
@@ -46,10 +49,9 @@ experiment('modules/charging-import/plugin.js', () => {
         )).to.be.true();
       });
 
-      test('schedules a cron job to run the import every other day at 3:00pm', async () => {
-        expect(cron.schedule.calledWith(
-          '0 15 */2 * *'
-        )).to.be.true();
+      test('schedules a cron job to run the import 1000 on Mon, Wed and Fri', async () => {
+        const [schedule] = cron.schedule.lastCall.args;
+        expect(schedule).to.equal('0 10 * * 1,3,5');
       });
     });
 
