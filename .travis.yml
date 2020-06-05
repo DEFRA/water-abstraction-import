@@ -1,11 +1,19 @@
 language: node_js
 
+addons:
+  postgresql: "9.6"
+
+services:
+  - postgresql
+
 install:
   - npm install
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
 
 before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+  - npm run migrate
   - ./cc-test-reporter before-build
 
 script:
@@ -23,3 +31,4 @@ env:
     - JWT_SECRET=secret
     - JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIzNH0.MOREC6-Kszb9bDFw0O1UKywpnkcP-c5cPjASMpjk8Po
     - NOTIFY_KEY=somerealnotifykey-00000000-0000-0000-0000-000000000000-00000000-0000-0000-0000-000000000000
+    - DATABASE_URL=postgres://postgres:@localhost:5432/travis_ci_test

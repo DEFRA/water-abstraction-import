@@ -1,4 +1,10 @@
+'use strict';
+
+require('dotenv').config();
+
+const isAcceptanceTestTarget = ['local', 'dev', 'development', 'test', 'preprod'].includes(process.env.NODE_ENV);
 const testMode = parseInt(process.env.TEST_MODE) === 1;
+const isProduction = ['production'].includes(process.env.NODE_ENV);
 
 module.exports = {
 
@@ -58,5 +64,33 @@ module.exports = {
     router: {
       stripTrailingSlash: true
     }
+  },
+
+  services: {
+    water: process.env.WATER_URI || 'http://127.0.0.1:8001/water/1.0',
+    crm: process.env.CRM_URI || 'http://127.0.0.1:8002/crm/1.0',
+    returns: process.env.RETURNS_URI || 'http://127.0.0.1:8006/returns/1.0'
+  },
+
+  s3: {
+    accessKeyId: process.env.S3_KEY,
+    secretAccessKey: process.env.S3_SECRET,
+    region: 'eu-west-1',
+    bucket: process.env.S3_BUCKET
+  },
+
+  isProduction,
+
+  isAcceptanceTestTarget,
+
+  proxy: process.env.PROXY,
+
+  import: {
+    returns: { importYears: process.env.IMPORT_RETURNS_YEARS || 3 },
+    zipPassword: process.env.NALD_ZIP_PASSWORD
+  },
+
+  redis: {
+    url: process.env.REDIS_URI || 'redis://127.0.0.1:6379'
   }
 };

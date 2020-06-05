@@ -1,6 +1,10 @@
+'use strict';
+
 const moment = require('moment');
 const { pick, mapValues } = require('lodash');
-const naldDates = require('../../../lib/nald-dates');
+
+const waterHelpers = require('@envage/water-abstraction-helpers');
+const naldDates = waterHelpers.nald.dates;
 
 /**
  * Get required daily return lines
@@ -221,13 +225,11 @@ const generateNilLines = (returnData) => {
   return lines.map(line => mapLine(line, absPeriod));
 };
 
-module.exports = {
-  getDays,
-  getMonths,
-  getWeeks,
-  getRequiredLines,
-  generateNilLines,
-  isDateWithinAbstractionPeriod,
-  getAbsPeriod,
-  mapLine
-};
+exports.getDays = getDays;
+exports.getMonths = getMonths;
+exports.getWeeks = getWeeks;
+exports.getRequiredLines = getRequiredLines;
+exports.generateNilLines = generateNilLines;
+exports.isDateWithinAbstractionPeriod = isDateWithinAbstractionPeriod;
+exports.getAbsPeriod = getAbsPeriod;
+exports.mapLine = mapLine;
