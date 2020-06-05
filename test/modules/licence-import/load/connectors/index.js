@@ -1,3 +1,7 @@
+'use strict';
+
+const uuid = require('uuid/v4');
+
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
@@ -130,7 +134,7 @@ const data = {
 
 experiment('modules/licence-import/load/connectors', () => {
   beforeEach(async () => {
-    sandbox.stub(pool, 'query').resolves();
+    sandbox.stub(pool, 'query').resolves({ rows: [{}] });
   });
 
   afterEach(async () => {
@@ -408,6 +412,94 @@ experiment('modules/licence-import/load/connectors', () => {
         data.licence.expiredDate,
         data.licence.lapsedDate,
         data.licence.revokedDate
+      ]);
+    });
+  });
+
+  experiment('.createLicenceVersion', () => {
+    let version;
+    let licenceId;
+
+    beforeEach(async () => {
+      licenceId = uuid();
+
+      version = {
+        issue: 100,
+        increment: 1,
+        status: 'draft',
+        startDate: '2000-01-01',
+        endDate: null,
+        externalId: '1:2:3:4'
+      };
+
+      await connectors.createLicenceVersion(version, licenceId);
+    });
+
+    test('uses the expected query', async () => {
+      const [query] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.createLicenceVersion);
+    });
+
+    test('passes the expected params', async () => {
+      const [, params] = pool.query.lastCall.args;
+
+      expect(params).to.equal([
+        licenceId,
+        version.issue,
+        version.increment,
+        version.status,
+        version.startDate,
+        version.endDate,
+        version.externalId
+      ]);
+    });
+  });
+
+  experiment('.createLicenceVersionPurpose', () => {
+    let purpose;
+    let licenceVersionId;
+
+    beforeEach(async () => {
+      licenceVersionId = uuid();
+
+      purpose = {
+        purposePrimary: 'A',
+        purposeSecondary: 'ABC',
+        purposeUse: '123',
+        abstractionPeriodStartDay: 1,
+        abstractionPeriodStartMonth: 1,
+        abstractionPeriodEndDay: 2,
+        abstractionPeriodEndMonth: 2,
+        timeLimitedStartDate: null,
+        timeLimitedEndDate: null,
+        notes: 'notes',
+        annualQuantity: 1000
+      };
+
+      await connectors.createLicenceVersionPurpose(purpose, licenceVersionId);
+    });
+
+    test('uses the expected query', async () => {
+      const [query] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.createLicenceVersionPurpose);
+    });
+
+    test('passes the expected params', async () => {
+      const [, params] = pool.query.lastCall.args;
+
+      expect(params).to.equal([
+        licenceVersionId,
+        purpose.purposePrimary,
+        purpose.purposeSecondary,
+        purpose.purposeUse,
+        purpose.abstractionPeriodStartDay,
+        purpose.abstractionPeriodStartMonth,
+        purpose.abstractionPeriodEndDay,
+        purpose.abstractionPeriodEndMonth,
+        purpose.timeLimitedStartDate,
+        purpose.timeLimitedEndDate,
+        purpose.notes,
+        purpose.annualQuantity
       ]);
     });
   });

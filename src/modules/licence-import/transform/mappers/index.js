@@ -9,6 +9,8 @@ module.exports = {
   document: require('./document'),
   invoiceAccount: require('./invoice-account'),
   licence: require('./licence'),
+  licenceVersion: require('./licence-version'),
+  licencePurpose: require('./licence-purpose'),
   party: require('./party'),
   role: require('./role')
 };

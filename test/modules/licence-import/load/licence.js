@@ -1,3 +1,7 @@
+'use strict';
+
+const uuid = require('uuid/v4');
+
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
@@ -7,6 +11,27 @@ const connectors = require('../../../../src/modules/licence-import/load/connecto
 
 experiment('modules/licence-import/load/licence', () => {
   const createLicence = () => ({
+    versions: [{
+      issue: 100,
+      increment: 1,
+      status: 'current',
+      startDate: '2019-01-01',
+      endDate: null,
+      externalId: '1:100:100:1',
+      purposes: [{
+        purposePrimary: 'A',
+        purposeSecondary: 'ABC',
+        purposeUse: '123',
+        abstractionPeriodStartDay: 1,
+        abstractionPeriodStartMonth: 1,
+        abstractionPeriodEndDay: 2,
+        abstractionPeriodEndMonth: 2,
+        timeLimitedStartDate: null,
+        timeLimitedEndDate: null,
+        notes: 'testing',
+        annualQuantity: 100
+      }]
+    }],
     documents: [{
       documentRef: '123/456',
       startDate: '2019-01-01',
@@ -35,12 +60,20 @@ experiment('modules/licence-import/load/licence', () => {
   });
 
   let licence;
+  let licenceId;
+  let licenceVersionId;
 
   beforeEach(async () => {
     sandbox.stub(connectors, 'createDocumentRole');
     sandbox.stub(connectors, 'createDocument');
     sandbox.stub(connectors, 'createAgreement');
-    sandbox.stub(connectors, 'createLicence');
+    sandbox.stub(connectors, 'createLicenceVersion').resolves({
+      licence_version_id: licenceVersionId = uuid()
+    });
+    sandbox.stub(connectors, 'createLicence').resolves({
+      licence_id: licenceId = uuid()
+    });
+    sandbox.stub(connectors, 'createLicenceVersionPurpose');
 
     licence = createLicence();
     await loadLicence(licence);
@@ -70,5 +103,46 @@ experiment('modules/licence-import/load/licence', () => {
     expect(connectors.createAgreement.calledWith(
       licence, licence.agreements[0]
     )).to.be.true();
+  });
+
+  test('creates the licence version', async () => {
+    const [version, savedLicenceId] = connectors.createLicenceVersion.lastCall.args;
+
+    expect(version.issue).to.equal(100);
+    expect(version.increment).to.equal(1);
+    expect(version.status).to.equal('current');
+    expect(version.startDate).to.equal('2019-01-01');
+    expect(version.endDate).to.equal(null);
+    expect(version.externalId).to.equal('1:100:100:1');
+    expect(savedLicenceId).to.equal(licenceId);
+  });
+
+  test('creates the licence version', async () => {
+    const [version, savedLicenceId] = connectors.createLicenceVersion.lastCall.args;
+
+    expect(version.issue).to.equal(100);
+    expect(version.increment).to.equal(1);
+    expect(version.status).to.equal('current');
+    expect(version.startDate).to.equal('2019-01-01');
+    expect(version.endDate).to.equal(null);
+    expect(version.externalId).to.equal('1:100:100:1');
+    expect(savedLicenceId).to.equal(licenceId);
+  });
+
+  test('creates the licence version purpose', async () => {
+    const [purpose, savedId] = connectors.createLicenceVersionPurpose.lastCall.args;
+
+    expect(savedId).to.equal(licenceVersionId);
+    expect(purpose.purposePrimary).to.equal('A');
+    expect(purpose.purposeSecondary).to.equal('ABC');
+    expect(purpose.purposeUse).to.equal('123');
+    expect(purpose.abstractionPeriodStartDay).to.equal(1);
+    expect(purpose.abstractionPeriodStartMonth).to.equal(1);
+    expect(purpose.abstractionPeriodEndDay).to.equal(2);
+    expect(purpose.abstractionPeriodEndMonth).to.equal(2);
+    expect(purpose.timeLimitedStartDate).to.equal(null);
+    expect(purpose.timeLimitedEndDate).to.equal(null);
+    expect(purpose.notes).to.equal('testing');
+    expect(purpose.annualQuantity).to.equal(100);
   });
 });
