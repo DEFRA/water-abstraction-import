@@ -95,27 +95,29 @@ experiment('modules/nald-import/plugin', () => {
     });
   });
 
-  experiment('in production', async () => {
-    beforeEach(async () => {
-      sandbox.stub(config, 'isProduction').value(true);
-      await plugin.register(server);
+  if (!process.env.TRAVIS) {
+    experiment('in production', async () => {
+      beforeEach(async () => {
+        sandbox.stub(config, 'isProduction').value(true);
+        await plugin.register(server);
+      });
+
+      test('schedules cron job to run at 0100 everyday', async () => {
+        const [schedule] = cron.schedule.firstCall.args;
+        expect(schedule).to.equal('0 1 * * *');
+      });
     });
 
-    test('schedules cron job to run every hour', async () => {
-      const [schedule] = cron.schedule.firstCall.args;
-      expect(schedule).to.equal('0 1 * * *');
-    });
-  });
+    experiment('in non-production', async () => {
+      beforeEach(async () => {
+        sandbox.stub(config, 'isProduction').value(false);
+        await plugin.register(server);
+      });
 
-  experiment('in non-production', async () => {
-    beforeEach(async () => {
-      sandbox.stub(config, 'isProduction').value(false);
-      await plugin.register(server);
+      test('schedules cron job to run every hour', async () => {
+        const [schedule] = cron.schedule.firstCall.args;
+        expect(schedule).to.equal('0 */1 * * *');
+      });
     });
-
-    test('schedules cron job to run every hour', async () => {
-      const [schedule] = cron.schedule.firstCall.args;
-      expect(schedule).to.equal('0 * * * *');
-    });
-  });
+  }
 });
