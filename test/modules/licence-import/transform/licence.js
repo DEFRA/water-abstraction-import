@@ -24,6 +24,9 @@ const createSimpleLicence = () => {
     ],
     addresses: [
       data.createAddress()
+    ],
+    purposes: [
+      data.createPurpose(licence)
     ]
   };
 };
@@ -36,6 +39,12 @@ const createComplexLicence = () => {
       data.createVersion(licence, { ISSUE_NO: '1', INCR_NO: '1', EFF_ST_DATE: '02/04/2015', EFF_END_DATE: '05/07/2015' }),
       data.createVersion(licence, { ISSUE_NO: '1', INCR_NO: '2', EFF_ST_DATE: '06/07/2015', EFF_END_DATE: '12/08/2015' }),
       data.createVersion(licence, { ISSUE_NO: '2', INCR_NO: '1', EFF_ST_DATE: '13/08/2015', EFF_END_DATE: 'null' })
+    ],
+    purposes: [
+      data.createPurpose(licence, { AABV_ISSUE_NO: '1', AABV_INCR_NO: '1', APUR_APPR_CODE: 'A' }),
+      data.createPurpose(licence, { AABV_ISSUE_NO: '1', AABV_INCR_NO: '2', APUR_APPR_CODE: 'B' }),
+      data.createPurpose(licence, { AABV_ISSUE_NO: '2', AABV_INCR_NO: '1', APUR_APPR_CODE: 'C' }),
+      data.createPurpose(licence, { AABV_ISSUE_NO: '2', AABV_INCR_NO: '1', APUR_APPR_CODE: 'D' })
     ],
     chargeVersions: [
       data.createChargeVersion(licence, { VERS_NO: '1', EFF_ST_DATE: '02/04/2015', EFF_END_DATE: '14/05/2016', ACON_APAR_ID: '1000' }),
@@ -111,6 +120,12 @@ experiment('modules/licence-import/transform/licence.js', () => {
 
       test('there are no licence agreements', async () => {
         expect(result.agreements).to.equal([]);
+      });
+
+      test('the licence contains versions data', async () => {
+        expect(result.versions.length).to.equal(1);
+        expect(result.versions[0].increment).to.equal(1);
+        expect(result.versions[0].status).to.equal('current');
       });
     });
 
@@ -188,6 +203,17 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(result.agreements[2].agreementCode).to.equal('S130');
         expect(result.agreements[2].startDate).to.equal('2015-04-02');
         expect(result.agreements[2].endDate).to.equal('2015-07-05');
+      });
+
+      test('the versions contain the purposes', async () => {
+        expect(result.versions[0].purposes.length).to.equal(1);
+        expect(result.versions[1].purposes.length).to.equal(1);
+        expect(result.versions[2].purposes.length).to.equal(2);
+
+        expect(result.versions[0].purposes[0].purposePrimary).to.equal('A');
+        expect(result.versions[1].purposes[0].purposePrimary).to.equal('B');
+        expect(result.versions[2].purposes[0].purposePrimary).to.equal('C');
+        expect(result.versions[2].purposes[1].purposePrimary).to.equal('D');
       });
     });
 

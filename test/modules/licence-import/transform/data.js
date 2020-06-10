@@ -81,12 +81,33 @@ const createChargeVersion = (licence, overrides) => Object.assign({}, {
   ACON_AADD_ID: '1000'
 }, overrides);
 
-exports.createLicence = createLicence;
-exports.createVersion = createVersion;
-exports.createCompany = createCompany;
-exports.createPerson = createPerson;
+const createPurpose = (licence, overrides) => Object.assign({}, {
+  AABV_AABL_ID: licence.ID,
+  FGAC_REGION_CODE: licence.FGAC_REGION_CODE,
+  AABV_ISSUE_NO: '100',
+  AABV_INCR_NO: '1',
+  APUR_APPR_CODE: 'P',
+  APUR_APSE_CODE: 'ELC',
+  APUR_APUS_CODE: '80',
+  PERIOD_ST_DAY: '1',
+  PERIOD_ST_MONTH: '1',
+  PERIOD_END_DAY: '31',
+  PERIOD_END_MONTH: '12',
+  ANNUAL_QTY: '10000',
+  DAILY_QTY: '365',
+  HOURLY_QTY: '24',
+  TIMELTD_ST_DATE: 'null',
+  TIMELTD_END_DATE: 'null',
+  NOTES: 'null'
+}, overrides);
+
 exports.createAddress = createAddress;
 exports.createAgreement = createAgreement;
-exports.createInvoiceAccount = createInvoiceAccount;
-exports.createParty = createParty;
 exports.createChargeVersion = createChargeVersion;
+exports.createCompany = createCompany;
+exports.createInvoiceAccount = createInvoiceAccount;
+exports.createLicence = createLicence;
+exports.createParty = createParty;
+exports.createPerson = createPerson;
+exports.createPurpose = createPurpose;
+exports.createVersion = createVersion;

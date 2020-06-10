@@ -1,3 +1,5 @@
+'use strict';
+
 const { test, experiment } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
 
@@ -46,8 +48,7 @@ experiment('modules/licence-import/transform/jobs', () => {
     });
     expect(options).to.equal({
       singletonKey: 'import.licence.01/123',
-      singletonHours: 1,
-      expireIn: '4 hour'
+      singletonHours: 1
     });
   });
 });

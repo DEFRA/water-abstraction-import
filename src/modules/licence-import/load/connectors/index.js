@@ -55,25 +55,63 @@ const createAgreement = (licence, agreement) => {
   return pool.query(queries.createAgreement, params);
 };
 
-const createLicence = licence => pool.query(queries.createLicence, [
-  licence.regionCode,
-  licence.licenceNumber,
-  licence.isWaterUndertaker,
-  licence.regions,
-  licence.startDate,
-  licence.expiredDate,
-  licence.lapsedDate,
-  licence.revokedDate
-]);
+const createLicenceVersion = async (version, licenceId) => {
+  const params = [
+    licenceId,
+    version.issue,
+    version.increment,
+    version.status,
+    version.startDate,
+    version.endDate,
+    version.externalId
+  ];
 
+  const result = await pool.query(queries.createLicenceVersion, params);
+  return result.rows[0];
+};
+
+const createLicence = async licence => {
+  const result = await pool.query(queries.createLicence, [
+    licence.regionCode,
+    licence.licenceNumber,
+    licence.isWaterUndertaker,
+    licence.regions,
+    licence.startDate,
+    licence.expiredDate,
+    licence.lapsedDate,
+    licence.revokedDate
+  ]);
+
+  return result.rows[0];
+};
+
+const createLicenceVersionPurpose = async (purpose, licenceVersionId) =>
+  pool.query(queries.createLicenceVersionPurpose, [
+    licenceVersionId,
+    purpose.purposePrimary,
+    purpose.purposeSecondary,
+    purpose.purposeUse,
+    purpose.abstractionPeriodStartDay,
+    purpose.abstractionPeriodStartMonth,
+    purpose.abstractionPeriodEndDay,
+    purpose.abstractionPeriodEndMonth,
+    purpose.timeLimitedStartDate,
+    purpose.timeLimitedEndDate,
+    purpose.notes,
+    purpose.annualQuantity,
+    purpose.externalId
+  ]);
+
+exports.createAddress = createAddress;
+exports.createAgreement = createAgreement;
+exports.createCompany = createCompany;
+exports.createCompanyAddress = createCompanyAddress;
+exports.createCompanyContact = createCompanyContact;
+exports.createContact = createContact;
 exports.createDocument = createDocument;
 exports.createDocumentRole = createDocumentRole;
-exports.createCompany = createCompany;
-exports.createAddress = createAddress;
-exports.createContact = createContact;
 exports.createInvoiceAccount = createInvoiceAccount;
 exports.createInvoiceAccountAddress = createInvoiceAccountAddress;
-exports.createCompanyContact = createCompanyContact;
-exports.createCompanyAddress = createCompanyAddress;
-exports.createAgreement = createAgreement;
 exports.createLicence = createLicence;
+exports.createLicenceVersion = createLicenceVersion;
+exports.createLicenceVersionPurpose = createLicenceVersionPurpose;
