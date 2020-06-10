@@ -98,7 +98,8 @@ const createLicenceVersionPurpose = async (purpose, licenceVersionId) =>
     purpose.timeLimitedStartDate,
     purpose.timeLimitedEndDate,
     purpose.notes,
-    purpose.annualQuantity
+    purpose.annualQuantity,
+    purpose.externalId
   ]);
 
 exports.createAddress = createAddress;

@@ -19,11 +19,11 @@ const postImport = async request => {
   };
 };
 
-const postImportLicence = async request => {
+const postImportLicence = async (request, h) => {
   const { licenceNumber } = request.query;
   try {
     await request.messageQueue.publish(jobs.importLicence(licenceNumber));
-    return { error: null };
+    return h.response({ error: null }).code(202);
   } catch (err) {
     const message = `Error importing licence: ${licenceNumber}`;
     logger.error(message, err);

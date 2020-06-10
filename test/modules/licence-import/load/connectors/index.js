@@ -473,7 +473,8 @@ experiment('modules/licence-import/load/connectors', () => {
         timeLimitedStartDate: null,
         timeLimitedEndDate: null,
         notes: 'notes',
-        annualQuantity: 1000
+        annualQuantity: 1000,
+        externalId: '1:111222'
       };
 
       await connectors.createLicenceVersionPurpose(purpose, licenceVersionId);
@@ -499,7 +500,8 @@ experiment('modules/licence-import/load/connectors', () => {
         purpose.timeLimitedStartDate,
         purpose.timeLimitedEndDate,
         purpose.notes,
-        purpose.annualQuantity
+        purpose.annualQuantity,
+        purpose.externalId
       ]);
     });
   });

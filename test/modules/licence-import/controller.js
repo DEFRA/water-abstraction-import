@@ -62,10 +62,18 @@ experiment('modules/licence-import/controller.js', () => {
   });
 
   experiment('.postImportLicence', () => {
-    let request, response;
+    let request;
+    let h;
+    let response;
+    let code;
 
     beforeEach(async () => {
       sandbox.stub(logger, 'error');
+      code = sandbox.spy();
+
+      h = {
+        response: sandbox.stub().returns({ code })
+      };
     });
 
     afterEach(async () => {
@@ -76,7 +84,7 @@ experiment('modules/licence-import/controller.js', () => {
       beforeEach(async () => {
         request = createRequest();
         request.query.licenceNumber = 'test-lic';
-        response = await controller.postImportLicence(request);
+        await controller.postImportLicence(request, h);
       });
 
       test('an "import licence" job is published', async () => {
@@ -86,7 +94,11 @@ experiment('modules/licence-import/controller.js', () => {
       });
 
       test('a success response is returned', async () => {
-        expect(response).to.equal({ error: null });
+        const [data] = h.response.lastCall.args;
+        const [statusCode] = code.lastCall.args;
+
+        expect(data).to.equal({ error: null });
+        expect(statusCode).to.equal(202);
       });
     });
 
@@ -95,7 +107,7 @@ experiment('modules/licence-import/controller.js', () => {
         request = createRequest();
         request.query.licenceNumber = 'test-lic';
         request.messageQueue.publish.rejects();
-        response = await controller.postImportLicence(request);
+        response = await controller.postImportLicence(request, h);
       });
 
       test('an error is logged', async () => {

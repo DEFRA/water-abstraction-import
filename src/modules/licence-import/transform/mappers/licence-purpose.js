@@ -19,7 +19,8 @@ const mapLicencePurpose = data => {
     notes: nald.stringNullToNull(data.NOTES),
     annualQuantity: nald.stringNullToNull(data.ANNUAL_QTY) === null
       ? null
-      : +data.ANNUAL_QTY
+      : +data.ANNUAL_QTY,
+    externalId: `${data.FGAC_REGION_CODE}:${data.ID}`
   };
 
   return purpose;

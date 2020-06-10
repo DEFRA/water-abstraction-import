@@ -25,6 +25,7 @@ experiment('modules/licence-import/transform/mappers/licence-purpose', () => {
       };
 
       purpose = data.createVersion(licence, {
+        ID: '112233',
         AABV_AABL_ID: '123',
         AABV_ISSUE_NO: '100',
         AABV_INCR_NO: '1',
@@ -119,6 +120,10 @@ experiment('modules/licence-import/transform/mappers/licence-purpose', () => {
       purpose.ANNUAL_QTY = 'null';
       mapped = mapLicencePurpose(purpose);
       expect(mapped.annualQuantity).to.equal(null);
+    });
+
+    test('creates an external id', async () => {
+      expect(mapped.externalId).to.equal('6:112233');
     });
   });
 });

@@ -167,34 +167,44 @@ exports.createLicenceVersionPurpose = `
     purpose_primary_id,
     purpose_secondary_id,
     purpose_use_id,
-    abstraction_period_start_day, abstraction_period_start_month,
-    abstraction_period_end_day, abstraction_period_end_month,
-    time_limited_start_date, time_limited_end_date,
-    notes, annual_quantity,
-    date_created, date_updated
+    abstraction_period_start_day,
+    abstraction_period_start_month,
+    abstraction_period_end_day,
+    abstraction_period_end_month,
+    time_limited_start_date,
+    time_limited_end_date,
+    notes,
+    annual_quantity,
+    external_id,
+    date_created,
+    date_updated
   ) values (
     $1,
     (select purpose_primary_id from water.purposes_primary where legacy_id = $2),
     (select purpose_secondary_id from water.purposes_secondary where legacy_id = $3),
     (select purpose_use_id from water.purposes_uses where legacy_id = $4),
-    $5, $6,
-    $7, $8,
-    $9, $10,
-    $11, $12,
-    now(), now()
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12,
+    $13,
+    now(),
+    now()
   )
-  on conflict (
-    licence_version_id,
-    purpose_primary_id,
-    purpose_secondary_id,
-    purpose_use_id,
-    abstraction_period_start_day,
-    abstraction_period_start_month,
-    abstraction_period_end_day,
-    abstraction_period_end_month
-  )
+  on conflict (external_id)
   do update
   set
+    purpose_primary_id = excluded.purpose_primary_id,
+    purpose_secondary_id = excluded.purpose_secondary_id,
+    purpose_use_id = excluded.purpose_use_id,
+    abstraction_period_start_day = excluded.abstraction_period_start_day,
+    abstraction_period_start_month = excluded.abstraction_period_start_month,
+    abstraction_period_end_day = excluded.abstraction_period_end_day,
+    abstraction_period_end_month = excluded.abstraction_period_end_month,
     time_limited_start_date = excluded.time_limited_start_date,
     time_limited_end_date = excluded.time_limited_end_date,
     notes = excluded.notes,
