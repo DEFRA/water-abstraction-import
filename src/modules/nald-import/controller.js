@@ -4,6 +4,7 @@ const Boom = require('@hapi/boom');
 const { getLicenceJson } = require('./transform-permit');
 const { buildReturnsPacket } = require('./transform-returns');
 
+const jobs = require('./jobs');
 const { getFormats, getLogs, getLogLines } = require('./lib/nald-queries/returns');
 
 /**
@@ -88,8 +89,22 @@ const getReturnsLogLines = async (request, h) => {
   }
 };
 
+const postImportLicence = async (request, h) => {
+  const { job } = jobs.importLicence;
+  const { licenceNumber } = request.payload;
+  const message = job.createMessage(licenceNumber);
+
+  try {
+    await request.server.messageQueue.publish(message);
+    return h.response(message).code(202);
+  } catch (err) {
+    throw Boom.boomify(err);
+  }
+};
+
 exports.getLicence = getLicence;
 exports.getReturns = getReturns;
 exports.getReturnsFormats = getReturnsFormats;
 exports.getReturnsLogs = getReturnsLogs;
 exports.getReturnsLogLines = getReturnsLogLines;
+exports.postImportLicence = postImportLicence;
