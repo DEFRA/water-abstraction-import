@@ -1,3 +1,5 @@
+'use strict';
+
 const isImportTarget = require('./is-import-target');
 const { logger } = require('../logger');
 
@@ -9,6 +11,11 @@ const { logger } = require('../logger');
 const createRegister = (server, registerSubscribers) => {
   if (!isImportTarget()) {
     logger.info(`Aborting import, environment is: ${process.env.NODE_ENV}`);
+    return;
+  }
+
+  if (process.env.TRAVIS) {
+    logger.info('Abort register of subscribers in Travis environment');
     return;
   }
   return registerSubscribers(server);

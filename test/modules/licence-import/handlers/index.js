@@ -1,5 +1,9 @@
+'use strict';
+
 const { test, experiment, beforeEach, afterEach, fail } = exports.lab = require('@hapi/lab').script();
+const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
+
 const handlers = require('../../../../src/modules/licence-import/handlers');
 const extract = require('../../../../src/modules/licence-import/extract');
 const transform = require('../../../../src/modules/licence-import/transform');
@@ -8,14 +12,18 @@ const importCompanies = require('../../../../src/modules/licence-import/connecto
 
 const { logger } = require('../../../../src/logger');
 
-const server = require('../../../../index.js');
-const { expect } = require('@hapi/code');
-
 experiment('modules/licence-import/transform/handlers', () => {
+  let server;
+
   beforeEach(async () => {
     sandbox.stub(logger, 'error');
     sandbox.stub(logger, 'info');
-    sandbox.stub(server.messageQueue, 'publish');
+
+    server = {
+      messageQueue: {
+        publish: sandbox.stub().resolves()
+      }
+    };
   });
 
   afterEach(async () => {
