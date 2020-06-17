@@ -7,6 +7,30 @@ const mapInvoiceAccount = chargeVersion => ({
   invoiceAccountNumber: chargeVersion.IAS_CUST_REF
 });
 
+const getNormalisedName = str => {
+  return (str || '').trim().toLowerCase().replace(/ltd\.?$/, 'limited');
+};
+
+/**
+ * Gets the agent company ID for the invoice account row
+ * @param {Object} row - single row from invoice account query
+ * @return {String|Null} - agent company ID or null if no agent
+ */
+const getAgentCompanyExternalId = row => {
+  const {
+    licence_holder_party_id: licenceHolderPartyId,
+    licence_holder_party_name: licenceHolderPartyName,
+    invoice_account_party_name: invoiceAccountPartyName,
+    FGAC_REGION_CODE: regionCode,
+    ACON_APAR_ID: invoiceAccountPartyId
+  } = row;
+
+  const isDifferentId = licenceHolderPartyId !== invoiceAccountPartyId;
+  const isDifferentName = getNormalisedName(licenceHolderPartyName) !== getNormalisedName(invoiceAccountPartyName);
+
+  return isDifferentId && isDifferentName ? `${regionCode}:${invoiceAccountPartyId}` : null;
+};
+
 const mapInvoiceAccountAddresses = (iasAccounts, context) => {
   // Sort group by transfer date
   const sorted = sortBy(iasAccounts, row => date.mapTransferDate(row.IAS_XFER_DATE));
@@ -16,7 +40,10 @@ const mapInvoiceAccountAddresses = (iasAccounts, context) => {
     role: roles.ROLE_BILLING,
     startDate: date.mapTransferDate(row.IAS_XFER_DATE),
     endDate: i === arr.length - 1 ? null : date.getPreviousDay(date.mapTransferDate(arr[i + 1].IAS_XFER_DATE)),
-    address: context.addresses[row.FGAC_REGION_CODE][row.ACON_AADD_ID]
+    address: context.addresses[row.FGAC_REGION_CODE][row.ACON_AADD_ID],
+    agentCompany: {
+      externalId: getAgentCompanyExternalId(row)
+    }
   }));
 
   // Merge on date range

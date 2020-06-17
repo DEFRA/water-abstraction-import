@@ -66,7 +66,10 @@ const createInvoiceAccount = overrides => Object.assign({}, {
   IAS_CUST_REF: 'X1234',
   ACON_APAR_ID: '1000',
   ACON_AADD_ID: '1000',
-  IAS_XFER_DATE: '05/04/2016 11:24:02'
+  IAS_XFER_DATE: '05/04/2016 11:24:02',
+  licence_holder_party_id: '1000',
+  licence_holder_party_name: 'Big Co Ltd.',
+  invoice_account_party_name: 'Big Co Ltd.'
 }, overrides);
 
 const createChargeVersion = (licence, overrides) => Object.assign({}, {
