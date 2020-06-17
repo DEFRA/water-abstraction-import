@@ -8,7 +8,7 @@ const mapInvoiceAccount = chargeVersion => ({
 });
 
 const getNormalisedName = str => {
-  return (str || '').trim().toLowerCase().replace(/ltd\.?$/, 'limited');
+  return str.trim().toLowerCase().replace(/ltd\.?$/, 'limited');
 };
 
 /**
