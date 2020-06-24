@@ -12,9 +12,25 @@ const createCompany = () => {
       data.createAddress({ ID: '1001' })
     ],
     invoiceAccounts: [
-      data.createInvoiceAccount({ IAS_CUST_REF: 'A1234', IAS_XFER_DATE: '02/04/2015', ACON_AADD_ID: '1000' }),
-      data.createInvoiceAccount({ IAS_CUST_REF: 'A1234', IAS_XFER_DATE: '06/07/2015', ACON_AADD_ID: '1001' }),
-      data.createInvoiceAccount({ IAS_CUST_REF: 'B7890', IAS_XFER_DATE: '13/08/2015', ACON_AADD_ID: '1001' })
+      data.createInvoiceAccount({
+        IAS_CUST_REF: 'A1234',
+        IAS_XFER_DATE: '02/04/2015',
+        ACON_AADD_ID: '1000'
+      }),
+      data.createInvoiceAccount({
+        IAS_CUST_REF: 'A1234',
+        IAS_XFER_DATE: '06/07/2015',
+        ACON_AADD_ID: '1001',
+        licence_holder_party_id: '2345',
+        invoice_account_party_name: 'Big Co Limited'
+      }),
+      data.createInvoiceAccount({
+        IAS_CUST_REF: 'B7890',
+        IAS_XFER_DATE: '13/08/2015',
+        ACON_AADD_ID: '1001',
+        licence_holder_party_id: '2346',
+        invoice_account_party_name: 'Accurate Accountancy Plc.'
+      })
     ],
     licenceVersions: [
       data.createVersion(licence, { ISSUE_NO: '1', INCR_NO: '1', EFF_ST_DATE: '02/04/2015', EFF_END_DATE: '05/07/2015' }),
@@ -61,10 +77,12 @@ experiment('modules/licence-import/transform/company.js', () => {
         expect(first.startDate).to.equal('2015-04-02');
         expect(first.endDate).to.equal('2015-07-05');
         expect(first.address.externalId).to.equal('1:1000');
+        expect(first.agentCompany.externalId).to.be.null();
         expect(second.role).to.equal('billing');
         expect(second.startDate).to.equal('2015-07-06');
         expect(second.endDate).to.equal(null);
         expect(second.address.externalId).to.equal('1:1001');
+        expect(second.agentCompany.externalId).to.be.null();
       });
 
       test('the second invoice account has the correct address history', async () => {
@@ -74,6 +92,7 @@ experiment('modules/licence-import/transform/company.js', () => {
         expect(first.startDate).to.equal('2015-08-13');
         expect(first.endDate).to.equal(null);
         expect(first.address.externalId).to.equal('1:1001');
+        expect(first.agentCompany.externalId).to.equal('1:1000');
       });
 
       test('there is 1 licence-holder address', async () => {

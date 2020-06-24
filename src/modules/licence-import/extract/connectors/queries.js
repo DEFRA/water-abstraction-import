@@ -65,19 +65,29 @@ AND ag."AFSA_CODE" IN ('S127', 'S130S', 'S130T', 'S130U', 'S130W')
 `;
 
 exports.getInvoiceAccounts = `
-  SELECT i.*
-  FROM import."NALD_IAS_INVOICE_ACCS" i
-    JOIN (
-      SELECT DISTINCT cv."AIIA_IAS_CUST_REF", cv."AIIA_ALHA_ACC_NO", cv."FGAC_REGION_CODE"
-      FROM import."NALD_CHG_VERSIONS" cv
-      WHERE cv."STATUS"<>'DRAFT'
-    ) cv
-    ON i."IAS_CUST_REF"=cv."AIIA_IAS_CUST_REF"
-    AND i."FGAC_REGION_CODE"=cv."FGAC_REGION_CODE"
-    AND i."ALHA_ACC_NO"=cv."AIIA_ALHA_ACC_NO"
-  WHERE i."FGAC_REGION_CODE"=$1
-    AND i."ACON_APAR_ID"=$2
-    AND i."IAS_XFER_DATE"<>'null';
+select a."ACON_APAR_ID" AS licence_holder_party_id, p."NAME" AS licence_holder_party_name, 
+p2."NAME" AS invoice_account_party_name,
+i.* 
+from import."NALD_LH_ACCS" a
+join import."NALD_PARTIES" p on a."ACON_APAR_ID"=p."ID" and a."FGAC_REGION_CODE"=p."FGAC_REGION_CODE"
+join import."NALD_IAS_INVOICE_ACCS" i 
+on 
+  a."ACC_NO"=i."ALHA_ACC_NO" 
+  and a."FGAC_REGION_CODE"=i."FGAC_REGION_CODE"
+join import."NALD_PARTIES" p2 on i."ACON_APAR_ID"=p2."ID" AND i."FGAC_REGION_CODE"=p2."FGAC_REGION_CODE"
+join (
+  select distinct cv."AIIA_IAS_CUST_REF", cv."AIIA_ALHA_ACC_NO", cv."FGAC_REGION_CODE"
+  from import."NALD_CHG_VERSIONS" cv
+  where cv."STATUS"<>'DRAFT'
+) cv
+on 
+  i."IAS_CUST_REF"=cv."AIIA_IAS_CUST_REF"
+  and i."FGAC_REGION_CODE"=cv."FGAC_REGION_CODE"
+  and i."ALHA_ACC_NO"=cv."AIIA_ALHA_ACC_NO"
+where
+  i."IAS_XFER_DATE"<>'null'
+  and a."FGAC_REGION_CODE"=$1
+  and a."ACON_APAR_ID"=$2
 `;
 
 exports.getPartyLicenceVersions = `SELECT lv.*, l."REV_DATE", l."LAPSED_DATE", l."EXPIRY_DATE" FROM import."NALD_ABS_LIC_VERSIONS" lv
