@@ -1,6 +1,6 @@
 /* Replace with your SQL commands */
 CREATE TABLE IF NOT EXISTS "water_import"."import_companies" (
-  "import_company_id" varchar NOT NULL DEFAULT gen_random_uuid(),
+  "import_company_id" varchar NOT NULL DEFAULT public.gen_random_uuid(),
   "region_code" integer NOT NULL,
   "party_id" integer NOT NULL,
   "imported" boolean NOT NULL DEFAULT false,

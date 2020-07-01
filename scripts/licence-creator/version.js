@@ -1,3 +1,7 @@
+'use strict';
+
+const common = require('./common');
+
 const getNextId = require('./next-id.js');
 
 class Version {
@@ -35,7 +39,6 @@ class Version {
 
   addPurpose (purpose) {
     this.purposes.push(purpose);
-    // purpose.setVersion(this);
     return this;
   }
 
@@ -59,11 +62,7 @@ class Version {
       ALTY_CODE: 'LOR',
       ACCL_CODE: 'CR',
       MULTIPLE_LH: 'N',
-      LIC_SIG_DATE: null,
-      APP_NO: null,
-      LIC_DOC_FLAG: null,
-      EFF_END_DATE: null,
-      EXPIRY_DATE1: null,
+      ...common.createNullKeys('LIC_SIG_DATE', 'APP_NO', 'LIC_DOC_FLAG', 'EFF_END_DATE', 'EXPIRY_DATE1'),
       WA_ALTY_CODE: this.waLicenceType.code,
       VOL_CONV: 'N',
       WRT_CODE: 'N',

@@ -1,9 +1,28 @@
-exports.getLicence = 'SELECT * FROM import."NALD_ABS_LICENCES" l WHERE l."LIC_NO"=$1';
+exports.getLicence = `
+  SELECT *
+  FROM import."NALD_ABS_LICENCES" l
+  WHERE l."LIC_NO"=$1;
+`;
 
-exports.getLicenceVersions = `SELECT * FROM import."NALD_ABS_LIC_VERSIONS" v
+exports.getLicenceVersions = `
+  SELECT *
+  FROM import."NALD_ABS_LIC_VERSIONS" v
   WHERE v."FGAC_REGION_CODE"=$1
   AND v."AABL_ID"=$2
-  AND v."STATUS"<>'DRAFT'`;
+  AND v."STATUS"<>'DRAFT';
+`;
+
+exports.getLicencePurposes = `
+  select purposes.*
+  from import."NALD_ABS_LIC_VERSIONS" versions
+    join import."NALD_ABS_LIC_PURPOSES" purposes
+      on versions."AABL_ID" = purposes."AABV_AABL_ID"
+      and versions."ISSUE_NO" = purposes."AABV_ISSUE_NO"
+      and versions."INCR_NO" = purposes."AABV_INCR_NO"
+      and versions."FGAC_REGION_CODE" = purposes."FGAC_REGION_CODE"
+  where versions."FGAC_REGION_CODE" = $1
+  and versions."AABL_ID" = $2;
+`;
 
 exports.getParty = `SELECT * FROM import."NALD_PARTIES" p
   WHERE p."FGAC_REGION_CODE"=$1
@@ -75,5 +94,6 @@ WHERE a."FGAC_REGION_CODE"=$1
 AND a."ID" =  any (string_to_array($2, ',')::text[])`;
 
 exports.getAllLicenceNumbers = `
-SELECT l."LIC_NO" FROM import."NALD_ABS_LICENCES" l
+  SELECT l."LIC_NO"
+  FROM import."NALD_ABS_LICENCES" l;
 `;

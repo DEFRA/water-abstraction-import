@@ -1,3 +1,5 @@
+'use strict';
+
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
@@ -20,7 +22,11 @@ const data = {
     { ACON_APAR_ID: 'party_3', ACON_AADD_ID: 'address_3' }
   ],
   twoPartTariffAgreements: { isTwoPartTariffAgreements: true },
-  section130Agreements: { isSection130Agreements: true }
+  section130Agreements: { isSection130Agreements: true },
+  purposes: [
+    { ID: '1', AABV_AABL_ID: '7', AABV_ISSUE_NO: '100', AABV_INCR_NO: '1' },
+    { ID: '2', AABV_AABL_ID: '7', AABV_ISSUE_NO: '100', AABV_INCR_NO: '2' }
+  ]
 };
 
 experiment('modules/licence-import/extract/index.js', () => {
@@ -37,6 +43,7 @@ experiment('modules/licence-import/extract/index.js', () => {
     sandbox.stub(importConnector, 'getSection130Agreements').resolves(data.section130Agreements);
     sandbox.stub(importConnector, 'getInvoiceAccounts').resolves(data.invoiceAccounts);
     sandbox.stub(importConnector, 'getPartyLicenceVersions').resolves(data.licenceVersions);
+    sandbox.stub(importConnector, 'getLicencePurposes').resolves(data.purposes);
   });
 
   afterEach(async () => {
@@ -78,6 +85,12 @@ experiment('modules/licence-import/extract/index.js', () => {
       ).to.be.true();
     });
 
+    test('importConnector.getLicencePurposes is called with the region code / licence ID', async () => {
+      const [regionId, licenceId] = importConnector.getLicencePurposes.lastCall.args;
+      expect(regionId).to.equal('4');
+      expect(licenceId).to.equal('7');
+    });
+
     test('importConnector.getParties called with region code and array of party IDs', async () => {
       expect(
         importConnector.getParties.calledWith('4', ['party_1', 'party_2'])
@@ -98,6 +111,7 @@ experiment('modules/licence-import/extract/index.js', () => {
       expect(result.section130Agreements).to.equal(data.section130Agreements);
       expect(result.parties).to.equal(data.parties);
       expect(result.addresses).to.equal(data.addresses);
+      expect(result.purposes).to.equal(data.purposes);
     });
   });
 

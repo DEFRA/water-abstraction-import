@@ -98,10 +98,13 @@ experiment('modules/nald-import/plugin', () => {
   experiment('in production', async () => {
     beforeEach(async () => {
       sandbox.stub(config, 'isProduction').value(true);
+      sandbox.stub(process, 'env').value({
+        NODE_ENV: 'production'
+      });
       await plugin.register(server);
     });
 
-    test('schedules cron job to run every hour', async () => {
+    test('schedules cron job to run at 0100 everyday', async () => {
       const [schedule] = cron.schedule.firstCall.args;
       expect(schedule).to.equal('0 1 * * *');
     });
@@ -110,12 +113,15 @@ experiment('modules/nald-import/plugin', () => {
   experiment('in non-production', async () => {
     beforeEach(async () => {
       sandbox.stub(config, 'isProduction').value(false);
+      sandbox.stub(process, 'env').value({
+        NODE_ENV: 'test'
+      });
       await plugin.register(server);
     });
 
     test('schedules cron job to run every hour', async () => {
       const [schedule] = cron.schedule.firstCall.args;
-      expect(schedule).to.equal('0 * * * *');
+      expect(schedule).to.equal('0 */1 * * *');
     });
   });
 });

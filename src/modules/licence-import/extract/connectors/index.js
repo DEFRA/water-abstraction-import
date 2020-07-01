@@ -1,3 +1,5 @@
+'use strict';
+
 const { pool } = require('../../../../lib/connectors/db');
 const queries = require('./queries');
 
@@ -48,16 +50,20 @@ const getAllLicenceNumbers = () =>
 const getParty = (regionCode, partyId) =>
   findOne(queries.getParty, [regionCode, partyId]);
 
-exports.getLicence = getLicence;
-exports.getLicenceVersions = getLicenceVersions;
-exports.getChargeVersions = getChargeVersions;
-exports.getAllAddresses = getAllAddresses;
-exports.getAllParties = getAllParties;
-exports.getTwoPartTariffAgreements = getTwoPartTariffAgreements;
-exports.getSection130Agreements = getSection130Agreements;
-exports.getInvoiceAccounts = getInvoiceAccounts;
-exports.getPartyLicenceVersions = getPartyLicenceVersions;
-exports.getParties = getParties;
+const getLicencePurposes = (regionCode, licenceId) =>
+  findMany(queries.getLicencePurposes, [regionCode, licenceId]);
+
 exports.getAddresses = getAddresses;
+exports.getAllAddresses = getAllAddresses;
 exports.getAllLicenceNumbers = getAllLicenceNumbers;
+exports.getAllParties = getAllParties;
+exports.getChargeVersions = getChargeVersions;
+exports.getInvoiceAccounts = getInvoiceAccounts;
+exports.getLicence = getLicence;
+exports.getLicencePurposes = getLicencePurposes;
+exports.getLicenceVersions = getLicenceVersions;
+exports.getParties = getParties;
 exports.getParty = getParty;
+exports.getPartyLicenceVersions = getPartyLicenceVersions;
+exports.getSection130Agreements = getSection130Agreements;
+exports.getTwoPartTariffAgreements = getTwoPartTariffAgreements;

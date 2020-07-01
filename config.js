@@ -5,6 +5,7 @@ require('dotenv').config();
 const isAcceptanceTestTarget = ['local', 'dev', 'development', 'test', 'preprod'].includes(process.env.NODE_ENV);
 const testMode = parseInt(process.env.TEST_MODE) === 1;
 const isProduction = ['production'].includes(process.env.NODE_ENV);
+const isLocal = process.env.NODE_ENV === 'local';
 
 module.exports = {
 
@@ -91,6 +92,12 @@ module.exports = {
   },
 
   redis: {
-    url: process.env.REDIS_URI || 'redis://127.0.0.1:6379'
+    host: process.env.REDIS_HOST || '127.0.0.1',
+    port: process.env.REDIS_PORT || 6379,
+    ...!isLocal && {
+      password: process.env.REDIS_PASSWORD,
+      tls: {}
+    },
+    db: 0
   }
 };

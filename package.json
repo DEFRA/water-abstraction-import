@@ -1,6 +1,6 @@
 {
   "name": "water-abstraction-import",
-  "version": "1.45.0",
+  "version": "1.46.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,8 @@
     "version": "auto-changelog -p --commit-limit false && git add CHANGELOG.md",
     "migrate": "node scripts/create-schema && db-migrate up --verbose",
     "migrate:down": "db-migrate down --verbose",
-    "migrate:create": "db-migrate create --sql-file --"
+    "migrate:create": "db-migrate create --sql-file --",
+    "migrate:local-test": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/permits-test node scripts/create-schema && DATABASE_URL=postgres://postgres:postgres@localhost:5432/permits-test db-migrate up --verbose"
   },
   "repository": {
     "type": "git",
@@ -28,11 +29,11 @@
     "@hapi/code": "^8.0.1",
     "@hapi/lab": "^22.0.4",
     "auto-changelog": "^1.16.4",
-    "codecov": "^3.6.5",
+    "codecov": "^3.7.0",
     "db-migrate-pg": "^1.2.2",
     "eslint": "^6.8.0",
     "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-import": "^2.21.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
@@ -42,7 +43,6 @@
     "@envage/hapi-pg-rest-api": "^4.1.2",
     "@envage/water-abstraction-helpers": "^4.3.1",
     "@hapi/boom": "^9.1.0",
-    "@hapi/catbox-memory": "^5.0.0",
     "@hapi/catbox-redis": "^5.0.5",
     "@hapi/good": "^9.0.0",
     "@hapi/hapi": "^18.4.1",

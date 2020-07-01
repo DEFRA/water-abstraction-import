@@ -3,6 +3,7 @@
   "exclude_patterns": [
     "test",
     "node_modules",
-    "migrations"
+    "migrations",
+    "src/modules/returns/routes.js"
   ]
 }

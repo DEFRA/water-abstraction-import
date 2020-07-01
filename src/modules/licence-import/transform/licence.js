@@ -1,3 +1,5 @@
+'use strict';
+
 const mappers = require('./mappers');
 
 const mapContactData = data => ({
@@ -13,6 +15,7 @@ const mapContactData = data => ({
 const transformLicence = licenceData => {
   // Get licence
   const licence = mappers.licence.mapLicence(licenceData.licence);
+  const purposes = licenceData.purposes.map(mappers.licencePurpose.mapLicencePurpose);
 
   // Get documents
   licence.documents = mappers.document.mapDocuments(licenceData.versions, licence);
@@ -31,6 +34,10 @@ const transformLicence = licenceData => {
 
   // Agreements - section 127/130
   licence.agreements = mappers.agreement.mapAgreements(licenceData.tptAgreements, licenceData.section130Agreements);
+
+  licence.versions = licenceData.versions.map(version => {
+    return mappers.licenceVersion.mapLicenceVersion(version, purposes);
+  });
 
   const finalLicence = mappers.licence.omitNaldData(licence);
 

@@ -19,4 +19,17 @@ const postImport = async request => {
   };
 };
 
+const postImportLicence = async (request, h) => {
+  const { licenceNumber } = request.query;
+  try {
+    await request.messageQueue.publish(jobs.importLicence(licenceNumber));
+    return h.response({ error: null }).code(202);
+  } catch (err) {
+    const message = `Error importing licence: ${licenceNumber}`;
+    logger.error(message, err);
+    return Boom.badImplementation(message);
+  }
+};
+
 exports.postImport = postImport;
+exports.postImportLicence = postImportLicence;

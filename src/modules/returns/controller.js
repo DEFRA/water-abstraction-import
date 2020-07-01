@@ -32,28 +32,25 @@ const getVersions = async (request, h) => {
   }
 };
 
-const getVersion = async versionID => {
-  const filter = { version_id: versionID };
-  const { data } = await versions.findMany(filter);
-
+const firstItemOrNotFound = (id, { data }) => {
   if (data.length === 0) {
-    throw Boom.notFound(`Version not found for ${versionID}`);
+    throw Boom.notFound(`Data not found for ${id}`);
   }
   return data[0];
 };
 
-const getReturn = async returnID => {
-  const filter = { return_id: returnID };
-  const { data } = await returns.findMany(filter);
-
-  if (data.length === 0) {
-    throw Boom.notFound(`Return not found for ${returnID}`);
-  }
-  return data[0];
+const getVersion = async versionId => {
+  const response = await versions.findMany({ version_id: versionId });
+  return firstItemOrNotFound(versionId, response);
 };
 
-const getLines = async versionID => {
-  const filter = { version_id: versionID };
+const getReturn = async returnId => {
+  const response = await returns.findMany({ return_id: returnId });
+  return firstItemOrNotFound(returnId, response);
+};
+
+const getLines = async versionId => {
+  const filter = { version_id: versionId };
   const pagination = { perPage: 2000 };
   const { data } = await lines.findMany(filter, {}, pagination);
   return data;

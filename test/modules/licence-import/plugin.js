@@ -1,3 +1,5 @@
+'use strict';
+
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
 const sandbox = require('sinon').createSandbox();
 const cron = require('node-cron');
@@ -38,7 +40,9 @@ experiment('modules/licence-import/plugin.js', () => {
       const options = { teamSize: 750, teamConcurrency: 1 };
 
       beforeEach(async () => {
-        sandbox.stub(process.env, 'NODE_ENV').value('test');
+        sandbox.stub(process, 'env').value({
+          NODE_ENV: 'test'
+        });
         await plugin.register(server);
       });
 
@@ -87,7 +91,10 @@ experiment('modules/licence-import/plugin.js', () => {
 
     experiment('on production', () => {
       beforeEach(async () => {
-        sandbox.stub(process.env, 'NODE_ENV').value('production');
+        sandbox.stub(process, 'env').value({
+          NODE_ENV: 'production'
+        });
+
         plugin.register(server);
       });
 
