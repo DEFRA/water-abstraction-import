@@ -44,7 +44,7 @@ const importUses = `
       when p."ALSF_CODE" = 'N' then 'non-chargeable'::water.charge_element_loss
     end,
     case
-      when p."CODE" in ('400', '420', '600', '620') then true
+      when p."CODE" in ('380', '410', '400', '420', '600', '620') then true
       else false
     end
   from import."NALD_PURP_USES" p
