@@ -10,8 +10,6 @@ module.exports = async job => {
     // Extract data
     const data = await extract.getLicenceData(job.data.licenceNumber);
 
-    console.log({ data });
-
     // Transform to new structure
     const mapped = transform.licence.transformLicence(data);
 
