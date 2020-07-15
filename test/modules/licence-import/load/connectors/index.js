@@ -101,6 +101,9 @@ const data = {
       postcode: 'TT1 1TT',
       country: 'ENGLAND',
       externalId: '1:1005'
+    },
+    agentCompany: {
+      externalId: '2:4353'
     }
   },
   companyContact: {
@@ -321,7 +324,8 @@ experiment('modules/licence-import/load/connectors', () => {
         data.invoiceAccount.invoiceAccountNumber,
         data.invoiceAccountAddress.address.externalId,
         data.invoiceAccountAddress.startDate,
-        data.invoiceAccountAddress.endDate
+        data.invoiceAccountAddress.endDate,
+        data.invoiceAccountAddress.agentCompany.externalId
       ]);
     });
   });
