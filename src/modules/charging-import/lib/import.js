@@ -6,6 +6,25 @@ const financialAgreementTypeQueries = require('./queries/financial-agreement-typ
 const { logger } = require('../../../logger');
 const checkIntegrity = require('./check-integrity');
 
+const importQueries = [
+  financialAgreementTypeQueries.importFinancialAgreementTypes,
+  purposesQueries.importPrimaryPurposes,
+  purposesQueries.importSecondaryPurposes,
+  purposesQueries.importUses,
+  chargingQueries.createChargeVersionGuids,
+  chargingQueries.createChargeElementGuids,
+  chargingQueries.createChargeAgreementGuids,
+  chargingQueries.importChargeVersions,
+  chargingQueries.importChargeElements,
+  chargingQueries.importChargeAgreements,
+  chargingQueries.cleanupChargeAgreements,
+  chargingQueries.cleanupChargeElements,
+  chargingQueries.cleanupChargeVersions,
+  returnVersionQueries.importReturnVersions,
+  returnVersionQueries.importReturnRequirements,
+  returnVersionQueries.importReturnRequirementPurposes
+];
+
 /**
  * Run SQL queries to import charge versions / elements into
  * water service tables from NALD import tables
@@ -15,26 +34,7 @@ const importChargingData = async () => {
   try {
     logger.info('Starting charge data import');
 
-    const arr = [
-      financialAgreementTypeQueries.importFinancialAgreementTypes,
-      purposesQueries.importPrimaryPurposes,
-      purposesQueries.importSecondaryPurposes,
-      purposesQueries.importUses,
-      chargingQueries.createChargeVersionGuids,
-      chargingQueries.createChargeElementGuids,
-      chargingQueries.createChargeAgreementGuids,
-      chargingQueries.importChargeVersions,
-      chargingQueries.importChargeElements,
-      chargingQueries.importChargeAgreements,
-      chargingQueries.cleanupChargeAgreements,
-      chargingQueries.cleanupChargeElements,
-      chargingQueries.cleanupChargeVersions,
-      returnVersionQueries.importReturnVersions,
-      returnVersionQueries.importReturnRequirements,
-      returnVersionQueries.importReturnRequirementPurposes
-    ];
-
-    for (const query of arr) {
+    for (const query of importQueries) {
       await pool.query(query);
     }
 
