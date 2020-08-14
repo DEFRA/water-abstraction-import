@@ -74,7 +74,7 @@ experiment('modules/charging-import/lib/check-integrity/index.js', () => {
       test('reports error when row count differs', async () => {
         expect(result.totalErrors).to.equal(2);
         expect(result.chargeVersions.errors[0].message).to.equal(
-          'Source has 2 records, target 1'
+          'Charge versions source has 2 records, target 1'
         );
       });
     });
