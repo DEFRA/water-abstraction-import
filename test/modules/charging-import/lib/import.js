@@ -23,7 +23,19 @@ experiment('modules/charging-import/index.js', () => {
   });
 
   experiment('importChargingData', () => {
-    experiment('when there are no errors', () => {
+    experiment('when an unexpected error is thrown', () => {
+      beforeEach(async () => {
+        pool.query.rejects(new Error('oops!'));
+      });
+
+      test('the error is logged and rethrown', async () => {
+        const func = () => chargingImport.importChargingData();
+        const err = await expect(func()).to.reject();
+        expect(logger.error.calledWith(err));
+      });
+    });
+
+    experiment('when there are no verification errors', () => {
       beforeEach(async () => {
         checkIntegrity.verify.resolves({
           totalErrors: 0
@@ -53,7 +65,7 @@ experiment('modules/charging-import/index.js', () => {
       });
     });
 
-    experiment('when there are errors', () => {
+    experiment('when there are verification errors', () => {
       beforeEach(async () => {
         checkIntegrity.verify.resolves({
           totalErrors: 1

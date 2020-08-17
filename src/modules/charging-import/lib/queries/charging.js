@@ -105,7 +105,7 @@ const importChargeElements = `
 INSERT INTO water.charge_elements
 (charge_element_id, charge_version_id, external_id, abstraction_period_start_day, abstraction_period_start_month,
 abstraction_period_end_day, abstraction_period_end_month, authorised_annual_quantity, season, season_derived,
-source, loss, purpose_primary, purpose_secondary, purpose_tertiary, factors_overridden, billable_annual_quantity,
+source, loss, purpose_primary_id, purpose_secondary_id, purpose_use_id, factors_overridden, billable_annual_quantity,
 time_limited_start_date, time_limited_end_date, description, date_created, date_updated)
 
 SELECT ie.charge_element_id, iv.charge_version_id, e."ID"::integer AS external_id,
@@ -142,9 +142,9 @@ END)::water.charge_element_source AS source,
   WHEN 'N' THEN 'non-chargeable'
 END)::water.charge_element_loss AS loss,
 
-e."APUR_APPR_CODE" AS purpose_primary,
-e."APUR_APSE_CODE" AS purpose_seconday,
-e."APUR_APUS_CODE"::integer AS purpose_tertiary,
+pp.purpose_primary_id,
+ps.purpose_secondary_id,
+pu.purpose_use_id,
 
 e."FCTS_OVERRIDDEN"::boolean AS factors_overridden,
 
@@ -168,22 +168,30 @@ NULLIF(e."BILLABLE_ANN_QTY", 'null')::numeric AS billable_annual_quantity,
 FROM import."NALD_CHG_ELEMENTS" e
 JOIN water_import.charge_elements ie ON e."ID"::integer=ie.element_id AND e."ACVR_AABL_ID"::integer = ie.licence_id AND e."FGAC_REGION_CODE"::integer = ie.region_code
 JOIN water_import.charge_versions iv ON e."ACVR_AABL_ID"::integer=iv.licence_id AND e."ACVR_VERS_NO"::integer=iv.version AND e."FGAC_REGION_CODE"::integer = iv.region_code
+JOIN water.charge_versions v on iv.charge_version_id=v.charge_version_id 
+JOIN water.purposes_primary pp on e."APUR_APPR_CODE"=pp.legacy_id
+JOIN water.purposes_secondary ps on e."APUR_APSE_CODE"=ps.legacy_id
+JOIN water.purposes_uses pu on e."APUR_APUS_CODE"=pu.legacy_id
 
 ON CONFLICT (charge_element_id) DO UPDATE SET
-charge_version_id=EXCLUDED.charge_version_id, external_id=EXCLUDED.external_id,
+charge_version_id=EXCLUDED.charge_version_id, 
+external_id=EXCLUDED.external_id,
 abstraction_period_start_day=EXCLUDED.abstraction_period_start_day,
 abstraction_period_start_month=EXCLUDED.abstraction_period_start_month,
 abstraction_period_end_day=EXCLUDED.abstraction_period_end_day,
 abstraction_period_end_month=EXCLUDED.abstraction_period_end_month,
 authorised_annual_quantity=EXCLUDED.authorised_annual_quantity,
 season=EXCLUDED.season, season_derived=EXCLUDED.season_derived,
-source=EXCLUDED.source, loss=EXCLUDED.loss, purpose_primary=EXCLUDED.purpose_primary,
-purpose_secondary=EXCLUDED.purpose_secondary, purpose_tertiary=EXCLUDED.purpose_tertiary,
+source=EXCLUDED.source, loss=EXCLUDED.loss, 
+purpose_primary_id=EXCLUDED.purpose_primary_id,
+purpose_secondary_id=EXCLUDED.purpose_secondary_id, 
+purpose_use_id=EXCLUDED.purpose_use_id,
 factors_overridden=EXCLUDED.factors_overridden,
 billable_annual_quantity=EXCLUDED.billable_annual_quantity,
 time_limited_start_date=EXCLUDED.time_limited_start_date,
 time_limited_end_date=EXCLUDED.time_limited_end_date,
-description=EXCLUDED.description, date_updated=EXCLUDED.date_updated;`;
+description=EXCLUDED.description, 
+date_updated=EXCLUDED.date_updated;`;
 
 // Deletes charge elements that are no longer present in the NALD import
 const cleanupChargeElements = `
