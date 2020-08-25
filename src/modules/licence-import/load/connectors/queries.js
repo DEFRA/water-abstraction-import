@@ -118,7 +118,7 @@ ON CONFLICT (licence_ref, financial_agreement_type_id, start_date) DO UPDATE SET
 `;
 
 exports.createLicence = `
-  insert into water.licences (region_id, licence_ref, is_water_undertaker, regions, start_date, expired_date, lapsed_date, revoked_date)
+  insert into water.licences (region_id, licence_ref, is_water_undertaker, regions, start_date, expired_date, lapsed_date, revoked_date, include_in_supplementary_billing)
   values (
     (select region_id from water.regions where nald_region_id = $1),
     $2,
@@ -127,7 +127,8 @@ exports.createLicence = `
     $5,
     $6,
     $7,
-    $8
+    $8,
+    'no'
   )
   on conflict (licence_ref) do update
   set
