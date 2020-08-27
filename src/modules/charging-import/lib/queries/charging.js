@@ -30,7 +30,6 @@ ON CONFLICT DO NOTHING`;
 const importChargeVersions = `INSERT INTO water.charge_versions
 (charge_version_id, licence_ref, scheme, external_id, version_number, start_date, status, apportionment,
 error, end_date, billed_upto_date, region_code, date_created, date_updated, source, invoice_account_id, company_id)
-
 SELECT
   cv.charge_version_id,
   l."LIC_NO" AS licence_ref,
@@ -38,51 +37,39 @@ SELECT
   v."AABL_ID"::integer AS external_id,
   v."VERS_NO"::integer AS version_number,
   to_date(v."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date,
-
 (CASE v."STATUS"
   WHEN 'SUPER' THEN 'superseded'
   WHEN 'DRAFT' THEN 'draft'
   WHEN 'CURR' THEN 'current'
 END)::water.charge_version_status AS status,
-
 CASE v."APPORTIONMENT"
   WHEN 'Y' THEN true
   WHEN 'N' THEN false
 END AS apportionment,
-
 CASE v."IN_ERROR_STATUS"
   WHEN 'Y' THEN true
   WHEN 'N' THEN false
 END AS error,
-
 case v."EFF_END_DATE"
   when 'null' then null
   else to_date(v."EFF_END_DATE", 'DD/MM/YYYY')
 end AS end_date,
-
 case v."BILLED_UPTO_DATE"
   when 'null' then null
   else to_date(v."BILLED_UPTO_DATE", 'DD/MM/YYYY')
 end AS billed_upto_date,
-
 v."FGAC_REGION_CODE"::integer AS region,
-
 NOW() AS date_created,
-
 NOW() AS date_updated,
-
 'nald' AS source,
-
 ia.invoice_account_id,
 c.company_id
-
 FROM import."NALD_CHG_VERSIONS" v
 JOIN water_import.charge_versions cv ON v."AABL_ID"::integer=cv.licence_id AND v."FGAC_REGION_CODE"::integer=cv.region_code AND v."VERS_NO"::integer=cv.version
 JOIN import."NALD_ABS_LICENCES" l ON v."AABL_ID"=l."ID" AND v."FGAC_REGION_CODE"=l."FGAC_REGION_CODE"
 JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_REF" 
 JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
 JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
-
 ON CONFLICT (charge_version_id) DO UPDATE SET
 licence_ref=EXCLUDED.licence_ref, scheme=EXCLUDED.scheme, external_id=EXCLUDED.external_id,
 version_number=EXCLUDED.version_number, start_date=EXCLUDED.start_date,
@@ -176,32 +163,26 @@ WHERE charge_element_id IN (
 
 const importChargeAgreements = `
 INSERT INTO water.charge_agreements
-
 (charge_agreement_id, charge_element_id, agreement_code, start_date,
 end_date, signed_date, file_reference, description, date_created,
 date_updated)
-
 SELECT
   ia.charge_agreement_id,
   ie.charge_element_id,
   a."AFSA_CODE" AS agreement_code,
   to_date(a."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date,
-
   case a."EFF_END_DATE"
     when 'null' then null
     else to_date(a."EFF_END_DATE", 'DD/MM/YYYY')
   end AS end_date,
-
   case a."SIGNED_DATE"
     when 'null' then null
     else to_date(a."SIGNED_DATE", 'DD/MM/YYYY')
   end AS signed_date,
-
   NULLIF(a."FILE_REF", 'null') AS file_reference,
   NULLIF(a."TEXT", 'null') AS description,
   NOW() AS date_created,
   NOW() AS date_updated
-
 FROM import."NALD_CHG_AGRMNTS" a
   JOIN water_import.charge_agreements ia
     ON a."ACEL_ID"::integer = ia.element_id
@@ -211,9 +192,7 @@ FROM import."NALD_CHG_AGRMNTS" a
   JOIN water_import.charge_elements ie
     ON a."ACEL_ID"::integer=ie.element_id
       AND a."FGAC_REGION_CODE"::integer=ie.region_code
-
 WHERE a."AFSA_CODE" NOT IN ('S127', 'S130S', 'S130T', 'S130U', 'S130W') 
-
 ON CONFLICT (charge_agreement_id) DO UPDATE
 SET
 charge_element_id=EXCLUDED.charge_element_id, agreement_code=EXCLUDED.agreement_code,
