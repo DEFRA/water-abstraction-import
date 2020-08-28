@@ -8,7 +8,6 @@ ON CONFLICT (regime, document_type, version_number, document_ref)
 
 exports.createDocumentRole = `
 INSERT INTO crm_v2.document_roles (document_id, role_id, company_id, contact_id, address_id, start_date, end_date, date_created, date_updated, invoice_account_id)
-
 SELECT d.document_id, r.role_id, c.company_id, co.contact_id, a.address_id, $8, $9, NOW(), NOW(), ia.invoice_account_id
   FROM crm_v2.documents d
   JOIN crm_v2.roles r ON r.name=$3
@@ -17,12 +16,12 @@ SELECT d.document_id, r.role_id, c.company_id, co.contact_id, a.address_id, $8, 
   LEFT JOIN crm_v2.addresses a ON a.external_id=$6
   LEFT JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=$7
   WHERE d.document_ref=$1 AND version_number=$2
-
 ON CONFLICT (document_id, role_id, start_date)
   DO UPDATE SET
     company_id=EXCLUDED.company_id,
     contact_id=EXCLUDED.contact_id,
     address_id=EXCLUDED.address_id,
+    invoice_account_id=EXCLUDED.invoice_account_id,
     end_date=EXCLUDED.end_date,
     date_updated=EXCLUDED.date_updated
 `;
