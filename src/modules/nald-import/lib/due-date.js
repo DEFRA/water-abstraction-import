@@ -56,6 +56,12 @@ const getDueDate = async (endDate, format) => {
     }
   }
 
+  // Due to Coronavirus in 2020, the winter/all year period ending 2020-03-31
+  // had the deadline extended to 16 October
+  if (refDate === '2020-03-31') {
+    return '2020-10-16';
+  }
+
   return moment(refDate, 'YYYY-MM-DD').add(28, 'days').format('YYYY-MM-DD');
 };
 

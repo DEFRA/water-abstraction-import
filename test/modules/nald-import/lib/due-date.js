@@ -9,7 +9,6 @@ const returnsQueries = require('../../../../src/modules/nald-import/lib/nald-que
 
 experiment('modules/nald-import/lib/due-date', () => {
   experiment('getDueDate', () => {
-    const endDate = '2019-01-01';
     const formats = {
       nullEndDate: {
         AABL_ID: 'licence_id_1',
@@ -39,65 +38,76 @@ experiment('modules/nald-import/lib/due-date', () => {
       }
     };
 
-    beforeEach(async () => {
-      sandbox.stub(returnsQueries, 'getReturnVersionReason').resolves([]);
-    });
+    experiment('for a split log cycle', () => {
+      const endDate = '2019-01-01';
 
-    afterEach(async () => {
-      sandbox.restore();
-    });
-
-    test('returns 28 days after split end date if the return version end date is null', async () => {
-      const result = await dueDate.getDueDate(endDate, formats.nullEndDate);
-      expect(result).to.equal('2019-01-29');
-    });
-
-    test('returns 28 days after split end date if the return version end date is different to the split end date', async () => {
-      const result = await dueDate.getDueDate(endDate, formats.differentEndDate);
-      expect(result).to.equal('2019-01-29');
-    });
-
-    experiment('when the returns version end date equals the split end date', () => {
-      test('the getReturnVersionReason query is called with licence ID, region, and the incremented return version number', async () => {
-        await dueDate.getDueDate(endDate, formats.summerProductionMonth);
-        const { args } = returnsQueries.getReturnVersionReason.lastCall;
-        expect(args).to.equal(['licence_id_1', 'region_1', 101]);
+      beforeEach(async () => {
+        sandbox.stub(returnsQueries, 'getReturnVersionReason').resolves([]);
       });
 
-      experiment('and the mod log reason is in VARF, VARM, AMND, NAME, REDS, SPAC, SPAN, XCORR', () => {
-        beforeEach(async () => {
-          returnsQueries.getReturnVersionReason.resolves([{
-            AMRE_CODE: 'VARF'
-          }]);
-        });
-
-        test('returns 28 days after cycle end date for summer production month', async () => {
-          const result = await dueDate.getDueDate(endDate, formats.summerProductionMonth);
-          expect(result).to.equal('2019-11-28');
-        });
-
-        test('returns 28 days after cycle end date for winter production month', async () => {
-          const result = await dueDate.getDueDate(endDate, formats.winterProductionMonth);
-          expect(result).to.equal('2019-04-28');
-        });
+      afterEach(async () => {
+        sandbox.restore();
       });
 
-      experiment('and the mod log reason is not in VARF, VARM, AMND, NAME, REDS, SPAC, SPAN, XCORR', () => {
-        beforeEach(async () => {
-          returnsQueries.getReturnVersionReason.resolves([{
-            AMRE_CODE: 'NO-MATCH'
-          }]);
+      test('returns 28 days after split end date if the return version end date is null', async () => {
+        const result = await dueDate.getDueDate(endDate, formats.nullEndDate);
+        expect(result).to.equal('2019-01-29');
+      });
+
+      test('returns 28 days after split end date if the return version end date is different to the split end date', async () => {
+        const result = await dueDate.getDueDate(endDate, formats.differentEndDate);
+        expect(result).to.equal('2019-01-29');
+      });
+
+      experiment('when the returns version end date equals the split end date', () => {
+        test('the getReturnVersionReason query is called with licence ID, region, and the incremented return version number', async () => {
+          await dueDate.getDueDate(endDate, formats.summerProductionMonth);
+          const { args } = returnsQueries.getReturnVersionReason.lastCall;
+          expect(args).to.equal(['licence_id_1', 'region_1', 101]);
         });
 
-        test('returns 28 days after split end date for summer production month', async () => {
-          const result = await dueDate.getDueDate(endDate, formats.summerProductionMonth);
-          expect(result).to.equal('2019-01-29');
+        experiment('and the mod log reason is in VARF, VARM, AMND, NAME, REDS, SPAC, SPAN, XCORR', () => {
+          beforeEach(async () => {
+            returnsQueries.getReturnVersionReason.resolves([{
+              AMRE_CODE: 'VARF'
+            }]);
+          });
+
+          test('returns 28 days after cycle end date for summer production month', async () => {
+            const result = await dueDate.getDueDate(endDate, formats.summerProductionMonth);
+            expect(result).to.equal('2019-11-28');
+          });
+
+          test('returns 28 days after cycle end date for winter production month', async () => {
+            const result = await dueDate.getDueDate(endDate, formats.winterProductionMonth);
+            expect(result).to.equal('2019-04-28');
+          });
         });
 
-        test('returns 28 days after split end date for winter production month', async () => {
-          const result = await dueDate.getDueDate(endDate, formats.winterProductionMonth);
-          expect(result).to.equal('2019-01-29');
+        experiment('and the mod log reason is not in VARF, VARM, AMND, NAME, REDS, SPAC, SPAN, XCORR', () => {
+          beforeEach(async () => {
+            returnsQueries.getReturnVersionReason.resolves([{
+              AMRE_CODE: 'NO-MATCH'
+            }]);
+          });
+
+          test('returns 28 days after split end date for summer production month', async () => {
+            const result = await dueDate.getDueDate(endDate, formats.summerProductionMonth);
+            expect(result).to.equal('2019-01-29');
+          });
+
+          test('returns 28 days after split end date for winter production month', async () => {
+            const result = await dueDate.getDueDate(endDate, formats.winterProductionMonth);
+            expect(result).to.equal('2019-01-29');
+          });
         });
+      });
+    });
+
+    experiment('for the cycle ending 2020-03-31 affected by coronavirus', () => {
+      test('the due date is 2020-10-16', async () => {
+        const result = await dueDate.getDueDate('2020-03-31', formats.nullEndDate);
+        expect(result).to.equal('2020-10-16');
       });
     });
   });
