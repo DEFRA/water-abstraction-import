@@ -11,6 +11,7 @@ const importQueries = [
   purposesQueries.importPrimaryPurposes,
   purposesQueries.importSecondaryPurposes,
   purposesQueries.importUses,
+  purposesQueries.importValidPurposeCombinations,
   chargingQueries.createChargeVersionGuids,
   chargingQueries.createChargeElementGuids,
   chargingQueries.createChargeAgreementGuids,

@@ -30,8 +30,8 @@ const registerSubscribers = async server => {
 
   await server.messageQueue.subscribe(jobs.IMPORT_LICENCE_JOB, getOptions(), handlers.importLicence);
 
-  // Set up cron job to import companies every other day at 3:10pm
-  cron.schedule('10 15 */2 * *', async () => {
+  // At 15:10 on Monday, Wednesday, and Friday
+  cron.schedule('10 15 * * 1,3,5', async () => {
     await server.messageQueue.publish(jobs.importCompanies());
   });
 };

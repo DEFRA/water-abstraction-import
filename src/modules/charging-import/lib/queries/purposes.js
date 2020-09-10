@@ -57,6 +57,19 @@ const importUses = `
     is_two_part_tariff = excluded.is_two_part_tariff;
 `;
 
+const importValidPurposeCombinations = `INSERT INTO water.purposes as prps (purpose_primary_id, purpose_secondary_id, purpose_use_id, date_created)
+SELECT pp.purpose_primary_id,
+ps.purpose_secondary_id,
+pu.purpose_use_id,
+now()
+FROM import."NALD_PURPOSES" as NALD_P
+JOIN water.purposes_primary as pp ON NALD_P."APPR_CODE" = pp."legacy_id"
+JOIN water.purposes_secondary as ps ON NALD_P."APSE_CODE" = ps."legacy_id"
+JOIN water.purposes_uses as pu ON NALD_P."APUS_CODE" = pu."legacy_id"
+WHERE NALD_P."DISABLED" = 'N' 
+ON CONFLICT DO NOTHING;`;
+
 exports.importPrimaryPurposes = importPrimaryPurposes;
 exports.importSecondaryPurposes = importSecondaryPurposes;
 exports.importUses = importUses;
+exports.importValidPurposeCombinations = importValidPurposeCombinations;
