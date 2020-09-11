@@ -27,23 +27,17 @@ experiment('lib/plugin', () => {
     });
 
     experiment('when in the travis environment', () => {
-      const allEnvironments = ['local', 'dev', 'test', 'preprod', 'production'];
-
-      allEnvironments.forEach(env => {
-        test(`registerSubscribers is not called for ${env}`, async () => {
-          sandbox.stub(process, 'env').value({
-            TRAVIS: 1,
-            NODE_ENV: env
-          });
-          plugin.createRegister(server, registerSubscribers);
-
-          expect(registerSubscribers.called).to.equal(false);
+      test('registerSubscribers is not called', async () => {
+        sandbox.stub(process, 'env').value({
+          TRAVIS: 1
         });
+        plugin.createRegister(server, registerSubscribers);
+        expect(registerSubscribers.called).to.equal(false);
       });
     });
 
     experiment('when not in the travis environment', () => {
-      const registerEnvironments = ['local', 'dev', 'test', 'preprod'];
+      const registerEnvironments = ['local', 'dev', 'test', 'preprod', 'production'];
 
       registerEnvironments.forEach(env => {
         test(`registerSubscribers is called for ${env}`, async () => {
@@ -52,13 +46,6 @@ experiment('lib/plugin', () => {
 
           expect(registerSubscribers.called).to.equal(true);
         });
-      });
-
-      test('registerSubscribers is not called for production', async () => {
-        sandbox.stub(process, 'env').value({ NODE_ENV: 'production' });
-        plugin.createRegister(server, registerSubscribers);
-
-        expect(registerSubscribers.called).to.equal(false);
       });
     });
   });
