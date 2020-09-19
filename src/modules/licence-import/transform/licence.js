@@ -14,7 +14,7 @@ const mapContactData = data => ({
  */
 const transformLicence = licenceData => {
   // Get licence
-  const licence = mappers.licence.mapLicence(licenceData.licence);
+  const licence = mappers.licence.mapLicence(licenceData.licence, licenceData.versions);
   const purposes = licenceData.purposes.map(mappers.licencePurpose.mapLicencePurpose);
 
   // Get documents

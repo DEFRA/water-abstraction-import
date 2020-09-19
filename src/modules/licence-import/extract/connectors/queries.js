@@ -1,7 +1,7 @@
 exports.getLicence = `
   SELECT *
   FROM import."NALD_ABS_LICENCES" l
-  WHERE l."LIC_NO"=$1 AND l."ORIG_EFF_DATE"<>'null';
+  WHERE l."LIC_NO"=$1;
 `;
 
 exports.getLicenceVersions = `
@@ -105,6 +105,5 @@ AND a."ID" =  any (string_to_array($2, ',')::text[])`;
 
 exports.getAllLicenceNumbers = `
   SELECT l."LIC_NO"
-  FROM import."NALD_ABS_LICENCES" l
-  WHERE l."ORIG_EFF_DATE"<>'null';
+  FROM import."NALD_ABS_LICENCES" l;
 `;
