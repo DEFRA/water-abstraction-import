@@ -109,11 +109,14 @@ ON CONFLICT (company_id, address_id, role_id) DO UPDATE SET
 `;
 
 exports.createAgreement = `
-INSERT INTO water.licence_agreements (licence_ref, financial_agreement_type_id, start_date, end_date, date_created, date_updated)
-VALUES ($1, $2, $3, $4, NOW(), NOW())
-ON CONFLICT (licence_ref, financial_agreement_type_id, start_date) DO UPDATE SET
-  end_date=EXCLUDED.end_date,
-  date_updated=EXCLUDED.date_updated
+insert into water.licence_agreements (licence_ref, financial_agreement_type_id, start_date, end_date, date_created, date_updated)
+  select $1, t.financial_agreement_type_id, $3, $4, NOW(), NOW()
+    from water.financial_agreement_types t 
+    where t.financial_agreement_code=$2
+  on conflict (licence_ref, financial_agreement_type_id, start_date) 
+    do update set 
+        end_date=EXCLUDED.end_date,
+        date_updated=EXCLUDED.date_updated
 `;
 
 exports.createLicence = `
