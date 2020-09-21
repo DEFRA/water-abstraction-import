@@ -1,6 +1,5 @@
 'use strict';
 
-const isImportTarget = require('./is-import-target');
 const { logger } = require('../logger');
 
 /**
@@ -9,11 +8,6 @@ const { logger } = require('../logger');
  * @param {Function} registerSubscribers - a function which registers subscribers on the PG boss queue
  */
 const createRegister = (server, registerSubscribers) => {
-  if (!isImportTarget()) {
-    logger.info(`Aborting import, environment is: ${process.env.NODE_ENV}`);
-    return;
-  }
-
   if (process.env.TRAVIS) {
     logger.info('Abort register of subscribers in Travis environment');
     return;

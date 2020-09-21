@@ -1,3 +1,5 @@
+'use strict';
+
 const IMPORT_COMPANIES_JOB = 'import.companies';
 const IMPORT_COMPANY_JOB = 'import.company';
 const IMPORT_LICENCES_JOB = 'import.licences';

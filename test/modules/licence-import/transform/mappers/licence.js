@@ -15,10 +15,26 @@ experiment('modules/licence-import/transform/mappers/licence', () => {
       expect(mapped.licenceNumber).to.equal(licenceNumber);
     });
 
-    test('sets the startDate', async () => {
+    test('sets the startDate when the original effective date is not null', async () => {
       const input = { ORIG_EFF_DATE: '01/02/2003', AREP_EIUC_CODE: 'ANOTH' };
       const mapped = mapLicence(input);
       expect(mapped.startDate).to.equal('2003-02-01');
+    });
+
+    test('gets the start date from the earliest non-draft licence version if the original effective date is null', async () => {
+      const licence = { ORIG_EFF_DATE: 'null', AREP_EIUC_CODE: 'ANOTH' };
+      const licenceVersions = [{
+        STATUS: 'DRAFT',
+        EFF_ST_DATE: '01/01/2018'
+      }, {
+        STATUS: 'SUPER',
+        EFF_ST_DATE: '02/01/2018'
+      }, {
+        STATUS: 'CURR',
+        EFF_ST_DATE: '03/01/2018'
+      }];
+      const mapped = mapLicence(licence, licenceVersions);
+      expect(mapped.startDate).to.equal('2018-01-02');
     });
 
     test('sets the end date to the minimum date', async () => {
