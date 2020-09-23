@@ -65,12 +65,12 @@ experiment('modules/charging-import/plugin.js', () => {
         plugin.register(server);
       });
 
-      test('subscribers are not bound', async () => {
-        expect(server.messageQueue.subscribe.callCount).to.equal(0);
+      test('subscribers are bound', async () => {
+        expect(server.messageQueue.subscribe.callCount).to.equal(1);
       });
 
-      test('cron job is not scheduled', async () => {
-        expect(cron.schedule.callCount).to.equal(0);
+      test('cron job is scheduled', async () => {
+        expect(cron.schedule.callCount).to.equal(1);
       });
     });
   });
