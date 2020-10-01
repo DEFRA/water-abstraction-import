@@ -88,6 +88,23 @@ const createInvoiceAccountRole = chargeVersion => ({
   address: null
 });
 
+const mergeAndSplitOnDocumentDateRange = (doc, arr) => {
+  const merged = helpers.charging.mergeHistory(arr);
+
+  // Split history against document dates
+  const split = helpers.charging.dateRangeSplitter(doc, merged, 'data');
+
+  // Remove any items in array where the data is null following the date split
+  const filtered = split.filter(doc => doc.data !== null);
+
+  // Map back to object without the document
+  return filtered.map(doc => ({
+    ...doc.data,
+    startDate: doc.effectiveStartDate,
+    endDate: doc.effectiveEndDate
+  }));
+};
+
 /**
  * Maps document and charge versions to an array of billing roles
  * for a document
@@ -101,21 +118,40 @@ const mapBillingRoles = (document, chargeVersions, context) => {
     createInvoiceAccountRole(chargeVersion, context)
   );
 
-  // Merge history on date
-  const merged = helpers.charging.mergeHistory(roles);
+  return mergeAndSplitOnDocumentDateRange(document, roles);
+};
 
-  // Split history against document dates
-  const split = helpers.charging.dateRangeSplitter(document, merged, 'billingRole');
+/**
+ * Maps the NALD role codes to the CRM v2 role name
+ * @type {Map}
+ */
+const roleCodes = new Map();
+roleCodes.set('RT', 'returnsTo');
 
-  // Remove any items in array where the billing role is null following the date merge
-  const filtered = split.filter(doc => doc.billingRole !== null);
+const mapLicenceRole = (row, context) => ({
+  role: roleCodes.get(row.ALRT_CODE),
+  startDate: date.mapNaldDate(row.EFF_ST_DATE),
+  endDate: date.mapNaldDate(row.EFF_END_DATE),
+  invoiceAccount: null,
+  contact: null,
+  ...context.parties[row.FGAC_REGION_CODE][row.ACON_APAR_ID],
+  address: context.addresses[row.FGAC_REGION_CODE][row.ACON_AADD_ID]
+});
 
-  return filtered.map(doc => ({
-    ...doc.billingRole,
-    startDate: doc.effectiveStartDate,
-    endDate: doc.effectiveEndDate
-  }));
+/**
+ * Maps NALD roles (returns to contact)
+ * @param {Object} document
+ * @param {Array} roles - array of roles loaded from NALD
+ */
+const mapLicenceRoles = (document, roles, context) => {
+  // Filter returns-to roles only, and map to licence role
+  const mappedRoles = roles
+    .filter(role => role.ALRT_CODE === 'RT')
+    .map(role => mapLicenceRole(role, context));
+
+  return mergeAndSplitOnDocumentDateRange(document, mappedRoles);
 };
 
 exports.mapLicenceHolderRoles = mapLicenceHolderRoles;
 exports.mapBillingRoles = mapBillingRoles;
+exports.mapLicenceRoles = mapLicenceRoles;

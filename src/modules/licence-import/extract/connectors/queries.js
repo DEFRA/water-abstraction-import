@@ -107,3 +107,9 @@ exports.getAllLicenceNumbers = `
   SELECT l."LIC_NO"
   FROM import."NALD_ABS_LICENCES" l;
 `;
+
+exports.getLicenceRoles = `
+select * from import."NALD_LIC_ROLES" r
+where r."FGAC_REGION_CODE"=$1 and r."AABL_ID"=$2 
+order by to_date(r."EFF_ST_DATE", 'DD/MM/YYYY') 
+`;
