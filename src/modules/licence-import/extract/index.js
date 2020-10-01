@@ -1,20 +1,20 @@
+'use strict';
+const { flatMap, uniq } = require('lodash');
+
 const importConnector = require('./connectors');
 
+const getIds = (idProperty, ...args) => {
+  const ids = flatMap(args).map(row => row[idProperty]);
+  return uniq(ids);
+};
+
 const getLicenceParties = (regionCode, versions, chargeVersions, roles) => {
-  const partyIds = [
-    ...versions.map(row => row.ACON_APAR_ID),
-    ...chargeVersions.map(row => row.ACON_APAR_ID),
-    ...roles.map(row => row.ACON_APAR_ID)
-  ];
+  const partyIds = getIds('ACON_APAR_ID', versions, chargeVersions, roles);
   return importConnector.getParties(regionCode, partyIds);
 };
 
 const getLicenceAddresses = (regionCode, versions, chargeVersions, roles) => {
-  const addressIds = [
-    ...versions.map(row => row.ACON_AADD_ID),
-    ...chargeVersions.map(row => row.ACON_AADD_ID),
-    ...roles.map(row => row.ACON_AADD_ID)
-  ];
+  const addressIds = getIds('ACON_AADD_ID', versions, chargeVersions, roles);
   return importConnector.getAddresses(regionCode, addressIds);
 };
 
