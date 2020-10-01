@@ -26,6 +26,9 @@ const data = {
   purposes: [
     { ID: '1', AABV_AABL_ID: '7', AABV_ISSUE_NO: '100', AABV_INCR_NO: '1' },
     { ID: '2', AABV_AABL_ID: '7', AABV_ISSUE_NO: '100', AABV_INCR_NO: '2' }
+  ],
+  roles: [
+    { ALRT_CODE: 'RT', EFF_ST_DATE: '09/04/2015', EFF_END_DATE: '12/08/2015', ACON_APAR_ID: 'party_4', ACON_AADD_ID: 'address_4', FGAC_REGION_CODE: '1' }
   ]
 };
 
@@ -44,6 +47,7 @@ experiment('modules/licence-import/extract/index.js', () => {
     sandbox.stub(importConnector, 'getInvoiceAccounts').resolves(data.invoiceAccounts);
     sandbox.stub(importConnector, 'getPartyLicenceVersions').resolves(data.licenceVersions);
     sandbox.stub(importConnector, 'getLicencePurposes').resolves(data.purposes);
+    sandbox.stub(importConnector, 'getLicenceRoles').resolves(data.roles);
   });
 
   afterEach(async () => {
@@ -92,14 +96,21 @@ experiment('modules/licence-import/extract/index.js', () => {
     });
 
     test('importConnector.getParties called with region code and array of party IDs', async () => {
+      console.log(importConnector.getParties.lastCall.args);
       expect(
-        importConnector.getParties.calledWith('4', ['party_1', 'party_2'])
+        importConnector.getParties.calledWith('4', ['party_1', 'party_2', 'party_4'])
       ).to.be.true();
     });
 
     test('importConnector.getAddresses called with region code and array of address IDs', async () => {
       expect(
-        importConnector.getAddresses.calledWith('4', ['address_1', 'address_2'])
+        importConnector.getAddresses.calledWith('4', ['address_1', 'address_2', 'address_4'])
+      ).to.be.true();
+    });
+
+    test('importConnector.getLicenceRoles called with region code and licence ID', async () => {
+      expect(
+        importConnector.getLicenceRoles.calledWith('4', '7')
       ).to.be.true();
     });
 
