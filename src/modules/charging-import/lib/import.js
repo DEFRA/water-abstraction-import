@@ -18,7 +18,6 @@ const importQueries = [
   chargingQueries.importChargeVersions,
   chargingQueries.importChargeElements,
   chargingQueries.importChargeAgreements,
-  chargingQueries.cleanupChargeAgreements,
   chargingQueries.cleanupChargeElements,
   chargingQueries.cleanupChargeVersions,
   returnVersionQueries.importReturnVersions,
