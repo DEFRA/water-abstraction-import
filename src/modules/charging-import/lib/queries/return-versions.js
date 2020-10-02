@@ -64,7 +64,7 @@ const importReturnRequirements = ` insert into water.return_requirements  ( retu
   is_summer=excluded.is_summer,
   is_upload=excluded.is_upload,
   returns_frequency=excluded.returns_frequency,
-  date_updated=excluded.date_updated`;
+  date_updated=excluded.date_updated;`;
 
 const importReturnRequirementPurposes = `insert into water.return_requirement_purposes (
   return_requirement_id,
@@ -86,7 +86,7 @@ now() as date_updated from import."NALD_RET_FMT_PURPOSES" nrp
 join water.purposes_primary p on nrp."APUR_APPR_CODE"=p.legacy_id
 join water.purposes_secondary s on nrp."APUR_APSE_CODE"=s.legacy_id
 join water.purposes_uses u on nrp."APUR_APUS_CODE"=u.legacy_id
-join water.return_requirements r on r.external_id = concat_ws(':', nrp."FGAC_REGION_CODE", nrp."ARTY_ID") on conflict(external_id) do update set  purpose_alias=excluded.purpose_alias, date_updated=excluded.date_updated
+join water.return_requirements r on r.external_id = concat_ws(':', nrp."FGAC_REGION_CODE", nrp."ARTY_ID") on conflict(external_id) do update set  purpose_alias=excluded.purpose_alias, date_updated=excluded.date_updated;
 `;
 
 exports.importReturnVersions = importReturnVersions;
