@@ -83,7 +83,6 @@ const cleanupChargeVersions = `DELETE FROM water.charge_versions WHERE charge_ve
       and ncv."AABL_ID" is null
 );`;
 
-
 const importChargeElements = `INSERT INTO water.charge_elements
 (charge_element_id, charge_version_id, external_id, abstraction_period_start_day, abstraction_period_start_month,
 abstraction_period_end_day, abstraction_period_end_month, authorised_annual_quantity, season, season_derived,
