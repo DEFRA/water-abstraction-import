@@ -51,7 +51,7 @@ const importLicences = () => ({
 });
 
 /**
- * Formats arguments to publish a PG boss event to import company
+ * Formats arguments to publish a PG boss event to import licence
  * @param {Number} regionCode - NALD region code
  * @param {Number} partyId - NALD party ID
  * @return {Object}

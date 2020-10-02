@@ -49,22 +49,20 @@ const getLicenceData = async licenceNumber => {
   };
 };
 
-const getCompanyAddresses = (regionCode, versions, invoiceAccounts) => {
-  const addressIds = [
-    ...versions.map(row => row.ACON_AADD_ID),
-    ...invoiceAccounts.map(row => row.ACON_AADD_ID)
-  ];
-  return importConnector.getAddresses(regionCode, addressIds);
+const getCompanyAddresses = (regionCode, ...args) => {
+  const addressIds = flatMap(args).map(row => row.ACON_AADD_ID);
+  return importConnector.getAddresses(regionCode, uniq(addressIds));
 };
 
 const getCompanyData = async (regionCode, partyId) => {
-  const [party, invoiceAccounts, licenceVersions] = await Promise.all([
+  const [party, invoiceAccounts, licenceVersions, licenceRoles] = await Promise.all([
     importConnector.getParty(regionCode, partyId),
     importConnector.getInvoiceAccounts(regionCode, partyId),
-    importConnector.getPartyLicenceVersions(regionCode, partyId)
+    importConnector.getPartyLicenceVersions(regionCode, partyId),
+    importConnector.getPartyLicenceRoles(regionCode, partyId)
   ]);
 
-  const addresses = await getCompanyAddresses(regionCode, licenceVersions, invoiceAccounts);
+  const addresses = await getCompanyAddresses(regionCode, licenceVersions, invoiceAccounts, licenceRoles);
 
   return {
     party,

@@ -113,3 +113,8 @@ select * from import."NALD_LIC_ROLES" r
 where r."FGAC_REGION_CODE"=$1 and r."AABL_ID"=$2 
 order by to_date(r."EFF_ST_DATE", 'DD/MM/YYYY') 
 `;
+
+exports.getPartyLicenceRoles = `
+select * from import."NALD_LIC_ROLES" r
+  where r."FGAC_REGION_CODE"=$1 and r."ACON_APAR_ID"=$2
+`;
