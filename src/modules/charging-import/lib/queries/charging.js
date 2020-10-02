@@ -3,9 +3,7 @@ const createChargeVersionGuids = `INSERT INTO water_import.charge_versions
 SELECT
 v."AABL_ID"::integer,
 v."VERS_NO"::integer,
-v."FGAC_REGION_CODE"::integer
-FROM import."NALD_CHG_VERSIONS" v
-ON CONFLICT DO NOTHING;`;
+v."FGAC_REGION_CODE"::integer FROM import."NALD_CHG_VERSIONS" v ON CONFLICT DO NOTHING;`;
 
 const createChargeElementGuids = `INSERT INTO water_import.charge_elements
   (element_id, licence_id, version, region_code)
@@ -14,21 +12,17 @@ e."ID"::integer,
 e."ACVR_AABL_ID"::integer,
 e."ACVR_VERS_NO"::integer,
 e."FGAC_REGION_CODE"::integer
-FROM import."NALD_CHG_ELEMENTS" e
-ON CONFLICT DO NOTHING`;
+FROM import."NALD_CHG_ELEMENTS" e ON CONFLICT DO NOTHING;`;
 
-const createChargeAgreementGuids = `
-INSERT INTO water_import.charge_agreements
+const createChargeAgreementGuids = `INSERT INTO water_import.charge_agreements
 (element_id, afsa_code, start_date, region_code)
 SELECT a."ACEL_ID"::integer,
 a."AFSA_CODE",
 to_date(a."EFF_ST_DATE", 'DD/MM/YYYY') as "EFF_ST_DATE",
 a."FGAC_REGION_CODE"::integer
-FROM import."NALD_CHG_AGRMNTS" a
-ON CONFLICT DO NOTHING`;
+FROM import."NALD_CHG_AGRMNTS" a ON CONFLICT DO NOTHING;`;
 
-const importChargeVersions = `INSERT INTO water.charge_versions
-(charge_version_id, licence_ref, scheme, external_id, version_number, start_date, status, apportionment,
+const importChargeVersions = `INSERT INTO water.charge_versions (charge_version_id, licence_ref, scheme, external_id, version_number, start_date, status, apportionment,
 error, end_date, billed_upto_date, region_code, date_created, date_updated, source, invoice_account_id, company_id)
 SELECT
   cv.charge_version_id,
@@ -69,9 +63,8 @@ JOIN water_import.charge_versions cv ON v."AABL_ID"::integer=cv.licence_id AND v
 JOIN import."NALD_ABS_LICENCES" l ON v."AABL_ID"=l."ID" AND v."FGAC_REGION_CODE"=l."FGAC_REGION_CODE"
 JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_REF" 
 JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
-JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
-ON CONFLICT (charge_version_id) DO UPDATE SET
-licence_ref=EXCLUDED.licence_ref, scheme=EXCLUDED.scheme, external_id=EXCLUDED.external_id,
+JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID") ON CONFLICT (charge_version_id) DO UPDATE SET licence_ref=EXCLUDED.licence_ref,
+scheme=EXCLUDED.scheme, external_id=EXCLUDED.external_id,
 version_number=EXCLUDED.version_number, start_date=EXCLUDED.start_date,
 status=EXCLUDED.status, apportionment=EXCLUDED.apportionment,
 error=EXCLUDED.error, end_date=EXCLUDED.end_date,
@@ -80,8 +73,7 @@ region_code=EXCLUDED.region_code, date_updated=EXCLUDED.date_updated,
 source=EXCLUDED.source, invoice_account_id=EXCLUDED.invoice_account_id, company_id=EXCLUDED.company_id;`;
 
 // Deletes charge versions that are no longer present in the NALD import
-const cleanupChargeVersions = `
-DELETE FROM water.charge_versions WHERE charge_version_id IN (
+const cleanupChargeVersions = `DELETE FROM water.charge_versions WHERE charge_version_id IN (
   select cv.charge_version_id 
     from water.charge_versions cv 
       left join water.billing_batch_charge_versions bcv on cv.charge_version_id=bcv.charge_version_id
@@ -91,8 +83,8 @@ DELETE FROM water.charge_versions WHERE charge_version_id IN (
       and ncv."AABL_ID" is null
 );`;
 
-const importChargeElements = `
-INSERT INTO water.charge_elements
+
+const importChargeElements = `INSERT INTO water.charge_elements
 (charge_element_id, charge_version_id, external_id, abstraction_period_start_day, abstraction_period_start_month,
 abstraction_period_end_day, abstraction_period_end_month, authorised_annual_quantity, season, season_derived,
 source, loss, purpose_primary_id, purpose_secondary_id, purpose_use_id, factors_overridden, billable_annual_quantity,
@@ -152,12 +144,10 @@ billable_annual_quantity=EXCLUDED.billable_annual_quantity,
 time_limited_start_date=EXCLUDED.time_limited_start_date,
 time_limited_end_date=EXCLUDED.time_limited_end_date,
 description=EXCLUDED.description, 
-date_updated=EXCLUDED.date_updated;
-;`;
+date_updated=EXCLUDED.date_updated;`;
 
 // Deletes charge elements that are no longer present in the NALD import
-const cleanupChargeElements = `
-DELETE FROM water.charge_elements
+const cleanupChargeElements = `DELETE FROM water.charge_elements
 WHERE charge_element_id IN (
   select ce.charge_element_id from water.charge_elements ce
   join water.charge_versions cv on ce.charge_version_id=cv.charge_version_id
@@ -168,8 +158,7 @@ WHERE charge_element_id IN (
     and t.billing_transaction_id is null
 );`;
 
-const importChargeAgreements = `
-INSERT INTO water.charge_agreements
+const importChargeAgreements = `INSERT INTO water.charge_agreements
 (charge_agreement_id, charge_element_id, agreement_code, start_date,
 end_date, signed_date, file_reference, description, date_created,
 date_updated)
@@ -199,12 +188,9 @@ FROM import."NALD_CHG_AGRMNTS" a
   JOIN water_import.charge_elements ie
     ON a."ACEL_ID"::integer=ie.element_id
       AND a."FGAC_REGION_CODE"::integer=ie.region_code
-WHERE a."AFSA_CODE" NOT IN ('S127', 'S130S', 'S130T', 'S130U', 'S130W') 
-ON CONFLICT (charge_agreement_id) DO UPDATE
-SET
-charge_element_id=EXCLUDED.charge_element_id, agreement_code=EXCLUDED.agreement_code,
-start_date=EXCLUDED.start_date, end_date= EXCLUDED.end_date, signed_date=EXCLUDED.signed_date,
-file_reference=EXCLUDED.file_reference, description=EXCLUDED.description, date_updated=EXCLUDED.date_updated`;
+WHERE a."AFSA_CODE" NOT IN ('S127', 'S130S', 'S130T', 'S130U', 'S130W') ON CONFLICT (charge_agreement_id) DO UPDATE SET charge_element_id=EXCLUDED.charge_element_id,
+agreement_code=EXCLUDED.agreement_code, start_date=EXCLUDED.start_date, end_date= EXCLUDED.end_date, signed_date=EXCLUDED.signed_date,
+file_reference=EXCLUDED.file_reference, description=EXCLUDED.description, date_updated=EXCLUDED.date_updated;`;
 
 exports.createChargeVersionGuids = createChargeVersionGuids;
 exports.createChargeElementGuids = createChargeElementGuids;
