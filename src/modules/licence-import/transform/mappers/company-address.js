@@ -1,3 +1,5 @@
+'use strict';
+
 const { sortBy, get, identity, groupBy } = require('lodash');
 const date = require('./date');
 const roles = require('./roles');
@@ -54,16 +56,35 @@ const getBillingAddresses = (chargeVersions, context) => {
   });
 };
 
+const getGroupingKey = row => `${row.FGAC_REGION_CODE}.${row.ACON_AADD_ID}.${row.ALRT_CODE}`;
+
+const getLicenceRoleAddresses = (licenceRoles, context) => {
+  // Group by roles with the same address and role
+  const grouped = groupBy(licenceRoles, getGroupingKey);
+  return Object.values(grouped).map(addressGroup => {
+    const { FGAC_REGION_CODE: regionCode, ACON_AADD_ID: addressId, ALRT_CODE: roleCode } = addressGroup[0];
+    const startDates = addressGroup.map(row => date.mapNaldDate(row.EFF_ST_DATE));
+    return {
+      role: roles.naldRoles.get(roleCode),
+      startDate: date.getMinDate(startDates),
+      endDate: null,
+      address: context.addresses[regionCode][addressId]
+    };
+  });
+};
+
 /**
- * Gets the end date for a company address from licence version data
+ * Gets an array of the company addresses to import
  * @param {Array<Object>} licenceVersions - from NALD licence/licence version data
+ * @param {Array<Object>} chargeVersions - from NALD charge version data
  * @param {Object} context - contains company/contact/address data
  * @return {Array} an array of company addresses
  */
-const mapCompanyAddresses = (licenceVersions, chargeVersions, context) => {
+const mapCompanyAddresses = (licenceVersions, chargeVersions, licenceRoles, context) => {
   return [
     ...getLicenceHolderAddresses(licenceVersions, context),
-    ...getBillingAddresses(chargeVersions, context)
+    ...getBillingAddresses(chargeVersions, context),
+    ...getLicenceRoleAddresses(licenceRoles, context)
   ];
 };
 

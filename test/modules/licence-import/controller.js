@@ -13,11 +13,17 @@ const createRequest = () => ({
 });
 
 experiment('modules/licence-import/controller.js', () => {
+  let h;
+
   experiment('.postImport', () => {
     let request, response;
 
     beforeEach(async () => {
       sandbox.stub(logger, 'error');
+      h = {
+        response: sandbox.stub().returnsThis(),
+        code: sandbox.stub()
+      };
     });
 
     afterEach(async () => {
@@ -27,7 +33,7 @@ experiment('modules/licence-import/controller.js', () => {
     experiment('when there are no errors', () => {
       beforeEach(async () => {
         request = createRequest();
-        response = await controller.postImport(request);
+        response = await controller.postImport(request, h);
       });
 
       test('an "import companies" job is published', async () => {
@@ -37,7 +43,11 @@ experiment('modules/licence-import/controller.js', () => {
       });
 
       test('a success response is returned', async () => {
-        expect(response).to.equal({ error: null });
+        expect(h.response.calledWith({ error: null })).to.be.true();
+      });
+
+      test('a 202 http status code is returned', async () => {
+        expect(h.code.calledWith(202)).to.be.true();
       });
     });
 
@@ -45,7 +55,7 @@ experiment('modules/licence-import/controller.js', () => {
       beforeEach(async () => {
         request = createRequest();
         request.messageQueue.publish.rejects();
-        response = await controller.postImport(request);
+        response = await controller.postImport(request, h);
       });
 
       test('an error is logged', async () => {
@@ -113,7 +123,7 @@ experiment('modules/licence-import/controller.js', () => {
       test('an error is logged', async () => {
         expect(logger.error.callCount).to.equal(1);
         const [message] = logger.error.lastCall.args;
-        expect(message).to.equal('Error importing licence: test-lic');
+        expect(message).to.equal('Error importing licence');
       });
 
       test('a Boom 500 error is returned', async () => {

@@ -2,8 +2,8 @@ const { last, isEqual, get } = require('lodash');
 const helpers = require('@envage/water-abstraction-helpers');
 
 const invoiceAccount = require('./invoice-account');
-
 const date = require('./date');
+const roles = require('./roles');
 
 /**
  * Creates an initial document role for the licence holder
@@ -121,15 +121,8 @@ const mapBillingRoles = (document, chargeVersions, context) => {
   return mergeAndSplitOnDocumentDateRange(document, roles);
 };
 
-/**
- * Maps the NALD role codes to the CRM v2 role name
- * @type {Map}
- */
-const roleCodes = new Map();
-roleCodes.set('RT', 'returnsTo');
-
 const mapLicenceRole = (row, context) => ({
-  role: roleCodes.get(row.ALRT_CODE),
+  role: roles.naldRoles.get(row.ALRT_CODE),
   startDate: date.mapNaldDate(row.EFF_ST_DATE),
   endDate: date.mapNaldDate(row.EFF_END_DATE),
   invoiceAccount: null,
@@ -139,6 +132,13 @@ const mapLicenceRole = (row, context) => ({
 });
 
 /**
+ * Whether this role should be imported
+ * @param {Object} role - nald licence role row data
+ * @return {Boolean}
+ */
+const isRoleForImport = role => roles.naldRoles.get(role.ALRT_CODE) === roles.ROLE_RETURNS_TO;
+
+/**
  * Maps NALD roles (returns to contact)
  * @param {Object} document
  * @param {Array} roles - array of roles loaded from NALD
@@ -146,7 +146,7 @@ const mapLicenceRole = (row, context) => ({
 const mapLicenceRoles = (document, roles, context) => {
   // Filter returns-to roles only, and map to licence role
   const mappedRoles = roles
-    .filter(role => role.ALRT_CODE === 'RT')
+    .filter(isRoleForImport)
     .map(role => mapLicenceRole(role, context));
 
   return mergeAndSplitOnDocumentDateRange(document, mappedRoles);

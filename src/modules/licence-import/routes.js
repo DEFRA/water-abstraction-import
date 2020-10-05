@@ -21,5 +21,18 @@ module.exports = [
         })
       }
     }
+  },
+  {
+    method: 'post',
+    handler: controller.postImportCompany,
+    path: '/import/company',
+    options: {
+      validate: {
+        query: Joi.object({
+          regionCode: Joi.number().integer().min(1).max(8),
+          partyId: Joi.number().integer().min(0)
+        })
+      }
+    }
   }
 ];

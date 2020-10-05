@@ -32,7 +32,6 @@ const importCompany = (regionCode, partyId) => ({
   },
   options: {
     singletonKey: `${IMPORT_COMPANY_JOB}.${regionCode}.${partyId}`,
-    singletonHours: 1,
     expireIn: '4 hour'
   }
 });
@@ -62,8 +61,8 @@ const importLicence = licenceNumber => ({
     licenceNumber
   },
   options: {
-    singletonKey: `${IMPORT_LICENCE_JOB}.${licenceNumber}`,
-    singletonHours: 1
+    singletonKey: `${IMPORT_LICENCE_JOB}.${licenceNumber}`
+    // singletonHours: 1
   }
 });
 

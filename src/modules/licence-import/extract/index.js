@@ -68,7 +68,8 @@ const getCompanyData = async (regionCode, partyId) => {
     party,
     addresses,
     invoiceAccounts,
-    licenceVersions
+    licenceVersions,
+    licenceRoles
   };
 };
 
