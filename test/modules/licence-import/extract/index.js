@@ -48,6 +48,7 @@ experiment('modules/licence-import/extract/index.js', () => {
     sandbox.stub(importConnector, 'getPartyLicenceVersions').resolves(data.licenceVersions);
     sandbox.stub(importConnector, 'getLicencePurposes').resolves(data.purposes);
     sandbox.stub(importConnector, 'getLicenceRoles').resolves(data.roles);
+    sandbox.stub(importConnector, 'getPartyLicenceRoles').resolves(data.roles);
   });
 
   afterEach(async () => {
@@ -96,7 +97,6 @@ experiment('modules/licence-import/extract/index.js', () => {
     });
 
     test('importConnector.getParties called with region code and array of party IDs', async () => {
-      console.log(importConnector.getParties.lastCall.args);
       expect(
         importConnector.getParties.calledWith('4', ['party_1', 'party_2', 'party_4'])
       ).to.be.true();
@@ -144,7 +144,7 @@ experiment('modules/licence-import/extract/index.js', () => {
     });
 
     test('importConnector.addresses is called with region code and array of address IDs', async () => {
-      expect(importConnector.getAddresses.calledWith(5, ['address_1', 'address_3'])).to.be.true();
+      expect(importConnector.getAddresses.calledWith(5, ['address_1', 'address_3', 'address_4'])).to.be.true();
     });
 
     test('resolves with the data', async () => {
