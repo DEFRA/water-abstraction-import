@@ -64,10 +64,11 @@ const getLicenceRoleAddresses = (licenceRoles, context) => {
   return Object.values(grouped).map(addressGroup => {
     const { FGAC_REGION_CODE: regionCode, ACON_AADD_ID: addressId, ALRT_CODE: roleCode } = addressGroup[0];
     const startDates = addressGroup.map(row => date.mapNaldDate(row.EFF_ST_DATE));
+    const endDates = addressGroup.map(row => date.mapNaldDate(row.EFF_END_DATE));
     return {
       role: roles.naldRoles.get(roleCode),
       startDate: date.getMinDate(startDates),
-      endDate: null,
+      endDate: date.getMaxDate(endDates),
       address: context.addresses[regionCode][addressId]
     };
   });

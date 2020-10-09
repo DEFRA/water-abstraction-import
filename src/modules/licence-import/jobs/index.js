@@ -62,7 +62,6 @@ const importLicence = licenceNumber => ({
   },
   options: {
     singletonKey: `${IMPORT_LICENCE_JOB}.${licenceNumber}`
-    // singletonHours: 1
   }
 });
 
