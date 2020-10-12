@@ -1,3 +1,5 @@
+'use strict';
+
 const extract = require('../extract');
 const transform = require('../transform');
 const load = require('../load');

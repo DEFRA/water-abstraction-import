@@ -15,7 +15,6 @@ experiment('modules/licence-import/transform/jobs', () => {
     });
     expect(options).to.equal({
       singletonKey: 'import.company.1.100',
-      singletonHours: 1,
       expireIn: '4 hour'
     });
   });
@@ -47,8 +46,7 @@ experiment('modules/licence-import/transform/jobs', () => {
       licenceNumber: '01/123'
     });
     expect(options).to.equal({
-      singletonKey: 'import.licence.01/123',
-      singletonHours: 1
+      singletonKey: 'import.licence.01/123'
     });
   });
 });

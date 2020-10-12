@@ -32,7 +32,6 @@ const importCompany = (regionCode, partyId) => ({
   },
   options: {
     singletonKey: `${IMPORT_COMPANY_JOB}.${regionCode}.${partyId}`,
-    singletonHours: 1,
     expireIn: '4 hour'
   }
 });
@@ -51,7 +50,7 @@ const importLicences = () => ({
 });
 
 /**
- * Formats arguments to publish a PG boss event to import company
+ * Formats arguments to publish a PG boss event to import licence
  * @param {Number} regionCode - NALD region code
  * @param {Number} partyId - NALD party ID
  * @return {Object}
@@ -62,8 +61,7 @@ const importLicence = licenceNumber => ({
     licenceNumber
   },
   options: {
-    singletonKey: `${IMPORT_LICENCE_JOB}.${licenceNumber}`,
-    singletonHours: 1
+    singletonKey: `${IMPORT_LICENCE_JOB}.${licenceNumber}`
   }
 });
 

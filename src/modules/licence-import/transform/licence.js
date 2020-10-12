@@ -27,7 +27,8 @@ const transformLicence = licenceData => {
   licence.documents.forEach(doc => {
     const roles = [
       ...mappers.role.mapLicenceHolderRoles(doc, context),
-      ...mappers.role.mapBillingRoles(doc, licenceData.chargeVersions, context)
+      ...mappers.role.mapBillingRoles(doc, licenceData.chargeVersions, context),
+      ...mappers.role.mapLicenceRoles(doc, licenceData.roles, context)
     ];
     doc.roles.push(...roles);
   });

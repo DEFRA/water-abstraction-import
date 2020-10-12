@@ -206,4 +206,13 @@ experiment('modules/licence-import/connectors/import', () => {
       expect(result).to.equal(data[0]);
     });
   });
+
+  experiment('getLicenceRoles', () => {
+    test('calls pool.query with the correct arguments', async () => {
+      await importConnector.getLicenceRoles(regionCode, licenceId);
+      const [query, params] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.getLicenceRoles);
+      expect(params).to.equal([regionCode, licenceId]);
+    });
+  });
 });
