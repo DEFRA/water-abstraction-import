@@ -9,8 +9,14 @@ const getOptions = () => ({
 });
 
 const registerSubscribers = async server => {
-  // The first step is to import a list of all companies into the water_import.company_import table
-  await server.messageQueue.subscribe(jobs.IMPORT_COMPANIES_JOB, handlers.importCompanies);
+  // The first step is to remove any documents that no longer exist in NALD
+  await server.messageQueue.subscribe(jobs.DELETE_DOCUMENTS_JOB, handlers.deleteDocuments);
+
+  // When the documents have been marked as deleted
+  // import a list of all companies into the water_import.company_import table
+  await server.messageQueue.onComplete(jobs.DELETE_DOCUMENTS_JOB,
+    job => handlers.onCompleteDeleteDocuments(server.messageQueue, job)
+  );
 
   // When the water_import.company_import table is ready, jobs are scheduled to import each company
   await server.messageQueue.onComplete(jobs.IMPORT_COMPANIES_JOB,
@@ -22,6 +28,7 @@ const registerSubscribers = async server => {
     job => handlers.onCompleteImportCompany(server.messageQueue, job)
   );
 
+  await server.messageQueue.subscribe(jobs.IMPORT_COMPANIES_JOB, handlers.importCompanies);
   await server.messageQueue.subscribe(jobs.IMPORT_COMPANY_JOB, getOptions(), handlers.importCompany);
   await server.messageQueue.subscribe(jobs.IMPORT_LICENCES_JOB, handlers.importLicences);
   await server.messageQueue.onComplete(jobs.IMPORT_LICENCES_JOB,
@@ -32,7 +39,7 @@ const registerSubscribers = async server => {
 
   // At 15:10 on Monday, Wednesday, and Friday
   cron.schedule('10 15 * * 1,3,5', async () => {
-    await server.messageQueue.publish(jobs.importCompanies());
+    await server.messageQueue.publish(jobs.deleteDocuments());
   });
 };
 

@@ -36,10 +36,10 @@ experiment('modules/licence-import/controller.js', () => {
         response = await controller.postImport(request, h);
       });
 
-      test('an "import companies" job is published', async () => {
+      test('an "import delete documents" job is published', async () => {
         expect(request.messageQueue.publish.callCount).to.equal(1);
         const [job] = request.messageQueue.publish.lastCall.args;
-        expect(job.name).to.equal(jobs.IMPORT_COMPANIES_JOB);
+        expect(job.name).to.equal(jobs.DELETE_DOCUMENTS_JOB);
       });
 
       test('a success response is returned', async () => {

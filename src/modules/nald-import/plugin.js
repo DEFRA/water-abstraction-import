@@ -24,6 +24,7 @@ const subscribe = async (server, job) => {
 
 const registerSubscribers = async server => {
   await subscribe(server, jobs.s3Download);
+  await subscribe(server, jobs.deleteRemovedDocuments);
   await subscribe(server, jobs.populatePendingImport);
   await subscribe(server, jobs.importLicence);
 

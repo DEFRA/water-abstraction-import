@@ -28,6 +28,7 @@ experiment('modules/nald-import/plugin', () => {
 
     sandbox.stub(jobs.s3Download, 'onCompleteHandler');
     sandbox.stub(jobs.populatePendingImport, 'onCompleteHandler');
+    sandbox.stub(jobs.deleteRemovedDocuments, 'onCompleteHandler');
   });
 
   afterEach(async () => {
@@ -45,7 +46,7 @@ experiment('modules/nald-import/plugin', () => {
     });
 
     test('registers s3Download job', async () => {
-      const [jobName, options, handler] = server.messageQueue.subscribe.firstCall.args;
+      const [jobName, options, handler] = server.messageQueue.subscribe.getCall(0).args;
 
       expect(jobName).to.equal(jobs.s3Download.job.jobName);
       expect(options).to.equal({});
@@ -55,7 +56,7 @@ experiment('modules/nald-import/plugin', () => {
     test('registers s3Download onComplete handler', async () => {
       const completedJob = { id: 'testing' };
 
-      const [jobName, func] = server.messageQueue.onComplete.firstCall.args;
+      const [jobName, func] = server.messageQueue.onComplete.getCall(0).args;
       func(completedJob);
 
       expect(jobName).to.equal(jobs.s3Download.job.jobName);
@@ -65,8 +66,29 @@ experiment('modules/nald-import/plugin', () => {
       )).to.equal(true);
     });
 
+    test('registers deleteRemovedDocuments job', async () => {
+      const [jobName, options, handler] = server.messageQueue.subscribe.getCall(1).args;
+
+      expect(jobName).to.equal(jobs.deleteRemovedDocuments.job.jobName);
+      expect(options).to.equal({});
+      expect(handler).to.equal(jobs.deleteRemovedDocuments.job.handler);
+    });
+
+    test('registers deleteRemovedDocuments onComplete handler', async () => {
+      const completedJob = { id: 'testing' };
+
+      const [jobName, func] = server.messageQueue.onComplete.getCall(1).args;
+      func(completedJob);
+
+      expect(jobName).to.equal(jobs.deleteRemovedDocuments.job.jobName);
+      expect(jobs.deleteRemovedDocuments.onCompleteHandler.calledWith(
+        completedJob,
+        server.messageQueue
+      )).to.equal(true);
+    });
+
     test('registers populatePendingImport job', async () => {
-      const [jobName, options, handler] = server.messageQueue.subscribe.secondCall.args;
+      const [jobName, options, handler] = server.messageQueue.subscribe.getCall(2).args;
 
       expect(jobName).to.equal(jobs.populatePendingImport.job.jobName);
       expect(options).to.equal({});
@@ -76,7 +98,7 @@ experiment('modules/nald-import/plugin', () => {
     test('registers populatePendingImport onComplete handler', async () => {
       const completedJob = { id: 'testing' };
 
-      const [jobName, func] = server.messageQueue.onComplete.secondCall.args;
+      const [jobName, func] = server.messageQueue.onComplete.getCall(2).args;
       func(completedJob);
 
       expect(jobName).to.equal(jobs.populatePendingImport.job.jobName);
@@ -87,7 +109,7 @@ experiment('modules/nald-import/plugin', () => {
     });
 
     test('registers importLicence job', async () => {
-      const [jobName, options, handler] = server.messageQueue.subscribe.thirdCall.args;
+      const [jobName, options, handler] = server.messageQueue.subscribe.getCall(3).args;
 
       expect(jobName).to.equal(jobs.importLicence.job.jobName);
       expect(options).to.equal(jobs.importLicence.job.options);
