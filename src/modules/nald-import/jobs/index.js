@@ -10,6 +10,11 @@ exports.populatePendingImport = {
   onCompleteHandler: require('./populate-pending-import-complete')
 };
 
+exports.deleteRemovedDocuments = {
+  job: require('./delete-removed-documents'),
+  onCompleteHandler: require('./delete-removed-documents-complete')
+};
+
 exports.importLicence = {
   job: require('./import-licence')
 };

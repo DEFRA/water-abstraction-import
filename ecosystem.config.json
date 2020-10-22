@@ -3,7 +3,8 @@
     {
       "name": "import",
       "ignore_watch": [
-        "node_modules"
+        "node_modules",
+        "temp"
       ],
       "env": {
         "watch": true

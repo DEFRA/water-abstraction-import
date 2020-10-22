@@ -73,9 +73,13 @@ experiment('modules/nald-import/jobs/s3-download-import-complete', () => {
           expect(messageQueue.deleteQueue.calledWith('nald-import.populate-pending-import')).to.be.true();
         });
 
-        test('a new job is published to populate the pending import table', async () => {
+        test('existing nald-import.delete-removed-documents job queue is deleted', async () => {
+          expect(messageQueue.deleteQueue.calledWith('nald-import.delete-removed-documents')).to.be.true();
+        });
+
+        test('a new job is published to delete any removed documents', async () => {
           const [job] = messageQueue.publish.lastCall.args;
-          expect(job.name).to.equal('nald-import.populate-pending-import');
+          expect(job.name).to.equal('nald-import.delete-removed-documents');
         });
       });
 

@@ -46,6 +46,18 @@ experiment('modules/licence-import/plugin.js', () => {
         await plugin.register(server);
       });
 
+      test('adds subscriber for delete removed documents job', async () => {
+        const [job, func] = server.messageQueue.subscribe.firstCall.args;
+        expect(job).to.equal(jobs.DELETE_DOCUMENTS_JOB);
+        expect(func).to.equal(handlers.deleteDocuments);
+      });
+
+      test('adds on complete handler for delete removed documents job', async () => {
+        const [job, func] = server.messageQueue.onComplete.firstCall.args;
+        expect(job).to.equal(jobs.DELETE_DOCUMENTS_JOB);
+        expect(func).to.be.a.function();
+      });
+
       test('adds subscriber for import companies job', async () => {
         expect(server.messageQueue.subscribe.calledWith(
           jobs.IMPORT_COMPANIES_JOB, handlers.importCompanies
@@ -53,7 +65,7 @@ experiment('modules/licence-import/plugin.js', () => {
       });
 
       test('adds on complete handler for import companies job', async () => {
-        const [job, func] = server.messageQueue.onComplete.firstCall.args;
+        const [job, func] = server.messageQueue.onComplete.secondCall.args;
         expect(job).to.equal(jobs.IMPORT_COMPANIES_JOB);
         expect(func).to.be.a.function();
       });
@@ -65,7 +77,7 @@ experiment('modules/licence-import/plugin.js', () => {
       });
 
       test('adds on complete handler for import company job', async () => {
-        const [job, func] = server.messageQueue.onComplete.secondCall.args;
+        const [job, func] = server.messageQueue.onComplete.thirdCall.args;
         expect(job).to.equal(jobs.IMPORT_COMPANY_JOB);
         expect(func).to.be.a.function();
       });
@@ -99,7 +111,7 @@ experiment('modules/licence-import/plugin.js', () => {
       });
 
       test('subscribers are bound', async () => {
-        expect(server.messageQueue.subscribe.callCount).to.equal(4);
+        expect(server.messageQueue.subscribe.callCount).to.equal(5);
       });
 
       test('cron job is scheduled', async () => {

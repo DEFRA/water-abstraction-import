@@ -8,4 +8,9 @@ const getLicenceNumbers = async () => {
   return licenceNumbers.map(licenceNumber => licenceNumber.LIC_NO);
 };
 
+const deleteRemovedDocuments = async () => {
+  return importConnector.deleteRemovedDocuments();
+};
+
+exports.deleteRemovedDocuments = deleteRemovedDocuments;
 exports.getLicenceNumbers = getLicenceNumbers;

@@ -21,7 +21,7 @@ const postImportHandler = async (request, h, jobCreator, errorMessage) => {
   };
 };
 
-const createImportJob = () => jobs.importCompanies();
+const createImportJob = () => jobs.deleteDocuments();
 const createImportCompanyJob = request => jobs.importCompany(request.query.regionCode, request.query.partyId);
 const createImportLicenceJob = request => jobs.importLicence(request.query.licenceNumber);
 

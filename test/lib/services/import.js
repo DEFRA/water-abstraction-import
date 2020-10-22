@@ -16,6 +16,7 @@ const importService = require('../../../src/lib/services/import');
 experiment('lib/services/import', () => {
   beforeEach(async () => {
     sandbox.stub(importConnector, 'getLicenceNumbers');
+    sandbox.stub(importConnector, 'deleteRemovedDocuments');
   });
 
   afterEach(async () => {
@@ -43,6 +44,17 @@ experiment('lib/services/import', () => {
 
         expect(licences).to.equal(['111', '222', '333']);
       });
+    });
+  });
+
+  experiment('.deleteRemovedDocuments', () => {
+    beforeEach(async () => {
+      importConnector.deleteRemovedDocuments.resolves();
+      await importService.deleteRemovedDocuments();
+    });
+
+    test('calls through to the connector', async () => {
+      expect(importConnector.deleteRemovedDocuments.called).to.equal(true);
     });
   });
 });

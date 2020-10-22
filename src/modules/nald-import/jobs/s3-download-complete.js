@@ -3,6 +3,7 @@
 const logger = require('./lib/logger');
 
 const populatePendingImportJob = require('./populate-pending-import');
+const deleteRemovedDocumentsJob = require('./delete-removed-documents');
 const importLicenceJob = require('./import-licence');
 
 const s3DownloadComplete = async (job, messageQueue) => {
@@ -22,11 +23,12 @@ const s3DownloadComplete = async (job, messageQueue) => {
     // Delete existing PG boss import queues
     await Promise.all([
       messageQueue.deleteQueue(importLicenceJob.jobName),
+      messageQueue.deleteQueue(deleteRemovedDocumentsJob.jobName),
       messageQueue.deleteQueue(populatePendingImportJob.jobName)
     ]);
 
-    // Publish a new job to populate pending import table
-    await messageQueue.publish(populatePendingImportJob.createMessage());
+    // Publish a new job to delete any removed documents
+    await messageQueue.publish(deleteRemovedDocumentsJob.createMessage());
   } catch (err) {
     logger.logHandlingOnCompleteError(job, err);
     throw err;
