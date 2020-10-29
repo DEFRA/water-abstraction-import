@@ -20,6 +20,7 @@ const importQueries = [
   chargingQueries.importChargeAgreements,
   chargingQueries.cleanupChargeElements,
   chargingQueries.cleanupChargeVersions,
+  chargingQueries.updateChargeVersionsLicenceId,
   returnVersionQueries.importReturnVersions,
   returnVersionQueries.importReturnRequirements,
   returnVersionQueries.importReturnRequirementPurposes
