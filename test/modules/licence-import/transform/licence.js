@@ -27,7 +27,8 @@ const createSimpleLicence = () => {
     ],
     purposes: [
       data.createPurpose(licence)
-    ]
+    ],
+    roles: []
   };
 };
 
@@ -64,6 +65,10 @@ const createComplexLicence = () => {
     ],
     addresses: [
       data.createAddress()
+    ],
+    roles: [
+      { ALRT_CODE: 'RT', EFF_ST_DATE: '09/04/2015', EFF_END_DATE: '12/08/2015', ACON_APAR_ID: '1001', ACON_AADD_ID: '1000', FGAC_REGION_CODE: '1' },
+      { ALRT_CODE: 'FM', EFF_ST_DATE: '09/04/2015', EFF_END_DATE: '12/08/2015', ACON_APAR_ID: '1001', ACON_AADD_ID: '1000', FGAC_REGION_CODE: '1' }
     ]
   };
 };
@@ -118,6 +123,14 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(role.address).to.equal(null);
       });
 
+      test('2 roles are created', async () => {
+        expect(result.documents[0].roles.length).to.equal(2);
+      });
+
+      test('there are no document roles for returns', async () => {
+        expect(result.documents[0].roles.map(role => role.role)).to.only.include(['licenceHolder', 'billing']);
+      });
+
       test('there are no licence agreements', async () => {
         expect(result.agreements).to.equal([]);
       });
@@ -145,6 +158,10 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(result.documents[1].endDate).to.equal(null);
       });
 
+      test('the first document has 3 roles', async () => {
+        expect(result.documents[0].roles.length).to.equal(3);
+      });
+
       test('the first document has the correct licence holder role', async () => {
         const [role] = result.documents[0].roles;
         expect(role.role).to.equal('licenceHolder');
@@ -162,6 +179,17 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(role.endDate).to.equal('2015-08-12');
         expect(role.invoiceAccount.invoiceAccountNumber).to.equal('X1234');
       });
+
+      test('the first document has the correct returns to role', async () => {
+        const [,, role] = result.documents[0].roles;
+        expect(role.role).to.equal('returnsTo');
+        expect(role.startDate).to.equal('2015-04-09');
+        expect(role.endDate).to.equal('2015-08-12');
+      });
+
+      test('the second document has 2 roles', async () => [
+        expect(result.documents.length).to.equal(2)
+      ]);
 
       test('the second document has the correct licence holder role', async () => {
         const [role] = result.documents[1].roles;
@@ -187,6 +215,10 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(role.startDate).to.equal('2016-05-15');
         expect(role.endDate).to.equal(null);
         expect(role.invoiceAccount.invoiceAccountNumber).to.equal('Y7890');
+      });
+
+      test('the second documetn has no roles for returns', async () => {
+        expect(result.documents[1].roles.map(role => role.role)).to.only.include(['licenceHolder', 'billing']);
       });
 
       test('the two part tariff agreements are merged where date ranges are adjacent', async () => {

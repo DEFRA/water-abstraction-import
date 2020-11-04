@@ -1,6 +1,14 @@
-exports.createDocument = `INSERT INTO crm_v2.documents (regime, document_type, document_ref, version_number, status, start_date, end_date, external_id, date_created, date_updated)
-VALUES ('water', 'abstraction_licence', $1, $2, $3, $4, $5, $6, NOW(), NOW()) ON CONFLICT (regime, document_type, version_number, document_ref) DO UPDATE SET start_date=EXCLUDED.start_date, end_date=EXCLUDED.end_date,
-  status=EXCLUDED.status, external_id=EXCLUDED.external_id, date_updated=EXCLUDED.date_updated;`;
+exports.createDocument = `
+  INSERT INTO crm_v2.documents (regime, document_type, document_ref, version_number, status, start_date, end_date, external_id, date_created, date_updated, date_deleted)
+  VALUES ('water', 'abstraction_licence', $1, $2, $3, $4, $5, $6, NOW(), NOW(), null)
+  ON CONFLICT (regime, document_type, version_number, document_ref)
+  DO UPDATE SET
+    start_date=EXCLUDED.start_date,
+    end_date=EXCLUDED.end_date,
+    status=EXCLUDED.status,
+    external_id=EXCLUDED.external_id,
+    date_updated=EXCLUDED.date_updated,
+    date_deleted=EXCLUDED.date_deleted;`;
 
 exports.createDocumentRole = `INSERT INTO crm_v2.document_roles (document_id, role_id, company_id, contact_id, address_id, start_date, end_date, date_created, date_updated, invoice_account_id)
 SELECT d.document_id, r.role_id, c.company_id, co.contact_id, a.address_id, $8, $9, NOW(), NOW(), ia.invoice_account_id
@@ -90,7 +98,7 @@ ON CONFLICT (company_id, address_id, role_id) DO UPDATE SET
 
 exports.createAgreement = `insert into water.licence_agreements (licence_ref, financial_agreement_type_id, start_date, end_date, date_created, date_updated)
   select $1, t.financial_agreement_type_id, $3, $4, NOW(), NOW()
-    from water.financial_agreement_types t 
+    from water.financial_agreement_types t
     where t.financial_agreement_code=$2 on conflict (licence_ref, financial_agreement_type_id, start_date)  do update set end_date=EXCLUDED.end_date, date_updated=EXCLUDED.date_updated;`;
 
 exports.createLicence = `insert into water.licences (region_id, licence_ref, is_water_undertaker, regions, start_date, expired_date, lapsed_date, revoked_date)

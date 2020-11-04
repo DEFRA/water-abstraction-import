@@ -4,6 +4,7 @@ const IMPORT_COMPANIES_JOB = 'import.companies';
 const IMPORT_COMPANY_JOB = 'import.company';
 const IMPORT_LICENCES_JOB = 'import.licences';
 const IMPORT_LICENCE_JOB = 'import.licence';
+const DELETE_DOCUMENTS_JOB = 'import.delete-documents';
 
 /**
  * Formats arguments to publish a PG boss event to import all companies
@@ -32,7 +33,6 @@ const importCompany = (regionCode, partyId) => ({
   },
   options: {
     singletonKey: `${IMPORT_COMPANY_JOB}.${regionCode}.${partyId}`,
-    singletonHours: 1,
     expireIn: '4 hour'
   }
 });
@@ -51,7 +51,7 @@ const importLicences = () => ({
 });
 
 /**
- * Formats arguments to publish a PG boss event to import company
+ * Formats arguments to publish a PG boss event to import licence
  * @param {Number} regionCode - NALD region code
  * @param {Number} partyId - NALD party ID
  * @return {Object}
@@ -62,17 +62,22 @@ const importLicence = licenceNumber => ({
     licenceNumber
   },
   options: {
-    singletonKey: `${IMPORT_LICENCE_JOB}.${licenceNumber}`,
-    singletonHours: 1
+    singletonKey: `${IMPORT_LICENCE_JOB}.${licenceNumber}`
   }
+});
+
+const deleteDocuments = () => ({
+  name: DELETE_DOCUMENTS_JOB
 });
 
 exports.IMPORT_COMPANIES_JOB = IMPORT_COMPANIES_JOB;
 exports.IMPORT_COMPANY_JOB = IMPORT_COMPANY_JOB;
 exports.IMPORT_LICENCES_JOB = IMPORT_LICENCES_JOB;
 exports.IMPORT_LICENCE_JOB = IMPORT_LICENCE_JOB;
+exports.DELETE_DOCUMENTS_JOB = DELETE_DOCUMENTS_JOB;
 
 exports.importCompanies = importCompanies;
 exports.importCompany = importCompany;
 exports.importLicences = importLicences;
 exports.importLicence = importLicence;
+exports.deleteDocuments = deleteDocuments;

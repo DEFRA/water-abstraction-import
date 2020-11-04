@@ -18,7 +18,7 @@ const transformCompany = companyData => {
   const context = mapContactData(companyData);
 
   company.invoiceAccounts = mappers.invoiceAccount.mapInvoiceAccounts(companyData.invoiceAccounts, context);
-  company.addresses = mappers.companyAddress.mapCompanyAddresses(companyData.licenceVersions, companyData.invoiceAccounts, context);
+  company.addresses = mappers.companyAddress.mapCompanyAddresses(companyData.licenceVersions, companyData.invoiceAccounts, companyData.licenceRoles, context);
   company.contacts = mappers.companyContact.mapCompanyContacts(contact, companyData.licenceVersions, companyData.invoiceAccounts);
 
   return mappers.licence.omitNaldData(company);

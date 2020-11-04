@@ -53,6 +53,12 @@ const getParty = (regionCode, partyId) =>
 const getLicencePurposes = (regionCode, licenceId) =>
   findMany(queries.getLicencePurposes, [regionCode, licenceId]);
 
+const getLicenceRoles = (regionCode, licenceId) =>
+  findMany(queries.getLicenceRoles, [regionCode, licenceId]);
+
+const getPartyLicenceRoles = (regionCode, partyId) =>
+  findMany(queries.getPartyLicenceRoles, [regionCode, partyId]);
+
 exports.getAddresses = getAddresses;
 exports.getAllAddresses = getAllAddresses;
 exports.getAllLicenceNumbers = getAllLicenceNumbers;
@@ -67,3 +73,5 @@ exports.getParty = getParty;
 exports.getPartyLicenceVersions = getPartyLicenceVersions;
 exports.getSection130Agreements = getSection130Agreements;
 exports.getTwoPartTariffAgreements = getTwoPartTariffAgreements;
+exports.getLicenceRoles = getLicenceRoles;
+exports.getPartyLicenceRoles = getPartyLicenceRoles;
