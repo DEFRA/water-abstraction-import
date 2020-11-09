@@ -29,8 +29,7 @@ const verifyTable = async (entityName, sourceQuery, targetQuery, targetMapper) =
 const verify = async () => {
   const tasks = [
     verifyTable('Charge versions', queries.sourceChargeVersions, queries.targetChargeVersions, mappers.mapChargeVersion),
-    verifyTable('Charge elements', queries.sourceChargeElements, queries.targetChargeElements, mappers.mapChargeElement),
-    verifyTable('Charge agreements', queries.sourceChargeAgreements, queries.targetChargeAgreements, mappers.mapChargeAgreement)
+    verifyTable('Charge elements', queries.sourceChargeElements, queries.targetChargeElements, mappers.mapChargeElement)
   ];
 
   const results = await Promise.all(tasks);
@@ -38,7 +37,6 @@ const verify = async () => {
   return {
     chargeVersions: results[0],
     chargeElements: results[1],
-    chargeAgreements: results[2],
     totalErrors: results.reduce((acc, row) => acc + row.errors.length, 0)
   };
 };
