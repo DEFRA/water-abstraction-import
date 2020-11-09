@@ -1,25 +1,25 @@
 exports.sourceChargeVersions = `
   SELECT *
   FROM import."NALD_CHG_VERSIONS" v
-  ORDER BY v."FGAC_REGION_CODE"::integer, v."AABL_ID"::integer, v."VERS_NO"::integer;`;
+  ORDER BY concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO");`;
 
 exports.targetChargeVersions = `
   SELECT *
   FROM water.charge_versions v
   WHERE source='nald'
-  ORDER BY v.region_code, v.external_id, v.version_number;`;
+  ORDER BY v.external_id`;
 
 exports.sourceChargeElements = `
   SELECT *
   FROM import."NALD_CHG_ELEMENTS" e
-  ORDER BY e."FGAC_REGION_CODE"::integer, e."ID"::integer;`;
+  ORDER BY concat_ws(':', e."FGAC_REGION_CODE", e."ID");`;
 
 exports.targetChargeElements = `
   SELECT e.*
   FROM water.charge_elements e
     JOIN water.charge_versions v
       ON v.charge_version_id=e.charge_version_id AND v.source='nald'
-  ORDER BY v.region_code, e.external_id`;
+  ORDER BY e.external_id`;
 
 exports.sourceChargeAgreements = `
   SELECT *
