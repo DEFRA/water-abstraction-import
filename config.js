@@ -87,7 +87,7 @@ module.exports = {
   proxy: process.env.PROXY,
 
   import: {
-    returns: { importYears: process.env.IMPORT_RETURNS_YEARS || 3 },
+    returns: { importYears: process.env.IMPORT_RETURNS_YEARS || 6 },
     zipPassword: process.env.NALD_ZIP_PASSWORD
   },
 
