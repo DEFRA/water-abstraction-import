@@ -3,15 +3,13 @@ const jobs = require('./jobs');
 
 const chargingImport = require('./lib/import');
 const { createRegister } = require('../../lib/plugin');
-
-// run at 1000 Mon, Weds and Fri
-const cronSchedule = '0 10 * * 1,3,5';
+const config = require('../../../config');
 
 const registerSubscribers = async server => {
   // Import charging data
   await server.messageQueue.subscribe(jobs.IMPORT_CHARGING_DATA, chargingImport.importChargingData);
 
-  cron.schedule(cronSchedule, async () => {
+  cron.schedule(config.import.charging.schedule, async () => {
     await server.messageQueue.publish(jobs.importChargingData());
   });
 };
