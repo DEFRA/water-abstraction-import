@@ -53,10 +53,10 @@ source=EXCLUDED.source, invoice_account_id=EXCLUDED.invoice_account_id, company_
 const cleanupChargeVersions = `DELETE FROM water.charge_versions WHERE charge_version_id IN (
   select cv.charge_version_id 
     from water.charge_versions cv 
-      left join water.billing_batch_charge_versions bcv on cv.charge_version_id=bcv.charge_version_id
+      left join water.billing_batch_charge_version_years bcvy on cv.charge_version_id=bcvy.charge_version_id
       left join import."NALD_CHG_VERSIONS" ncv on concat_ws(':', ncv."FGAC_REGION_CODE", ncv."AABL_ID", ncv."VERS_NO")=cv.external_id
     where cv.source='nald'
-      and bcv.billing_batch_charge_version_id is null
+      and bcvy.billing_batch_charge_version_year_id is null
       and ncv."AABL_ID" is null
 );`;
 
