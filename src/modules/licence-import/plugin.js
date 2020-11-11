@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const jobs = require('./jobs');
 const handlers = require('./handlers');
 const { createRegister } = require('../../lib/plugin');
+const config = require('../../../config');
 
 const getOptions = () => ({
   teamSize: 750,
@@ -37,8 +38,7 @@ const registerSubscribers = async server => {
 
   await server.messageQueue.subscribe(jobs.IMPORT_LICENCE_JOB, getOptions(), handlers.importLicence);
 
-  // At 15:10 on Monday, Wednesday, and Friday
-  cron.schedule('10 15 * * 1,3,5', async () => {
+  cron.schedule(config.import.licences.schedule, async () => {
     await server.messageQueue.publish(jobs.deleteDocuments());
   });
 };

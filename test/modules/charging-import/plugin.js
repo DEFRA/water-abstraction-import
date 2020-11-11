@@ -51,9 +51,9 @@ experiment('modules/charging-import/plugin.js', () => {
         )).to.be.true();
       });
 
-      test('schedules a cron job to run the import 1000 on Mon, Wed and Fri', async () => {
+      test('schedules a cron job to run the import at 2pm on Mon, Wed and Fri in non-prod environments', async () => {
         const [schedule] = cron.schedule.lastCall.args;
-        expect(schedule).to.equal('0 10 * * 1,3,5');
+        expect(schedule).to.equal('0 14 * * 1,3,5');
       });
     });
 
