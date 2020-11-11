@@ -26,7 +26,6 @@ const createMessage = licenceNumber => ({
  */
 const isNewEtag = (etag, state) => {
   const isEtagCheckEnabled = get(config, 'import.nald.isEtagCheckEnabled', true);
-  console.log({ isEtagCheckEnabled, etag, state });
   if (isEtagCheckEnabled) {
     return etag !== state.etag;
   }
