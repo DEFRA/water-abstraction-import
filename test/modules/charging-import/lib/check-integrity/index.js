@@ -47,7 +47,6 @@ experiment('modules/charging-import/lib/check-integrity/index.js', () => {
 
       test('reports 0 errors for tables with no errors', async () => {
         expect(result.chargeVersions.errors).to.equal([]);
-        expect(result.chargeAgreements.errors).to.equal([]);
       });
 
       test('reports errors in array for tables with errors', async () => {
