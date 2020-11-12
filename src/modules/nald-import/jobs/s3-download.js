@@ -1,8 +1,11 @@
 'use strict';
+
+const { get } = require('lodash');
 const applicationStateService = require('../services/application-state-service');
 const s3Service = require('../services/s3-service');
 const extractService = require('../services/extract-service');
 const logger = require('./lib/logger');
+const config = require('../../../../config');
 
 const JOB_NAME = 'nald-import.s3-download';
 
@@ -13,6 +16,21 @@ const createMessage = licenceNumber => ({
     singletonKey: JOB_NAME
   }
 });
+
+/**
+ * Checks whether the file etag has changed
+ * If the check is disabled via the config file (in order to force import) this always returns true
+ * @param {String} etag
+ * @param {Object} state
+ * @return {Boolean}
+ */
+const isNewEtag = (etag, state) => {
+  const isEtagCheckEnabled = get(config, 'import.nald.isEtagCheckEnabled', true);
+  if (isEtagCheckEnabled) {
+    return etag !== state.etag;
+  }
+  return true;
+};
 
 /**
  * Gets status of file in S3 bucket and current application state
@@ -31,7 +49,7 @@ const getStatus = async () => {
   return {
     etag,
     state,
-    isRequired: !state.isDownloaded || (etag !== state.etag)
+    isRequired: !state.isDownloaded || isNewEtag(etag, state)
   };
 };
 

@@ -1,4 +1,8 @@
+'use strict';
+
+const { get } = require('lodash');
 const path = require('path');
+
 const processHelper = require('@envage/water-abstraction-helpers').process;
 const { logger } = require('../../../logger');
 const constants = require('../lib/constants');
@@ -28,7 +32,8 @@ const extract = async () => {
   logger.info('Extracting data from NALD zip file');
 
   try {
-    await extractArchive(primaryPath, constants.LOCAL_TEMP_PATH, config.import.zipPassword);
+    const zipPassword = get(config, 'import.nald.zipPassword');
+    await extractArchive(primaryPath, constants.LOCAL_TEMP_PATH, zipPassword);
     await extractArchive(secondaryPath, constants.LOCAL_TEMP_PATH);
   } catch (err) {
     logger.error('Could not extract NALD zip', err);
