@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "exclude_patterns": [
-    "test",
-    "node_modules",
-    "migrations",
-    "src/modules/returns/routes.js"
-  ]
-}
