@@ -60,6 +60,10 @@ const cleanupChargeVersions = `DELETE FROM water.charge_versions WHERE charge_ve
       and ncv."AABL_ID" is null
 );`;
 
+// add the water.licences.licence_id to water.charge_versions
+const updateChargeVersionsLicenceId = `UPDATE water.charge_versions cv
+SET licence_id = l.licence_id FROM water.licences l where l.licence_ref = cv.licence_ref;`;
+
 const importChargeElements = `INSERT INTO water.charge_elements
 (charge_version_id, external_id, abstraction_period_start_day, abstraction_period_start_month,
 abstraction_period_end_day, abstraction_period_end_month, authorised_annual_quantity, season, season_derived,
@@ -176,3 +180,4 @@ exports.cleanupChargeVersions = cleanupChargeVersions;
 exports.importChargeElements = importChargeElements;
 exports.cleanupChargeElements = cleanupChargeElements;
 exports.importChargeAgreements = importChargeAgreements;
+exports.updateChargeVersionsLicenceId = updateChargeVersionsLicenceId;
