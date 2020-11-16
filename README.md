@@ -1,11 +1,10 @@
 # Water Abstraction Import
 
-[![Build Status](https://travis-ci.org/DEFRA/water-abstraction-import.svg?branch=develop)](https://travis-ci.org/DEFRA/water-abstraction-import)
-
-[![Maintainability](https://api.codeclimate.com/v1/badges/c1266ede450e443bd8fc/maintainability)](https://codeclimate.com/github/DEFRA/water-abstraction-import/maintainability)
-
-[![Test Coverage](https://api.codeclimate.com/v1/badges/c1266ede450e443bd8fc/test_coverage)](https://codeclimate.com/github/DEFRA/water-abstraction-import/test_coverage)
-
+|               |              |  
+|---------------|--------------|
+| Build         |  ![CI](https://github.com/DEFRA/water-abstraction-import/workflows/CI/badge.svg) |
+| Test coverage | [![Test Coverage](https://api.codeclimate.com/v1/badges/36785e4052ddbae42719/test_coverage)](https://codeclimate.com/github/DEFRA/water-abstraction-import/test_coverage)  |
+| Quality check |  [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_water-abstraction-import&metric=alert_status)](https://sonarcloud.io/dashboard?id=DEFRA_water-abstraction-import) |
 
 ## Development Team
 
