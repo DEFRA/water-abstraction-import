@@ -125,6 +125,7 @@ file_reference=EXCLUDED.file_reference, description=EXCLUDED.description, date_u
 
 const getNonDraftChargeVersionsForLicence = `SELECT
   l."LIC_NO" AS licence_ref,
+  wl.licence_id,
   'alcs' AS scheme,
   concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO") as external_id,
   v."VERS_NO"::integer AS version_number,
@@ -147,6 +148,7 @@ JOIN import."NALD_ABS_LICENCES" l ON v."AABL_ID"=l."ID" AND v."FGAC_REGION_CODE"
 JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_REF" 
 JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
 JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
+LEFT JOIN water.licences wl ON l."LIC_NO"=wl.licence_ref 
 WHERE v."FGAC_REGION_CODE"=$1 and v."AABL_ID"=$2 and v."STATUS"<>'DRAFT'
 ORDER BY 
   to_date(v."EFF_ST_DATE", 'DD/MM/YYYY'),
@@ -156,8 +158,8 @@ ORDER BY
 const insertChargeVersion = `
 insert into water.charge_versions
 (start_date, end_date, status, licence_ref, region_code, source, version_number, invoice_account_id, company_id, 
-  billed_upto_date, error, scheme, external_id, apportionment, change_reason_id, date_created)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW())
+  billed_upto_date, error, scheme, external_id, apportionment, change_reason_id, licence_id, date_created)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW())
 on conflict (external_id) do update set
   start_date=EXCLUDED.start_date,
   end_date=EXCLUDED.end_date,
@@ -176,7 +178,6 @@ on conflict (external_id) do update set
   date_updated=NOW()
 `;
 
-// exports.importChargeVersions = importChargeVersions;
 exports.cleanupChargeVersions = cleanupChargeVersions;
 exports.importChargeElements = importChargeElements;
 exports.cleanupChargeElements = cleanupChargeElements;

@@ -142,7 +142,8 @@ const mapHistoryGapToChargeVersion = (gap, licence, versionNumber, changeReasonI
   scheme: 'alcs',
   external_id: gap.externalId,
   apportionment: false,
-  change_reason_id: changeReasonId
+  change_reason_id: changeReasonId,
+  licence_id: licence.licence_id
 });
 
 /**

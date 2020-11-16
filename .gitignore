@@ -6,3 +6,4 @@ coverage
 .vscode
 /test/dummy-csv
 /temp
+.DS_Store

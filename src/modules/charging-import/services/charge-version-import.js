@@ -51,7 +51,8 @@ const insertChargeVersion = chargeVersion => {
     chargeVersion.scheme,
     chargeVersion.external_id,
     chargeVersion.apportionment,
-    chargeVersion.change_reason_id || null
+    chargeVersion.change_reason_id || null,
+    chargeVersion.licence_id
   ];
   return pool.query(queries.charging.insertChargeVersion, params);
 };

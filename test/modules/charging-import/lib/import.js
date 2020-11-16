@@ -6,6 +6,7 @@ const sandbox = require('sinon').createSandbox();
 const { pool } = require('../../../../src/lib/connectors/db');
 
 const chargingQueries = require('../../../../src/modules/charging-import/lib/queries/charging');
+const returnVersionQueries = require('../../../../src/modules/charging-import/lib/queries/return-versions');
 const financialAgreementTypeQueries = require('../../../../src/modules/charging-import/lib/queries/financial-agreement-types');
 const purposesQueries = require('../../../../src/modules/charging-import/lib/queries/purposes');
 const returnVersionQueries = require('../../../../src/modules/charging-import/lib/queries/return-versions');
