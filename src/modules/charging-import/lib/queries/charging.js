@@ -148,7 +148,7 @@ JOIN import."NALD_ABS_LICENCES" l ON v."AABL_ID"=l."ID" AND v."FGAC_REGION_CODE"
 JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_REF" 
 JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
 JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
-LEFT JOIN water.licences wl ON l."LIC_NO"=wl.licence_ref 
+JOIN water.licences wl ON l."LIC_NO"=wl.licence_ref 
 WHERE v."FGAC_REGION_CODE"=$1 and v."AABL_ID"=$2 and v."STATUS"<>'DRAFT'
 ORDER BY 
   to_date(v."EFF_ST_DATE", 'DD/MM/YYYY'),

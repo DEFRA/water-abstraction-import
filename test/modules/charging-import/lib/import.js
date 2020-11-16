@@ -9,7 +9,6 @@ const chargingQueries = require('../../../../src/modules/charging-import/lib/que
 const returnVersionQueries = require('../../../../src/modules/charging-import/lib/queries/return-versions');
 const financialAgreementTypeQueries = require('../../../../src/modules/charging-import/lib/queries/financial-agreement-types');
 const purposesQueries = require('../../../../src/modules/charging-import/lib/queries/purposes');
-const returnVersionQueries = require('../../../../src/modules/charging-import/lib/queries/return-versions');
 const chargeVersionImportService = require('../../../../src/modules/charging-import/services/charge-version-import');
 
 experiment('modules/charging-import/index.js', () => {

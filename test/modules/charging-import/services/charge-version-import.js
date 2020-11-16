@@ -20,6 +20,7 @@ const REGION_CODE = 1;
 const LICENCE_ID = 'test-licence-id';
 const LICENCE_NUMBER = '01/234/ABC';
 const START_DATE = '2019-01-01';
+const WATER_LICENCE_ID = '00000000-0000-0000-0000-000000000000';
 
 const chargeVersionRow = {
   start_date: START_DATE,
@@ -35,7 +36,8 @@ const chargeVersionRow = {
   apportionment: false,
   error: false,
   billed_upto_date: '2020-03-31',
-  region: REGION_CODE
+  region: REGION_CODE,
+  licence_id: WATER_LICENCE_ID
 };
 
 experiment('modules/charging-import/services/charge-version-import.js', () => {
@@ -61,7 +63,8 @@ experiment('modules/charging-import/services/charge-version-import.js', () => {
           LIC_NO: LICENCE_NUMBER,
           FGAC_REGION_CODE: REGION_CODE,
           start_date: START_DATE,
-          end_date: null
+          end_date: null,
+          licence_id: WATER_LICENCE_ID
         }]
       });
 
@@ -109,7 +112,8 @@ experiment('modules/charging-import/services/charge-version-import.js', () => {
           chargeVersionRow.scheme,
           chargeVersionRow.external_id,
           chargeVersionRow.apportionment,
-          null
+          null,
+          WATER_LICENCE_ID
         ]
       )).to.be.true();
     });

@@ -8,9 +8,11 @@ const mapper = require('../../../../src/modules/charging-import/mappers/charge-v
 const NALD_GAP_ID = 'nald-gap-id';
 const STATUS_SUPERSEDED = 'superseded';
 const STATUS_CURRENT = 'current';
+const WATER_LICENCE_ID = '00000000-0000-0000-0000-000000000000';
 
 const getLicence = (overrides = {}) => ({
   ID: '1',
+  licence_id: WATER_LICENCE_ID,
   LIC_NO: '01/234/ABC',
   FGAC_REGION: '1',
   start_date: '2018-01-01',
@@ -37,6 +39,7 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
         expect(cv.start_date).to.equal('2018-01-01');
         expect(cv.end_date).to.equal(null);
         expect(cv.status).to.equal(STATUS_CURRENT);
+        expect(cv.licence_id).to.equal(WATER_LICENCE_ID);
       });
     });
 
@@ -56,6 +59,7 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
         expect(cv.start_date).to.equal('2018-01-01');
         expect(cv.end_date).to.equal('2020-01-01');
         expect(cv.status).to.equal(STATUS_CURRENT);
+        expect(cv.licence_id).to.equal(WATER_LICENCE_ID);
       });
     });
 
@@ -68,14 +72,16 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
             status: STATUS_SUPERSEDED,
             version_number: 1,
             start_date: '2018-02-01',
-            end_date: '2019-01-01'
+            end_date: '2019-01-01',
+            licence_id: WATER_LICENCE_ID
           },
           {
             external_id: '1:1:2',
             status: STATUS_CURRENT,
             version_number: 2,
             start_date: '2019-02-01',
-            end_date: '2020-01-01'
+            end_date: '2020-01-01',
+            licence_id: WATER_LICENCE_ID
           }
         ];
         result = mapper.mapNALDChargeVersionsToWRLS(licence, chargeVersions, NALD_GAP_ID);
@@ -91,6 +97,7 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
         expect(cv.start_date).to.equal('2018-01-01');
         expect(cv.end_date).to.equal('2018-01-31');
         expect(cv.status).to.equal(STATUS_CURRENT);
+        expect(cv.licence_id).to.equal(WATER_LICENCE_ID);
       });
 
       test('the 1st element is the first NALD charge version', async () => {
@@ -98,6 +105,7 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
         expect(cv.change_reason_id).to.be.undefined();
         expect(cv.external_id).to.equal('1:1:1');
         expect(cv.status).to.equal(STATUS_CURRENT);
+        expect(cv.licence_id).to.equal(WATER_LICENCE_ID);
       });
 
       test('the 2nd element is a NALD gap inserted between non-adjacent charge versions', async () => {
@@ -106,6 +114,7 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
         expect(cv.start_date).to.equal('2019-01-02');
         expect(cv.end_date).to.equal('2019-01-31');
         expect(cv.status).to.equal(STATUS_CURRENT);
+        expect(cv.licence_id).to.equal(WATER_LICENCE_ID);
       });
 
       test('the 3rd element is the second NALD charge version', async () => {
@@ -113,6 +122,7 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
         expect(cv.change_reason_id).to.be.undefined();
         expect(cv.external_id).to.equal('1:1:2');
         expect(cv.status).to.equal(STATUS_CURRENT);
+        expect(cv.licence_id).to.equal(WATER_LICENCE_ID);
       });
 
       test('the 4th element is a NALD gap inserted from the last charge version to the licence end date', async () => {
@@ -121,6 +131,7 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
         expect(cv.start_date).to.equal('2020-01-02');
         expect(cv.end_date).to.equal(null);
         expect(cv.status).to.equal(STATUS_CURRENT);
+        expect(cv.licence_id).to.equal(WATER_LICENCE_ID);
       });
     });
 
@@ -134,14 +145,16 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
             version_number: 1,
             start_date: '2018-01-01',
             end_date: '2018-01-01',
-            error: true
+            error: true,
+            licence_id: WATER_LICENCE_ID
           },
           {
             external_id: '1:1:2',
             status: STATUS_CURRENT,
             version_number: 2,
             start_date: '2018-01-01',
-            end_date: null
+            end_date: null,
+            licence_id: WATER_LICENCE_ID
           }
         ];
         result = mapper.mapNALDChargeVersionsToWRLS(licence, chargeVersions, NALD_GAP_ID);
@@ -157,6 +170,7 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
         expect(cv.start_date).to.equal('2018-01-01');
         expect(cv.end_date).to.equal('2018-01-01');
         expect(cv.status).to.equal(STATUS_SUPERSEDED);
+        expect(cv.licence_id).to.equal(WATER_LICENCE_ID);
       });
 
       test('the 1st element is mapped to "current"', async () => {
@@ -165,6 +179,7 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
         expect(cv.start_date).to.equal('2018-01-01');
         expect(cv.end_date).to.equal(null);
         expect(cv.status).to.equal(STATUS_CURRENT);
+        expect(cv.licence_id).to.equal(WATER_LICENCE_ID);
       });
     });
   });
