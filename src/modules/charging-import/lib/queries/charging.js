@@ -1,54 +1,5 @@
 'use strict';
 
-const importChargeVersions = `INSERT INTO water.charge_versions (licence_ref, scheme, external_id, version_number, start_date, status, apportionment,
-error, end_date, billed_upto_date, region_code, date_created, date_updated, source, invoice_account_id, company_id)
-SELECT
-  l."LIC_NO" AS licence_ref,
-  'alcs' AS scheme,
-  concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO") as external_id,
-  v."VERS_NO"::integer AS version_number,
-  to_date(v."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date,
-(CASE v."STATUS"
-  WHEN 'SUPER' THEN 'superseded'
-  WHEN 'DRAFT' THEN 'draft'
-  WHEN 'CURR' THEN 'current'
-END)::water.charge_version_status AS status,
-CASE v."APPORTIONMENT"
-  WHEN 'Y' THEN true
-  WHEN 'N' THEN false
-END AS apportionment,
-CASE v."IN_ERROR_STATUS"
-  WHEN 'Y' THEN true
-  WHEN 'N' THEN false
-END AS error,
-case v."EFF_END_DATE"
-  when 'null' then null
-  else to_date(v."EFF_END_DATE", 'DD/MM/YYYY')
-end AS end_date,
-case v."BILLED_UPTO_DATE"
-  when 'null' then null
-  else to_date(v."BILLED_UPTO_DATE", 'DD/MM/YYYY')
-end AS billed_upto_date,
-v."FGAC_REGION_CODE"::integer AS region,
-NOW() AS date_created,
-NOW() AS date_updated,
-'nald' AS source,
-ia.invoice_account_id,
-c.company_id
-FROM import."NALD_CHG_VERSIONS" v
-JOIN import."NALD_ABS_LICENCES" l ON v."AABL_ID"=l."ID" AND v."FGAC_REGION_CODE"=l."FGAC_REGION_CODE"
-JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_REF" 
-JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
-JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
-ON CONFLICT (external_id) DO UPDATE SET licence_ref=EXCLUDED.licence_ref,
-scheme=EXCLUDED.scheme,
-version_number=EXCLUDED.version_number, start_date=EXCLUDED.start_date,
-status=EXCLUDED.status, apportionment=EXCLUDED.apportionment,
-error=EXCLUDED.error, end_date=EXCLUDED.end_date,
-billed_upto_date=EXCLUDED.billed_upto_date,
-region_code=EXCLUDED.region_code, date_updated=EXCLUDED.date_updated,
-source=EXCLUDED.source, invoice_account_id=EXCLUDED.invoice_account_id, company_id=EXCLUDED.company_id;`;
-
 // Deletes charge versions that are no longer present in the NALD import
 const cleanupChargeVersions = `DELETE FROM water.charge_versions WHERE charge_version_id IN (
   select cv.charge_version_id 
@@ -58,6 +9,7 @@ const cleanupChargeVersions = `DELETE FROM water.charge_versions WHERE charge_ve
     where cv.source='nald'
       and bcvy.billing_batch_charge_version_year_id is null
       and ncv."AABL_ID" is null
+      and external_id is null
 );`;
 
 const importChargeElements = `INSERT INTO water.charge_elements
@@ -171,8 +123,63 @@ WHERE a."AFSA_CODE" NOT IN ('S127', 'S130S', 'S130T', 'S130U', 'S130W') ON CONFL
 agreement_code=EXCLUDED.agreement_code, start_date=EXCLUDED.start_date, end_date= EXCLUDED.end_date, signed_date=EXCLUDED.signed_date,
 file_reference=EXCLUDED.file_reference, description=EXCLUDED.description, date_updated=EXCLUDED.date_updated;`;
 
-exports.importChargeVersions = importChargeVersions;
+const getNonDraftChargeVersionsForLicence = `SELECT
+  l."LIC_NO" AS licence_ref,
+  'alcs' AS scheme,
+  concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO") as external_id,
+  v."VERS_NO"::integer AS version_number,
+  to_date(v."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date,
+(CASE v."STATUS"
+  WHEN 'SUPER' THEN 'superseded'
+  WHEN 'DRAFT' THEN 'draft'
+  WHEN 'CURR' THEN 'current'
+END)::water.charge_version_status AS status,
+v."APPORTIONMENT"='Y' as apportionment,
+v."IN_ERROR_STATUS"='Y' as error,
+to_date(nullif(v."EFF_END_DATE", 'null'), 'DD/MM/YYYY') as end_date,
+to_date(nullif(v."BILLED_UPTO_DATE", 'null'), 'DD/MM/YYYY') as billed_upto_date,
+v."FGAC_REGION_CODE"::integer AS region,
+'nald' AS source,
+ia.invoice_account_id,
+c.company_id
+FROM import."NALD_CHG_VERSIONS" v
+JOIN import."NALD_ABS_LICENCES" l ON v."AABL_ID"=l."ID" AND v."FGAC_REGION_CODE"=l."FGAC_REGION_CODE"
+JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_REF" 
+JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
+JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
+WHERE v."FGAC_REGION_CODE"=$1 and v."AABL_ID"=$2 and v."STATUS"<>'DRAFT'
+ORDER BY 
+  to_date(v."EFF_ST_DATE", 'DD/MM/YYYY'),
+  v."VERS_NO"::integer
+`;
+
+const insertChargeVersion = `
+insert into water.charge_versions
+(start_date, end_date, status, licence_ref, region_code, source, version_number, invoice_account_id, company_id, 
+  billed_upto_date, error, scheme, external_id, apportionment, change_reason_id, date_created)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW())
+on conflict (external_id) do update set
+  start_date=EXCLUDED.start_date,
+  end_date=EXCLUDED.end_date,
+  status=EXCLUDED.status,
+  licence_ref=EXCLUDED.licence_ref,
+  region_code=EXCLUDED.region_code,
+  source=EXCLUDED.source,
+  version_number=EXCLUDED.version_number,
+  invoice_account_id=EXCLUDED.invoice_account_id,
+  company_id=EXCLUDED.company_id,
+  billed_upto_date=EXCLUDED.billed_upto_date,
+  error=EXCLUDED.error,
+  scheme=EXCLUDED.scheme,
+  apportionment=EXCLUDED.apportionment,
+  change_reason_id=EXCLUDED.change_reason_id,
+  date_updated=NOW()
+`;
+
+// exports.importChargeVersions = importChargeVersions;
 exports.cleanupChargeVersions = cleanupChargeVersions;
 exports.importChargeElements = importChargeElements;
 exports.cleanupChargeElements = cleanupChargeElements;
 exports.importChargeAgreements = importChargeAgreements;
+exports.getNonDraftChargeVersionsForLicence = getNonDraftChargeVersionsForLicence;
+exports.insertChargeVersion = insertChargeVersion;

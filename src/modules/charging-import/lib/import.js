@@ -1,10 +1,12 @@
+'use strict';
+
 const { pool } = require('../../../lib/connectors/db');
 const chargingQueries = require('./queries/charging');
 const purposesQueries = require('./queries/purposes');
 const returnVersionQueries = require('./queries/return-versions');
 const financialAgreementTypeQueries = require('./queries/financial-agreement-types');
 const { logger } = require('../../../logger');
-const checkIntegrity = require('./check-integrity');
+const chargeVersionImportService = require('../services/charge-version-import');
 
 const importQueries = [
   financialAgreementTypeQueries.importFinancialAgreementTypes,
@@ -12,10 +14,8 @@ const importQueries = [
   purposesQueries.importSecondaryPurposes,
   purposesQueries.importUses,
   purposesQueries.importValidPurposeCombinations,
-  chargingQueries.importChargeVersions,
   chargingQueries.importChargeElements,
   chargingQueries.cleanupChargeElements,
-  chargingQueries.cleanupChargeVersions,
   returnVersionQueries.importReturnVersions,
   returnVersionQueries.importReturnRequirements,
   returnVersionQueries.importReturnRequirementPurposes
@@ -30,16 +30,10 @@ const importChargingData = async () => {
   try {
     logger.info('Starting charge data import');
 
+    await chargeVersionImportService.importChargeVersions();
+
     for (const query of importQueries) {
       await pool.query(query);
-    }
-
-    logger.info('Charge data imported, verifying');
-
-    const result = await checkIntegrity.verify();
-
-    if (result.totalErrors > 0) {
-      logger.error('Error in charge data import', result);
     }
 
     logger.info('Charge data import complete');
