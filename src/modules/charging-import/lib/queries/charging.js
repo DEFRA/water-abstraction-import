@@ -1,17 +1,5 @@
 'use strict';
 
-// Deletes charge versions that are no longer present in the NALD import
-const cleanupChargeVersions = `DELETE FROM water.charge_versions WHERE charge_version_id IN (
-  select cv.charge_version_id 
-    from water.charge_versions cv 
-      left join water.billing_batch_charge_version_years bcvy on cv.charge_version_id=bcvy.charge_version_id
-      left join import."NALD_CHG_VERSIONS" ncv on concat_ws(':', ncv."FGAC_REGION_CODE", ncv."AABL_ID", ncv."VERS_NO")=cv.external_id
-    where cv.source='nald'
-      and bcvy.billing_batch_charge_version_year_id is null
-      and ncv."AABL_ID" is null
-      and external_id is null
-);`;
-
 const importChargeElements = `INSERT INTO water.charge_elements
 (charge_version_id, external_id, abstraction_period_start_day, abstraction_period_start_month,
 abstraction_period_end_day, abstraction_period_end_month, authorised_annual_quantity, season, season_derived,
@@ -89,40 +77,6 @@ WHERE charge_element_id IN (
     and bv.billing_volume_id is null 
 );`;
 
-const importChargeAgreements = `INSERT INTO water.charge_agreements
-(charge_agreement_id, charge_element_id, agreement_code, start_date,
-end_date, signed_date, file_reference, description, date_created,
-date_updated)
-SELECT
-  ia.charge_agreement_id,
-  ie.charge_element_id,
-  a."AFSA_CODE" AS agreement_code,
-  to_date(a."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date,
-  case a."EFF_END_DATE"
-    when 'null' then null
-    else to_date(a."EFF_END_DATE", 'DD/MM/YYYY')
-  end AS end_date,
-  case a."SIGNED_DATE"
-    when 'null' then null
-    else to_date(a."SIGNED_DATE", 'DD/MM/YYYY')
-  end AS signed_date,
-  NULLIF(a."FILE_REF", 'null') AS file_reference,
-  NULLIF(a."TEXT", 'null') AS description,
-  NOW() AS date_created,
-  NOW() AS date_updated
-FROM import."NALD_CHG_AGRMNTS" a
-  JOIN water_import.charge_agreements ia
-    ON a."ACEL_ID"::integer = ia.element_id
-      AND to_date(a."EFF_ST_DATE", 'DD/MM/YYYY') = ia.start_date
-      AND a."FGAC_REGION_CODE"::integer=ia.region_code
-      AND a."AFSA_CODE"=ia.afsa_code
-  JOIN water_import.charge_elements ie
-    ON a."ACEL_ID"::integer=ie.element_id
-      AND a."FGAC_REGION_CODE"::integer=ie.region_code
-WHERE a."AFSA_CODE" NOT IN ('S127', 'S130S', 'S130T', 'S130U', 'S130W') ON CONFLICT (charge_agreement_id) DO UPDATE SET charge_element_id=EXCLUDED.charge_element_id,
-agreement_code=EXCLUDED.agreement_code, start_date=EXCLUDED.start_date, end_date= EXCLUDED.end_date, signed_date=EXCLUDED.signed_date,
-file_reference=EXCLUDED.file_reference, description=EXCLUDED.description, date_updated=EXCLUDED.date_updated;`;
-
 const getNonDraftChargeVersionsForLicence = `SELECT
   l."LIC_NO" AS licence_ref,
   wl.licence_id,
@@ -178,9 +132,7 @@ on conflict (external_id) do update set
   date_updated=NOW()
 `;
 
-exports.cleanupChargeVersions = cleanupChargeVersions;
 exports.importChargeElements = importChargeElements;
 exports.cleanupChargeElements = cleanupChargeElements;
-exports.importChargeAgreements = importChargeAgreements;
 exports.getNonDraftChargeVersionsForLicence = getNonDraftChargeVersionsForLicence;
 exports.insertChargeVersion = insertChargeVersion;
