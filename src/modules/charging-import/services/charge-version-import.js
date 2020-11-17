@@ -77,6 +77,13 @@ const cleanup = (licence, chargeVersions) => {
   return pool.query(query, params);
 };
 
+const persistChargeVersions = async wrlsChargeVersions => {
+  // Insert to water.charge_versions DB table
+  for (const wrlsChargeVersion of wrlsChargeVersions) {
+    await insertChargeVersion(wrlsChargeVersion);
+  }
+};
+
 const importChargeVersions = async () => {
   const changeReasonId = await getChangeReasonId();
 
@@ -90,13 +97,10 @@ const importChargeVersions = async () => {
       // Map to WRLS charge versions
       const wrlsChargeVersions = mapper.mapNALDChargeVersionsToWRLS(licence, chargeVersions, changeReasonId);
 
-      // Insert to water.charge_versions DB table
-      for (const wrlsChargeVersion of wrlsChargeVersions) {
-        await insertChargeVersion(wrlsChargeVersion);
-      }
-
-      // Clean up unwanted charge versions
-      await cleanup(licence, wrlsChargeVersions);
+      await Promise.all([
+        persistChargeVersions(wrlsChargeVersions),
+        cleanup(licence, wrlsChargeVersions)
+      ]);
     } catch (err) {
       logger.error(`Error importing charge versions for licence ${licence.LIC_NO}`, err);
     }

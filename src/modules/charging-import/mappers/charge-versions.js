@@ -9,6 +9,8 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 const STATUS_SUPERSEDED = 'superseded';
 const STATUS_CURRENT = 'current';
 
+const PERIOD_DAY = 'day';
+
 /**
  * Whether this charge version is considered an "error"
  * This is either:
@@ -54,7 +56,7 @@ const mapChargeVersionEndDate = (chargeVersion, index, arr) => {
   if (!nextRow || isErrorChargeVersion(chargeVersion, nextRow)) {
     return chargeVersion;
   }
-  const maxEndDate = moment(nextRow.start_date, DATE_FORMAT).subtract(1, 'day').format(DATE_FORMAT);
+  const maxEndDate = moment(nextRow.start_date, DATE_FORMAT).subtract(1, PERIOD_DAY).format(DATE_FORMAT);
   const endDate = dateHelpers.getMinDate([chargeVersion.end_date, maxEndDate]).format(DATE_FORMAT);
   return {
     ...chargeVersion,
@@ -71,8 +73,8 @@ const mapChargeVersionEndDate = (chargeVersion, index, arr) => {
 const getMaxVersionNumber = chargeVersions =>
   Math.max(...chargeVersions.map(cv => cv.version_number), 0);
 
-const getPreviousDay = str => moment(str).subtract(1, 'day').format(DATE_FORMAT);
-const getNextDay = str => moment(str).add(1, 'day').format(DATE_FORMAT);
+const getPreviousDay = str => moment(str).subtract(1, PERIOD_DAY).format(DATE_FORMAT);
+const getNextDay = str => moment(str).add(1, PERIOD_DAY).format(DATE_FORMAT);
 
 const isCurrentChargeVersion = chargeVersion => chargeVersion.status === STATUS_CURRENT;
 
@@ -96,10 +98,13 @@ const getChargeVersionHistoryGaps = (licence, chargeVersions) => {
     return [createGap(licence.start_date, licence.end_date, `${licence.FGAC_REGION_CODE}:${licence.ID}:licenceStart-licenceEnd`)];
   }
 
+  const licenceStart = moment(licence.start_date);
+  const licenceEnd = isNull(licence.end_date) ? null : moment(licence.end_date);
+
   return currentChargeVersions
     .reduce((acc, chargeVersion, i, source) => {
       // Gap between licence start date and first charge version
-      if (i === 0 && licence.start_date !== chargeVersion.start_date) {
+      if (i === 0 && licenceStart.isBefore(chargeVersion.start_date, PERIOD_DAY)) {
         acc.push(
           createGap(licence.start_date, getPreviousDay(chargeVersion.start_date), `${licence.FGAC_REGION_CODE}:${licence.ID}:licenceStart`)
         );
@@ -116,8 +121,7 @@ const getChargeVersionHistoryGaps = (licence, chargeVersions) => {
       }
 
       // Gap between last charge version and licence end date
-      const isNotLicenceEndDateMatch = chargeVersion.end_date !== licence.end_date;
-      if (!next && !isNull(chargeVersion.end_date) && isNotLicenceEndDateMatch) {
+      if (!next && !isNull(chargeVersion.end_date) && (isNull(licenceEnd) || licenceEnd.isAfter(chargeVersion.end_date, PERIOD_DAY))) {
         acc.push(
           createGap(getNextDay(chargeVersion.end_date), licence.end_date, `${licence.FGAC_REGION_CODE}:${licence.ID}:licenceEnd`)
         );

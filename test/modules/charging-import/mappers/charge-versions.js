@@ -14,7 +14,7 @@ const getLicence = (overrides = {}) => ({
   ID: '1',
   licence_id: WATER_LICENCE_ID,
   LIC_NO: '01/234/ABC',
-  FGAC_REGION: '1',
+  FGAC_REGION_CODE: '1',
   start_date: '2018-01-01',
   end_date: overrides.end_date || null
 });
@@ -180,6 +180,37 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
         expect(cv.end_date).to.equal(null);
         expect(cv.status).to.equal(STATUS_CURRENT);
         expect(cv.licence_id).to.equal(WATER_LICENCE_ID);
+      });
+    });
+
+    experiment('when a charge version pre-dates the licence start date', () => {
+      beforeEach(async () => {
+        const licence = getLicence();
+        const chargeVersions = [
+          {
+            external_id: '1:1:1',
+            status: STATUS_SUPERSEDED,
+            version_number: 1,
+            start_date: '1979-01-01',
+            end_date: '2018-03-31',
+            licence_id: WATER_LICENCE_ID
+          },
+          {
+            external_id: '1:1:2',
+            status: STATUS_CURRENT,
+            version_number: 2,
+            start_date: '2018-04-01',
+            end_date: null,
+            licence_id: WATER_LICENCE_ID
+          }
+        ];
+        result = mapper.mapNALDChargeVersionsToWRLS(licence, chargeVersions, NALD_GAP_ID);
+      });
+
+      test('does not insert nald gap charge versions', async () => {
+        expect(result).to.be.an.array().length(2);
+        const ids = result.map(row => row.external_id);
+        expect(ids).to.only.include(['1:1:1', '1:1:2']);
       });
     });
   });
