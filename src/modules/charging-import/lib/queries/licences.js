@@ -14,7 +14,7 @@ least(
 ) as end_date
 FROM import."NALD_ABS_LICENCES" l 
 JOIN water.licences wl on l."LIC_NO"=wl.licence_ref
-WHERE "ORIG_EFF_DATE"<>'null'
+WHERE "ORIG_EFF_DATE"<>'null';
 `;
 
 exports.getLicences = getLicences;

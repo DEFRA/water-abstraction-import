@@ -213,5 +213,46 @@ experiment('modules/charging-import/mappers/charge-versions.js', () => {
         expect(ids).to.only.include(['1:1:1', '1:1:2']);
       });
     });
+
+    experiment('when a charge version has the same start and end dates, and the same start date as the following charge version', () => {
+      beforeEach(async () => {
+        const licence = getLicence();
+        const chargeVersions = [
+          {
+            external_id: '1:1:1',
+            status: STATUS_SUPERSEDED,
+            version_number: 1,
+            start_date: '2018-01-01',
+            end_date: '2018-01-01',
+            licence_id: WATER_LICENCE_ID
+          },
+          {
+            external_id: '1:1:2',
+            status: STATUS_CURRENT,
+            version_number: 2,
+            start_date: '2018-01-01',
+            end_date: null,
+            licence_id: WATER_LICENCE_ID
+          }
+        ];
+        result = mapper.mapNALDChargeVersionsToWRLS(licence, chargeVersions, NALD_GAP_ID);
+      });
+
+      test('there are 2 charge versions', async () => {
+        expect(result).to.be.an.array().length(2);
+      });
+
+      test('the first charge version has its dates unchanged', async () => {
+        expect(result[0].start_date).to.equal('2018-01-01');
+        expect(result[0].end_date).to.equal('2018-01-01');
+        expect(result[0].status).to.equal(STATUS_SUPERSEDED);
+      });
+
+      test('the second charge version has its dates unchanged', async () => {
+        expect(result[1].start_date).to.equal('2018-01-01');
+        expect(result[1].end_date).to.equal(null);
+        expect(result[1].status).to.equal(STATUS_CURRENT);
+      });
+    });
   });
 });

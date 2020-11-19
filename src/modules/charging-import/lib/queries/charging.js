@@ -106,7 +106,7 @@ JOIN water.licences wl ON l."LIC_NO"=wl.licence_ref
 WHERE v."FGAC_REGION_CODE"=$1 and v."AABL_ID"=$2 and v."STATUS"<>'DRAFT'
 ORDER BY 
   to_date(v."EFF_ST_DATE", 'DD/MM/YYYY'),
-  v."VERS_NO"::integer
+  v."VERS_NO"::integer;
 `;
 
 const insertChargeVersion = `
@@ -129,7 +129,7 @@ on conflict (external_id) do update set
   scheme=EXCLUDED.scheme,
   apportionment=EXCLUDED.apportionment,
   change_reason_id=EXCLUDED.change_reason_id,
-  date_updated=NOW()
+  date_updated=NOW();
 `;
 
 exports.importChargeElements = importChargeElements;
