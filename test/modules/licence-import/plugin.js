@@ -96,7 +96,7 @@ experiment('modules/licence-import/plugin.js', () => {
 
       test('schedules a cron job at 16 on Monday, Wednesday, and Friday in non-production environments', async () => {
         expect(cron.schedule.calledWith(
-          '0 16 * * 1,3,5'
+          '0 16 * * 1,2,3,4,5'
         )).to.be.true();
       });
     });
