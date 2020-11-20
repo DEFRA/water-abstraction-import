@@ -5,7 +5,6 @@ const mapper = require('../mappers/charge-versions');
 const queries = {
   charging: require('../lib/queries/charging'),
   licence: require('../lib/queries/licences'),
-  changeReasons: require('../lib/queries/change-reasons'),
   chargeVersionMetatdata: require('../lib/queries/charge-versions-metadata')
 };
 
@@ -21,15 +20,6 @@ const { pool } = require('../../../lib/connectors/db');
  */
 const getNonDraftChargeVersions = (regionCode, licenceId) =>
   pool.query(queries.charging.getNonDraftChargeVersionsForLicence, [regionCode, licenceId]);
-
-/**
-  * Gets the GUID of the "NALD Gap" change reason in the water service
-  * @return {Promise<Number>}
-  */
-const getChangeReasonId = async () => {
-  const { rows: [changeReason] } = await pool.query(queries.changeReasons.getNALDGapChangeReason);
-  return changeReason.change_reason_id;
-};
 
 /**
  * Inserts a single charge version record into the water.charge_versions DB table
@@ -76,8 +66,6 @@ const persistChargeVersionMetadata = async wrlsChargeVersions => {
 };
 
 const importChargeVersions = async () => {
-  const changeReasonId = await getChangeReasonId();
-
   const { rows: licences } = await pool.query(queries.licence.getLicences);
 
   for (const licence of licences) {
@@ -86,7 +74,7 @@ const importChargeVersions = async () => {
       const { rows: chargeVersions } = await getNonDraftChargeVersions(licence.FGAC_REGION_CODE, licence.ID);
 
       // Map to WRLS charge versions
-      const wrlsChargeVersions = mapper.mapNALDChargeVersionsToWRLS(licence, chargeVersions, changeReasonId);
+      const wrlsChargeVersions = mapper.mapNALDChargeVersionsToWRLS(licence, chargeVersions);
 
       await persistChargeVersionMetadata(wrlsChargeVersions);
       await cleanup(licence, wrlsChargeVersions);

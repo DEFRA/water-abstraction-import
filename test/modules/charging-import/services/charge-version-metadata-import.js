@@ -11,11 +11,8 @@ const { pool } = require('../../../../src/lib/connectors/db');
 const queries = {
   charging: require('../../../../src/modules/charging-import/lib/queries/charging'),
   licence: require('../../../../src/modules/charging-import/lib/queries/licences'),
-  changeReasons: require('../../../../src/modules/charging-import/lib/queries/change-reasons'),
   chargeVersionMetadata: require('../../../../src/modules/charging-import/lib/queries/charge-versions-metadata')
 };
-
-const NALD_GAP_ID = 'nald-gap-change-reason-id';
 
 const REGION_CODE = 1;
 const LICENCE_ID = 'test-licence-id';
@@ -62,12 +59,6 @@ experiment('modules/charging-import/services/charge-version-import.js', () => {
 
   experiment('.importChargeVersions', () => {
     beforeEach(async () => {
-      pool.query.withArgs(queries.changeReasons.getNALDGapChangeReason).resolves({
-        rows: [{
-          change_reason_id: NALD_GAP_ID
-        }]
-      });
-
       pool.query.withArgs(queries.licence.getLicences).resolves({
         rows: [licence]
       });
@@ -81,10 +72,6 @@ experiment('modules/charging-import/services/charge-version-import.js', () => {
       });
 
       await chargeVersionMetadataImport.importChargeVersions();
-    });
-
-    test('the NALD gap change reason ID is fetched', async () => {
-      expect(pool.query.calledWith(queries.changeReasons.getNALDGapChangeReason)).to.be.true();
     });
 
     test('the licences are fetched', async () => {
