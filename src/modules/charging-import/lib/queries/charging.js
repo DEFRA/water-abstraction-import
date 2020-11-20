@@ -141,36 +141,36 @@ SELECT
   cvm.version_number,
   cvm.start_date AS start_date,
   cvm.status::varchar::water.charge_version_status,
-CASE v."APPORTIONMENT"
+CASE sub."APPORTIONMENT"
   WHEN 'Y' THEN true
   WHEN 'N' THEN false
 END AS apportionment,
-CASE v."IN_ERROR_STATUS"
+CASE sub."IN_ERROR_STATUS"
   WHEN 'Y' THEN true
   WHEN 'N' THEN false
 END AS error,
 cvm.end_date AS end_date,
-CASE v."BILLED_UPTO_DATE"
-  WHEN 'null' then null
-  ELSE to_date(v."BILLED_UPTO_DATE", 'DD/MM/YYYY')
-END AS billed_upto_date,
+to_date(nullif(sub."BILLED_UPTO_DATE", 'null'), 'DD/MM/YYYY') as billed_upto_date,
 split_part(cvm.external_id, ':', 1)::integer as region,
 NOW() AS date_created,
 NOW() AS date_updated,
 'nald' AS source,
-ia.invoice_account_id,
-c.company_id,
+sub.invoice_account_id,
+sub.company_id,
 wl.licence_id,
 CASE cvm.is_nald_gap
   WHEN TRUE THEN cr.change_reason_id
   ELSE NULL
 END AS change_reason_id
 FROM water_import.charge_versions_metadata cvm
-LEFT JOIN import."NALD_CHG_VERSIONS" v on cvm.external_id = concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO")
+LEFT JOIN (
+	SELECT v.*, c.company_id, ia.invoice_account_id, concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO") as external_id
+	FROM import."NALD_CHG_VERSIONS" v 
+	JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_REF"
+	JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
+	JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
+) sub on cvm.external_id=sub.external_id
 JOIN import."NALD_ABS_LICENCES" l ON split_part(cvm.external_id, ':', 1)=l."FGAC_REGION_CODE" and split_part(cvm.external_id, ':', 2)=l."ID"
-JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_REF"
-JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
-JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
 JOIN water.licences wl on wl.licence_ref = l."LIC_NO"
 JOIN water.change_reasons cr on cr.description='NALD gap'
 ON CONFLICT (external_id) DO UPDATE SET licence_ref=EXCLUDED.licence_ref,
