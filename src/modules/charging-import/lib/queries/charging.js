@@ -133,18 +133,14 @@ on conflict (external_id) do update set
 `;
 
 const importChargeVersions = `INSERT INTO water.charge_versions (licence_ref, scheme, external_id, version_number, start_date, status, apportionment,
-error, end_date, billed_upto_date, region_code, date_created, date_updated, source, invoice_account_id, company_id, licence_id)
+error, end_date, billed_upto_date, region_code, date_created, date_updated, source, invoice_account_id, company_id, licence_id, change_reason_id)
 SELECT
   l."LIC_NO" AS licence_ref,
   'alcs' AS scheme,
   concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO") as external_id,
   v."VERS_NO"::integer AS version_number,
-  to_date(v."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date,
-(CASE v."STATUS"
-  WHEN 'SUPER' THEN 'superseded'
-  WHEN 'DRAFT' THEN 'draft'
-  WHEN 'CURR' THEN 'current'
-END)::water.charge_version_status AS status,
+  cvm.start_date AS start_date,
+  cvm.status::water.charge_version_status
 CASE v."APPORTIONMENT"
   WHEN 'Y' THEN true
   WHEN 'N' THEN false
@@ -153,28 +149,30 @@ CASE v."IN_ERROR_STATUS"
   WHEN 'Y' THEN true
   WHEN 'N' THEN false
 END AS error,
-case v."EFF_END_DATE"
-  when 'null' then null
-  else to_date(v."EFF_END_DATE", 'DD/MM/YYYY')
-end AS end_date,
-case v."BILLED_UPTO_DATE"
-  when 'null' then null
-  else to_date(v."BILLED_UPTO_DATE", 'DD/MM/YYYY')
-end AS billed_upto_date,
+cvm.end_date AS end_date,
+CASE v."BILLED_UPTO_DATE"
+  WHEN 'null' then null
+  ELSE to_date(v."BILLED_UPTO_DATE", 'DD/MM/YYYY')
+END AS billed_upto_date,
 v."FGAC_REGION_CODE"::integer AS region,
 NOW() AS date_created,
 NOW() AS date_updated,
 'nald' AS source,
 ia.invoice_account_id,
 c.company_id,
-wl.licence_id
-FROM import."NALD_CHG_VERSIONS" v
-    JOIN water_import.charge_versions_metadata cvm ON cvm.external_id = concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO")
+wl.licence_id,
+CASE cvm.is_nald_gap
+  WHEN TRUE THEN cr.change_reason_id
+  ELSE NULL
+END AS change_reason_id 
+FROM water_import.charge_versions_metadata cvm
+LEFT JOIN import."NALD_CHG_VERSIONS" v on cvm.external_id = concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO")
 JOIN import."NALD_ABS_LICENCES" l ON v."AABL_ID"=l."ID" AND v."FGAC_REGION_CODE"=l."FGAC_REGION_CODE"
 JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_REF"
 JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
 JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
 JOIN water.licences wl on wl.licence_ref = l."LIC_NO"
+JOIN water.change_reasons cr on cr.change_reason='NALD gap'
 ON CONFLICT (external_id) DO UPDATE SET licence_ref=EXCLUDED.licence_ref,
 scheme=EXCLUDED.scheme,
 version_number=EXCLUDED.version_number, start_date=EXCLUDED.start_date,
