@@ -12,7 +12,7 @@ const importChargeVersionMetadata = async () => {
   try {
     logger.info('Starting charge version metadata import');
 
-    await chargeVersionImportService.importChargeVersions();
+    await chargeVersionImportService.importChargeVersionMetadata();
 
     logger.info('Charge version metadata import complete');
   } catch (err) {

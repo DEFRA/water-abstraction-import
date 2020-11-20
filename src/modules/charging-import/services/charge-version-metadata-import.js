@@ -65,7 +65,7 @@ const persistChargeVersionMetadata = async wrlsChargeVersions => {
   }
 };
 
-const importChargeVersions = async () => {
+const importChargeVersionMetadata = async () => {
   const { rows: licences } = await pool.query(queries.licence.getLicences);
 
   for (const licence of licences) {
@@ -84,4 +84,4 @@ const importChargeVersions = async () => {
   }
 };
 
-exports.importChargeVersions = importChargeVersions;
+exports.importChargeVersionMetadata = importChargeVersionMetadata;

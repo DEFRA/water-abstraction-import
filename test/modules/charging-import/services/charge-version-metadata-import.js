@@ -71,7 +71,7 @@ experiment('modules/charging-import/services/charge-version-import.js', () => {
         ]
       });
 
-      await chargeVersionMetadataImport.importChargeVersions();
+      await chargeVersionMetadataImport.importChargeVersionMetadata();
     });
 
     test('the licences are fetched', async () => {
