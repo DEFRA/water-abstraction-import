@@ -172,7 +172,7 @@ JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_RE
 JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
 JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
 JOIN water.licences wl on wl.licence_ref = l."LIC_NO"
-JOIN water.change_reasons cr on cr.change_reason='NALD gap'
+JOIN water.change_reasons cr on cr.description='NALD gap'
 ON CONFLICT (external_id) DO UPDATE SET licence_ref=EXCLUDED.licence_ref,
 scheme=EXCLUDED.scheme,
 version_number=EXCLUDED.version_number, start_date=EXCLUDED.start_date,
