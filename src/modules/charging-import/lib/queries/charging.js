@@ -140,7 +140,7 @@ SELECT
   concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO") as external_id,
   v."VERS_NO"::integer AS version_number,
   cvm.start_date AS start_date,
-  cvm.status::water.charge_version_status
+  cvm.status::water.charge_version_status,
 CASE v."APPORTIONMENT"
   WHEN 'Y' THEN true
   WHEN 'N' THEN false
