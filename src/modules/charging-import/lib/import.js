@@ -13,11 +13,13 @@ const importQueries = [
   purposesQueries.importSecondaryPurposes,
   purposesQueries.importUses,
   purposesQueries.importValidPurposeCombinations,
+  chargingQueries.importChargeVersions,
   chargingQueries.importChargeElements,
   chargingQueries.cleanupChargeElements,
   returnVersionQueries.importReturnVersions,
   returnVersionQueries.importReturnRequirements,
-  returnVersionQueries.importReturnRequirementPurposes
+  returnVersionQueries.importReturnRequirementPurposes,
+  chargingQueries.cleanupChargeVersions
 ];
 
 /**
