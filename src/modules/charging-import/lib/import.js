@@ -6,7 +6,6 @@ const purposesQueries = require('./queries/purposes');
 const returnVersionQueries = require('./queries/return-versions');
 const financialAgreementTypeQueries = require('./queries/financial-agreement-types');
 const { logger } = require('../../../logger');
-const chargeVersionImportService = require('../services/charge-version-metadata-import');
 
 const importQueries = [
   financialAgreementTypeQueries.importFinancialAgreementTypes,
@@ -29,8 +28,6 @@ const importQueries = [
 const importChargingData = async () => {
   try {
     logger.info('Starting charge data import');
-
-    await chargeVersionImportService.importChargeVersions();
 
     for (const query of importQueries) {
       await pool.query(query);

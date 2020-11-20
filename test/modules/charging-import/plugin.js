@@ -7,6 +7,7 @@ const cron = require('node-cron');
 const { plugin } = require('../../../src/modules/charging-import/plugin');
 const jobs = require('../../../src/modules/charging-import/jobs');
 const chargingImport = require('../../../src/modules/charging-import/lib/import.js');
+const chargeVersionMetadataImport = require('../../../src/modules/charging-import/lib/import-charge-version-metadata.js');
 
 const { expect } = require('@hapi/code');
 
@@ -51,6 +52,12 @@ experiment('modules/charging-import/plugin.js', () => {
         )).to.be.true();
       });
 
+      test('adds subscriber for import charge version metadata job', async () => {
+        expect(server.messageQueue.subscribe.calledWith(
+          jobs.IMPORT_CHARGE_VERSION_METADATA, chargeVersionMetadataImport.importChargeVersionMetadata
+        )).to.be.true();
+      });
+
       test('schedules a cron job to run the import at 2pm on Mon, Wed and Fri in non-prod environments', async () => {
         const [schedule] = cron.schedule.lastCall.args;
         expect(schedule).to.equal('0 14 * * 1,3,5');
@@ -66,7 +73,7 @@ experiment('modules/charging-import/plugin.js', () => {
       });
 
       test('subscribers are bound', async () => {
-        expect(server.messageQueue.subscribe.callCount).to.equal(1);
+        expect(server.messageQueue.subscribe.callCount).to.equal(2);
       });
 
       test('cron job is scheduled', async () => {
