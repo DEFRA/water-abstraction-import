@@ -6,7 +6,7 @@ const purposesQueries = require('./queries/purposes');
 const returnVersionQueries = require('./queries/return-versions');
 const financialAgreementTypeQueries = require('./queries/financial-agreement-types');
 const { logger } = require('../../../logger');
-const chargeVersionImportService = require('../services/charge-version-import');
+const chargeVersionImportService = require('../services/charge-version-metadata-import');
 
 const importQueries = [
   financialAgreementTypeQueries.importFinancialAgreementTypes,

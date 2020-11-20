@@ -9,14 +9,14 @@ const chargingQueries = require('../../../../src/modules/charging-import/lib/que
 const returnVersionQueries = require('../../../../src/modules/charging-import/lib/queries/return-versions');
 const financialAgreementTypeQueries = require('../../../../src/modules/charging-import/lib/queries/financial-agreement-types');
 const purposesQueries = require('../../../../src/modules/charging-import/lib/queries/purposes');
-const chargeVersionImportService = require('../../../../src/modules/charging-import/services/charge-version-import');
+const chargeVersionMetadataImportService = require('../../../../src/modules/charging-import/services/charge-version-metadata-import');
 
 experiment('modules/charging-import/index.js', () => {
   beforeEach(async () => {
     sandbox.stub(logger, 'info');
     sandbox.stub(logger, 'error');
     sandbox.stub(pool, 'query');
-    sandbox.stub(chargeVersionImportService, 'importChargeVersions');
+    sandbox.stub(chargeVersionMetadataImportService, 'importChargeVersions');
   });
 
   afterEach(async () => {
@@ -42,7 +42,7 @@ experiment('modules/charging-import/index.js', () => {
       });
 
       test('runs the charge version import process', async () => {
-        expect(chargeVersionImportService.importChargeVersions.called).to.be.true();
+        expect(chargeVersionMetadataImportService.importChargeVersions.called).to.be.true();
       });
 
       test('logs info messages', async () => {

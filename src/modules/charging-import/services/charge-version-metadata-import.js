@@ -5,7 +5,8 @@ const mapper = require('../mappers/charge-versions');
 const queries = {
   charging: require('../lib/queries/charging'),
   licence: require('../lib/queries/licences'),
-  changeReasons: require('../lib/queries/change-reasons')
+  changeReasons: require('../lib/queries/change-reasons'),
+  chargeVersionMetatdata: require('../lib/queries/charge-versions-metadata')
 };
 
 const { logger } = require('../../../logger');
@@ -35,26 +36,16 @@ const getChangeReasonId = async () => {
  * @param {Object} chargeVersion
  * @return {Promise}
  */
-const insertChargeVersion = chargeVersion => {
+const insertChargeVersionMetadata = chargeVersion => {
   const params = [
+    chargeVersion.external_id,
+    chargeVersion.version_number,
     chargeVersion.start_date,
     chargeVersion.end_date,
     chargeVersion.status,
-    chargeVersion.licence_ref,
-    chargeVersion.region,
-    chargeVersion.source,
-    chargeVersion.version_number,
-    chargeVersion.invoice_account_id,
-    chargeVersion.company_id,
-    chargeVersion.billed_upto_date,
-    chargeVersion.error,
-    chargeVersion.scheme,
-    chargeVersion.external_id,
-    chargeVersion.apportionment,
-    chargeVersion.change_reason_id || null,
-    chargeVersion.licence_id
+    chargeVersion.is_nald_gap || false
   ];
-  return pool.query(queries.charging.insertChargeVersion, params);
+  return pool.query(queries.chargeVersionMetatdata.insertChargeVersionMetadata, params);
 };
 
 const createParam = i => `$${i + 1}`;
@@ -66,9 +57,9 @@ const createParam = i => `$${i + 1}`;
  * @return {Promise}
  */
 const cleanup = (licence, chargeVersions) => {
-  const params = [licence.LIC_NO];
+  const params = [`${licence.FGAC_REGION_CODE}:${licence.ID}:%`];
   const externalIds = chargeVersions.map(chargeVersion => chargeVersion.external_id);
-  let query = "delete from water.charge_versions where licence_ref=$1 and source='nald'";
+  let query = 'delete from water_import.charge_versions_metadata where external_id like $1';
 
   if (externalIds.length) {
     params.push(...externalIds);
@@ -77,10 +68,10 @@ const cleanup = (licence, chargeVersions) => {
   return pool.query(query, params);
 };
 
-const persistChargeVersions = async wrlsChargeVersions => {
+const persistChargeVersionMetadata = async wrlsChargeVersions => {
   // Insert to water.charge_versions DB table
   for (const wrlsChargeVersion of wrlsChargeVersions) {
-    await insertChargeVersion(wrlsChargeVersion);
+    await insertChargeVersionMetadata(wrlsChargeVersion);
   }
 };
 
@@ -97,10 +88,8 @@ const importChargeVersions = async () => {
       // Map to WRLS charge versions
       const wrlsChargeVersions = mapper.mapNALDChargeVersionsToWRLS(licence, chargeVersions, changeReasonId);
 
-      await Promise.all([
-        persistChargeVersions(wrlsChargeVersions),
-        cleanup(licence, wrlsChargeVersions)
-      ]);
+      await persistChargeVersionMetadata(wrlsChargeVersions);
+      await cleanup(licence, wrlsChargeVersions);
     } catch (err) {
       logger.error(`Error importing charge versions for licence ${licence.LIC_NO}`, err);
     }

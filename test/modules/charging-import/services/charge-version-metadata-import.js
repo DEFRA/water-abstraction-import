@@ -5,13 +5,14 @@ const { expect } = require('@hapi/code');
 
 const sandbox = require('sinon').createSandbox();
 
-const chargeVersionImport = require('../../../../src/modules/charging-import/services/charge-version-import');
+const chargeVersionMetadataImport = require('../../../../src/modules/charging-import/services/charge-version-metadata-import');
 const { pool } = require('../../../../src/lib/connectors/db');
 
 const queries = {
   charging: require('../../../../src/modules/charging-import/lib/queries/charging'),
   licence: require('../../../../src/modules/charging-import/lib/queries/licences'),
-  changeReasons: require('../../../../src/modules/charging-import/lib/queries/change-reasons')
+  changeReasons: require('../../../../src/modules/charging-import/lib/queries/change-reasons'),
+  chargeVersionMetadata: require('../../../../src/modules/charging-import/lib/queries/charge-versions-metadata')
 };
 
 const NALD_GAP_ID = 'nald-gap-change-reason-id';
@@ -37,6 +38,16 @@ const chargeVersionRow = {
   error: false,
   billed_upto_date: '2020-03-31',
   region: REGION_CODE,
+  licence_id: WATER_LICENCE_ID,
+  is_nald_gap: false
+};
+
+const licence = {
+  ID: LICENCE_ID,
+  LIC_NO: LICENCE_NUMBER,
+  FGAC_REGION_CODE: REGION_CODE,
+  start_date: START_DATE,
+  end_date: null,
   licence_id: WATER_LICENCE_ID
 };
 
@@ -58,14 +69,7 @@ experiment('modules/charging-import/services/charge-version-import.js', () => {
       });
 
       pool.query.withArgs(queries.licence.getLicences).resolves({
-        rows: [{
-          ID: LICENCE_ID,
-          LIC_NO: LICENCE_NUMBER,
-          FGAC_REGION_CODE: REGION_CODE,
-          start_date: START_DATE,
-          end_date: null,
-          licence_id: WATER_LICENCE_ID
-        }]
+        rows: [licence]
       });
 
       pool.query.withArgs(
@@ -76,7 +80,7 @@ experiment('modules/charging-import/services/charge-version-import.js', () => {
         ]
       });
 
-      await chargeVersionImport.importChargeVersions();
+      await chargeVersionMetadataImport.importChargeVersions();
     });
 
     test('the NALD gap change reason ID is fetched', async () => {
@@ -96,33 +100,23 @@ experiment('modules/charging-import/services/charge-version-import.js', () => {
 
     test('the mapped charge versions are persisted', async () => {
       expect(pool.query.calledWith(
-        queries.charging.insertChargeVersion,
+        queries.chargeVersionMetadata.insertChargeVersionMetadata,
         [
-          START_DATE,
+          chargeVersionRow.external_id,
+          chargeVersionRow.version_number,
+          chargeVersionRow.start_date,
           chargeVersionRow.end_date,
           chargeVersionRow.status,
-          LICENCE_NUMBER,
-          REGION_CODE,
-          chargeVersionRow.source,
-          chargeVersionRow.version_number,
-          chargeVersionRow.invoice_account_id,
-          chargeVersionRow.company_id,
-          chargeVersionRow.billed_upto_date,
-          chargeVersionRow.error,
-          chargeVersionRow.scheme,
-          chargeVersionRow.external_id,
-          chargeVersionRow.apportionment,
-          null,
-          WATER_LICENCE_ID
+          chargeVersionRow.is_nald_gap
         ]
       )).to.be.true();
     });
 
     test('unwanted charge versions are cleaned up', async () => {
       const [query, params] = pool.query.lastCall.args;
-      expect(query).to.equal("delete from water.charge_versions where licence_ref=$1 and source='nald' and external_id not in ($2)");
+      expect(query).to.equal('delete from water_import.charge_versions_metadata where external_id like $1 and external_id not in ($2)');
       expect(params).to.equal([
-        LICENCE_NUMBER,
+        `${licence.FGAC_REGION_CODE}:${licence.ID}:%`,
         chargeVersionRow.external_id
       ]);
     });
