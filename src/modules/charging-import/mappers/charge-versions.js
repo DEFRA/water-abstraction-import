@@ -131,7 +131,7 @@ const getChargeVersionHistoryGaps = (licence, chargeVersions) => {
     }, []);
 };
 
-const mapHistoryGapToChargeVersion = (gap, licence, versionNumber, changeReasonId) => ({
+const mapHistoryGapToChargeVersion = (gap, licence, versionNumber) => ({
   start_date: gap.startDate,
   end_date: gap.endDate,
   status: STATUS_CURRENT,
@@ -145,10 +145,9 @@ const mapHistoryGapToChargeVersion = (gap, licence, versionNumber, changeReasonI
  * charge versions for import to WRLS
  * @param {Object} licence
  * @param {Array<Object>} chargeVersions
- * @param {String} changeReasonId
  * @return {Array<Object>} charge versions
  */
-const mapNALDChargeVersionsToWRLS = (licence, chargeVersions, changeReasonId) => {
+const mapNALDChargeVersionsToWRLS = (licence, chargeVersions) => {
   // Map NALD charge versions to WRLS (end dates and status can change)
   const wrlsChargeVersions = chargeVersions
     .map(mapChargeVersionEndDate)
@@ -157,7 +156,7 @@ const mapNALDChargeVersionsToWRLS = (licence, chargeVersions, changeReasonId) =>
   // Calculate non-chargeable date ranges
   const maxVersionNumber = getMaxVersionNumber(wrlsChargeVersions);
   const nonChargeableChargeVersions = getChargeVersionHistoryGaps(licence, wrlsChargeVersions)
-    .map((gap, i) => mapHistoryGapToChargeVersion(gap, licence, i + maxVersionNumber + 1, changeReasonId));
+    .map((gap, i) => mapHistoryGapToChargeVersion(gap, licence, i + maxVersionNumber + 1));
 
   // Combine and sort
   const arr = [

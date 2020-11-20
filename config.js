@@ -103,6 +103,9 @@ module.exports = {
       schedule: isProduction ? '0 4 * * 1,3,5' : '0 16 * * 1,3,5'
     },
     charging: {
+      schedule: isProduction ? '0 3 * * 1,3,5' : '0 15 * * 1,3,5'
+    },
+    chargeVersionMetadata: {
       schedule: isProduction ? '0 2 * * 1,3,5' : '0 14 * * 1,3,5'
     }
   },
