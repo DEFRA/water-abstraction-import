@@ -135,19 +135,9 @@ const mapHistoryGapToChargeVersion = (gap, licence, versionNumber, changeReasonI
   start_date: gap.startDate,
   end_date: gap.endDate,
   status: STATUS_CURRENT,
-  licence_ref: licence.LIC_NO,
-  region: parseInt(licence.FGAC_REGION_CODE),
-  source: 'nald',
   version_number: versionNumber,
-  invoice_account_id: null,
-  company_id: null,
-  billed_upto_date: null,
-  error: false,
-  scheme: 'alcs',
   external_id: gap.externalId,
-  apportionment: false,
-  change_reason_id: changeReasonId,
-  licence_id: licence.licence_id
+  is_nald_gap: true
 });
 
 /**
