@@ -12,10 +12,13 @@ const registerSubscribers = async server => {
   await server.messageQueue.subscribe(jobs.IMPORT_CHARGING_DATA, chargingImport.importChargingData);
   await server.messageQueue.subscribe(jobs.IMPORT_CHARGE_VERSION_METADATA, chargeVersionMetadataImport.importChargeVersionMetadata);
 
-  cron.schedule(config.import.charging.schedule, async () => {
-    await server.messageQueue.publish(jobs.importChargingData());
-    await server.messageQueue.publish(jobs.importChargeVersionMetadata());
-  });
+  cron.schedule(config.import.charging.schedule,
+    () => server.messageQueue.publish(jobs.importChargingData())
+  );
+
+  cron.schedule(config.import.chargeVersionMetadata.schedule,
+    () => server.messageQueue.publish(jobs.importChargeVersionMetadata())
+  );
 };
 
 exports.plugin = {

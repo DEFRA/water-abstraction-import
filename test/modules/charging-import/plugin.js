@@ -58,26 +58,35 @@ experiment('modules/charging-import/plugin.js', () => {
         )).to.be.true();
       });
 
-      test('schedules a cron job to run the import at 2pm on Mon, Wed and Fri in non-prod environments', async () => {
-        const [schedule] = cron.schedule.lastCall.args;
+      test('schedules a cron job at 3pm on Mon, Wed and Fri on non-prod environments to run the charging import', async () => {
+        const [schedule, func] = cron.schedule.firstCall.args;
+        expect(schedule).to.equal('0 15 * * 1,3,5');
+        func();
+        const [{ name }] = server.messageQueue.publish.lastCall.args;
+        expect(name).to.equal('import.charging-data');
+      });
+
+      test('schedules a cron job at 2pm on Mon, Wed and Fri on non-prod environments to run the charge version metadata import', async () => {
+        const [schedule, func] = cron.schedule.secondCall.args;
         expect(schedule).to.equal('0 14 * * 1,3,5');
+        func();
+        const [{ name }] = server.messageQueue.publish.lastCall.args;
+        expect(name).to.equal('import.charge-version-metadata');
       });
     });
 
     experiment('on production', () => {
       beforeEach(async () => {
-        sandbox.stub(process, 'env').value({
-          NODE_ENV: 'production'
-        });
-        plugin.register(server);
+        sandbox.stub(process.env, 'NODE_ENV').value('production');
+        await plugin.register(server);
       });
 
       test('subscribers are bound', async () => {
         expect(server.messageQueue.subscribe.callCount).to.equal(2);
       });
 
-      test('cron job is scheduled', async () => {
-        expect(cron.schedule.callCount).to.equal(1);
+      test('cron jobs are scheduled', async () => {
+        expect(cron.schedule.callCount).to.equal(2);
       });
     });
   });
