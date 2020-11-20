@@ -137,10 +137,10 @@ error, end_date, billed_upto_date, region_code, date_created, date_updated, sour
 SELECT
   l."LIC_NO" AS licence_ref,
   'alcs' AS scheme,
-  concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO") as external_id,
-  v."VERS_NO"::integer AS version_number,
+  cvm.external_id as external_id,
+  cvm.version_number,
   cvm.start_date AS start_date,
-  cvm.status::water.charge_version_status,
+  cvm.status::varchar::water.charge_version_status,
 CASE v."APPORTIONMENT"
   WHEN 'Y' THEN true
   WHEN 'N' THEN false
@@ -154,7 +154,7 @@ CASE v."BILLED_UPTO_DATE"
   WHEN 'null' then null
   ELSE to_date(v."BILLED_UPTO_DATE", 'DD/MM/YYYY')
 END AS billed_upto_date,
-v."FGAC_REGION_CODE"::integer AS region,
+split_part(cvm.external_id, ':', 1)::integer as region,
 NOW() AS date_created,
 NOW() AS date_updated,
 'nald' AS source,
@@ -164,10 +164,10 @@ wl.licence_id,
 CASE cvm.is_nald_gap
   WHEN TRUE THEN cr.change_reason_id
   ELSE NULL
-END AS change_reason_id 
+END AS change_reason_id
 FROM water_import.charge_versions_metadata cvm
 LEFT JOIN import."NALD_CHG_VERSIONS" v on cvm.external_id = concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO")
-JOIN import."NALD_ABS_LICENCES" l ON v."AABL_ID"=l."ID" AND v."FGAC_REGION_CODE"=l."FGAC_REGION_CODE"
+JOIN import."NALD_ABS_LICENCES" l ON split_part(cvm.external_id, ':', 1)=l."FGAC_REGION_CODE" and split_part(cvm.external_id, ':', 2)=l."ID"
 JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_REF"
 JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
 JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
