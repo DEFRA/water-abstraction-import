@@ -6,6 +6,7 @@ const purposesQueries = require('./queries/purposes');
 const returnVersionQueries = require('./queries/return-versions');
 const financialAgreementTypeQueries = require('./queries/financial-agreement-types');
 const { logger } = require('../../../logger');
+const slack = require('../../../lib/slack');
 
 const importQueries = [
   financialAgreementTypeQueries.importFinancialAgreementTypes,
@@ -30,12 +31,14 @@ const importQueries = [
 const importChargingData = async () => {
   try {
     logger.info('Starting charge data import');
+    slack.post('Import: Starting charge data import');
 
     for (const query of importQueries) {
       await pool.query(query);
     }
 
     logger.info('Charge data import complete');
+    slack.post('Import: Charge data import complete');
   } catch (err) {
     logger.error(err);
     throw err;

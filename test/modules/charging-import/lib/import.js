@@ -4,7 +4,7 @@ const chargingImport = require('../../../../src/modules/charging-import/lib/impo
 const { logger } = require('../../../../src/logger');
 const sandbox = require('sinon').createSandbox();
 const { pool } = require('../../../../src/lib/connectors/db');
-
+const slack = require('../../../../src/lib/slack');
 const chargingQueries = require('../../../../src/modules/charging-import/lib/queries/charging');
 const returnVersionQueries = require('../../../../src/modules/charging-import/lib/queries/return-versions');
 const financialAgreementTypeQueries = require('../../../../src/modules/charging-import/lib/queries/financial-agreement-types');
@@ -12,6 +12,7 @@ const purposesQueries = require('../../../../src/modules/charging-import/lib/que
 
 experiment('modules/charging-import/index.js', () => {
   beforeEach(async () => {
+    sandbox.stub(slack, 'post').resolves();
     sandbox.stub(logger, 'info');
     sandbox.stub(logger, 'error');
     sandbox.stub(pool, 'query');
