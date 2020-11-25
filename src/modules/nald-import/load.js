@@ -58,8 +58,6 @@ const loadReturns = async (licenceNumber) => {
 const load = async (licenceNumber) => {
   const licenceData = await getLicenceJson(licenceNumber);
 
-  await chargeVersionMetadataImportService.importChargeVersionMetadataForLicence(licenceData);
-
   if (licenceData.data.versions.length > 0) {
     await Promise.all([
       loadPermitAndDocumentHeader(licenceNumber, licenceData),
@@ -68,6 +66,8 @@ const load = async (licenceNumber) => {
   } else {
     logger.info(`No versions found for ${licenceNumber}`);
   }
+
+  await chargeVersionMetadataImportService.importChargeVersionMetadataForLicence(licenceData);
 };
 
 exports.load = load;

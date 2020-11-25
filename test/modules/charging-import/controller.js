@@ -34,26 +34,4 @@ experiment('modules/charging-import/controller.js', () => {
       expect(response).to.equal({ error: null });
     });
   });
-
-  experiment('postImportChargeVersionMetadata', () => {
-    let response, request;
-
-    beforeEach(async () => {
-      request = {
-        messageQueue: {
-          publish: sandbox.stub()
-        }
-      };
-      response = await controller.postImportChargeVersionMetadata(request);
-    });
-
-    test('publishes a message to the message queue to begin the import', async () => {
-      const [message] = request.messageQueue.publish.lastCall.args;
-      expect(message.name).to.equal('import.charge-version-metadata');
-    });
-
-    test('resolves with { error : null } HTTP response', async () => {
-      expect(response).to.equal({ error: null });
-    });
-  });
 });
