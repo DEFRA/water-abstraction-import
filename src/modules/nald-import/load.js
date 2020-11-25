@@ -13,6 +13,8 @@ const { persistReturns } = require('./lib/persist-returns');
 const repository = require('./repositories');
 const { logger } = require('../../logger');
 
+const chargeVersionMetadataImportService = require('./services/charge-version-metadata-import');
+
 /**
  * Loads data into the permit repository and CRM doc header
  * @param {String} licenceNumber
@@ -55,6 +57,8 @@ const loadReturns = async (licenceNumber) => {
  */
 const load = async (licenceNumber) => {
   const licenceData = await getLicenceJson(licenceNumber);
+
+  await chargeVersionMetadataImportService.importChargeVersionMetadataForLicence(licenceData);
 
   if (licenceData.data.versions.length > 0) {
     await Promise.all([

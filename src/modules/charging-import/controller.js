@@ -17,7 +17,5 @@ const createPostHandler = async (createMessage, request) => {
  * @return {Promise}
  */
 const postImportChargingData = partial(createPostHandler, jobs.importChargingData);
-const postImportChargeVersionMetadata = partial(createPostHandler, jobs.importChargeVersionMetadata);
 
 exports.postImportChargingData = postImportChargingData;
-exports.postImportChargeVersionMetadata = postImportChargeVersionMetadata;
