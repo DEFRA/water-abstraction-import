@@ -1,9 +1,15 @@
 'use strict';
 
 const getLicence = `
-  select *
-  from import."NALD_ABS_LICENCES"
-  where "LIC_NO" = $1;
+  select l.*,
+    to_date(l."ORIG_EFF_DATE", 'DD/MM/YYYY') as start_date,
+  least(
+    to_date(nullif(l."EXPIRY_DATE", 'null'), 'DD/MM/YYYY'),
+    to_date(nullif(l."REV_DATE", 'null'), 'DD/MM/YYYY'),
+    to_date(nullif(l."LAPSED_DATE", 'null'), 'DD/MM/YYYY')
+  ) as end_date
+  from import."NALD_ABS_LICENCES" l
+  where l."LIC_NO" = $1;
 `;
 
 const getCurrentVersion = `
