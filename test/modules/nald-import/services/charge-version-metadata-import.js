@@ -5,13 +5,12 @@ const { expect } = require('@hapi/code');
 
 const sandbox = require('sinon').createSandbox();
 
-const chargeVersionMetadataImport = require('../../../../src/modules/charging-import/services/charge-version-metadata-import');
+const chargeVersionMetadataImport = require('../../../../src/modules/nald-import/services/charge-version-metadata-import');
 const { pool } = require('../../../../src/lib/connectors/db');
 
 const queries = {
-  charging: require('../../../../src/modules/charging-import/lib/queries/charging'),
-  licence: require('../../../../src/modules/charging-import/lib/queries/licences'),
-  chargeVersionMetadata: require('../../../../src/modules/charging-import/lib/queries/charge-versions-metadata')
+  charging: require('../../../../src/modules/nald-import/lib/nald-queries/charge-versions'),
+  chargeVersionMetadata: require('../../../../src/modules/nald-import/lib/nald-queries/charge-versions-metadata')
 };
 
 const REGION_CODE = 1;
@@ -59,10 +58,6 @@ experiment('modules/charging-import/services/charge-version-import.js', () => {
 
   experiment('.importChargeVersions', () => {
     beforeEach(async () => {
-      pool.query.withArgs(queries.licence.getLicences).resolves({
-        rows: [licence]
-      });
-
       pool.query.withArgs(
         queries.charging.getNonDraftChargeVersionsForLicence, [REGION_CODE, LICENCE_ID]
       ).resolves({
@@ -71,11 +66,7 @@ experiment('modules/charging-import/services/charge-version-import.js', () => {
         ]
       });
 
-      await chargeVersionMetadataImport.importChargeVersionMetadata();
-    });
-
-    test('the licences are fetched', async () => {
-      expect(pool.query.calledWith(queries.licence.getLicences)).to.be.true();
+      await chargeVersionMetadataImport.importChargeVersionMetadataForLicence(licence);
     });
 
     test('the charge versions are fetched for the licence region and ID', async () => {

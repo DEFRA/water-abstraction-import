@@ -3,13 +3,11 @@
 const mapper = require('../mappers/charge-versions');
 
 const queries = {
-  charging: require('../lib/queries/charging'),
-  licence: require('../lib/queries/licences'),
-  chargeVersionMetatdata: require('../lib/queries/charge-versions-metadata')
+  charging: require('../lib/nald-queries/charge-versions'),
+  chargeVersionMetatdata: require('../lib/nald-queries/charge-versions-metadata')
 };
 
 const { logger } = require('../../../logger');
-
 const { pool } = require('../../../lib/connectors/db');
 
 /**
@@ -65,23 +63,21 @@ const persistChargeVersionMetadata = async wrlsChargeVersions => {
   }
 };
 
-const importChargeVersionMetadata = async () => {
-  const { rows: licences } = await pool.query(queries.licence.getLicences);
+const importChargeVersionMetadataForLicence = async licence => {
+  try {
+    logger.info(`Import: charge versions metadata for licence ${licence.LIC_NO}`);
 
-  for (const licence of licences) {
-    try {
-      // Note: charge versions are already sorted by start date, version number from the DB query
-      const { rows: chargeVersions } = await getNonDraftChargeVersions(licence.FGAC_REGION_CODE, licence.ID);
+    // Note: charge versions are already sorted by start date, version number from the DB query
+    const { rows: chargeVersions } = await getNonDraftChargeVersions(licence.FGAC_REGION_CODE, licence.ID);
 
-      // Map to WRLS charge versions
-      const wrlsChargeVersions = mapper.mapNALDChargeVersionsToWRLS(licence, chargeVersions);
+    // Map to WRLS charge versions
+    const wrlsChargeVersions = mapper.mapNALDChargeVersionsToWRLS(licence, chargeVersions);
 
-      await persistChargeVersionMetadata(wrlsChargeVersions);
-      await cleanup(licence, wrlsChargeVersions);
-    } catch (err) {
-      logger.error(`Error importing charge versions for licence ${licence.LIC_NO}`, err);
-    }
+    await persistChargeVersionMetadata(wrlsChargeVersions);
+    await cleanup(licence, wrlsChargeVersions);
+  } catch (err) {
+    logger.error(`Error importing charge versions for licence ${licence.LIC_NO}`, err);
   }
 };
 
-exports.importChargeVersionMetadata = importChargeVersionMetadata;
+exports.importChargeVersionMetadataForLicence = importChargeVersionMetadataForLicence;
