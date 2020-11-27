@@ -7,7 +7,7 @@ const assertImportTablesExist = require('../lib/assert-import-tables-exist');
 const JOB_NAME = 'nald-import.import-licence';
 
 const options = {
-  teamSize: 100,
+  teamSize: 75,
   teamConcurrency: 2
 };
 
