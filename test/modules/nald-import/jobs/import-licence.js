@@ -33,8 +33,8 @@ experiment('modules/nald-import/jobs/import-licence', () => {
       expect(importLicence.options.teamSize).to.equal(75);
     });
 
-    test('has teamConcurrency set to 2', async () => {
-      expect(importLicence.options.teamConcurrency).to.equal(2);
+    test('has teamConcurrency set to 1', async () => {
+      expect(importLicence.options.teamConcurrency).to.equal(1);
     });
   });
 

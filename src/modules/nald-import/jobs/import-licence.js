@@ -8,7 +8,7 @@ const JOB_NAME = 'nald-import.import-licence';
 
 const options = {
   teamSize: 75,
-  teamConcurrency: 2
+  teamConcurrency: 1
 };
 
 const createMessage = licenceNumber => ({
