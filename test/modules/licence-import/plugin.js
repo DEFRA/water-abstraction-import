@@ -37,7 +37,7 @@ experiment('modules/licence-import/plugin.js', () => {
 
   experiment('register', () => {
     experiment('on target environments', () => {
-      const options = { teamSize: 750, teamConcurrency: 1 };
+      const options = { teamSize: 500, teamConcurrency: 1 };
 
       beforeEach(async () => {
         sandbox.stub(process, 'env').value({
