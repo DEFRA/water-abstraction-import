@@ -51,9 +51,9 @@ experiment('modules/charging-import/plugin.js', () => {
         )).to.be.true();
       });
 
-      test('schedules a cron job at 2pm on Mon, Wed and Fri on non-prod environments to run the charging import', async () => {
+      test('schedules a cron job at 2pm on weekdays on non-prod environments to run the charging import', async () => {
         const [schedule, func] = cron.schedule.firstCall.args;
-        expect(schedule).to.equal('0 14 * * 1,3,5');
+        expect(schedule).to.equal('0 14 * * 1,2,3,4,5');
         func();
         const [{ name }] = server.messageQueue.publish.lastCall.args;
         expect(name).to.equal('import.charging-data');

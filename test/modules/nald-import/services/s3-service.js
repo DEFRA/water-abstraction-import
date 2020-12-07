@@ -29,7 +29,7 @@ experiment('modules/nald-import/services/s3', () => {
     });
 
     test('the s3.getHead method is called', async () => {
-      expect(s3.getHead.calledWith('nald_dump/nald_enc.zip')).to.be.true();
+      expect(s3.getHead.calledWith('wal_nald_data_release/nald_enc.zip')).to.be.true();
     });
 
     test('the etag is returned with quotes stripped', async () => {
@@ -44,7 +44,7 @@ experiment('modules/nald-import/services/s3', () => {
 
     test('the s3.download method is called', async () => {
       expect(s3.download.calledWith(
-        'nald_dump/nald_enc.zip', 'temp/nald_enc.zip'
+        'wal_nald_data_release/nald_enc.zip', 'temp/nald_enc.zip'
       )).to.be.true();
     });
   });
