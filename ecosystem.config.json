@@ -6,14 +6,15 @@
         "node_modules",
         "temp"
       ],
+      "script": "index.js",
       "env": {
         "watch": true
       },
       "env_production": {
         "watch": false,
-        "instances" : "1"
-      },
-      "script": "index.js"
+        "instances" : 2,
+        "exec_mode" : "cluster"
+      }
     }
   ]
 }
