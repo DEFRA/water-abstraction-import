@@ -34,7 +34,7 @@ module.exports = {
 
   pg: {
     connectionString: process.env.DATABASE_URL,
-    max: process.env.NODE_ENV === 'local' ? 30 : 15
+    max: 20
   },
 
   pgBoss: {
