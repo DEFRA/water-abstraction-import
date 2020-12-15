@@ -4,11 +4,12 @@ require('dotenv').config();
 
 const ENV_LOCAL = 'local';
 const ENV_DEV = 'dev';
+const ENV_QA = 'qa';
 const ENV_TEST = 'test';
 const ENV_PREPROD = 'preprod';
 const ENV_PRODUCTION = 'production';
 
-const isAcceptanceTestTarget = [ENV_LOCAL, ENV_DEV, ENV_TEST, ENV_PREPROD].includes(process.env.NODE_ENV);
+const isAcceptanceTestTarget = [ENV_LOCAL, ENV_DEV, ENV_TEST, ENV_QA, ENV_PREPROD].includes(process.env.NODE_ENV);
 const testMode = parseInt(process.env.TEST_MODE) === 1;
 const isProduction = process.env.NODE_ENV === ENV_PRODUCTION;
 const isLocal = process.env.NODE_ENV === ENV_LOCAL;
@@ -34,7 +35,7 @@ module.exports = {
 
   pg: {
     connectionString: process.env.DATABASE_URL,
-    max: process.env.NODE_ENV === 'local' ? 30 : 15
+    max: 20
   },
 
   pgBoss: {
