@@ -11,7 +11,7 @@ const importTableExists = async () => {
   const rows = await db.dbQuery(sql.importTableExists);
 
   if (rows.length) {
-    return rows[0].count >= 128;
+    return rows[0].count >= 125;
   }
   return false;
 };
