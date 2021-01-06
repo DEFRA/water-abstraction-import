@@ -27,9 +27,9 @@ const getRegionData = licenceData => {
   const historicalAreaCode = licenceData.AREP_AREA_CODE;
   const regionPrefix = licenceData.AREP_EIUC_CODE.substr(0, 2);
   const regionalChargeArea = regions[regionPrefix];
-  const SUC = licenceData.AREP_SUC_CODE;
-  const LEAP = licenceData.AREP_LEAP_CODE;
-  return { historicalAreaCode, regionalChargeArea, SUC, LEAP };
+  const standardUnitChargeCode = licenceData.AREP_SUC_CODE;
+  const localEnvironmentAgencyPlanCode = licenceData.AREP_LEAP_CODE;
+  return { historicalAreaCode, regionalChargeArea, standardUnitChargeCode, localEnvironmentAgencyPlanCode };
 };
 
 const isNotDraftLicenceVersion = licenceVersion => licenceVersion.STATUS !== 'DRAFT';
