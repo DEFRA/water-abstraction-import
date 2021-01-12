@@ -5,7 +5,7 @@ const { createRegister } = require('../../lib/plugin');
 const config = require('../../../config');
 
 const getOptions = () => ({
-  teamSize: 750,
+  teamSize: 500,
   teamConcurrency: 1
 });
 

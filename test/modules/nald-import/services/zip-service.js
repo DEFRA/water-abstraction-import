@@ -18,7 +18,7 @@ experiment('modules/nald-import/services/zip-service', () => {
     sandbox.stub(logger, 'info');
     sandbox.stub(logger, 'error');
 
-    sandbox.stub(config.import, 'zipPassword').value('test-password');
+    sandbox.stub(config.import.nald, 'zipPassword').value('test-password');
   });
 
   afterEach(async () => {

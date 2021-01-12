@@ -1,6 +1,6 @@
 {
   "name": "water-abstraction-import",
-  "version": "1.56.0",
+  "version": "1.59.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -61,7 +61,7 @@
     "mkdir": "0.0.2",
     "moment": "^2.26.0",
     "node-cron": "^2.0.3",
-    "pg": "^7.18.2",
+    "pg": "^8.5.1",
     "pg-boss": "^3.2.2",
     "proxy-agent": "^3.1.1",
     "request": "^2.88.2",

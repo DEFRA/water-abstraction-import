@@ -1,3 +1,5 @@
+'use strict';
+
 const IMPORT_CHARGING_DATA = 'import.charging-data';
 
 /**
@@ -7,9 +9,7 @@ const IMPORT_CHARGING_DATA = 'import.charging-data';
 const importChargingData = () => ({
   name: IMPORT_CHARGING_DATA,
   options: {
-    singletonKey: `${IMPORT_CHARGING_DATA}`,
-    singletonHours: 1,
-    expireIn: '4 hour'
+    singletonKey: `${IMPORT_CHARGING_DATA}`
   }
 });
 

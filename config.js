@@ -2,10 +2,18 @@
 
 require('dotenv').config();
 
-const isAcceptanceTestTarget = ['local', 'dev', 'development', 'test', 'preprod'].includes(process.env.NODE_ENV);
+const ENV_LOCAL = 'local';
+const ENV_DEV = 'dev';
+const ENV_QA = 'qa';
+const ENV_TEST = 'test';
+const ENV_PREPROD = 'preprod';
+const ENV_PRODUCTION = 'production';
+
+const isAcceptanceTestTarget = [ENV_LOCAL, ENV_DEV, ENV_TEST, ENV_QA, ENV_PREPROD].includes(process.env.NODE_ENV);
 const testMode = parseInt(process.env.TEST_MODE) === 1;
-const isProduction = ['production'].includes(process.env.NODE_ENV);
-const isLocal = process.env.NODE_ENV === 'local';
+const isProduction = process.env.NODE_ENV === ENV_PRODUCTION;
+const isLocal = process.env.NODE_ENV === ENV_LOCAL;
+const isTest = process.env.NODE_ENV === ENV_TEST;
 
 module.exports = {
 
@@ -25,39 +33,15 @@ module.exports = {
     airbrakeLevel: 'error'
   },
 
-  // Database has 198 available connections
-  //
-  // Outside of development each process runs on 2 instances on 2 cores.
-  // So there will be 4 connection pools per service but just 1 locally
-  //
-  // Allocations:
-  //
-  // | ----------------------------------- | ------- | ---------- | --------- | ---------- |
-  // | Service                             | Local   | Local      | Non local | Non local  |
-  // |                                     | process | connection | process   | connection |
-  // |                                     | count   | count      | count     | count      |
-  // | ----------------------------------- | ------- | ---------- | --------- | ---------- |
-  // | water-abstraction-import            |       1 |         20 |         2 | (20)    10 |
-  // | water-abstraction-permit-repository |       1 |         16 |         4 | (16)     4 |
-  // | water-abstraction-returns           |       1 |         20 |         4 | (20)     5 |
-  // | water-abstraction-service           |       2 | (100)   50 |         5 | (100)   20 |
-  // | water-abstraction-tactical-crm      |       1 |         20 |         4 | (20)     5 |
-  // | water-abstraction-tactical-idm      |       1 |         20 |         4 | (20)     5 |
-  // | ----------------------------------- | ------- | ---------- | --------- | ---------- |
-  // | TOTAL                               |       6 |        196 |        23 |        196 |
-  // | ----------------------------------- | ------- | ---------- | --------- | ---------- |
-  //
   pg: {
     connectionString: process.env.DATABASE_URL,
-    max: process.env.NODE_ENV === 'local' ? 20 : 10,
-    idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 5000
+    max: 20
   },
 
   pgBoss: {
     schema: 'water_import',
     application_name: process.env.SERVICE_NAME,
-    newJobCheckIntervalSeconds: 5
+    newJobCheckIntervalSeconds: 10
   },
 
   server: {
@@ -88,12 +72,15 @@ module.exports = {
 
   import: {
     returns: { importYears: process.env.IMPORT_RETURNS_YEARS || 6 },
-    zipPassword: process.env.NALD_ZIP_PASSWORD,
+    nald: {
+      isEtagCheckEnabled: !isTest,
+      zipPassword: process.env.NALD_ZIP_PASSWORD
+    },
     licences: {
-      schedule: isProduction ? '0 4 * * 1,3,5' : '0 16 * * 1,3,5'
+      schedule: isProduction ? '0 4 * * 1,2,3,4,5' : '0 16 * * 1,2,3,4,5'
     },
     charging: {
-      schedule: isProduction ? '0 2 * * 1,3,5' : '0 14 * * 1,3,5'
+      schedule: isProduction ? '0 2 * * 1,2,3,4,5' : '0 14 * * 1,2,3,4,5'
     }
   },
 

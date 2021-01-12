@@ -1,10 +1,12 @@
+'use strict';
+
 const { pool } = require('../../../lib/connectors/db');
 const chargingQueries = require('./queries/charging');
 const purposesQueries = require('./queries/purposes');
 const returnVersionQueries = require('./queries/return-versions');
 const financialAgreementTypeQueries = require('./queries/financial-agreement-types');
 const { logger } = require('../../../logger');
-const checkIntegrity = require('./check-integrity');
+const slack = require('../../../lib/slack');
 
 const importQueries = [
   financialAgreementTypeQueries.importFinancialAgreementTypes,
@@ -12,17 +14,13 @@ const importQueries = [
   purposesQueries.importSecondaryPurposes,
   purposesQueries.importUses,
   purposesQueries.importValidPurposeCombinations,
-  chargingQueries.createChargeVersionGuids,
-  chargingQueries.createChargeElementGuids,
-  chargingQueries.createChargeAgreementGuids,
   chargingQueries.importChargeVersions,
   chargingQueries.importChargeElements,
-  chargingQueries.importChargeAgreements,
   chargingQueries.cleanupChargeElements,
-  chargingQueries.cleanupChargeVersions,
   returnVersionQueries.importReturnVersions,
   returnVersionQueries.importReturnRequirements,
-  returnVersionQueries.importReturnRequirementPurposes
+  returnVersionQueries.importReturnRequirementPurposes,
+  chargingQueries.cleanupChargeVersions
 ];
 
 /**
@@ -33,20 +31,14 @@ const importQueries = [
 const importChargingData = async () => {
   try {
     logger.info('Starting charge data import');
+    slack.post('Import: Starting charge data import');
 
     for (const query of importQueries) {
       await pool.query(query);
     }
 
-    logger.info('Charge data imported, verifying');
-
-    const result = await checkIntegrity.verify();
-
-    if (result.totalErrors > 0) {
-      logger.error('Error in charge data import', result);
-    }
-
     logger.info('Charge data import complete');
+    slack.post('Import: Charge data import complete');
   } catch (err) {
     logger.error(err);
     throw err;
