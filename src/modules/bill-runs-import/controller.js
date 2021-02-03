@@ -2,7 +2,7 @@
 
 const importer = require('./lib/import');
 
-const postImportBillRuns = async (request, h) => {
+const postImportBillRuns = async () => {
   await importer.importBillRuns();
   return {
     error: null
