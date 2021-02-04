@@ -11,7 +11,8 @@ const createRow = (tableName, query) => ({
 });
 
 const importQueries = [
-  createRow('NALD_BILL_RUNS', queries.importNaldBillRuns)
+  createRow('NALD_BILL_RUNS', queries.importNaldBillRuns),
+  createRow('NALD_BILL_HEADERS', queries.importNaldBillHeaders)
 ];
 
 /**
