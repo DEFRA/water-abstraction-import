@@ -13,7 +13,8 @@ const createRow = (tableName, query) => ({
 const importQueries = [
   createRow('billing_batches', queries.importNaldBillRuns),
   createRow('billing_invoices', queries.importNaldBillHeaders),
-  createRow('billing_invoice_licences', queries.importInvoiceLicences)
+  createRow('billing_invoice_licences', queries.importInvoiceLicences),
+  createRow('billing_transactions', queries.importTransactions)
 ];
 
 /**
