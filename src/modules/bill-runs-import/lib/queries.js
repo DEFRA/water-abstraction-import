@@ -60,3 +60,21 @@ left join crm_v2.invoice_accounts ia on nbh."IAS_CUST_REF"=ia.invoice_account_nu
 join water.billing_batches b on b.legacy_id=concat_ws(':', nbh."FGAC_REGION_CODE", nbh."ABRN_BILL_RUN_NO")
 on conflict (legacy_id) do nothing;
 `;
+
+exports.importInvoiceLicences = `
+insert into water.billing_invoice_licences (
+  billing_invoice_id, licence_ref, date_created, date_updated, licence_id
+)
+select 
+i.billing_invoice_id, 
+nl."LIC_NO" as licence_ref, 
+i.date_created, 
+i.date_updated, 
+l.licence_id
+from import."NALD_BILL_HEADERS" nbh
+join water.billing_invoices i on concat_ws(':', nbh."FGAC_REGION_CODE", nbh."ID")=i.legacy_id
+left join import."NALD_BILL_TRANS" nbt on nbh."FGAC_REGION_CODE"=nbt."FGAC_REGION_CODE" and nbh."ID"=nbt."ABHD_ID" 
+join import."NALD_ABS_LICENCES" nl on nbt."FGAC_REGION_CODE"=nl."FGAC_REGION_CODE" and nbt."LIC_ID"=nl."ID"
+left join water.licences l on nl."LIC_NO"=l.licence_ref
+on conflict (billing_invoice_id, licence_id) do nothing
+`;
