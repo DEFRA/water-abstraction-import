@@ -133,7 +133,10 @@ i.date_created,
 i.date_updated,
 nbt."BILLABLE_ANN_QTY"::numeric as volume,
 nbt."ELEMENT_AGRMNTS"='S127' as section_127_agreement,
-nullif(nbt."LH_ACC_AGRMNTS", null) as section_130_agreement,
+case 
+  when left(nbt."LH_ACC_AGRMNTS", 4)='S130' then nbt."LH_ACC_AGRMNTS"
+  else null
+end as section_130_agreement,
 nbr."BILL_RUN_TYPE"='R' as is_two_part_tariff_supplementary,
 false as is_de_minimis,
 nbt."NEW_OWN_FLAG"<>'null' as is_new_licence,
