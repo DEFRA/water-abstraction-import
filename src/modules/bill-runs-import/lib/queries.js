@@ -98,6 +98,7 @@ insert into water.billing_transactions (
   date_created,
   date_updated,
   volume,
+  section_126_factor,
   section_127_agreement,
   section_130_agreement,
   is_two_part_tariff_supplementary,
@@ -132,6 +133,7 @@ nbt."BILLABLE_DAYS"::integer as billable_days,
 i.date_created,
 i.date_updated,
 nbt."BILLABLE_ANN_QTY"::numeric as volume,
+null as section_126_factor,
 nbt."ELEMENT_AGRMNTS"='S127' as section_127_agreement,
 case 
   when left(nbt."LH_ACC_AGRMNTS", 4)='S130' then nbt."LH_ACC_AGRMNTS"
