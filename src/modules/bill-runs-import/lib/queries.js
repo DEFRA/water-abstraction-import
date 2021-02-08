@@ -47,7 +47,7 @@ select
 ia.invoice_account_id,
 '{}'::jsonb as address,
 nbh."IAS_CUST_REF" as invoice_account_number,
-nbh."BILLED_AMOUNT"::numeric as net_amount,
+nbh."BILLED_AMOUNT"::numeric*100 as net_amount,
 nbh."BILL_TYPE"='C' as is_credit,
 b.date_created,
 b.date_updated,
@@ -170,7 +170,9 @@ round(
   * nbt."SEAS_VALUE"::numeric 
   * nbt."LOSS_VALUE"::numeric  
   * coalesce(replace(nullif(nbt."ELEMENT_AGRMNT_VALS", 'null'), 'x ', '')::numeric, 1)
-, 2) as net_amount,
+  * coalesce(nbt."BILLABLE_DAYS"::numeric / nullif(nbt."ABS_PER_DAYS"::numeric, 0), 0)
+  * 100
+) as net_amount,
 concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ID", 'S') as legacy_id,
 case 
   when nbt."ELEMENT_AGRMNTS"='S127' and nbr."BILL_RUN_TYPE"='R' then concat('Second Part Spray Irrigation Charge ', nbt2.description)
@@ -205,7 +207,9 @@ round(
   * nbt."SEAS_VALUE"::numeric 
   * nbt."LOSS_VALUE"::numeric  
   * coalesce(replace(nullif(nbt."EIUC_ELEMENT_AGRMNT_VALS", 'null'), 'x ', '')::numeric, 0)
-, 2) as net_amount,
+  * coalesce(nbt."BILLABLE_DAYS"::numeric / nullif(nbt."ABS_PER_DAYS"::numeric, 0), 0)
+  * 100
+) as net_amount,
 concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ID", 'C') as legacy_id,
 'Compensation Charge calculated from all factors except Standard Unit Charge and Source (replaced by factors below) and excluding S127 Charge Element' as description
 from import."NALD_BILL_TRANS" nbt
