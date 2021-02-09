@@ -58,6 +58,7 @@ row_to_json(nbh) as metadata
 from import."NALD_BILL_HEADERS" nbh
 left join crm_v2.invoice_accounts ia on nbh."IAS_CUST_REF"=ia.invoice_account_number
 join water.billing_batches b on b.legacy_id=concat_ws(':', nbh."FGAC_REGION_CODE", nbh."ABRN_BILL_RUN_NO")
+where nbh."BILL_NO"<>'null'
 on conflict (legacy_id) do nothing;
 `;
 
@@ -203,9 +204,9 @@ join import."NALD_BILL_RUNS" nbr on nbt."FGAC_REGION_CODE"=nbr."FGAC_REGION_CODE
   ) nbr on nbt."FGAC_REGION_CODE"=nbr."FGAC_REGION_CODE" and nbt."ABRN_BILL_RUN_NO"=nbr."BILL_RUN_NO"
   left join (
     -- Get flag for water undertaker licences
-    select nl."ID", right(nl."AREP_EIUC_CODE", 3)='SWC' as is_water_undertaker
+    select nl."FGAC_REGION_CODE", nl."ID", right(nl."AREP_EIUC_CODE", 3)='SWC' as is_water_undertaker
     from import."NALD_ABS_LICENCES" nl 
-  ) nl on nbt."LIC_ID"=nl."ID"
+  ) nl on nbt."FGAC_REGION_CODE"=nl."FGAC_REGION_CODE" and nbt."LIC_ID"=nl."ID"
   where not (nbt."FINAL_A2_BILLABLE_AMOUNT"::numeric=0 and nl.is_water_undertaker=true)
 ) nbt2 on nbt2."FGAC_REGION_CODE"=nbt."FGAC_REGION_CODE" and nbt2."ID"=nbt."ID"
 on conflict (legacy_id) do nothing
