@@ -163,16 +163,7 @@ select
 nbt."ID", 
 nbt."FGAC_REGION_CODE", 
 'standard'::water.charge_type as charge_type,
-round( 
-  nbt."BILLABLE_ANN_QTY"::numeric 
-  * nbt."SUC_RATE"::numeric 
-  * nbt."SRCE_VALUE"::numeric 
-  * nbt."SEAS_VALUE"::numeric 
-  * nbt."LOSS_VALUE"::numeric  
-  * coalesce(replace(nullif(nbt."ELEMENT_AGRMNT_VALS", 'null'), 'x ', '')::numeric, 1)
-  * coalesce(nbt."BILLABLE_DAYS"::numeric / nullif(nbt."ABS_PER_DAYS"::numeric, 0), 0)
-  * 100
-) as net_amount,
+nbt."FINAL_A1_BILLABLE_AMOUNT"::numeric*100 as net_amount,
 concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ID", 'S') as legacy_id,
 case 
   when nbt."ELEMENT_AGRMNTS"='S127' and nbr."BILL_RUN_TYPE"='R' then concat('Second Part Spray Irrigation Charge ', nbt2.description)
@@ -195,36 +186,27 @@ join (
   join import."NALD_CHG_ELEMENTS" nce on nbt."FGAC_REGION_CODE"=nce."FGAC_REGION_CODE" and nbt."ACEL_ID"=nce."ID"
 ) nbt2 on nbt."FGAC_REGION_CODE"=nbt2."FGAC_REGION_CODE" and nbt."ID"=nbt2."ID" 
 join import."NALD_BILL_RUNS" nbr on nbt."FGAC_REGION_CODE"=nbr."FGAC_REGION_CODE" and nbt."ABRN_BILL_RUN_NO"=nbr."BILL_RUN_NO"
--- Gets compensation charges
-union select 
-nbt."ID", 
-nbt."FGAC_REGION_CODE", 
-'compensation'::water.charge_type as charge_type,
-round(
-  nbt."BILLABLE_ANN_QTY"::numeric 
-  * nbt."EIUC_VALUE"::numeric 
-  * nbt."EIUC_SRCE_VALUE"::numeric 
-  * nbt."SEAS_VALUE"::numeric 
-  * nbt."LOSS_VALUE"::numeric  
-  * coalesce(replace(nullif(nbt."EIUC_ELEMENT_AGRMNT_VALS", 'null'), 'x ', '')::numeric, 0)
-  * coalesce(nbt."BILLABLE_DAYS"::numeric / nullif(nbt."ABS_PER_DAYS"::numeric, 0), 0)
-  * 100
-) as net_amount,
-concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ID", 'C') as legacy_id,
-'Compensation Charge calculated from all factors except Standard Unit Charge and Source (replaced by factors below) and excluding S127 Charge Element' as description
-from import."NALD_BILL_TRANS" nbt
-join (
-  -- Non-TPT bill runs
-  select nbr."FGAC_REGION_CODE", nbr."BILL_RUN_NO" 
-  from import."NALD_BILL_RUNS" nbr 
-  where nbr."BILL_RUN_TYPE" in ('A', 'S')
-) nbr on nbt."FGAC_REGION_CODE"=nbr."FGAC_REGION_CODE" and nbt."ABRN_BILL_RUN_NO"=nbr."BILL_RUN_NO"
-where nbt."LIC_ID" not in (
-  -- Water undertaker licences
-  select nl."ID"
-  from import."NALD_ABS_LICENCES" nl
-  where right(nl."AREP_EIUC_CODE", 3)='SWC'
-)
+  -- Gets compensation charges
+  union select  
+  nbt."ID", 
+  nbt."FGAC_REGION_CODE", 
+  'compensation'::water.charge_type as charge_type,
+  nbt."FINAL_A2_BILLABLE_AMOUNT"::numeric*100 as net_amount,
+  concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ID", 'C') as legacy_id,
+  'Compensation Charge calculated from all factors except Standard Unit Charge and Source (replaced by factors below) and excluding S127 Charge Element' as description
+  from import."NALD_BILL_TRANS" nbt
+  join (
+    -- Non-TPT bill runs
+    select nbr."FGAC_REGION_CODE", nbr."BILL_RUN_NO" 
+    from import."NALD_BILL_RUNS" nbr 
+    where nbr."BILL_RUN_TYPE" in ('A', 'S')
+  ) nbr on nbt."FGAC_REGION_CODE"=nbr."FGAC_REGION_CODE" and nbt."ABRN_BILL_RUN_NO"=nbr."BILL_RUN_NO"
+  left join (
+    -- Get flag for water undertaker licences
+    select nl."ID", right(nl."AREP_EIUC_CODE", 3)='SWC' as is_water_undertaker
+    from import."NALD_ABS_LICENCES" nl 
+  ) nl on nbt."LIC_ID"=nl."ID"
+  where not (nbt."FINAL_A2_BILLABLE_AMOUNT"::numeric=0 and nl.is_water_undertaker=true)
 ) nbt2 on nbt2."FGAC_REGION_CODE"=nbt."FGAC_REGION_CODE" and nbt2."ID"=nbt."ID"
 on conflict (legacy_id) do nothing
 `;
