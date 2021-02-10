@@ -14,7 +14,8 @@ const importQueries = [
   createRow('billing_batches', queries.importNaldBillRuns),
   createRow('billing_invoices', queries.importNaldBillHeaders),
   createRow('billing_invoice_licences', queries.importInvoiceLicences),
-  createRow('billing_transactions', queries.importTransactions)
+  createRow('billing_transactions', queries.importTransactions),
+  createRow('setting transaction keys', queries.setTransactionKeys)
 ];
 
 /**
