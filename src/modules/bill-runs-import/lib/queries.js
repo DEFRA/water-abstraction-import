@@ -36,3 +36,45 @@ and nbr."IAS_XFER_DATE"<>'null'
 and nbr."FIN_YEAR"::integer>=2015
 on conflict (legacy_id) do nothing;
 `;
+
+exports.importNaldBillHeaders = `
+insert into water.billing_invoices (
+  invoice_account_id, address, invoice_account_number, net_amount,
+  is_credit, date_created, date_updated, billing_batch_id, financial_year_ending,
+  legacy_id, metadata
+)
+select 
+ia.invoice_account_id,
+'{}'::jsonb as address,
+nbh."IAS_CUST_REF" as invoice_account_number,
+nbh."BILLED_AMOUNT"::numeric as net_amount,
+nbh."BILL_TYPE"='C' as is_credit,
+b.date_created,
+b.date_updated,
+b.billing_batch_id,
+nbh."FIN_YEAR"::integer as financial_year_ending,
+concat_ws(':', nbh."FGAC_REGION_CODE", nbh."ID") as legacy_id,
+row_to_json(nbh) as metadata
+from import."NALD_BILL_HEADERS" nbh
+left join crm_v2.invoice_accounts ia on nbh."IAS_CUST_REF"=ia.invoice_account_number
+join water.billing_batches b on b.legacy_id=concat_ws(':', nbh."FGAC_REGION_CODE", nbh."ABRN_BILL_RUN_NO")
+on conflict (legacy_id) do nothing;
+`;
+
+exports.importInvoiceLicences = `
+insert into water.billing_invoice_licences (
+  billing_invoice_id, licence_ref, date_created, date_updated, licence_id
+)
+select 
+i.billing_invoice_id, 
+nl."LIC_NO" as licence_ref, 
+i.date_created, 
+i.date_updated, 
+l.licence_id
+from import."NALD_BILL_HEADERS" nbh
+join water.billing_invoices i on concat_ws(':', nbh."FGAC_REGION_CODE", nbh."ID")=i.legacy_id
+left join import."NALD_BILL_TRANS" nbt on nbh."FGAC_REGION_CODE"=nbt."FGAC_REGION_CODE" and nbh."ID"=nbt."ABHD_ID" 
+join import."NALD_ABS_LICENCES" nl on nbt."FGAC_REGION_CODE"=nl."FGAC_REGION_CODE" and nbt."LIC_ID"=nl."ID"
+left join water.licences l on nl."LIC_NO"=l.licence_ref
+on conflict (billing_invoice_id, licence_id) do nothing
+`;
