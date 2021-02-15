@@ -132,6 +132,7 @@ exports.createLicenceVersion = `insert into water.licence_versions (
     date_created,
     date_updated
   ) values ($1, $2, $3, $4, $5, $6, $7, now(), now()) on conflict (external_id) do update set
+    licence_id = excluded.licence_id,
     status = excluded.status,
     start_date = excluded.start_date,
     end_date = excluded.end_date,
