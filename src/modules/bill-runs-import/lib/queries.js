@@ -41,7 +41,7 @@ exports.importNaldBillHeaders = `
 insert into water.billing_invoices (
   invoice_account_id, address, invoice_account_number, net_amount,
   is_credit, date_created, date_updated, billing_batch_id, financial_year_ending,
-  legacy_id, metadata
+  legacy_id, metadata, invoice_number
 )
 select 
 ia.invoice_account_id,
@@ -54,7 +54,8 @@ b.date_updated,
 b.billing_batch_id,
 nbh."FIN_YEAR"::integer as financial_year_ending,
 concat_ws(':', nbh."FGAC_REGION_CODE", nbh."ID") as legacy_id,
-row_to_json(nbh) as metadata
+row_to_json(nbh) as metadata,
+nullif(nbh."BILL_NO", 'null') as invoice_number
 from import."NALD_BILL_HEADERS" nbh
 left join crm_v2.invoice_accounts ia on nbh."IAS_CUST_REF"=ia.invoice_account_number
 join water.billing_batches b on b.legacy_id=concat_ws(':', nbh."FGAC_REGION_CODE", nbh."ABRN_BILL_RUN_NO")
