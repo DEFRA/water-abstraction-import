@@ -267,3 +267,30 @@ from (
 
 ) t2 where t1.billing_transaction_id=t2.billing_transaction_id;
 `;
+
+exports.importBillingVolumes = `
+insert into water.billing_volumes (
+  charge_element_id, financial_year, is_summer,
+  calculated_volume, two_part_tariff_error, two_part_tariff_status,
+  two_part_tariff_review, is_approved, billing_batch_id,
+  volume, errored_on
+)
+select 
+t.charge_element_id, 
+i.financial_year_ending as financial_year,
+false as is_summer,
+null as calculated_volume,
+false as two_part_tariff_error,
+null as two_part_tariff_status,
+null as two_part_tariff_review,
+true as is_approved,
+b.billing_batch_id,
+t.volume,
+null as errored_on
+from water.billing_batches b 
+join water.billing_invoices i on b.billing_batch_id=i.billing_batch_id
+join water.billing_invoice_licences il on il.billing_invoice_id=i.billing_invoice_id
+join water.billing_transactions t on il.billing_invoice_licence_id=t.billing_invoice_licence_id 
+where b.source='nald' and b.batch_type='two_part_tariff'
+on conflict do nothing;
+`;
