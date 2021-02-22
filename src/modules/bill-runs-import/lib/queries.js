@@ -294,3 +294,31 @@ join water.billing_transactions t on il.billing_invoice_licence_id=t.billing_inv
 where b.source='nald' and b.batch_type='two_part_tariff'
 on conflict do nothing;
 `;
+
+exports.importBillingBatchChargeVersionYears = `
+insert into water.billing_batch_charge_version_years (
+  billing_batch_id, charge_version_id, financial_year_ending,
+  date_created, date_updated, status, 
+  transaction_type, is_summer
+)
+select distinct
+b.billing_batch_id,
+ce.charge_version_id,
+i.financial_year_ending,
+b.date_created,
+b.date_updated,
+b.status,
+case 
+  when t.is_two_part_tariff_supplementary then 'two_part_tariff'
+  else 'annual'
+end::water.charge_version_years_transaction_type as transaction_type,
+false as is_summer
+from water.billing_batches b
+join water.billing_invoices i on b.billing_batch_id=i.billing_batch_id
+join water.billing_invoice_licences il on i.billing_invoice_id=il.billing_invoice_id
+join water.billing_transactions t on il.billing_invoice_licence_id=t.billing_invoice_licence_id
+join water.charge_elements ce on t.charge_element_id=ce.charge_element_id 
+where b.source='nald'
+on conflict do nothing;
+`
+;
