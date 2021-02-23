@@ -71,7 +71,6 @@ module.exports = {
   proxy: process.env.PROXY,
 
   import: {
-    returns: { importYears: process.env.IMPORT_RETURNS_YEARS || 6 },
     nald: {
       isEtagCheckEnabled: !isTest,
       zipPassword: process.env.NALD_ZIP_PASSWORD

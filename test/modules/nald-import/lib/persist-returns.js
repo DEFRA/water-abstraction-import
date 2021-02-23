@@ -4,7 +4,6 @@ const sandbox = require('sinon').createSandbox();
 
 const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
-const config = require('../../../../config');
 
 const returnsApi = require('../../../../src/lib/connectors/returns');
 const persistReturns = require('../../../../src/modules/nald-import/lib/persist-returns');
@@ -46,7 +45,6 @@ experiment('test/modules/nald-import/lib/persist-returns', () => {
     sandbox.stub(returnsApi.returns, 'findOne');
     sandbox.stub(returnsApi.returns, 'create');
     sandbox.stub(returnsApi.returns, 'updateOne');
-    sandbox.stub(config.import.returns, 'importYears').value(3);
   });
 
   afterEach(async () => {
@@ -98,16 +96,6 @@ experiment('test/modules/nald-import/lib/persist-returns', () => {
       expect(returnsApi.returns.updateOne.firstCall).to.equal(null);
     });
 
-    test('does not create a row if the record is old', async () => {
-      returnsApi.returns.findOne.resolves({ error: { name: 'NotFoundError' }, data: null });
-      returnsApi.returns.create.resolves({ error: null });
-
-      await persistReturns.createOrUpdateReturn(naldReturn, '2020-01-01');
-
-      expect(returnsApi.returns.create.firstCall).to.equal(null);
-      expect(returnsApi.returns.updateOne.firstCall).to.equal(null);
-    });
-
     test('updates a NALD return if the record is present', async () => {
       returnsApi.returns.findOne.resolves({ error: null, data: naldReturn });
       returnsApi.returns.updateOne.resolves({ error: null });
@@ -120,15 +108,6 @@ experiment('test/modules/nald-import/lib/persist-returns', () => {
         received_date: naldReturn.received_date,
         due_date: naldReturn.due_date
       }]);
-    });
-
-    test('does not update a NALD return if the record is old', async () => {
-      returnsApi.returns.findOne.resolves({ error: null, data: naldReturn });
-      returnsApi.returns.updateOne.resolves({ error: null });
-      await persistReturns.createOrUpdateReturn(naldReturn, '2020-01-01');
-
-      expect(returnsApi.returns.create.firstCall).to.equal(null);
-      expect(returnsApi.returns.updateOne.firstCall).to.equal(null);
     });
 
     test('updates a digital service return metadata only if the record is present', async () => {
