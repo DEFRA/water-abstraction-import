@@ -2,7 +2,7 @@
 
 const getLicence = `
   select l.*,
-    to_date(l."ORIG_EFF_DATE", 'DD/MM/YYYY') as start_date,
+    to_date(nullif(l."ORIG_EFF_DATE", 'null'), 'DD/MM/YYYY') as start_date,
   least(
     to_date(nullif(l."EXPIRY_DATE", 'null'), 'DD/MM/YYYY'),
     to_date(nullif(l."REV_DATE", 'null'), 'DD/MM/YYYY'),

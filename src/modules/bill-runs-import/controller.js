@@ -1,9 +1,9 @@
 'use strict';
 
-const importer = require('./lib/import');
+const constants = require('./lib/constants');
 
-const postImportBillRuns = async () => {
-  await importer.importBillRuns();
+const postImportBillRuns = async request => {
+  await request.messageQueue.publish(constants.IMPORT_BILL_RUNS);
   return {
     error: null
   };
