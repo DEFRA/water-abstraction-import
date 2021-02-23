@@ -42,7 +42,7 @@ const getUpdateRow = (row) => {
  * @param {Object} row
  * @return {Promise} resolves when row is created/updated
  */
-const createOrUpdateReturn = async (row, date) => {
+const createOrUpdateReturn = async row => {
   const { return_id: returnId } = row;
 
   const exists = await returnExists(returnId);
