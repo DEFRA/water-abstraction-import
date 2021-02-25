@@ -74,7 +74,8 @@ module.exports = {
     returns: { importYears: process.env.IMPORT_RETURNS_YEARS || 6 },
     nald: {
       isEtagCheckEnabled: !isTest,
-      zipPassword: process.env.NALD_ZIP_PASSWORD
+      zipPassword: process.env.NALD_ZIP_PASSWORD,
+      path: process.env.S3_NALD_IMPORT_PATH
     },
     licences: {
       schedule: isProduction ? '0 4 * * 1,2,3,4,5' : '0 16 * * 1,2,3,4,5'
