@@ -75,7 +75,7 @@ module.exports = {
     nald: {
       isEtagCheckEnabled: !isTest,
       zipPassword: process.env.NALD_ZIP_PASSWORD,
-      path: process.env.S3_NALD_IMPORT_PATH
+      path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release'
     },
     licences: {
       schedule: isProduction ? '0 4 * * 1,2,3,4,5' : '0 16 * * 1,2,3,4,5'
