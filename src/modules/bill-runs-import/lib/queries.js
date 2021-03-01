@@ -4,7 +4,8 @@ exports.importNaldBillRuns = `
 insert into water.billing_batches (
   region_id, batch_type, date_created, date_updated, from_financial_year_ending,
   to_financial_year_ending, status, invoice_count, credit_note_count,
-  net_total, bill_run_number, is_summer, source, legacy_id, metadata
+  net_total, bill_run_number, is_summer, source, legacy_id, metadata,
+  invoice_value, credit_note_value
 )
 select r.region_id,
 (case 
@@ -27,7 +28,9 @@ nbr."BILL_RUN_NO"::integer as bill_run_number,
 false as is_summer,
 'nald'::water.billing_batch_source as source,
 concat_ws(':', nbr."FGAC_REGION_CODE", nbr."BILL_RUN_NO") as legacy_id,
-row_to_json(nbr) as metadata
+row_to_json(nbr) as metadata,
+nullif(nbr."VALUE_OF_INVS", 'null')::numeric * 100 as invoice_value,
+nullif(nbr."VALUE_OF_CRNS", 'null')::numeric * 100 as credit_note_value
 from import."NALD_BILL_RUNS" nbr
 join water.regions r on nbr."FGAC_REGION_CODE"::integer=r.nald_region_id
 where 
