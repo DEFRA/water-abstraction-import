@@ -227,50 +227,6 @@ left join(
 on conflict (legacy_id) do nothing;
 `;
 
-exports.setTransactionKeys = `
-update water.billing_transactions t1
-set transaction_key=t2.transaction_key
-from (
-  select
-    t.billing_transaction_id,
-    MD5(
-    array_to_string(ARRAY[
-    'accountNumber:' || i.invoice_account_number, 
-    'agreements:' || t.agreements,
-    'authorisedDays:' || t.authorised_days,
-    'billableDays:' || t.billable_days,
-    'description:' || t.description,
-    'isCompensationCharge:' || (case when t.charge_type='compensation' then 'true' else 'false' end),
-    'isNewLicence:' || (case when t.is_new_licence then 'true' else 'false' end),
-    'isTwoPartTariff:' || (case when t.is_two_part_tariff_supplementary then 'true' else 'false' end),
-    'licenceNumber:' || il.licence_ref,
-    'loss:' || t.loss,
-    'periodEnd:' || t.end_date,
-    'periodStart:' || t.start_date,
-    'regionCode:' || r.charge_region_id,
-    'season:' || t.season,
-    'source:' || t.source,
-    'volume:' || t.volume
-    ], ','))
-    as transaction_key
-  from water.billing_batches b
-  join water.regions r on b.region_id=r.region_id
-  left join water.billing_invoices i on b.billing_batch_id=i.billing_batch_id
-  left join water.billing_invoice_licences il on i.billing_invoice_id=il.billing_invoice_id
-  left join (
-    select *, 
-      case 
-        when t.section_130_agreement is not null then t.section_130_agreement
-        when t.section_127_agreement=true then 'S127'
-        else ''
-      end as agreements
-     from water.billing_transactions t
-  ) t on il.billing_invoice_licence_id=t.billing_invoice_licence_id
-  where b.source='nald'
-
-) t2 where t1.billing_transaction_id=t2.billing_transaction_id;
-`;
-
 exports.importBillingVolumes = `
 insert into water.billing_volumes (
   charge_element_id, financial_year, is_summer,
