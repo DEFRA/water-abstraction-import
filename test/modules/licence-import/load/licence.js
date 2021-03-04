@@ -64,16 +64,16 @@ experiment('modules/licence-import/load/licence', () => {
   let licenceVersionId;
 
   beforeEach(async () => {
-    sandbox.stub(connectors, 'createDocumentRole');
-    sandbox.stub(connectors, 'createDocument');
-    sandbox.stub(connectors, 'createAgreement');
-    sandbox.stub(connectors, 'createLicenceVersion').resolves({
+    await sandbox.stub(connectors, 'createDocumentRole');
+    await sandbox.stub(connectors, 'createDocument');
+    await sandbox.stub(connectors, 'createAgreement');
+    await sandbox.stub(connectors, 'createLicenceVersion').resolves({
       licence_version_id: licenceVersionId = uuid()
     });
-    sandbox.stub(connectors, 'createLicence').resolves({
+    await sandbox.stub(connectors, 'createLicence').resolves({
       licence_id: licenceId = uuid()
     });
-    sandbox.stub(connectors, 'createLicenceVersionPurpose');
+    await sandbox.stub(connectors, 'createLicenceVersionPurpose');
 
     licence = createLicence();
     await loadLicence(licence);
