@@ -66,7 +66,14 @@ experiment('modules/licence-import/load/licence', () => {
   beforeEach(async () => {
     await sandbox.stub(connectors, 'createDocumentRole');
     await sandbox.stub(connectors, 'createDocument');
+    await sandbox.stub(connectors, 'getLicenceByRef').resolves({
+      licence_id: uuid(),
+      expired_date: null,
+      lapsed_date: null,
+      revoked_date: null
+    });
     await sandbox.stub(connectors, 'createAgreement');
+    await sandbox.stub(connectors, 'flagLicenceForSupplementaryBilling');
     await sandbox.stub(connectors, 'createLicenceVersion').resolves({
       licence_version_id: licenceVersionId = uuid()
     });
