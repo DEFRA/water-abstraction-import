@@ -33,11 +33,27 @@ const loadVersions = (licenceData, licenceId) => {
 };
 
 const loadLicence = async licence => {
+  const licencePriorToImport = await connectors.getLicenceByRef(licence.licenceNumber);
+
   const tasks = [
     connectors.createLicence(licence),
     licence.documents.map(loadDocument),
     loadAgreements(licence)
   ];
+
+  /*
+    *  If the expired_date, lapsed_date or revoked_date are changed,
+    *  flag the licence for supplementary billing
+    */
+  if (licencePriorToImport &&
+      (
+        (licencePriorToImport.expired_date !== licence.expiredDate) ||
+        (licencePriorToImport.lapsed_date !== licence.lapsedDate) ||
+        (licencePriorToImport.revoked_date !== licence.revokedDate)
+      )
+  ) {
+    tasks.push(connectors.flagLicenceForSupplementaryBilling(licencePriorToImport.licence_id));
+  }
 
   const [savedLicence] = await Promise.all(tasks);
 
