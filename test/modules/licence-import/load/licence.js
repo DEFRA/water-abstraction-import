@@ -11,6 +11,7 @@ const connectors = require('../../../../src/modules/licence-import/load/connecto
 
 experiment('modules/licence-import/load/licence', () => {
   const createLicence = () => ({
+    licenceNumber: '123/456',
     versions: [{
       issue: 100,
       increment: 1,
@@ -67,10 +68,10 @@ experiment('modules/licence-import/load/licence', () => {
     await sandbox.stub(connectors, 'createDocumentRole');
     await sandbox.stub(connectors, 'createDocument');
     await sandbox.stub(connectors, 'getLicenceByRef').resolves({
-      licence_id: uuid(),
+      licence_id: 'test-licence-id',
       expired_date: null,
       lapsed_date: null,
-      revoked_date: null
+      revoked_date: new Date()
     });
     await sandbox.stub(connectors, 'createAgreement');
     await sandbox.stub(connectors, 'flagLicenceForSupplementaryBilling');
@@ -151,5 +152,17 @@ experiment('modules/licence-import/load/licence', () => {
     expect(purpose.timeLimitedEndDate).to.equal(null);
     expect(purpose.notes).to.equal('testing');
     expect(purpose.annualQuantity).to.equal(100);
+  });
+
+  test('attempts to grab the licence record', () => {
+    expect(connectors.getLicenceByRef.calledWith(
+      '123/456'
+    )).to.be.true();
+  });
+
+  test('flags the licence for supplementary billing', () => {
+    expect(connectors.flagLicenceForSupplementaryBilling.calledWith(
+      'test-licence-id'
+    )).to.be.true();
   });
 });
