@@ -10,8 +10,11 @@ const { loadLicence } = require('../../../../src/modules/licence-import/load/lic
 const connectors = require('../../../../src/modules/licence-import/load/connectors');
 
 experiment('modules/licence-import/load/licence', () => {
-  const createLicence = () => ({
+  const createLicence = (expiryDate = null) => ({
     licenceNumber: '123/456',
+    expiredDate: expiryDate,
+    lapsedDate: null,
+    revokedDate: null,
     versions: [{
       issue: 100,
       increment: 1,
@@ -71,7 +74,7 @@ experiment('modules/licence-import/load/licence', () => {
       licence_id: 'test-licence-id',
       expired_date: null,
       lapsed_date: null,
-      revoked_date: new Date()
+      revoked_date: null
     });
     await sandbox.stub(connectors, 'createAgreement');
     await sandbox.stub(connectors, 'flagLicenceForSupplementaryBilling');
@@ -160,9 +163,25 @@ experiment('modules/licence-import/load/licence', () => {
     )).to.be.true();
   });
 
-  test('flags the licence for supplementary billing', () => {
-    expect(connectors.flagLicenceForSupplementaryBilling.calledWith(
-      'test-licence-id'
-    )).to.be.true();
+  experiment('when there is no change in licence death', () => {
+    beforeEach(async () => {
+    });
+    test('does not flag the licence for supplementary billing', () => {
+      expect(connectors.flagLicenceForSupplementaryBilling.calledWith(
+        'test-licence-id'
+      )).to.be.false();
+    });
+  });
+
+  experiment('when there is a difference in licence death', () => {
+    beforeEach(async () => {
+      licence = createLicence(new Date());
+      await loadLicence(licence);
+    });
+    test('flags the licence for supplementary billing', () => {
+      expect(connectors.flagLicenceForSupplementaryBilling.calledWith(
+        'test-licence-id'
+      )).to.be.true();
+    });
   });
 });
