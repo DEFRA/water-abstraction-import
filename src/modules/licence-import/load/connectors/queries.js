@@ -184,3 +184,7 @@ exports.createLicenceVersionPurpose = `insert into water.licence_version_purpose
     notes = excluded.notes,
     annual_quantity = excluded.annual_quantity,
     date_updated = now();`;
+
+exports.getLicenceByRef = 'SELECT * FROM water.licences WHERE licence_ref = $1';
+
+exports.flagLicenceForSupplementaryBilling = 'UPDATE water.licences set include_in_supplementary_billing = \'yes\' WHERE licence_id = $1';

@@ -10,7 +10,11 @@ const { loadLicence } = require('../../../../src/modules/licence-import/load/lic
 const connectors = require('../../../../src/modules/licence-import/load/connectors');
 
 experiment('modules/licence-import/load/licence', () => {
-  const createLicence = () => ({
+  const createLicence = (expiryDate = null) => ({
+    licenceNumber: '123/456',
+    expiredDate: expiryDate,
+    lapsedDate: null,
+    revokedDate: null,
     versions: [{
       issue: 100,
       increment: 1,
@@ -64,16 +68,23 @@ experiment('modules/licence-import/load/licence', () => {
   let licenceVersionId;
 
   beforeEach(async () => {
-    sandbox.stub(connectors, 'createDocumentRole');
-    sandbox.stub(connectors, 'createDocument');
-    sandbox.stub(connectors, 'createAgreement');
-    sandbox.stub(connectors, 'createLicenceVersion').resolves({
+    await sandbox.stub(connectors, 'createDocumentRole');
+    await sandbox.stub(connectors, 'createDocument');
+    await sandbox.stub(connectors, 'getLicenceByRef').resolves({
+      licence_id: 'test-licence-id',
+      expired_date: null,
+      lapsed_date: null,
+      revoked_date: null
+    });
+    await sandbox.stub(connectors, 'createAgreement');
+    await sandbox.stub(connectors, 'flagLicenceForSupplementaryBilling');
+    await sandbox.stub(connectors, 'createLicenceVersion').resolves({
       licence_version_id: licenceVersionId = uuid()
     });
-    sandbox.stub(connectors, 'createLicence').resolves({
+    await sandbox.stub(connectors, 'createLicence').resolves({
       licence_id: licenceId = uuid()
     });
-    sandbox.stub(connectors, 'createLicenceVersionPurpose');
+    await sandbox.stub(connectors, 'createLicenceVersionPurpose');
 
     licence = createLicence();
     await loadLicence(licence);
@@ -144,5 +155,33 @@ experiment('modules/licence-import/load/licence', () => {
     expect(purpose.timeLimitedEndDate).to.equal(null);
     expect(purpose.notes).to.equal('testing');
     expect(purpose.annualQuantity).to.equal(100);
+  });
+
+  test('attempts to grab the licence record', () => {
+    expect(connectors.getLicenceByRef.calledWith(
+      '123/456'
+    )).to.be.true();
+  });
+
+  experiment('when there is no change in licence death', () => {
+    beforeEach(async () => {
+    });
+    test('does not flag the licence for supplementary billing', () => {
+      expect(connectors.flagLicenceForSupplementaryBilling.calledWith(
+        'test-licence-id'
+      )).to.be.false();
+    });
+  });
+
+  experiment('when there is a difference in licence death', () => {
+    beforeEach(async () => {
+      licence = createLicence(new Date());
+      await loadLicence(licence);
+    });
+    test('flags the licence for supplementary billing', () => {
+      expect(connectors.flagLicenceForSupplementaryBilling.calledWith(
+        'test-licence-id'
+      )).to.be.true();
+    });
   });
 });
