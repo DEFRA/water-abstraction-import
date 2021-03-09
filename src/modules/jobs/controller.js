@@ -2,6 +2,6 @@
 
 const jobsConnector = require('../../lib/connectors/water-import/jobs');
 
-const getJobSummary = async () => await jobsConnector.getJobSummary();
+const getJobSummary = () => jobsConnector.getJobSummary();
 
 exports.getJobSummary = getJobSummary;

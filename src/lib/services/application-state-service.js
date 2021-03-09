@@ -3,7 +3,7 @@
 const applicationStateConnector = require('../connectors/water/application-state');
 const constants = require('../../modules/nald-import/lib/constants');
 
-const get = async (identifier) => {
+const get = async identifier => {
   const state = await applicationStateConnector.getState(identifier);
   return state.data;
 };

@@ -8,7 +8,7 @@ const { pgBossJobOverview } = require('./queries');
 exports.plugin = {
   name: 'importMonitoring',
   dependencies: ['pgBoss'],
-  register: server => {
+  register: () => {
     /**
      * The purpose of this plugin is to check the state of import jobs, and to store that in
      * the application state table.
@@ -41,7 +41,6 @@ exports.plugin = {
             completed_count: completedCount,
             active: isActive,
             last_updated: lastUpdated
-
           });
         });
       }
