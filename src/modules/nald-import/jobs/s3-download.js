@@ -1,11 +1,12 @@
 'use strict';
 
 const { get } = require('lodash');
-const applicationStateService = require('../services/application-state-service');
+const applicationStateService = require('../../../lib/services/application-state-service');
 const s3Service = require('../services/s3-service');
 const extractService = require('../services/extract-service');
 const logger = require('./lib/logger');
 const config = require('../../../../config');
+const constants = require('../lib/constants');
 
 const JOB_NAME = 'nald-import.s3-download';
 
@@ -41,7 +42,7 @@ const getStatus = async () => {
   let state;
 
   try {
-    state = await applicationStateService.get();
+    state = await applicationStateService.get(constants.APPLICATION_STATE_KEY);
   } catch (err) {
     state = {};
   }
@@ -65,9 +66,9 @@ const handler = async job => {
     const status = await getStatus();
 
     if (status.isRequired) {
-      await applicationStateService.save(status.etag);
+      await applicationStateService.save(constants.APPLICATION_STATE_KEY, { etag: status.etag, isDownloaded: false });
       await extractService.downloadAndExtract();
-      await applicationStateService.save(status.etag, true);
+      await applicationStateService.save(constants.APPLICATION_STATE_KEY, { etag: status.etag, isDownloaded: true });
     }
 
     return status;

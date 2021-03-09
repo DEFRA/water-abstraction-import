@@ -81,6 +81,9 @@ module.exports = {
     },
     charging: {
       schedule: isProduction ? '0 2 * * 1,2,3,4,5' : '0 14 * * 1,2,3,4,5'
+    },
+    monitoring: {
+      schedule: '* * * * *'
     }
   },
 

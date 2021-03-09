@@ -53,7 +53,8 @@ const plugins = [
   require('./src/modules/licence-import/plugin'),
   require('./src/modules/charging-import/plugin'),
   require('./src/modules/nald-import/plugin'),
-  require('./src/modules/bill-runs-import/plugin')
+  require('./src/modules/bill-runs-import/plugin'),
+  require('./src/modules/monitoring/plugin')
 ];
 
 const configureServerAuthStrategy = (server) => {
