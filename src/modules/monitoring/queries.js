@@ -20,7 +20,7 @@ where
     a.state in ('failed', 'completed', 'active')
     and (a.createdon > now() - interval '3 days' or a.completedon > now() - interval '3 days')
     and a.name = $1
-    group by a.state) cte
-group bystate`;
+    group by a.state) cte 
+    group by state`;
 
 exports.pgBossJobOverview = pgBossJobOverview;
