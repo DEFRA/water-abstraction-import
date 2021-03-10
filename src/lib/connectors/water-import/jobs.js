@@ -4,14 +4,14 @@ const { pool } = require('../db');
 
 const getJobSummaryQuery = `
   select
-    data->>'display_name' as name,
-    data->>'failed_count' as failed_count,
-    data->>'completed_count' as completed_count,
+    data->>'displayName' as name,
+    data->>'failedCount' as failedCount,
+    data->>'completedCount' as completedCount,
     data->>'active' as active,
-    data->>'last_updated' as last_updated,
-    date_updated
+    data->>'lastUpdated' as lastUpdated,
+    date_updated as dateUpdated
   from
-    water.water.application_state
+    water.application_state
   where
     key like '%import%'
     and data->>'display_name' is not null;

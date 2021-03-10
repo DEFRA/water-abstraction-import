@@ -36,11 +36,11 @@ exports.plugin = {
           const lastUpdated = get(status.find(row => row.state === 'completed'), 'max_completed_date', null);
 
           applicationStateService.save(eachJob.id, {
-            display_name: eachJob.displayName,
-            failed_count: failedCount,
-            completed_count: completedCount,
+            displayName: eachJob.displayName,
+            failedCount: failedCount,
+            completedCount: completedCount,
             active: isActive,
-            last_updated: lastUpdated
+            lastUpdated: lastUpdated
           });
         });
       }

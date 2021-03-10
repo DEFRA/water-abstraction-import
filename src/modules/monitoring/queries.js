@@ -3,7 +3,7 @@ const pgBossJobOverview = `select state, sum(count) as count, max(max_completed_
     COUNT(*),
     max(completedon) as max_completed_date
 from
-    water.water_import.job j
+    water_import.job j
 where
     j.state in ('failed', 'completed', 'active', 'created')
     and (j.createdon > now() - interval '3 days' or j.completedon > now() - interval '3 days')
