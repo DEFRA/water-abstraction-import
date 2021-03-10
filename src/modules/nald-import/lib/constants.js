@@ -1,4 +1,6 @@
-exports.S3_IMPORT_PATH = 'wal_nald_data_release';
+const config = require('../../../../config');
+
+exports.S3_IMPORT_PATH = config.import.nald.path;
 exports.S3_IMPORT_FILE = 'nald_enc.zip';
 exports.LOCAL_TEMP_PATH = './temp/';
 exports.CSV_DIRECTORY = 'NALD';

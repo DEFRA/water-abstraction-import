@@ -11,7 +11,12 @@ const createRow = (tableName, query) => ({
 });
 
 const importQueries = [
-  createRow('NALD_BILL_RUNS', queries.importNaldBillRuns)
+  createRow('billing_batches', queries.importNaldBillRuns),
+  createRow('billing_invoices', queries.importNaldBillHeaders),
+  createRow('billing_invoice_licences', queries.importInvoiceLicences),
+  createRow('billing_transactions', queries.importTransactions),
+  createRow('billing_volumes', queries.importBillingVolumes),
+  createRow('billing_batch_charge_version_years', queries.importBillingBatchChargeVersionYears)
 ];
 
 /**
