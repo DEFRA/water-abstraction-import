@@ -14,7 +14,7 @@ const getJobSummaryQuery = `
     water.application_state
   where
     key like '%import%'
-    and data->>'display_name' is not null;
+    and data->>'displayName' is not null;
 `;
 
 const getJobSummary = async () => {
