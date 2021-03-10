@@ -19,7 +19,6 @@ const getJobSummaryQuery = `
 
 const getJobSummary = async () => {
   const result = await pool.query(getJobSummaryQuery);
-  console.log(result.rows);
   return result.rows;
 };
 
