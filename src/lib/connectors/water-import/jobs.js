@@ -32,14 +32,14 @@ const getJobSummary = () => {
 
     const failedCount = parseInt(get(status.find(row => row.state === 'failed'), 'count', 0));
     const completedCount = parseInt(get(status.find(row => row.state === 'completed'), 'count', 0));
-    const active = !!status.find(row => row.state === 'active') || !!status.find(row => row.state === 'created');
+    const isActive = !!status.find(row => row.state === 'active') || !!status.find(row => row.state === 'created');
     const lastUpdated = get(status.find(row => row.state === 'completed'), 'max_completed_date', null);
 
     return {
       displayName: eachJob.displayName,
       failedCount,
       completedCount,
-      active,
+      isActive,
       lastUpdated
     };
   }));
