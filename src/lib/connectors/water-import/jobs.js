@@ -14,10 +14,17 @@ const getJobSummary = () => {
    * multiple job handlers... Maybe.
    */
   const pgBossJobsArray = [
-    { id: 'nald-import.import-licence', displayName: 'Licences' },
+    { id: 'nald-import.import-licence', displayName: 'Licences (NALD)' },
+    { id: 'import.licences', displayName: 'Licences' },
+    { id: 'import.licence', displayName: 'Licence' },
+    { id: 'import.delete-documents', displayName: 'Delete removed documents' },
+    { id: 'nald-import.delete-removed-documents', displayName: 'Delete removed documents (NALD)' },
+    { id: 'nald-import.s3-download', displayName: 'NALD Zip Download' },
+    { id: 'nald-import.populate-pending-import', displayName: 'Populate pending import' },
     { id: 'import.bill-runs', displayName: 'Bill runs' },
     { id: 'import.charging-data', displayName: 'Charging data' },
-    { id: 'import.company', displayName: 'Companies' }
+    { id: 'import.companies', displayName: 'Companies' },
+    { id: 'import.company', displayName: 'Company' }
   ];
 
   return Promise.all(pgBossJobsArray.map(async eachJob => {
