@@ -7,7 +7,7 @@ const moment = require('moment');
 moment.locale('en-gb');
 
 const applicationStateConnector = require('../../../../src/lib/connectors/water/application-state');
-const applicationStateService = require('../../../../src/modules/nald-import/services/application-state-service');
+const applicationStateService = require('../../../../src/lib/services/application-state-service');
 
 experiment('modules/nald-import/services/application-state-service', () => {
   beforeEach(async () => {
@@ -27,10 +27,10 @@ experiment('modules/nald-import/services/application-state-service', () => {
     let result;
 
     beforeEach(async () => {
-      result = await applicationStateService.get();
+      result = await applicationStateService.get('nald-import');
     });
 
-    test('the application state coonector is called with the correct key', async () => {
+    test('the application state connector is called with the correct key', async () => {
       expect(applicationStateConnector.getState.calledWith('nald-import')).to.be.true();
     });
 
@@ -40,34 +40,13 @@ experiment('modules/nald-import/services/application-state-service', () => {
   });
 
   experiment('.save', () => {
-    experiment('when the isDownloaded argument is omitted', () => {
-      beforeEach(async () => {
-        await applicationStateService.save('a-new-etag');
-      });
-
-      test('the application state connector is called with the correct key', async () => {
-        const [key] = applicationStateConnector.postState.lastCall.args;
-        expect(key).to.equal('nald-import');
-      });
-
-      test('the etag is updated, and isDownloaded defaults to false', async () => {
-        const [, data] = applicationStateConnector.postState.lastCall.args;
-        expect(data).to.equal({
-          etag: 'a-new-etag',
-          isDownloaded: false
-        });
-      });
+    beforeEach(async () => {
+      await applicationStateService.save('a-new-etag', { isDownloaded: true });
     });
 
-    experiment('when the isDownloaded argument is included', () => {
-      beforeEach(async () => {
-        await applicationStateService.save('a-new-etag', true);
-      });
-
-      test('isDownloaded is set to the value provided', async () => {
-        const [, data] = applicationStateConnector.postState.lastCall.args;
-        expect(data.isDownloaded).to.be.true();
-      });
+    test('isDownloaded is set to the value provided', async () => {
+      const [, data] = applicationStateConnector.postState.lastCall.args;
+      expect(data.isDownloaded).to.be.true();
     });
   });
 });
