@@ -41,7 +41,7 @@ const loadInvoiceAccount = async (company, invoiceAccount) => {
 const loadInvoiceAccounts = async company => {
   // Allow import of invoice accounts to be disabled for charging go live
   if (!config.import.licences.isInvoiceAccountImportEnabled) {
-    return;
+    return [];
   }
 
   const tasks = company.invoiceAccounts.map(invoiceAccount =>

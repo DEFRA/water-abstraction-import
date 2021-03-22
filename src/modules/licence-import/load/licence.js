@@ -27,7 +27,7 @@ const loadDocument = async document => {
 const loadAgreements = licence => {
   // Allow import of licence agreements to be disabled for charging go live
   if (!config.import.licences.isLicenceAgreementImportEnabled) {
-    return;
+    return [];
   }
 
   const tasks = licence.agreements.map(agreement =>
