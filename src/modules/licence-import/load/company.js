@@ -1,5 +1,6 @@
 const { uniqBy } = require('lodash');
 const connectors = require('./connectors');
+const config = require('../../../../config');
 
 const getAddresses = company => {
   const companyAddresses = company.addresses.map(row => row.address);
@@ -9,10 +10,11 @@ const getAddresses = company => {
     return [...acc, ...addresses];
   }, []);
 
-  const addresses = [
-    ...companyAddresses,
-    ...invoiceAccountAddresses
-  ];
+  // Allow import of invoice accounts to be disabled for charging go live
+  const addresses = config.import.licences.isInvoiceAccountImportEnabled
+    ? [...companyAddresses, ...invoiceAccountAddresses]
+    : companyAddresses;
+
   return uniqBy(addresses, row => row.externalId);
 };
 
@@ -37,6 +39,11 @@ const loadInvoiceAccount = async (company, invoiceAccount) => {
 };
 
 const loadInvoiceAccounts = async company => {
+  // Allow import of invoice accounts to be disabled for charging go live
+  if (!config.import.licences.isInvoiceAccountImportEnabled) {
+    return;
+  }
+
   const tasks = company.invoiceAccounts.map(invoiceAccount =>
     loadInvoiceAccount(company, invoiceAccount)
   );

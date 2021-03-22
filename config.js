@@ -77,7 +77,10 @@ module.exports = {
       path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release'
     },
     licences: {
-      schedule: isProduction ? '0 4 * * 1,2,3,4,5' : '0 16 * * 1,2,3,4,5'
+      schedule: isProduction ? '0 4 * * 1,2,3,4,5' : '0 16 * * 1,2,3,4,5',
+      isInvoiceAccountImportEnabled: true,
+      isLicenceAgreementImportEnabled: true,
+      isBillingDocumentRoleImportEnabled: true
     },
     charging: {
       schedule: isProduction ? '0 2 * * 1,2,3,4,5' : '0 14 * * 1,2,3,4,5'
