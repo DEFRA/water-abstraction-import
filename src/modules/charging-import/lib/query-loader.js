@@ -17,7 +17,7 @@ const log = msg => {
  * @param {Array<String>} queries - array of SQL queries to run
  * @returns {Promise}
  */
-const createQueryLoader = (name, queries) => async () => {
+const loadQueries = async (name, queries) => {
   try {
     log(`Starting ${name}`);
 
@@ -33,4 +33,4 @@ const createQueryLoader = (name, queries) => async () => {
   }
 };
 
-exports.createQueryLoader = createQueryLoader;
+exports.loadQueries = loadQueries;
