@@ -78,12 +78,14 @@ module.exports = {
     },
     licences: {
       schedule: isProduction ? '0 4 * * 1,2,3,4,5' : '0 16 * * 1,2,3,4,5',
+      // Note: these 2 flags need to be set to false for charging go-live
+      // to suspend the import of invoice accounts and licence agreements
       isInvoiceAccountImportEnabled: true,
       isLicenceAgreementImportEnabled: true,
       // Note: we think a solution is needed where a list of billing contacts
       // for a given licence is calculated from the charge version history
       // in the water service, and synced to CRM v2.
-      // This will supersede the implementation here were the billing contact history
+      // This will supersede the implementation here where the billing contact history
       // was calculated from NALD data
       isBillingDocumentRoleImportEnabled: false
     },
