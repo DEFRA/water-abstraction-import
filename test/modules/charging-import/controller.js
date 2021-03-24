@@ -5,10 +5,6 @@ const chargeVersionsJob = require('../../../src/modules/charging-import/jobs/cha
 const sandbox = require('sinon').createSandbox();
 
 experiment('modules/charging-import/controller.js', () => {
-  beforeEach(async () => {
-    // sandbox.stub(chargingImport, 'importChargingData');
-  });
-
   afterEach(async () => {
     sandbox.restore();
   });
