@@ -1,9 +1,24 @@
 const connectors = require('./connectors');
+const config = require('../../../../config');
+const roles = require('../transform/mappers/roles');
+
+const isImportableRole = role => {
+  if (config.import.licences.isBillingDocumentRoleImportEnabled) {
+    return true;
+  }
+
+  // Where the import of billing document roles is disabled via the
+  // config flag, we will import any role where it does not have
+  // a "billing" role
+  return role.role !== roles.ROLE_BILLING;
+};
 
 const loadDocumentRoles = async document => {
-  const tasks = document.roles.map(role =>
-    connectors.createDocumentRole(document, role)
-  );
+  const tasks = document.roles
+    .filter(isImportableRole)
+    .map(role =>
+      connectors.createDocumentRole(document, role)
+    );
   return Promise.all(tasks);
 };
 
@@ -13,6 +28,11 @@ const loadDocument = async document => {
 };
 
 const loadAgreements = licence => {
+  // Allow import of licence agreements to be disabled for charging go live
+  if (!config.import.licences.isLicenceAgreementImportEnabled) {
+    return Promise.resolve([]);
+  }
+
   const tasks = licence.agreements.map(agreement =>
     connectors.createAgreement(licence, agreement)
   );
