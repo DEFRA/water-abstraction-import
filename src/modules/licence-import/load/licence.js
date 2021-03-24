@@ -6,7 +6,10 @@ const isImportableRole = role => {
   if (config.import.licences.isBillingDocumentRoleImportEnabled) {
     return true;
   }
-  // Allow import of billing document roles to be disabled for charging go live
+
+  // Where the import of billing document roles is disabled via the
+  // config flag, we will import any role where it does not have
+  // a "billing" role
   return role.role !== roles.ROLE_BILLING;
 };
 
