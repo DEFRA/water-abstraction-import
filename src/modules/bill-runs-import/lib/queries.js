@@ -176,7 +176,7 @@ join (
   from water.billing_invoice_licences il 
   join import."NALD_ABS_LICENCES" nl on il.licence_ref=nl."LIC_NO"
 ) il on i.billing_invoice_id=il.billing_invoice_id and nbt."LIC_ID"=il."ID"
-join water.charge_elements ce on concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ACEL_ID")=ce.external_id
+left join water.charge_elements ce on concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ACEL_ID")=ce.external_id
 left join(
   -- Gets standard charges
   select 
