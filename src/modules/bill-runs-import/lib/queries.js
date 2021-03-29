@@ -112,7 +112,15 @@ insert into water.billing_transactions (
   net_amount,
   legacy_id,
   description,
-  metadata
+  metadata,
+  calc_source_factor,
+  calc_season_factor,
+  calc_loss_factor,
+  calc_suc_factor,
+  calc_s_126_factor,
+  calc_s_127_factor,
+  calc_eiuc_factor,
+  calc_eiuc_source_factor
 )
 select 
 il.billing_invoice_licence_id,
@@ -150,7 +158,15 @@ nbt2.charge_type,
 nbt2.net_amount,
 nbt2.legacy_id,
 nbt2.description,
-row_to_json(nbt) as metadata
+row_to_json(nbt) as metadata,
+nbt."SRCE_VALUE"::numeric,
+nbt."SEAS_VALUE"::numeric,
+nbt."LOSS_VALUE"::numeric,
+nbt."SUC_RATE"::numeric,
+case when nbt."ELEMENT_AGRMNTS" LIKE '%126' THEN REPLACE(nbt."ELEMENT_AGRMNT_VALS", 'x ', '')::numeric ELSE null END,
+case when nbt."ELEMENT_AGRMNTS" LIKE '%127' THEN REPLACE(nbt."ELEMENT_AGRMNT_VALS", 'x ', '')::numeric ELSE null END,
+nbt."EIUC_VALUE"::numeric,
+nbt."EIUC_SRCE_VALUE"::numeric
 from import."NALD_BILL_TRANS" nbt
 join import."NALD_BILL_RUNS" nbr on nbt."FGAC_REGION_CODE"=nbr."FGAC_REGION_CODE" and nbt."ABRN_BILL_RUN_NO"=nbr."BILL_RUN_NO"
 join water.billing_invoices i on concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ABHD_ID")=i.legacy_id
