@@ -159,14 +159,14 @@ nbt2.net_amount,
 nbt2.legacy_id,
 nbt2.description,
 row_to_json(nbt) as metadata,
-nbt."SRCE_VALUE"::numeric,
+nbt2.source_value,
 nbt."SEAS_VALUE"::numeric,
 nbt."LOSS_VALUE"::numeric,
-nbt."SUC_RATE"::numeric,
+nbt2.suc_rate,
 case when nbt."ELEMENT_AGRMNTS" LIKE '%126' THEN REPLACE(nbt."ELEMENT_AGRMNT_VALS", 'x ', '')::numeric ELSE null END,
 case when nbt."ELEMENT_AGRMNTS" LIKE '%127' THEN REPLACE(nbt."ELEMENT_AGRMNT_VALS", 'x ', '')::numeric ELSE null END,
-nbt."EIUC_VALUE"::numeric,
-nbt."EIUC_SRCE_VALUE"::numeric
+nbt2.eiuc_value,
+nbt2.eiuc_source_value
 from import."NALD_BILL_TRANS" nbt
 join import."NALD_BILL_RUNS" nbr on nbt."FGAC_REGION_CODE"=nbr."FGAC_REGION_CODE" and nbt."ABRN_BILL_RUN_NO"=nbr."BILL_RUN_NO"
 join water.billing_invoices i on concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ABHD_ID")=i.legacy_id
@@ -176,7 +176,7 @@ join (
   from water.billing_invoice_licences il 
   join import."NALD_ABS_LICENCES" nl on il.licence_ref=nl."LIC_NO"
 ) il on i.billing_invoice_id=il.billing_invoice_id and nbt."LIC_ID"=il."ID"
-left join water.charge_elements ce on concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ACEL_ID")=ce.external_id
+join water.charge_elements ce on concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ACEL_ID")=ce.external_id
 left join(
   -- Gets standard charges
   select 
@@ -203,7 +203,11 @@ left join(
       when not nbt2.is_two_part_tariff
         then coalesce(nbt2.charge_element_descr, nbt2.purpose_use_descr)
       end
-  ) as description
+  ) as description,
+    nbt."SRCE_VALUE"::numeric as source_value,
+    nbt."SUC_RATE"::numeric as suc_rate,
+    0 as eiuc_value,
+    0 as eiuc_source_value
   from import."NALD_BILL_TRANS" nbt
   join (
     select 
@@ -225,7 +229,11 @@ left join(
   'compensation'::water.charge_type as charge_type,
   nbt."FINAL_A2_BILLABLE_AMOUNT"::numeric*100 as net_amount,
   concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ID", 'C') as legacy_id,
-  'Compensation Charge calculated from all factors except Standard Unit Charge and Source (replaced by factors below) and excluding S127 Charge Element' as description
+  'Compensation Charge calculated from all factors except Standard Unit Charge and Source (replaced by factors below) and excluding S127 Charge Element' as description,
+    0 as source_value,
+    0 as suc_rate,
+    nbt."EIUC_VALUE"::numeric as eiuc_value,
+    nbt."EIUC_SRCE_VALUE"::numeric as eiuc_source_value
   from import."NALD_BILL_TRANS" nbt
   join (
     -- Non-TPT bill runs
