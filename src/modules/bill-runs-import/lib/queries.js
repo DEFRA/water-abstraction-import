@@ -164,7 +164,7 @@ nbt."SEAS_VALUE"::numeric,
 nbt."LOSS_VALUE"::numeric,
 nbt2.suc_rate,
 case when nbt."ELEMENT_AGRMNTS" LIKE '%126' THEN REPLACE(nbt."ELEMENT_AGRMNT_VALS", 'x ', '')::numeric ELSE null END,
-case when nbt."ELEMENT_AGRMNTS" LIKE '%127' THEN REPLACE(nbt."ELEMENT_AGRMNT_VALS", 'x ', '')::numeric ELSE null END,
+nbt2.s127,
 nbt2.eiuc_value,
 nbt2.eiuc_source_value
 from import."NALD_BILL_TRANS" nbt
@@ -207,7 +207,8 @@ left join(
     nbt."SRCE_VALUE"::numeric as source_value,
     nbt."SUC_RATE"::numeric as suc_rate,
     0 as eiuc_value,
-    0 as eiuc_source_value
+    0 as eiuc_source_value,
+    case when nbt."ELEMENT_AGRMNTS" LIKE '%127' THEN REPLACE(nbt."ELEMENT_AGRMNT_VALS", 'x ', '')::numeric ELSE null END as s127
   from import."NALD_BILL_TRANS" nbt
   join (
     select 
@@ -233,7 +234,8 @@ left join(
     0 as source_value,
     0 as suc_rate,
     nbt."EIUC_VALUE"::numeric as eiuc_value,
-    nbt."EIUC_SRCE_VALUE"::numeric as eiuc_source_value
+    nbt."EIUC_SRCE_VALUE"::numeric as eiuc_source_value,
+    null as s127
   from import."NALD_BILL_TRANS" nbt
   join (
     -- Non-TPT bill runs
