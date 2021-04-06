@@ -5,8 +5,8 @@ const sandbox = require('sinon').createSandbox();
 const cron = require('node-cron');
 
 const { plugin } = require('../../../src/modules/charging-import/plugin');
-const jobs = require('../../../src/modules/charging-import/jobs');
-const chargingImport = require('../../../src/modules/charging-import/lib/import.js');
+
+const chargingDataJob = require('../../../src/modules/charging-import/jobs/charging-data');
 
 const { expect } = require('@hapi/code');
 
@@ -47,7 +47,13 @@ experiment('modules/charging-import/plugin.js', () => {
 
       test('adds subscriber for import charging data job', async () => {
         expect(server.messageQueue.subscribe.calledWith(
-          jobs.IMPORT_CHARGING_DATA, chargingImport.importChargingData
+          chargingDataJob.jobName, chargingDataJob.handler
+        )).to.be.true();
+      });
+
+      test('adds subscriber for import charge versions job', async () => {
+        expect(server.messageQueue.subscribe.calledWith(
+          chargingDataJob.jobName, chargingDataJob.handler
         )).to.be.true();
       });
 
@@ -66,11 +72,11 @@ experiment('modules/charging-import/plugin.js', () => {
         await plugin.register(server);
       });
 
-      test('subscribers are bound', async () => {
-        expect(server.messageQueue.subscribe.callCount).to.equal(1);
+      test('2 subscribers are bound', async () => {
+        expect(server.messageQueue.subscribe.callCount).to.equal(2);
       });
 
-      test('cron jobs are scheduled', async () => {
+      test('1 cron job is scheduled', async () => {
         expect(cron.schedule.callCount).to.equal(1);
       });
     });

@@ -1,7 +1,8 @@
 'use strict';
 
 const { partial } = require('lodash');
-const jobs = require('./jobs');
+
+const chargeVersionsJob = require('./jobs/charge-versions');
 
 const createPostHandler = async (createMessage, request) => {
   await request.messageQueue.publish(createMessage());
@@ -16,6 +17,6 @@ const createPostHandler = async (createMessage, request) => {
  * water service tables from NALD import tables
  * @return {Promise}
  */
-const postImportChargingData = partial(createPostHandler, jobs.importChargingData);
+const postImportChargingData = partial(createPostHandler, chargeVersionsJob.createMessage);
 
 exports.postImportChargingData = postImportChargingData;

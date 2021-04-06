@@ -85,7 +85,6 @@ const createLicence = async licence => {
     licence.lapsedDate,
     licence.revokedDate
   ]);
-
   return result.rows[0];
 };
 
@@ -106,6 +105,13 @@ const createLicenceVersionPurpose = async (purpose, licenceVersionId) =>
     purpose.externalId
   ]);
 
+const getLicenceByRef = async licenceRef => {
+  const result = await pool.query(queries.getLicenceByRef, [licenceRef]);
+  return result.rows[0];
+};
+
+const flagLicenceForSupplementaryBilling = async licenceId => pool.query(queries.flagLicenceForSupplementaryBilling, [licenceId]);
+
 exports.createAddress = createAddress;
 exports.createAgreement = createAgreement;
 exports.createCompany = createCompany;
@@ -119,3 +125,5 @@ exports.createInvoiceAccountAddress = createInvoiceAccountAddress;
 exports.createLicence = createLicence;
 exports.createLicenceVersion = createLicenceVersion;
 exports.createLicenceVersionPurpose = createLicenceVersionPurpose;
+exports.getLicenceByRef = getLicenceByRef;
+exports.flagLicenceForSupplementaryBilling = flagLicenceForSupplementaryBilling;

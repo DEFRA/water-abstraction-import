@@ -14,8 +14,7 @@ const statuses = {
 const mapStatus = status => statuses[status];
 
 const getDocumentEndDate = (licenceVersion, licence) => {
-  const endDates = [licence.endDate, licenceVersion.EFF_END_DATE]
-    .map(date.mapNaldDate)
+  const endDates = [licence.endDate, date.mapNaldDate(licenceVersion.EFF_END_DATE)]
     .filter(identity);
 
   return date.getMinDate(endDates);

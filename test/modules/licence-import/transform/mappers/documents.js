@@ -236,7 +236,7 @@ experiment('modules/licence-import/transform/mappers/document', () => {
     test('the licence end date is used', async () => {
       const licence = {
         licenceNumber: '123/123',
-        endDate: '01/01/2020'
+        endDate: '2020-01-01'
       };
 
       const versions = [
@@ -261,7 +261,7 @@ experiment('modules/licence-import/transform/mappers/document', () => {
     test('the earliest date is used', async () => {
       const licence = {
         licenceNumber: '123/123',
-        endDate: '01/01/2020'
+        endDate: '2020-01-01'
       };
 
       const versions = [

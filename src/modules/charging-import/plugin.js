@@ -1,17 +1,21 @@
-const cron = require('node-cron');
-const jobs = require('./jobs');
+'use strict';
 
-const chargingImport = require('./lib/import');
+const cron = require('node-cron');
+
+const chargeVersionsJob = require('./jobs/charge-versions');
+const chargingDataJob = require('./jobs/charging-data');
 
 const { createRegister } = require('../../lib/plugin');
 const config = require('../../../config');
 
 const registerSubscribers = async server => {
-  // Register PG boss job handlers
-  await server.messageQueue.subscribe(jobs.IMPORT_CHARGING_DATA, chargingImport.importChargingData);
+  // Register handlers
+  await server.messageQueue.subscribe(chargeVersionsJob.jobName, chargeVersionsJob.handler);
+  await server.messageQueue.subscribe(chargingDataJob.jobName, chargingDataJob.handler);
 
+  // Set up import of charge data on cron job
   cron.schedule(config.import.charging.schedule,
-    () => server.messageQueue.publish(jobs.importChargingData())
+    () => server.messageQueue.publish(chargingDataJob.createMessage())
   );
 };
 

@@ -509,4 +509,38 @@ experiment('modules/licence-import/load/connectors', () => {
       ]);
     });
   });
+
+  experiment('.getLicenceByRef', () => {
+    beforeEach(async () => {
+      await connectors.getLicenceByRef('test-licence-ref');
+    });
+
+    test('Calls the correct query', () => {
+      const [query] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.getLicenceByRef);
+    });
+
+    test('passes the expected params', async () => {
+      const [, params] = pool.query.lastCall.args;
+
+      expect(params).to.equal(['test-licence-ref']);
+    });
+  });
+
+  experiment('.getLicenceByRef', () => {
+    beforeEach(async () => {
+      await connectors.flagLicenceForSupplementaryBilling('test-licence-id');
+    });
+
+    test('Calls the correct query', () => {
+      const [query] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.flagLicenceForSupplementaryBilling);
+    });
+
+    test('passes the expected params', async () => {
+      const [, params] = pool.query.lastCall.args;
+
+      expect(params).to.equal(['test-licence-id']);
+    });
+  });
 });

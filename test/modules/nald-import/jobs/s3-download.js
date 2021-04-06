@@ -6,7 +6,7 @@ const sandbox = require('sinon').createSandbox();
 
 const { logger } = require('../../../../src/logger');
 const extractService = require('../../../../src/modules/nald-import/services/extract-service.js');
-const applicationStateService = require('../../../../src/modules/nald-import/services/application-state-service.js');
+const applicationStateService = require('../../../../src/lib/services/application-state-service.js');
 const s3Service = require('../../../../src/modules/nald-import/services/s3-service.js');
 
 const s3Download = require('../../../../src/modules/nald-import/jobs/s3-download');
@@ -19,7 +19,7 @@ const testDownloadOccurs = () => {
   });
 
   test('updates the application state with the new etag', async () => {
-    expect(applicationStateService.save.firstCall.args).to.equal(['test-etag']);
+    expect(applicationStateService.save.firstCall.args).to.equal(['nald-import', { etag: 'test-etag', isDownloaded: false }]);
   });
 
   test('downloads and extracts from S3 bucket', async () => {
@@ -27,7 +27,7 @@ const testDownloadOccurs = () => {
   });
 
   test('updates the application state when file imported', async () => {
-    expect(applicationStateService.save.secondCall.args).to.equal(['test-etag', true]);
+    expect(applicationStateService.save.secondCall.args).to.equal(['nald-import', { etag: 'test-etag', isDownloaded: true }]);
   });
 };
 
