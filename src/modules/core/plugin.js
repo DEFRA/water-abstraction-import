@@ -20,6 +20,7 @@ const subscribe = async (server, job) => {
   if (job.onCompleteHandler) {
     await server.messageQueue.onComplete(jobName, executedJob => job.onCompleteHandler(executedJob, server.messageQueue));
   }
+};
 
 const registerSubscribers = async server => {
   await subscribe(server, importTrackerJob);
