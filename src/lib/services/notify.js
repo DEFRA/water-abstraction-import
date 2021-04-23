@@ -2,8 +2,6 @@
 
 const notifyConnector = require('../connectors/water/notify');
 
-const sendNotifyMessage = async (messageRef, data) => {
-  return notifyConnector.postSendMessage(messageRef, data);
-};
+const sendNotifyMessage = async (messageRef, data) => notifyConnector.postSendMessage(messageRef, data);
 
 exports.sendNotifyMessage = sendNotifyMessage;
