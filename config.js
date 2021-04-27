@@ -105,5 +105,10 @@ module.exports = {
       tls: {}
     },
     db: 0
+  },
+  notify: {
+    templates: {
+      service_status_alert: 'c34d1b16-694b-4364-8e7e-83e9dbd34a62'
+    }
   }
 };

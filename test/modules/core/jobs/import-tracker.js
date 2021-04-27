@@ -17,7 +17,7 @@ experiment('modules/core/jobs/import-tracker', () => {
     sandbox.stub(logger, 'error');
     sandbox.stub(slack, 'post');
     sandbox.stub(jobsConnector, 'getFailedJobs');
-    sandbox.stub(notifyService, 'sendNotifyMessage');
+    sandbox.stub(notifyService, 'sendEmail');
   });
 
   afterEach(async () => {
@@ -43,7 +43,7 @@ experiment('modules/core/jobs/import-tracker', () => {
 
     experiment('when there are jobs that have failed', () => {
       experiment('on the production environment', () => {
-        const testMessage = 'WRLS Import summary of failed jobs in the production environment\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate failed: 2001-01-01\n\n';
+        let testMessage = 'There is 1 failed import job in the production environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n';
         beforeEach(async () => {
           sandbox.stub(process, 'env').value({
             NODE_ENV: 'production',
@@ -52,7 +52,8 @@ experiment('modules/core/jobs/import-tracker', () => {
           jobsConnector.getFailedJobs.resolves([{
             jobName: 'Test.Job.Name',
             total: 100,
-            dateFailed: '2001-01-01'
+            dateCreated: '2001-01-01',
+            dateCompleted: '2001-01-01'
           }]);
           await importTrackerJob.handler(job);
         });
@@ -62,16 +63,38 @@ experiment('modules/core/jobs/import-tracker', () => {
           expect(result).to.equal(testMessage);
         });
         test('the handler post the correct message to notify', async () => {
-          const [templateRef, data] = notifyService.sendNotifyMessage.lastCall.args;
-          console.log(data);
+          const [recipient, templateRef, data] = notifyService.sendEmail.lastCall.args;
+          expect(recipient).to.equal('test-mailbox@test.com');
           expect(templateRef).to.equal('service_status_alert');
-          expect(data).to.equal({ recipient: 'test-mailbox@test.com', personalisation: { content: testMessage } });
+          expect(data).to.equal({ content: testMessage });
+        });
+        test('when there are 2 failed job the sub title is pluralised', async () => {
+          testMessage = 'There are 2 failed import jobs in the production environment.' +
+            '\n\nJob Name: Test.Job.Name 1 \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n' +
+            'Job Name: Test.Job.Name 2 \nTotal Errors: 100 \nDate created: 2010-01-01 \nDate completed: 2010-01-01\n\n';
+          jobsConnector.getFailedJobs.resolves([{
+            jobName: 'Test.Job.Name 1',
+            total: 100,
+            dateCreated: '2001-01-01',
+            dateCompleted: '2001-01-01'
+          },
+          {
+            jobName: 'Test.Job.Name 2',
+            total: 100,
+            dateCreated: '2010-01-01',
+            dateCompleted: '2010-01-01'
+          }]);
+          await importTrackerJob.handler(job);
+          const [recipient, templateRef, data] = notifyService.sendEmail.lastCall.args;
+          expect(recipient).to.equal('test-mailbox@test.com');
+          expect(templateRef).to.equal('service_status_alert');
+          expect(data).to.equal({ content: testMessage });
         });
       });
     });
 
     experiment('on the preprod environment', () => {
-      const testMessage = 'WRLS Import summary of failed jobs in the preprod environment\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate failed: 2001-01-01\n\n';
+      const testMessage = 'There is 1 failed import job in the preprod environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n';
       beforeEach(async () => {
         sandbox.stub(process, 'env').value({
           NODE_ENV: 'preprod',
@@ -80,7 +103,8 @@ experiment('modules/core/jobs/import-tracker', () => {
         jobsConnector.getFailedJobs.resolves([{
           jobName: 'Test.Job.Name',
           total: 100,
-          dateFailed: '2001-01-01'
+          dateCreated: '2001-01-01',
+          dateCompleted: '2001-01-01'
         }]);
         await importTrackerJob.handler(job);
       });
@@ -90,15 +114,15 @@ experiment('modules/core/jobs/import-tracker', () => {
         expect(result).to.equal(testMessage);
       });
       test('the handler post the correct message to notify', async () => {
-        const [templateRef, data] = notifyService.sendNotifyMessage.lastCall.args;
-        console.log(data);
+        const [recipient, templateRef, data] = notifyService.sendEmail.lastCall.args;
+        expect(recipient).to.equal('test-mailbox@test.com');
         expect(templateRef).to.equal('service_status_alert');
-        expect(data).to.equal({ recipient: 'test-mailbox@test.com', personalisation: { content: testMessage } });
+        expect(data).to.equal({ content: testMessage });
       });
     });
 
     experiment('on the test environment', () => {
-      const testMessage = 'WRLS Import summary of failed jobs in the test environment\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate failed: 2001-01-01\n\n';
+      const testMessage = 'There is 1 failed import job in the test environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n';
       beforeEach(async () => {
         sandbox.stub(process, 'env').value({
           NODE_ENV: 'test'
@@ -106,7 +130,8 @@ experiment('modules/core/jobs/import-tracker', () => {
         jobsConnector.getFailedJobs.resolves([{
           jobName: 'Test.Job.Name',
           total: 100,
-          dateFailed: '2001-01-01'
+          dateCreated: '2001-01-01',
+          dateCompleted: '2001-01-01'
         }]);
         await importTrackerJob.handler(job);
       });
@@ -116,7 +141,7 @@ experiment('modules/core/jobs/import-tracker', () => {
         expect(result).to.equal(testMessage);
       });
       test('the handler does not post a message to notify', async () => {
-        expect(notifyService.sendNotifyMessage.calledOnce).to.be.false();
+        expect(notifyService.sendEmail.calledOnce).to.be.false();
       });
     });
 
@@ -130,7 +155,7 @@ experiment('modules/core/jobs/import-tracker', () => {
         expect(slack.post.calledOnce).to.be.false();
       });
       test('the handler post the correct message to notify', async () => {
-        expect(notifyService.sendNotifyMessage.calledOnce).to.be.false();
+        expect(notifyService.sendEmail.calledOnce).to.be.false();
       });
     });
   });
