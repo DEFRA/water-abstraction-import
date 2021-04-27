@@ -6,7 +6,6 @@ const messageTypes = {
 
 /**
  * Gets the Notify API key.
- * @TODO we may need per-message type/environment config of key selection
  * @param  {Object} env  Node environment
  * @param  {String} type Message type email|letter
  * @return {String}      Notify API key
