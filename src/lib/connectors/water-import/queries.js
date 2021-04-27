@@ -23,10 +23,11 @@ where
     group by a.state) cte 
     group by state`;
 
-const pgBossFailedJobs = `select name, sum(count) as count, max(max_completed_date) as max_completed_date from (select
+const pgBossFailedJobs = `select name, sum(count) as count, max(max_completed_date) as max_completed_date, max(max_created_date) as max_created_date from (select
         name,
         COUNT(*),
-        max(completedon) as max_completed_date
+        max(completedon) as max_completed_date,
+        max(createdon) as max_created_date
     from
         water_import.job j
     where
@@ -37,7 +38,8 @@ const pgBossFailedJobs = `select name, sum(count) as count, max(max_completed_da
     select
         name,
         COUNT(*),
-        max(completedon) as max_completed_date
+        max(completedon) as max_completed_date,
+        max(createdon) as max_created_date
     from
         water_import.archive a
     where
