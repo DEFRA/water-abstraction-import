@@ -33,8 +33,8 @@ VALUES ($1, $2, $3, NOW(), NOW()) ON CONFLICT (external_id) DO UPDATE SET name=E
 date_updated=EXCLUDED.date_updated, type=EXCLUDED.type;`;
 
 exports.createAddress = `INSERT INTO crm_v2.addresses (address_1, address_2, address_3, address_4,
-town, county, postcode, country, external_id, data_source, date_created, date_updated)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'nald', NOW(), NOW()) ON CONFLICT (external_id) DO UPDATE SET
+town, county, postcode, country, external_id, data_source, date_created, date_updated, current_hash)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'nald', NOW(), NOW(), md5(CAST(($1, $2, $3, $4, $5, $6, $7) AS text))) ON CONFLICT (external_id) DO UPDATE SET
 address_1=EXCLUDED.address_1,
 address_2=EXCLUDED.address_2,
 address_3=EXCLUDED.address_3,
@@ -43,6 +43,7 @@ town=EXCLUDED.town,
 county=EXCLUDED.county,
 postcode=EXCLUDED.postcode,
 country=EXCLUDED.country,
+current_hash=md5(CAST((EXCLUDED.address_1, EXCLUDED.address_2, EXCLUDED.address_3, EXCLUDED.address_4, EXCLUDED.town, EXCLUDED.county, EXCLUDED.postcode) AS text))
 date_updated=EXCLUDED.date_updated;`;
 
 exports.createContact = `INSERT INTO crm_v2.contacts (salutation, initials, first_name, last_name, external_id, data_source, date_created, date_updated)
