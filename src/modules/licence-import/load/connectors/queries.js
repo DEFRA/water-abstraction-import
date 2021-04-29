@@ -30,7 +30,7 @@ ON CONFLICT (document_id, role_id, start_date)
 
 exports.createCompany = `INSERT INTO crm_v2.companies (name, type, external_id, date_created, date_updated, current_hash)
 VALUES ($1, $2, $3, NOW(), NOW(), md5(CAST($1, $2) AS text)) ON CONFLICT (external_id) DO UPDATE SET name=EXCLUDED.name,
-date_updated=EXCLUDED.date_updated, type=EXCLUDED.type, last_hash=md5(CAST(EXCLUDED.name, EXCLUDED.type) as text);`;
+date_updated=EXCLUDED.date_updated, type=EXCLUDED.type, last_hash=EXCLUDED.current_hash, current_hash=md5(CAST(EXCLUDED.name, EXCLUDED.type) as text);`;
 
 exports.createAddress = `INSERT INTO crm_v2.addresses (address_1, address_2, address_3, address_4,
 town, county, postcode, country, external_id, data_source, date_created, date_updated, current_hash)
@@ -43,6 +43,7 @@ town=EXCLUDED.town,
 county=EXCLUDED.county,
 postcode=EXCLUDED.postcode,
 country=EXCLUDED.country,
+last_hash=EXCLUDED.current_hash, 
 current_hash=md5(CAST((EXCLUDED.address_1, EXCLUDED.address_2, EXCLUDED.address_3, EXCLUDED.address_4, EXCLUDED.town, EXCLUDED.county, EXCLUDED.postcode) AS text))
 date_updated=EXCLUDED.date_updated;`;
 
@@ -54,6 +55,7 @@ VALUES ($1, $2, $3, $4, $5, 'nald', NOW(), NOW(), md5(cast($1, $3, $4) as text))
   last_name=EXCLUDED.last_name,
   external_id=EXCLUDED.external_id,
   date_updated=EXCLUDED.date_updated,
+  last_hash=EXCLUDED.current_hash,
   current_hash=md5(cast(EXCLUDED.salutation, EXCLUDED.first_name, EXCLUDED.last_name) as text));`;
 
 exports.createInvoiceAccount = `INSERT INTO crm_v2.invoice_accounts (company_id, invoice_account_number, start_date, end_date, date_created, date_updated)
