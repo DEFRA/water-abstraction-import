@@ -46,14 +46,15 @@ country=EXCLUDED.country,
 current_hash=md5(CAST((EXCLUDED.address_1, EXCLUDED.address_2, EXCLUDED.address_3, EXCLUDED.address_4, EXCLUDED.town, EXCLUDED.county, EXCLUDED.postcode) AS text))
 date_updated=EXCLUDED.date_updated;`;
 
-exports.createContact = `INSERT INTO crm_v2.contacts (salutation, initials, first_name, last_name, external_id, data_source, date_created, date_updated)
-VALUES ($1, $2, $3, $4, $5, 'nald', NOW(), NOW()) ON CONFLICT (external_id) DO UPDATE SET
+exports.createContact = `INSERT INTO crm_v2.contacts (salutation, initials, first_name, last_name, external_id, data_source, date_created, date_updated, current_hash)
+VALUES ($1, $2, $3, $4, $5, 'nald', NOW(), NOW(), md5(cast($1, $3, $4) as text)) ON CONFLICT (external_id) DO UPDATE SET
   salutation=EXCLUDED.salutation,
   initials=EXCLUDED.initials,
   first_name=EXCLUDED.first_name,
   last_name=EXCLUDED.last_name,
   external_id=EXCLUDED.external_id,
-  date_updated=EXCLUDED.date_updated;`;
+  date_updated=EXCLUDED.date_updated,
+  current_hash=md5(cast(EXCLUDED.salutation, EXCLUDED.first_name, EXCLUDED.last_name) as text));`;
 
 exports.createInvoiceAccount = `INSERT INTO crm_v2.invoice_accounts (company_id, invoice_account_number, start_date, end_date, date_created, date_updated)
 SELECT company_id, $1, $2, $3, NOW(), NOW() FROM crm_v2.companies WHERE external_id=$4
