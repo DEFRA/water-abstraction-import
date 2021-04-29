@@ -28,9 +28,9 @@ ON CONFLICT (document_id, role_id, start_date)
     end_date=EXCLUDED.end_date,
     date_updated=EXCLUDED.date_updated;`;
 
-exports.createCompany = `INSERT INTO crm_v2.companies (name, type, external_id, date_created, date_updated)
-VALUES ($1, $2, $3, NOW(), NOW()) ON CONFLICT (external_id) DO UPDATE SET name=EXCLUDED.name,
-date_updated=EXCLUDED.date_updated, type=EXCLUDED.type;`;
+exports.createCompany = `INSERT INTO crm_v2.companies (name, type, external_id, date_created, date_updated, current_hash)
+VALUES ($1, $2, $3, NOW(), NOW(), md5(CAST($1, $2) AS text)) ON CONFLICT (external_id) DO UPDATE SET name=EXCLUDED.name,
+date_updated=EXCLUDED.date_updated, type=EXCLUDED.type, last_hash=md5(CAST(EXCLUDED.name, EXCLUDED.type) as text);`;
 
 exports.createAddress = `INSERT INTO crm_v2.addresses (address_1, address_2, address_3, address_4,
 town, county, postcode, country, external_id, data_source, date_created, date_updated, current_hash)
