@@ -29,12 +29,16 @@ ON CONFLICT (document_id, role_id, start_date)
     date_updated=EXCLUDED.date_updated;`;
 
 exports.createCompany = `INSERT INTO crm_v2.companies (name, type, external_id, date_created, date_updated, current_hash)
-VALUES ($1, $2, $3, NOW(), NOW(), md5(CAST($1, $2) AS text)) ON CONFLICT (external_id) DO UPDATE SET name=EXCLUDED.name,
-date_updated=EXCLUDED.date_updated, type=EXCLUDED.type, last_hash=EXCLUDED.current_hash, current_hash=md5(CAST(EXCLUDED.name, EXCLUDED.type) as text);`;
+VALUES ($1, $2, $3, NOW(), NOW(), md5(CONCAT($1::varchar, $2::varchar)::varchar)) ON CONFLICT (external_id) DO UPDATE SET name=EXCLUDED.name,
+date_updated=EXCLUDED.date_updated, type=EXCLUDED.type, last_hash=EXCLUDED.current_hash, current_hash=md5((EXCLUDED.name,EXCLUDED.type)::varchar);`;
 
 exports.createAddress = `INSERT INTO crm_v2.addresses (address_1, address_2, address_3, address_4,
 town, county, postcode, country, external_id, data_source, date_created, date_updated, current_hash)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'nald', NOW(), NOW(), md5(CAST(($1, $2, $3, $4, $5, $6, $7) AS text))) ON CONFLICT (external_id) DO UPDATE SET
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'nald', NOW(), NOW(), md5(
+CONCAT(
+    $1::varchar, $2::varchar, $3::varchar, $4::varchar, $5::varchar, $6::varchar, $7::varchar
+  )::varchar
+)) ON CONFLICT (external_id) DO UPDATE SET
 address_1=EXCLUDED.address_1,
 address_2=EXCLUDED.address_2,
 address_3=EXCLUDED.address_3,
@@ -44,11 +48,19 @@ county=EXCLUDED.county,
 postcode=EXCLUDED.postcode,
 country=EXCLUDED.country,
 last_hash=EXCLUDED.current_hash, 
-current_hash=md5(CAST((EXCLUDED.address_1, EXCLUDED.address_2, EXCLUDED.address_3, EXCLUDED.address_4, EXCLUDED.town, EXCLUDED.county, EXCLUDED.postcode) AS text))
+current_hash=md5(CONCAT(
+EXCLUDED.address_1::varchar,
+EXCLUDED.address_2::varchar,
+EXCLUDED.address_3::varchar,
+EXCLUDED.address_4::varchar,
+EXCLUDED.town::varchar,
+EXCLUDED.county::varchar,
+EXCLUDED.postcode::varchar
+)::varchar),
 date_updated=EXCLUDED.date_updated;`;
 
 exports.createContact = `INSERT INTO crm_v2.contacts (salutation, initials, first_name, last_name, external_id, data_source, date_created, date_updated, current_hash)
-VALUES ($1, $2, $3, $4, $5, 'nald', NOW(), NOW(), md5(cast($1, $3, $4) as text)) ON CONFLICT (external_id) DO UPDATE SET
+VALUES ($1, $2, $3, $4, $5, 'nald', NOW(), NOW(), md5(CONCAT($1::varchar,$3::varchar,$4::varchar)::varchar)) ON CONFLICT (external_id) DO UPDATE SET
   salutation=EXCLUDED.salutation,
   initials=EXCLUDED.initials,
   first_name=EXCLUDED.first_name,
@@ -56,7 +68,11 @@ VALUES ($1, $2, $3, $4, $5, 'nald', NOW(), NOW(), md5(cast($1, $3, $4) as text))
   external_id=EXCLUDED.external_id,
   date_updated=EXCLUDED.date_updated,
   last_hash=EXCLUDED.current_hash,
-  current_hash=md5(cast(EXCLUDED.salutation, EXCLUDED.first_name, EXCLUDED.last_name) as text));`;
+  current_hash=md5(CONCAT(
+  EXCLUDED.salutation::varchar,
+  EXCLUDED.first_name::varchar,
+  EXCLUDED.last_name::varchar
+  )::varchar);`;
 
 exports.createInvoiceAccount = `INSERT INTO crm_v2.invoice_accounts (company_id, invoice_account_number, start_date, end_date, date_created, date_updated)
 SELECT company_id, $1, $2, $3, NOW(), NOW() FROM crm_v2.companies WHERE external_id=$4
@@ -70,7 +86,7 @@ exports.createInvoiceAccountAddress = `INSERT INTO crm_v2.invoice_account_addres
 SELECT ia.invoice_account_id, a.address_id, c.company_id, $3, $4, NOW(), NOW()
 FROM crm_v2.invoice_accounts ia
 JOIN crm_v2.addresses a ON a.external_id=$2
-JOIN crm_v2.companies c ON c.external_id=$5
+LEFT JOIN crm_v2.companies c ON c.external_id=$5
 WHERE ia.invoice_account_number=$1 ON CONFLICT (invoice_account_id, start_date) DO UPDATE SET
   address_id=EXCLUDED.address_id,
   end_date=EXCLUDED.end_date,
