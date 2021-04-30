@@ -15,8 +15,8 @@ const getKey = (env, type) => {
   if (env.NODE_ENV === 'production') {
     return env.LIVE_NOTIFY_KEY;
   }
-  // In other environments, use whitelist key for email/SMS, and test key for anything else
-  return [messageTypes.email, messageTypes.sms].includes(type)
+  // In other environments, use whitelist key for email, and test key for anything else
+  return [messageTypes.email].includes(type)
     ? env.WHITELIST_NOTIFY_KEY
     : env.TEST_NOTIFY_KEY;
 };

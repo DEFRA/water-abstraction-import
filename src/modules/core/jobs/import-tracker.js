@@ -7,6 +7,7 @@ const PRODUCTION = 'production';
 const slack = require('../../../lib/slack');
 const jobsConnector = require('../../../lib/connectors/water-import/jobs');
 const notifyService = require('../../../lib/services/notify');
+
 const createMessage = () => ({
   name: JOB_NAME,
   options: {
