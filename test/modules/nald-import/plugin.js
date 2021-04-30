@@ -136,7 +136,7 @@ experiment('modules/nald-import/plugin', () => {
     beforeEach(async () => {
       sandbox.stub(config, 'isProduction').value(false);
       sandbox.stub(process, 'env').value({
-        NODE_ENV: 'test'
+        NODE_ENV: 'qa'
       });
       await plugin.register(server);
     });
