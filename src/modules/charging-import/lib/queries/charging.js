@@ -163,6 +163,105 @@ DELETE FROM water.charge_versions WHERE charge_version_id IN (
     and billing_batch_charge_version_year_id is null
 );`;
 
+/**
+ * This query deletes TPT licence agreements that were imported via the
+ * original implementation.  These have no external ID set.
+ */
+const cleanupTwoPartTariffAgreementsWithoutExternalId = `
+delete from water.licence_agreements la
+  using water.financial_agreement_types fat 
+  where 
+    la.financial_agreement_type_id=fat.financial_agreement_type_id
+    and fat.financial_agreement_code='S127'
+    and la.external_id is null;
+`;
+
+const getTwoPartTariffAgreements = `
+select 
+  nl."LIC_NO" as licence_ref,
+  fat.financial_agreement_type_id,
+  -- Start date is charge version start date or agreement start date, whichever is later
+  greatest(
+    to_date(ncv."EFF_ST_DATE", 'DD/MM/YYYY'), 
+    to_date(nca."EFF_ST_DATE", 'DD/MM/YYYY')
+  ) as start_date,
+  -- End date is charge version end date or agreement end date, whichever is earlier
+  least(
+    to_date(nullif(ncv."EFF_END_DATE", 'null'), 'DD/MM/YYYY'),
+    to_date(nullif(nca."EFF_END_DATE", 'null'), 'DD/MM/YYYY')
+  ) as end_date,
+  to_date(nullif(nca."SIGNED_DATE", 'null'), 'DD/MM/YYYY') as date_signed,
+  pu.purpose_use_id,
+  -- Calculate a legacy ID which can be used for upserting the licence agreements
+  concat_ws(':', 
+    ncv."FGAC_REGION_CODE",
+    ncv."AABL_ID",
+    ncv."VERS_NO",
+    nca."AFSA_CODE"
+  ) as external_id
+from import."NALD_CHG_VERSIONS" ncv
+join import."NALD_ABS_LICENCES" nl on ncv."FGAC_REGION_CODE"=nl."FGAC_REGION_CODE" and ncv."AABL_ID"=nl."ID"
+join import."NALD_CHG_ELEMENTS" nce on ncv."FGAC_REGION_CODE"=nce."FGAC_REGION_CODE" and ncv."AABL_ID"=nce."ACVR_AABL_ID" and ncv."VERS_NO"=nce."ACVR_VERS_NO"
+join import."NALD_CHG_AGRMNTS" nca on nce."FGAC_REGION_CODE"=nca."FGAC_REGION_CODE" and nce."ID"=nca."ACEL_ID"
+join water.purposes_uses pu on nce."APUR_APUS_CODE"=pu.legacy_id
+join water.financial_agreement_types fat on nca."AFSA_CODE"=fat.financial_agreement_code
+where concat_ws(':', 
+  ncv."FGAC_REGION_CODE", 
+  ncv."AABL_ID", 
+  ncv."VERS_NO"
+) in (
+  -- Finds the charge versions to select.  
+  -- Draft charge versions are omitted.
+  -- Where multiple charge versions begin on the same date, 
+  -- pick the one with the greatest version number.
+  select concat_ws(':', 
+    ncv."FGAC_REGION_CODE", 
+    ncv."AABL_ID", 
+    max(ncv."VERS_NO"::integer)::varchar
+  ) as id
+  from import."NALD_CHG_VERSIONS" ncv
+  where ncv."STATUS"<>'DRAFT'
+  group by ncv."FGAC_REGION_CODE", ncv."AABL_ID", ncv."EFF_ST_DATE"
+)
+-- Omit agreements where the calculated start date of the 
+-- agreement is outside the date range of the charge version
+and daterange(
+  to_date(ncv."EFF_ST_DATE", 'DD/MM/YYYY'),
+  to_date(nullif(ncv."EFF_END_DATE", 'null'), 'DD/MM/YYYY'),
+  '[]'
+) @> greatest(
+    to_date(ncv."EFF_ST_DATE", 'DD/MM/YYYY'), 
+    to_date(nca."EFF_ST_DATE", 'DD/MM/YYYY')
+)
+`;
+
+const importTwoPartTariffAgreements = `
+insert into water.licence_agreements (
+  licence_ref, start_date, end_date, 
+  date_signed, financial_agreement_type_id, external_id,
+  date_created, date_updated
+)
+select 
+  la.licence_ref, 
+  min(la.start_date) as start_date,
+  max(la.end_date) as end_date,
+  min(la.date_signed) as date_signed,
+  la.financial_agreement_type_id,
+  la.external_id,
+  NOW() as date_created,
+  NOW() as date_updated
+from (
+  ${getTwoPartTariffAgreements}
+) la
+group by la.external_id, la.licence_ref, la.financial_agreement_type_id 
+on conflict (external_id) do update set
+  start_date=EXCLUDED.start_date,
+  end_date=EXCLUDED.end_date,
+  date_signed=EXCLUDED.date_signed,
+  financial_agreement_type_id=EXCLUDED.financial_agreement_type_id,
+  date_updated=EXCLUDED.date_updated;
+`;
+
 exports.importChargeElements = importChargeElements;
 exports.cleanupChargeElements = cleanupChargeElements;
 exports.insertChargeVersion = insertChargeVersion;
