@@ -164,8 +164,8 @@ DELETE FROM water.charge_versions WHERE charge_version_id IN (
 );`;
 
 /**
- * This query deletes TPT licence agreements that were imported via the
- * original implementation.  These have no external ID set.
+ * SQL query to delete TPT licence agreements that were imported via the
+ * original implementation.  These will have no external ID set.
  */
 const cleanupTwoPartTariffAgreementsWithoutExternalId = `
 delete from water.licence_agreements la
@@ -176,6 +176,13 @@ delete from water.licence_agreements la
     and la.external_id is null;
 `;
 
+/**
+ * SQL query to get a list of two-part tariff agreements with purpose use IDs
+ * - Excludes charge versions that are draft
+ * - Only includes latest charge version where multiple start on same date
+ * - Constrains agreement date range by charge version date range
+ * - Omits agreement if its date range is outside the charge version date range
+ */
 const getTwoPartTariffAgreements = `
 select 
   nl."LIC_NO" as licence_ref,
@@ -233,8 +240,12 @@ and daterange(
     to_date(ncv."EFF_ST_DATE", 'DD/MM/YYYY'), 
     to_date(nca."EFF_ST_DATE", 'DD/MM/YYYY')
 )
+and nca."AFSA_CODE"='S127'
 `;
 
+/**
+ * SQL query to import two-part tariff licence agreements
+ */
 const importTwoPartTariffAgreements = `
 insert into water.licence_agreements (
   licence_ref, start_date, end_date, 
@@ -262,8 +273,30 @@ on conflict (external_id) do update set
   date_updated=EXCLUDED.date_updated;
 `;
 
+/**
+ * SQL query to import the purpose uses related to two-part
+ * tariff licence agreements
+ */
+const importTwoPartTariffAgreementPurposeUses = `
+insert into water.licence_agreement_purpose_uses (
+  licence_agreement_id, purpose_use_id
+)
+select 
+  wal.licence_agreement_id, 
+  la.purpose_use_id
+  from (
+    ${getTwoPartTariffAgreements} 
+  ) la
+  join water.licence_agreements wal on la.external_id=wal.external_id
+on conflict(licence_agreement_id, purpose_use_id)
+  do nothing;
+`;
+
 exports.importChargeElements = importChargeElements;
 exports.cleanupChargeElements = cleanupChargeElements;
 exports.insertChargeVersion = insertChargeVersion;
 exports.importChargeVersions = importChargeVersions;
 exports.cleanupChargeVersions = cleanupChargeVersions;
+exports.cleanupTwoPartTariffAgreementsWithoutExternalId = cleanupTwoPartTariffAgreementsWithoutExternalId;
+exports.importTwoPartTariffAgreements = importTwoPartTariffAgreements;
+exports.importTwoPartTariffAgreementPurposeUses = importTwoPartTariffAgreementPurposeUses;
