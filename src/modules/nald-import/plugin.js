@@ -29,7 +29,7 @@ const registerSubscribers = async server => {
   await subscribe(server, jobs.importLicence);
 
   // Schedule the import process every day at 1am / 1pm depending on environment
-  if (!process.env.TRAVIS) {
+  if (process.env.NODE_ENV !== 'test') {
     cron.schedule(getSchedule(), () => publishJob(server.messageQueue));
   }
 };
