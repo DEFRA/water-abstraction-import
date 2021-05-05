@@ -78,12 +78,6 @@ experiment('modules/licence-import/extract/index.js', () => {
       ).to.be.true();
     });
 
-    test('importConnector.getTwoPartTariffAgreements is called with the region code / licence ID', async () => {
-      expect(
-        importConnector.getTwoPartTariffAgreements.calledWith('4', '7')
-      ).to.be.true();
-    });
-
     test('importConnector.getSection130Agreements is called with the region code / licence ID', async () => {
       expect(
         importConnector.getSection130Agreements.calledWith('4', '7')
@@ -118,7 +112,6 @@ experiment('modules/licence-import/extract/index.js', () => {
       expect(result.licence).to.equal(data.licence);
       expect(result.versions).to.equal(data.licenceVersions);
       expect(result.chargeVersions).to.equal(data.chargeVersions);
-      expect(result.tptAgreements).to.equal(data.twoPartTariffAgreements);
       expect(result.section130Agreements).to.equal(data.section130Agreements);
       expect(result.parties).to.equal(data.parties);
       expect(result.addresses).to.equal(data.addresses);
