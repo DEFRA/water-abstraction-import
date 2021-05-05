@@ -49,20 +49,6 @@ exports.getChargeVersions = `
   ORDER BY cv."VERS_NO"::integer;
 `;
 
-exports.getTwoPartTariffAgreements = `
-SELECT a.*, 
-  cv."EFF_END_DATE" as charge_version_end_date, 
-  cv."EFF_ST_DATE" as charge_start_date, 
-  cv."VERS_NO" as charge_version_number, 
-  cv."STATUS" as charge_version_status,
-  cv."IN_ERROR_STATUS" as charge_version_error_status,
-  e."APUR_APUS_CODE" as element_purpose_use
-FROM import."NALD_CHG_VERSIONS" cv
-JOIN import."NALD_CHG_ELEMENTS" e ON cv."FGAC_REGION_CODE"=e."FGAC_REGION_CODE" AND cv."VERS_NO"=e."ACVR_VERS_NO" AND cv."AABL_ID"=e."ACVR_AABL_ID"
-JOIN import."NALD_CHG_AGRMNTS" a ON e."FGAC_REGION_CODE"=a."FGAC_REGION_CODE" AND e."ID"=a."ACEL_ID"
-WHERE cv."FGAC_REGION_CODE"=$1 AND cv."AABL_ID"=$2 AND a."AFSA_CODE"='S127'
-ORDER BY cv."VERS_NO"::integer;`;
-
 exports.getSection130Agreements = `SELECT * FROM import."NALD_LH_AGRMNTS" ag
 JOIN (
   SELECT DISTINCT cv."FGAC_REGION_CODE", cv."AIIA_ALHA_ACC_NO"
