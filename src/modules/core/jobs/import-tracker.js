@@ -34,7 +34,7 @@ const handler = async job => {
         return acc;
       }, '');
       const environment = process.env.NODE_ENV;
-      if (environment === PRODUCTION || environment === PREPROD) {
+      if (1 === 1) { // environment === PRODUCTION || environment === PREPROD
         notifyService.sendEmail(process.env.WATER_SERVICE_MAILBOX, 'service_status_alert', { content });
       }
       slack.post(content);
