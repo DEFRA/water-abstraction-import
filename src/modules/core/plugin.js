@@ -5,7 +5,7 @@ const config = require('../../../config');
 const importTrackerJob = require('./jobs/import-tracker');
 const moment = require('moment');
 
-const getSchedule = () => config.isProduction ? '0 10 * * 1,2,3,4,5' : '0 15 * * 1,2,3,4,5';
+const getSchedule = () => config.isProduction ? '0 10 * * 1,2,3,4,5' : '0 15 * * 1,2,3,4,5'; // 0 15 * * 1,2,3,4,5
 
 const publishJob = messageQueue => {
   const timeStamp = moment().toISOString();

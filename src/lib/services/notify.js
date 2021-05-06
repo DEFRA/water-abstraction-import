@@ -35,7 +35,7 @@ const sendEmail = async (recipient, messageRef, personalisation) => {
   try {
     gotWithProxy.post('https://api.notifications.service.gov.uk/', {
       json: {
-        email_address: process.env.WATER_SERVICE_MAILBOX,
+        email_address: recipient,
         template_id: getNotifyTemplate(messageRef),
         personalisation
       },
@@ -44,6 +44,7 @@ const sendEmail = async (recipient, messageRef, personalisation) => {
       }
     });
   } catch (e) {
+    console.log(e);
     throw new Error('An error occured when attempting to send an email via Notify', e);
   }
 
