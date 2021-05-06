@@ -107,6 +107,7 @@ module.exports = {
     db: 0
   },
   notify: {
+    key: isProduction ? process.env.LIVE_NOTIFY_KEY : process.env.WHITELIST_NOTIFY_KEY,
     templates: {
       service_status_alert: 'c34d1b16-694b-4364-8e7e-83e9dbd34a62'
     }
