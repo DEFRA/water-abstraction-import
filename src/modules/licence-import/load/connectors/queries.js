@@ -30,7 +30,7 @@ ON CONFLICT (document_id, role_id, start_date)
 
 exports.createCompany = `INSERT INTO crm_v2.companies (name, type, external_id, date_created, date_updated, current_hash)
 VALUES ($1, $2, $3, NOW(), NOW(), md5(CONCAT($1::varchar, $2::varchar)::varchar)) ON CONFLICT (external_id) DO UPDATE SET name=EXCLUDED.name,
-date_updated=EXCLUDED.date_updated, type=EXCLUDED.type, last_hash=EXCLUDED.current_hash, current_hash=md5((EXCLUDED.name,EXCLUDED.type)::varchar);`;
+date_updated=EXCLUDED.date_updated, type=EXCLUDED.type, last_hash=EXCLUDED.current_hash, current_hash=md5(CONCAT(EXCLUDED.name::varchar,EXCLUDED.type::varchar)::varchar);`;
 
 exports.createAddress = `INSERT INTO crm_v2.addresses (address_1, address_2, address_3, address_4,
 town, county, postcode, country, external_id, data_source, date_created, date_updated, current_hash)
