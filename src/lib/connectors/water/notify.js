@@ -5,9 +5,7 @@ const urlJoin = require('url-join');
 
 const config = require('../../../../config');
 
-const getUrl = key => {
-  return urlJoin(config.services.water, 'notify', key);
-};
+const getUrl = key => urlJoin(config.services.water, 'notify', key);
 
 const postSendNotify = (key, data) => {
   const url = getUrl(key);
