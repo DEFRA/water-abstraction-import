@@ -28,7 +28,11 @@ experiment('modules/charging-import/jobs/charge-versions.js', () => {
           chargeVersionQueries.importChargeVersions,
           chargeVersionQueries.importChargeElements,
           chargeVersionQueries.cleanupChargeElements,
-          chargeVersionQueries.cleanupChargeVersions
+          chargeVersionQueries.cleanupChargeVersions,
+          chargeVersionQueries.cleanupTwoPartTariffAgreementsWithoutExternalId,
+          chargeVersionQueries.importTwoPartTariffAgreements,
+          chargeVersionQueries.importTwoPartTariffAgreementPurposeUses
+
         ]
       )).to.be.true();
     });
