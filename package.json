@@ -57,7 +57,7 @@
     "firstline": "^2.0.2",
     "good-winston": "^4.0.0",
     "hapi-auth-jwt2": "^8.8.1",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "mkdir": "0.0.2",
     "moment": "^2.26.0",
     "node-cron": "^2.0.3",
