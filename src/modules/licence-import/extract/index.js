@@ -22,9 +22,10 @@ const getLicenceData = async licenceNumber => {
   const licence = await importConnector.getLicence(licenceNumber);
   const { ID: id, FGAC_REGION_CODE: regionCode } = licence;
 
-  const [versions, chargeVersions, section130Agreements, purposes, roles] = await Promise.all([
+  const [versions, chargeVersions, tptAgreements, section130Agreements, purposes, roles] = await Promise.all([
     importConnector.getLicenceVersions(regionCode, id),
     importConnector.getChargeVersions(regionCode, id),
+    importConnector.getTwoPartTariffAgreements(regionCode, id),
     importConnector.getSection130Agreements(regionCode, id),
     importConnector.getLicencePurposes(regionCode, id),
     importConnector.getLicenceRoles(regionCode, id)
@@ -42,6 +43,7 @@ const getLicenceData = async licenceNumber => {
     parties,
     purposes,
     section130Agreements,
+    tptAgreements,
     versions,
     roles
   };

@@ -221,10 +221,20 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(result.documents[1].roles.map(role => role.role)).to.only.include(['licenceHolder', 'billing']);
       });
 
-      test('the S130 agreement is added', async () => {
-        expect(result.agreements[0].agreementCode).to.equal('S130');
+      test('the two part tariff agreements are merged where date ranges are adjacent', async () => {
+        expect(result.agreements[0].agreementCode).to.equal('S127');
         expect(result.agreements[0].startDate).to.equal('2015-04-02');
-        expect(result.agreements[0].endDate).to.equal('2015-07-05');
+        expect(result.agreements[0].endDate).to.equal('2015-08-12');
+
+        expect(result.agreements[1].agreementCode).to.equal('S127');
+        expect(result.agreements[1].startDate).to.equal('2017-07-01');
+        expect(result.agreements[1].endDate).to.equal(null);
+      });
+
+      test('the S130 agreement is added', async () => {
+        expect(result.agreements[2].agreementCode).to.equal('S130');
+        expect(result.agreements[2].startDate).to.equal('2015-04-02');
+        expect(result.agreements[2].endDate).to.equal('2015-07-05');
       });
 
       test('the versions contain the purposes', async () => {
