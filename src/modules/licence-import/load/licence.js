@@ -1,3 +1,5 @@
+'use strict';
+
 const connectors = require('./connectors');
 const config = require('../../../../config');
 const roles = require('../transform/mappers/roles');
@@ -27,11 +29,14 @@ const loadDocument = async document => {
   return loadDocumentRoles(document);
 };
 
-const loadAgreements = licence => {
+const loadAgreements = async licence => {
   // Allow import of licence agreements to be disabled for charging go live
   if (!config.import.licences.isLicenceAgreementImportEnabled) {
     return Promise.resolve([]);
   }
+
+  // Deletes any "nald" agreements not found via the current import process
+  await connectors.cleanUpAgreements(licence);
 
   const tasks = licence.agreements.map(agreement =>
     connectors.createAgreement(licence, agreement)

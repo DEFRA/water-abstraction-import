@@ -112,6 +112,14 @@ const getLicenceByRef = async licenceRef => {
 
 const flagLicenceForSupplementaryBilling = async licenceId => pool.query(queries.flagLicenceForSupplementaryBilling, [licenceId]);
 
+const cleanUpAgreements = licence => {
+  // Create keys for the agreements we wish to keep
+  const keys = licence.agreements.map(agreement =>
+    `${agreement.agreementCode}:${agreement.startDate}`);
+
+  return pool.query(queries.cleanUpAgreements, [licence.licenceRef, keys]);
+};
+
 exports.createAddress = createAddress;
 exports.createAgreement = createAgreement;
 exports.createCompany = createCompany;
@@ -127,3 +135,4 @@ exports.createLicenceVersion = createLicenceVersion;
 exports.createLicenceVersionPurpose = createLicenceVersionPurpose;
 exports.getLicenceByRef = getLicenceByRef;
 exports.flagLicenceForSupplementaryBilling = flagLicenceForSupplementaryBilling;
+exports.cleanUpAgreements = cleanUpAgreements;
