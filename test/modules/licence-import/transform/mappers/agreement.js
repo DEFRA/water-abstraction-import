@@ -10,7 +10,8 @@ experiment('modules/licence-import/mappers/agreement', () => {
     AFSA_CODE: overrides.code || 'S127',
     EFF_ST_DATE: overrides.startDate || '01/01/2020',
     EFF_END_DATE: overrides.endDate || 'null',
-    charge_version_end_date: overrides.chargeVersionEndDate || 'null'
+    charge_version_end_date: overrides.chargeVersionEndDate || 'null',
+    charge_version_start_date: overrides.chargeVersionStartDate || '01/01/2020'
   });
 
   test('maps agreements with no end date', async () => {
@@ -46,5 +47,19 @@ experiment('modules/licence-import/mappers/agreement', () => {
       endDate: '2020-05-01'
     });
     expect(result[1]).to.equal({ agreementCode: 'S127', startDate: '2020-01-01', endDate: null });
+  });
+
+  test('uses the latest start date when the charge version starts after the agreement start date', async () => {
+    const result = mapAgreements([createAgreement({ chargeVersionStartDate: '02/01/2020' })]);
+    expect(result).to.equal([{ agreementCode: 'S127', startDate: '2020-01-02', endDate: null }]);
+  });
+
+  test('merges duplicate agreements', async () => {
+    const agreements = [
+      createAgreement(),
+      createAgreement()
+    ];
+    const result = mapAgreements(agreements);
+    expect(result).to.be.an.array().length(1);
   });
 });

@@ -3,7 +3,10 @@
 const helpers = require('@envage/water-abstraction-helpers');
 const date = require('./date');
 
-const { groupBy, sortBy, flatMap } = require('lodash');
+const { groupBy, sortBy, flatMap, uniqBy } = require('lodash');
+
+const getUniqueKey = agreement =>
+ `${agreement.startDate}:${agreement.endDate}:${agreement.agreementCode}`;
 
 const mapAgreement = chargeAgreement => {
   // Start date is the later of the agreement start date or the
@@ -28,7 +31,11 @@ const mapAgreement = chargeAgreement => {
 };
 
 const mapAgreements = (tptAgreements, s130Agreements = []) => {
-  const mapped = [...tptAgreements, ...s130Agreements].map(mapAgreement);
+  // Map and de-duplicate identical agreements
+  const mapped = uniqBy(
+    [...tptAgreements, ...s130Agreements].map(mapAgreement),
+    getUniqueKey
+  );
 
   // Group by agreement code
   const groups = groupBy(mapped, agreement => agreement.agreementCode);

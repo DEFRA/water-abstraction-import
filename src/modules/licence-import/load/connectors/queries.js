@@ -96,10 +96,11 @@ ON CONFLICT (company_id, address_id, role_id) DO UPDATE SET
   end_date=EXCLUDED.end_date,
   date_updated=EXCLUDED.date_updated`;
 
-exports.createAgreement = `insert into water.licence_agreements (licence_ref, financial_agreement_type_id, start_date, end_date, date_created, date_updated)
-  select $1, t.financial_agreement_type_id, $3, $4, NOW(), NOW()
+exports.createAgreement = `insert into water.licence_agreements (licence_ref, financial_agreement_type_id, start_date, end_date, date_created, date_updated, source)
+  select $1, t.financial_agreement_type_id, $3, $4, NOW(), NOW(), 'nald' 
     from water.financial_agreement_types t
-    where t.financial_agreement_code=$2 on conflict (licence_ref, financial_agreement_type_id, start_date)  do update set end_date=EXCLUDED.end_date, date_updated=EXCLUDED.date_updated;`;
+    where t.financial_agreement_code=$2 on conflict (licence_ref, financial_agreement_type_id, start_date)  
+    do update set end_date=EXCLUDED.end_date, date_updated=EXCLUDED.date_updated, source=EXCLUDED.source;`;
 
 exports.createLicence = `insert into water.licences (region_id, licence_ref, is_water_undertaker, regions, start_date, expired_date, lapsed_date, revoked_date)
   values (
@@ -188,3 +189,14 @@ exports.createLicenceVersionPurpose = `insert into water.licence_version_purpose
 exports.getLicenceByRef = 'SELECT * FROM water.licences WHERE licence_ref = $1';
 
 exports.flagLicenceForSupplementaryBilling = 'UPDATE water.licences set include_in_supplementary_billing = \'yes\' WHERE licence_id = $1';
+
+exports.cleanUpAgreements = `
+delete 
+  from water.licence_agreements la
+  using water.financial_agreement_types fat
+  where
+    la.licence_ref=$1
+    and la.source='nald'
+    and concat_ws(':', fat.financial_agreement_code, la.start_date) <> any ($2)
+    and la.financial_agreement_type_id=fat.financial_agreement_type_id
+`;
