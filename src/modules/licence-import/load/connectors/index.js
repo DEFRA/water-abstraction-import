@@ -117,7 +117,7 @@ const cleanUpAgreements = licence => {
   const keys = licence.agreements.map(agreement =>
     `${agreement.agreementCode}:${agreement.startDate}`);
 
-  return pool.query(queries.cleanUpAgreements, [licence.licenceRef, keys]);
+  return pool.query(queries.cleanUpAgreements, [licence.licenceNumber, keys]);
 };
 
 exports.createAddress = createAddress;
