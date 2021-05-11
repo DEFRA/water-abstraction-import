@@ -50,11 +50,28 @@ exports.getChargeVersions = `
 `;
 
 exports.getTwoPartTariffAgreements = `
-SELECT a.*, cv."EFF_END_DATE" as charge_version_end_date 
+SELECT a.*, cv."EFF_END_DATE" as charge_version_end_date, cv."EFF_ST_DATE" as charge_version_start_date  
 FROM import."NALD_CHG_VERSIONS" cv
 JOIN import."NALD_CHG_ELEMENTS" e ON cv."FGAC_REGION_CODE"=e."FGAC_REGION_CODE" AND cv."VERS_NO"=e."ACVR_VERS_NO" AND cv."AABL_ID"=e."ACVR_AABL_ID"
 JOIN import."NALD_CHG_AGRMNTS" a ON e."FGAC_REGION_CODE"=a."FGAC_REGION_CODE" AND e."ID"=a."ACEL_ID"
-WHERE cv."FGAC_REGION_CODE"=$1 AND cv."AABL_ID"=$2 AND a."AFSA_CODE"='S127'
+WHERE 
+  cv."FGAC_REGION_CODE"=$1 
+  AND cv."AABL_ID"=$2 
+  AND a."AFSA_CODE"='S127'
+  AND concat_ws(':', cv."FGAC_REGION_CODE", cv."AABL_ID", cv."VERS_NO") in (
+    -- Finds valid charge versions to select from.  
+    -- Draft charge versions are omitted.
+    -- Where multiple charge versions begin on the same date, 
+    -- pick the one with the greatest version number.
+    select concat_ws(':', 
+      ncv."FGAC_REGION_CODE", 
+      ncv."AABL_ID", 
+      max(ncv."VERS_NO"::integer)::varchar
+    ) as id
+    from import."NALD_CHG_VERSIONS" ncv
+    where ncv."STATUS"<>'DRAFT'
+    group by ncv."FGAC_REGION_CODE", ncv."AABL_ID", ncv."EFF_ST_DATE"
+  )
 ORDER BY cv."VERS_NO"::integer;
 `;
 
