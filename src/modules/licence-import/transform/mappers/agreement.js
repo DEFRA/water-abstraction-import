@@ -20,8 +20,8 @@ const mapAgreement = chargeAgreement => {
   };
 };
 
-const mapAgreements = (s130Agreements = []) => {
-  const mapped = s130Agreements.map(mapAgreement);
+const mapAgreements = (tptAgreements, s130Agreements = []) => {
+  const mapped = [...tptAgreements, ...s130Agreements].map(mapAgreement);
 
   // Group by agreement code
   const groups = groupBy(mapped, agreement => agreement.agreementCode);

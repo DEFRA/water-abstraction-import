@@ -16,10 +16,7 @@ const handler = () => queryLoader.loadQueries('Import charge versions', [
   chargingQueries.importChargeVersions,
   chargingQueries.importChargeElements,
   chargingQueries.cleanupChargeElements,
-  chargingQueries.cleanupChargeVersions,
-  chargingQueries.cleanupTwoPartTariffAgreementsWithoutExternalId,
-  chargingQueries.importTwoPartTariffAgreements,
-  chargingQueries.importTwoPartTariffAgreementPurposeUses
+  chargingQueries.cleanupChargeVersions
 ]);
 
 exports.jobName = jobName;

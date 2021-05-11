@@ -34,7 +34,7 @@ const transformLicence = licenceData => {
   });
 
   // Agreements - section 127/130
-  licence.agreements = mappers.agreement.mapAgreements(licenceData.section130Agreements);
+  licence.agreements = mappers.agreement.mapAgreements(licenceData.tptAgreements, licenceData.section130Agreements);
 
   licence.versions = licenceData.versions.map(version => {
     return mappers.licenceVersion.mapLicenceVersion(version, purposes);
