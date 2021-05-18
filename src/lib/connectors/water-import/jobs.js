@@ -2,7 +2,8 @@
 
 const { pool } = require('../db');
 const { get } = require('lodash');
-const { pgBossJobOverview } = require('./queries');
+const { pgBossJobOverview, pgBossFailedJobs } = require('./queries');
+const moment = require('moment');
 
 const getJobSummary = () => {
   /**
@@ -45,4 +46,17 @@ const getJobSummary = () => {
   }));
 };
 
+const getFailedJobs = async () => {
+  const { rows } = await pool.query(pgBossFailedJobs);
+  return rows.map(row => {
+    return {
+      jobName: row.name,
+      total: row.count,
+      dateCreated: row.max_created_date ? moment(row.max_created_date).format('DD MMM YYYY HH:mm:ss') : '',
+      dateCompleted: row.max_completed_date ? moment(row.max_completed_date).format('DD MMM YYYY HH:mm:ss') : ''
+    };
+  });
+};
+
+exports.getFailedJobs = getFailedJobs;
 exports.getJobSummary = getJobSummary;

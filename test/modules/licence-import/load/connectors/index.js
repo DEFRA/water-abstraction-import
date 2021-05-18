@@ -543,4 +543,27 @@ experiment('modules/licence-import/load/connectors', () => {
       expect(params).to.equal(['test-licence-id']);
     });
   });
+
+  experiment('.cleanupAgreements', () => {
+    beforeEach(async () => {
+      const lic = {
+        ...data.licence,
+        agreements: [data.agreement]
+      };
+      await connectors.cleanUpAgreements(lic);
+    });
+
+    test('Calls the correct query', () => {
+      const [query] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.cleanUpAgreements);
+    });
+
+    test('passes the expected params', async () => {
+      const [, params] = pool.query.lastCall.args;
+      expect(params).to.equal([
+        data.licence.licenceNumber,
+        ['S127:2019-06-03']
+      ]);
+    });
+  });
 });

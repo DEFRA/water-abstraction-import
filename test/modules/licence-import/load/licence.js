@@ -96,6 +96,7 @@ experiment('modules/licence-import/load/licence', () => {
       licence_id: licenceId = uuid()
     });
     await sandbox.stub(connectors, 'createLicenceVersionPurpose');
+    await sandbox.stub(connectors, 'cleanUpAgreements');
 
     licence = createLicence();
   });
@@ -131,6 +132,12 @@ experiment('modules/licence-import/load/licence', () => {
     test('creates the billing document role', async () => {
       expect(connectors.createDocumentRole.calledWith(
         licence.documents[0], licence.documents[0].roles[1]
+      )).to.be.true();
+    });
+
+    test('cleans up old agreements', async () => {
+      expect(connectors.cleanUpAgreements.calledWith(
+        licence
       )).to.be.true();
     });
 
