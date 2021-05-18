@@ -14,5 +14,5 @@ module.exports = {
   importLicence: require('./import-licence'),
 
   importPurposeConditionTypes: require('./import-purpose-condition-types'),
-  onCompletePurposeConditionTypes: require('./on-complete-import-purpose-condition-types')
+  onCompleteImportPurposeConditionTypes: require('./on-complete-import-purpose-condition-types')
 };

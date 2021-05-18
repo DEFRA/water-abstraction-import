@@ -1,3 +1,6 @@
+'use strict';
+
 const jobs = require('../jobs');
 
-module.exports = async (messageQueue) => messageQueue.publish(jobs.importLicences());
+module.exports = async (messageQueue, job) =>
+  messageQueue.publish(jobs.importCompanies());

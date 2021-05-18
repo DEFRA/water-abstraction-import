@@ -72,11 +72,7 @@ const deleteDocuments = () => ({
 });
 
 const importPurposeConditionTypes = () => ({
-  name: IMPORT_PURPOSE_CONDITION_TYPES_JOB,
-  data: { description: 'importing purpose condition types' },
-  options: {
-    singletonKey: IMPORT_PURPOSE_CONDITION_TYPES_JOB
-  }
+  name: IMPORT_PURPOSE_CONDITION_TYPES_JOB
 });
 
 exports.IMPORT_PURPOSE_CONDITION_TYPES_JOB = IMPORT_PURPOSE_CONDITION_TYPES_JOB;

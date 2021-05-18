@@ -2,5 +2,6 @@
 
 const jobs = require('../jobs');
 
-module.exports = async (messageQueue, job) =>
-  messageQueue.publish(jobs.importCompanies());
+module.exports = async (messageQueue, job) => {
+  return messageQueue.publish(jobs.importPurposeConditionTypes());
+};
