@@ -5,6 +5,6 @@ module.exports = async (messageQueue, job) => {
   const count = await importCompanies.getPendingCount();
   if (count === 0) {
     await messageQueue.deleteQueue('__state__completed__import.company');
-    await messageQueue.publish(jobs.importLicences());
+    await messageQueue.publish(jobs.importPurposeConditionTypes());
   }
 };

@@ -24,11 +24,17 @@ const registerSubscribers = async server => {
     job => handlers.onCompleteImportCompanies(server.messageQueue, job)
   );
 
-  // Import licenced when all companies are imported
+  // Import the licence version purpose condition types
   await server.messageQueue.onComplete(jobs.IMPORT_COMPANY_JOB,
     job => handlers.onCompleteImportCompany(server.messageQueue, job)
   );
 
+  // Import licences when all companies are imported
+  await server.messageQueue.onComplete(jobs.IMPORT_PURPOSE_CONDITION_TYPES_JOB,
+    job => handlers.onCompleteImportPurposeConditionTypes(server.messageQueue, job)
+  );
+
+  await server.messageQueue.subscribe(jobs.IMPORT_PURPOSE_CONDITION_TYPES_JOB, handlers.importPurposeConditionTypes);
   await server.messageQueue.subscribe(jobs.IMPORT_COMPANIES_JOB, handlers.importCompanies);
   await server.messageQueue.subscribe(jobs.IMPORT_COMPANY_JOB, getOptions(), handlers.importCompany);
   await server.messageQueue.subscribe(jobs.IMPORT_LICENCES_JOB, handlers.importLicences);

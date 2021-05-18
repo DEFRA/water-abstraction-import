@@ -20,10 +20,15 @@ const createExternalId = licenceVersionData => {
  * @param {Object} licenceVersionData THe NALD database row for the licence version
  * @param {Array<Object>} mappedPurposes An array of already mapped licence purposes
  */
-const mapLicenceVersion = (licenceVersionData, mappedPurposes = []) => {
+const mapLicenceVersion = (licenceVersionData, mappedPurposes = [], mappedConditions = []) => {
   const issue = +licenceVersionData.ISSUE_NO;
   const increment = +licenceVersionData.INCR_NO;
-
+  const purposes = mappedPurposes.filter(p => {
+    return p.issue === issue && p.increment === increment;
+  });
+  const pur = purposes.map(p => {
+    return { ...p, conditions: mappedConditions.filter(c => { return c.purposeExternalId === p.externalId; }) || [] };
+  });
   const version = {
     issue,
     increment,
@@ -31,9 +36,7 @@ const mapLicenceVersion = (licenceVersionData, mappedPurposes = []) => {
     startDate: dateMapper.mapNaldDate(licenceVersionData.EFF_ST_DATE),
     endDate: dateMapper.mapNaldDate(licenceVersionData.EFF_END_DATE),
     externalId: createExternalId(licenceVersionData),
-    purposes: mappedPurposes.filter(p => {
-      return p.issue === issue && p.increment === increment;
-    })
+    purposes: pur
   };
   return version;
 };

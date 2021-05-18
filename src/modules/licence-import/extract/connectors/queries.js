@@ -24,6 +24,21 @@ exports.getLicencePurposes = `
   and versions."AABL_ID" = $2;
 `;
 
+exports.getPurposeConditions = `
+select conditions.*
+from import."NALD_ABS_LIC_VERSIONS" versions
+  join import."NALD_ABS_LIC_PURPOSES" purposes
+    on versions."AABL_ID" = purposes."AABV_AABL_ID"
+    and versions."ISSUE_NO" = purposes."AABV_ISSUE_NO"
+    and versions."INCR_NO" = purposes."AABV_INCR_NO"
+    and versions."FGAC_REGION_CODE" = purposes."FGAC_REGION_CODE"
+  join import."NALD_LIC_CONDITIONS" conditions
+  on purposes."FGAC_REGION_CODE" = conditions."FGAC_REGION_CODE"
+  and purposes."ID" = conditions."AABP_ID"
+where versions."FGAC_REGION_CODE" = $1
+and versions."AABL_ID" = $2
+`;
+
 exports.getParty = `SELECT * FROM import."NALD_PARTIES" p
   WHERE p."FGAC_REGION_CODE"=$1
   AND p."ID" = $2`;

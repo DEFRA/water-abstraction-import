@@ -12,5 +12,6 @@ module.exports = {
   licenceVersion: require('./licence-version'),
   licencePurpose: require('./licence-purpose'),
   party: require('./party'),
-  role: require('./role')
+  role: require('./role'),
+  purposeCondition: require('./purpose-condition')
 };

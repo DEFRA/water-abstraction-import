@@ -5,6 +5,7 @@ const IMPORT_COMPANY_JOB = 'import.company';
 const IMPORT_LICENCES_JOB = 'import.licences';
 const IMPORT_LICENCE_JOB = 'import.licence';
 const DELETE_DOCUMENTS_JOB = 'import.delete-documents';
+const IMPORT_PURPOSE_CONDITION_TYPES_JOB = 'import.purpose-condition-types';
 
 /**
  * Formats arguments to publish a PG boss event to import all companies
@@ -70,12 +71,22 @@ const deleteDocuments = () => ({
   name: DELETE_DOCUMENTS_JOB
 });
 
+const importPurposeConditionTypes = () => ({
+  name: IMPORT_PURPOSE_CONDITION_TYPES_JOB,
+  data: { description: 'importing purpose condition types' },
+  options: {
+    singletonKey: IMPORT_PURPOSE_CONDITION_TYPES_JOB
+  }
+});
+
+exports.IMPORT_PURPOSE_CONDITION_TYPES_JOB = IMPORT_PURPOSE_CONDITION_TYPES_JOB;
 exports.IMPORT_COMPANIES_JOB = IMPORT_COMPANIES_JOB;
 exports.IMPORT_COMPANY_JOB = IMPORT_COMPANY_JOB;
 exports.IMPORT_LICENCES_JOB = IMPORT_LICENCES_JOB;
 exports.IMPORT_LICENCE_JOB = IMPORT_LICENCE_JOB;
 exports.DELETE_DOCUMENTS_JOB = DELETE_DOCUMENTS_JOB;
 
+exports.importPurposeConditionTypes = importPurposeConditionTypes;
 exports.importCompanies = importCompanies;
 exports.importCompany = importCompany;
 exports.importLicences = importLicences;
