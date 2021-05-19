@@ -58,16 +58,34 @@ experiment('modules/licence-import/plugin.js', () => {
         expect(func).to.be.a.function();
       });
 
+      test('adds on complete handler for import purpose condition types job', async () => {
+        const [job, func] = server.messageQueue.onComplete.secondCall.args;
+        expect(job).to.equal(jobs.IMPORT_PURPOSE_CONDITION_TYPES_JOB);
+        expect(func).to.be.a.function();
+      });
+
+      test('adds on complete handler for import company job', async () => {
+        const [job, func] = server.messageQueue.onComplete.thirdCall.args;
+        expect(job).to.equal(jobs.IMPORT_COMPANIES_JOB);
+        expect(func).to.be.a.function();
+      });
+
+      test('adds on complete handler for import company job', async () => {
+        const [job, func] = server.messageQueue.onComplete.getCall(3).args;
+        expect(job).to.equal(jobs.IMPORT_COMPANY_JOB);
+        expect(func).to.be.a.function();
+      });
+
+      test('adds subscriber for import purpose condition types job', async () => {
+        expect(server.messageQueue.subscribe.calledWith(
+          jobs.IMPORT_PURPOSE_CONDITION_TYPES_JOB, handlers.importPurposeConditionTypes
+        )).to.be.true();
+      });
+
       test('adds subscriber for import companies job', async () => {
         expect(server.messageQueue.subscribe.calledWith(
           jobs.IMPORT_COMPANIES_JOB, handlers.importCompanies
         )).to.be.true();
-      });
-
-      test('adds on complete handler for import companies job', async () => {
-        const [job, func] = server.messageQueue.onComplete.secondCall.args;
-        expect(job).to.equal(jobs.IMPORT_COMPANIES_JOB);
-        expect(func).to.be.a.function();
       });
 
       test('adds subscriber for import company job', async () => {
@@ -76,22 +94,16 @@ experiment('modules/licence-import/plugin.js', () => {
         )).to.be.true();
       });
 
-      test('adds on complete handler for import company job', async () => {
-        const [job, func] = server.messageQueue.onComplete.thirdCall.args;
-        expect(job).to.equal(jobs.IMPORT_COMPANY_JOB);
-        expect(func).to.be.a.function();
-      });
-
       test('adds subscriber for import licences job', async () => {
         expect(server.messageQueue.subscribe.calledWith(
           jobs.IMPORT_LICENCES_JOB, handlers.importLicences
         )).to.be.true();
       });
 
-      test('adds subscriber for import licence job', async () => {
-        expect(server.messageQueue.subscribe.calledWith(
-          jobs.IMPORT_LICENCE_JOB, options, handlers.importLicence
-        )).to.be.true();
+      test('adds on complete handler for delete removed documents job', async () => {
+        const [job, func] = server.messageQueue.onComplete.lastCall.args;
+        expect(job).to.equal(jobs.IMPORT_LICENCES_JOB);
+        expect(func).to.be.a.function();
       });
 
       test('schedules a cron job at 16 on Monday, Wednesday, and Friday in non-production environments', async () => {
@@ -111,7 +123,7 @@ experiment('modules/licence-import/plugin.js', () => {
       });
 
       test('subscribers are bound', async () => {
-        expect(server.messageQueue.subscribe.callCount).to.equal(5);
+        expect(server.messageQueue.subscribe.callCount).to.equal(6);
       });
 
       test('cron job is scheduled', async () => {
