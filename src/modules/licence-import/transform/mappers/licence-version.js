@@ -19,6 +19,7 @@ const createExternalId = licenceVersionData => {
  *
  * @param {Object} licenceVersionData THe NALD database row for the licence version
  * @param {Array<Object>} mappedPurposes An array of already mapped licence purposes
+ * @param {Array<Object>} mappedConditions An array of conditions
  */
 const mapLicenceVersion = (licenceVersionData, mappedPurposes = [], mappedConditions = []) => {
   const issue = +licenceVersionData.ISSUE_NO;

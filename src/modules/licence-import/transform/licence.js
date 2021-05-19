@@ -16,7 +16,7 @@ const transformLicence = licenceData => {
   // Get licence
   const licence = mappers.licence.mapLicence(licenceData.licence, licenceData.versions);
   const purposes = licenceData.purposes.map(mappers.licencePurpose.mapLicencePurpose);
-  const conditions = licenceData.conditions.map(mappers.purposeCondition.mapPurposeCondition);
+  const conditions = licenceData.conditions.map(mappers.purposeCondition.mapPurposeConditionFromNALD);
 
   // Get documents
   licence.documents = mappers.document.mapDocuments(licenceData.versions, licence);

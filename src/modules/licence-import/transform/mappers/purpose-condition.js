@@ -1,6 +1,6 @@
 'use strict';
 
-const mapPurposeCondition = data => {
+const mapPurposeConditionFromNALD = data => {
   return {
     code: data.ACIN_CODE,
     subcode: data.ACIN_SUBCODE,
@@ -12,4 +12,4 @@ const mapPurposeCondition = data => {
   };
 };
 
-exports.mapPurposeCondition = mapPurposeCondition;
+exports.mapPurposeConditionFromNALD = mapPurposeConditionFromNALD;
