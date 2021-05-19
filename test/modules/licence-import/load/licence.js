@@ -33,7 +33,15 @@ const createLicence = (expiryDate = null) => ({
       timeLimitedStartDate: null,
       timeLimitedEndDate: null,
       notes: 'testing',
-      annualQuantity: 100
+      annualQuantity: 100,
+      conditions: [{
+        code: 'AGG',
+        subcode: 'LLL',
+        param1: null,
+        param2: null,
+        notes: null,
+        externalId: '123:20'
+      }]
     }]
   }],
   documents: [{
@@ -77,6 +85,7 @@ experiment('modules/licence-import/load/licence', () => {
   let licence;
   let licenceId;
   let licenceVersionId;
+  let purposeId;
 
   beforeEach(async () => {
     await sandbox.stub(connectors, 'createDocumentRole');
@@ -95,7 +104,10 @@ experiment('modules/licence-import/load/licence', () => {
     await sandbox.stub(connectors, 'createLicence').resolves({
       licence_id: licenceId = uuid()
     });
-    await sandbox.stub(connectors, 'createLicenceVersionPurpose');
+    await sandbox.stub(connectors, 'createLicenceVersionPurpose').resolves({
+      licence_version_purpose_id: purposeId = uuid()
+    });
+    await sandbox.stub(connectors, 'createPurposeCondition').resolves();
     await sandbox.stub(connectors, 'cleanUpAgreements');
 
     licence = createLicence();
@@ -186,6 +198,17 @@ experiment('modules/licence-import/load/licence', () => {
       expect(purpose.timeLimitedEndDate).to.equal(null);
       expect(purpose.notes).to.equal('testing');
       expect(purpose.annualQuantity).to.equal(100);
+    });
+
+    test('creates the licence version purpose', async () => {
+      const [condition, savedId] = connectors.createPurposeCondition.lastCall.args;
+      expect(savedId).to.equal(purposeId);
+      expect(condition.code).to.equal('AGG');
+      expect(condition.subcode).to.equal('LLL');
+      expect(condition.param1).to.equal(null);
+      expect(condition.param2).to.equal(null);
+      expect(condition.notes).to.equal(null);
+      expect(condition.externalId).to.equal('123:20');
     });
 
     test('attempts to grab the licence record', () => {

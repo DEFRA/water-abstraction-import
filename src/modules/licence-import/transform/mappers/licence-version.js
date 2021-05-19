@@ -23,22 +23,19 @@ const createExternalId = licenceVersionData => {
 const mapLicenceVersion = (licenceVersionData, mappedPurposes = [], mappedConditions = []) => {
   const issue = +licenceVersionData.ISSUE_NO;
   const increment = +licenceVersionData.INCR_NO;
-  const purposes = mappedPurposes.filter(p => {
-    return p.issue === issue && p.increment === increment;
-  });
-  const pur = purposes.map(p => {
-    return { ...p, conditions: mappedConditions.filter(c => { return c.purposeExternalId === p.externalId; }) || [] };
-  });
-  const version = {
+  return {
     issue,
     increment,
     status: statuses[licenceVersionData.STATUS],
     startDate: dateMapper.mapNaldDate(licenceVersionData.EFF_ST_DATE),
     endDate: dateMapper.mapNaldDate(licenceVersionData.EFF_END_DATE),
     externalId: createExternalId(licenceVersionData),
-    purposes: pur
+    purposes: mappedPurposes.filter(p => {
+      return p.issue === issue && p.increment === increment;
+    }).map(p => {
+      return { ...p, conditions: mappedConditions.filter(c => { return c.purposeExternalId === p.externalId; }) || [] };
+    })
   };
-  return version;
 };
 
 exports.mapLicenceVersion = mapLicenceVersion;
