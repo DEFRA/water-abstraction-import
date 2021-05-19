@@ -33,7 +33,7 @@ const mapLicenceVersion = (licenceVersionData, mappedPurposes = [], mappedCondit
     purposes: mappedPurposes.filter(p => {
       return p.issue === issue && p.increment === increment;
     }).map(p => {
-      return { ...p, conditions: mappedConditions.filter(c => { return c.purposeExternalId === p.externalId; }) || [] };
+      return { ...p, conditions: mappedConditions.filter(c => c.purposeExternalId === p.externalId) };
     })
   };
 };

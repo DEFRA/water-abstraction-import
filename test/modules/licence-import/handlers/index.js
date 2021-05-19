@@ -3,7 +3,6 @@
 const { test, experiment, beforeEach, afterEach, fail } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
-
 const handlers = require('../../../../src/modules/licence-import/handlers');
 const extract = require('../../../../src/modules/licence-import/extract');
 const transform = require('../../../../src/modules/licence-import/transform');
@@ -390,13 +389,12 @@ experiment('modules/licence-import/transform/handlers', () => {
 
     experiment('when there are errors', () => {
       test('an error is logged and rethrown', async () => {
-        purposeConditionTypesConnector.createPurposeConditionTypes.rejects();
+        const err = new Error('test error');
+        purposeConditionTypesConnector.createPurposeConditionTypes.throws(err);
         try {
           await handlers.importPurposeConditionTypes();
-          fail();
         } catch (err) {
-          // TODO this needs to be true
-          expect(logger.error.called).to.be.false();
+          expect(logger.error.called).to.be.true();
         }
       });
     });
