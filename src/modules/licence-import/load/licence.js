@@ -45,7 +45,7 @@ const loadAgreements = async licence => {
 };
 
 const loadPurposeConditions = (purposeId, purpose) => {
-  return Promise.all(purpose.conditions.map(async condition => {
+  Promise.all(purpose.conditions.map(async condition => {
     return connectors.createPurposeCondition(condition, purposeId);
   }));
 };
@@ -53,7 +53,10 @@ const loadPurposeConditions = (purposeId, purpose) => {
 const loadVersionPurposes = (licenceVersionId, version) => {
   return Promise.all(version.purposes.map(async purpose => {
     const purposeResult = await connectors.createLicenceVersionPurpose(purpose, licenceVersionId);
-    return loadPurposeConditions(purposeResult.licence_version_purpose_id, purpose);
+    if (purpose.conditions.length > 0) {
+      return loadPurposeConditions(purposeResult.licence_version_purpose_id, purpose);
+    }
+    return purposeResult;
   }));
 };
 
