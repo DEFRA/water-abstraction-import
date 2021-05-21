@@ -45,7 +45,7 @@ const loadAgreements = async licence => {
 };
 
 const loadPurposeConditions = (purposeId, purpose) => {
-  return Promise.all(purpose.conditions.map(async condition => {
+  return Promise.all(purpose.conditions.map(condition => {
     return connectors.createPurposeCondition(condition, purposeId);
   }));
 };
