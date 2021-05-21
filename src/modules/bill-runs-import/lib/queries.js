@@ -263,7 +263,7 @@ insert into water.billing_volumes (
 select 
 t.charge_element_id, 
 i.financial_year_ending as financial_year,
-false as is_summer,
+ntr.is_summer,
 null as calculated_volume,
 false as two_part_tariff_error,
 null as two_part_tariff_status,
@@ -276,8 +276,36 @@ from water.billing_batches b
 join water.billing_invoices i on b.billing_batch_id=i.billing_batch_id
 join water.billing_invoice_licences il on il.billing_invoice_id=i.billing_invoice_id
 join water.billing_transactions t on il.billing_invoice_licence_id=t.billing_invoice_licence_id 
-where b.source='nald' and b.batch_type='two_part_tariff'
-on conflict do nothing;
+join water.charge_elements ce on t.charge_element_id=ce.charge_element_id
+join (
+  -- Get the TPT season for each charge element/financial year combination 
+  select *,
+  case 
+    -- for Thames/Southern, summer range is 29 April to 28 November
+    when ntr."FGAC_REGION_CODE" in ('6', '7') then
+      daterange(
+        make_date(extract(year from ntr.latest_return_date)::int, 4, 29),
+        make_date(extract(year from ntr.latest_return_date)::int, 11, 28),
+        '[]'
+      )
+    -- for other regions, summer range is 16 April to 15 November
+    else
+      daterange(
+        make_date(extract(year from ntr.latest_return_date)::int, 4, 16),
+        make_date(extract(year from ntr.latest_return_date)::int, 11, 15),
+        '[]'
+      )
+  end @> ntr.latest_return_date as is_summer
+  from (
+    select 
+      ntr."FGAC_REGION_CODE", 
+      concat_ws(':', ntr."FGAC_REGION_CODE", ntr."ACEL_ID") as external_id, 
+      ntr."FIN_YEAR"::integer,
+      to_date(ntr."LATEST_RET_DATE", 'DD/MM/YYYY') as latest_return_date
+    from import."NALD_TPT_RETURNS" ntr
+  ) ntr
+) ntr on ntr.external_id=ce.external_id and i.financial_year_ending=ntr."FIN_YEAR"
+where b.source='nald' and b.batch_type='two_part_tariff';
 `;
 
 exports.importBillingBatchChargeVersionYears = `
