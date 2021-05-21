@@ -125,7 +125,7 @@ const cleanUpAgreements = licence => {
 
 const createPurposeConditionTypes = async () => pool.query(queries.createPurposeConditionTypes);
 
-const createPurposeCondition = async (condition, purposeId) =>
+const createPurposeCondition = (condition, purposeId) =>
   pool.query(queries.createPurposeCondition, [
     purposeId,
     condition.code,
