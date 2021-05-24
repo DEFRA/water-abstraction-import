@@ -16,7 +16,7 @@ const createLicence = (expiryDate = null) => ({
   lapsedDate: null,
   revokedDate: null,
   versions: [{
-    issue: 100,
+    issue: 101,
     increment: 1,
     status: 'current',
     startDate: '2019-01-01',
@@ -42,6 +42,28 @@ const createLicence = (expiryDate = null) => ({
         notes: null,
         externalId: '123:20'
       }]
+    }]
+  },
+  {
+    issue: 100,
+    increment: 1,
+    status: 'current',
+    startDate: '2019-01-01',
+    endDate: null,
+    externalId: '1:100:100:1',
+    purposes: [{
+      purposePrimary: 'A',
+      purposeSecondary: 'ABC',
+      purposeUse: '123',
+      abstractionPeriodStartDay: 1,
+      abstractionPeriodStartMonth: 1,
+      abstractionPeriodEndDay: 2,
+      abstractionPeriodEndMonth: 2,
+      timeLimitedStartDate: null,
+      timeLimitedEndDate: null,
+      notes: 'testing',
+      annualQuantity: 100,
+      conditions: []
     }]
   }],
   documents: [{
@@ -200,7 +222,7 @@ experiment('modules/licence-import/load/licence', () => {
       expect(purpose.annualQuantity).to.equal(100);
     });
 
-    test('creates the licence version purpose', async () => {
+    test('creates the licence version purpose condition', async () => {
       const [condition, savedId] = connectors.createPurposeCondition.lastCall.args;
       expect(savedId).to.equal(purposeId);
       expect(condition.code).to.equal('AGG');
@@ -209,6 +231,7 @@ experiment('modules/licence-import/load/licence', () => {
       expect(condition.param2).to.equal(null);
       expect(condition.notes).to.equal(null);
       expect(condition.externalId).to.equal('123:20');
+      expect(connectors.createPurposeCondition.callCount).to.equal(1);
     });
 
     test('attempts to grab the licence record', () => {
