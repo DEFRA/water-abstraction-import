@@ -37,9 +37,11 @@ const createInvoiceAccount = (company, invoiceAccount) => {
 
 const createInvoiceAccountAddress = (invoiceAccount, invoiceAccountAddress) => {
   const params = [
-    invoiceAccount.invoiceAccountNumber, invoiceAccountAddress.address.externalId,
-    invoiceAccountAddress.startDate, invoiceAccountAddress.endDate,
-    invoiceAccountAddress.agentCompany.externalId
+    invoiceAccount.invoiceAccountNumber,
+    invoiceAccountAddress.address.externalId,
+    invoiceAccountAddress.startDate,
+    invoiceAccountAddress.endDate,
+    get(invoiceAccountAddress, 'agentCompany.externalId', null)
   ];
   return pool.query(queries.createInvoiceAccountAddress, params);
 };
