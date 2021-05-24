@@ -65,7 +65,11 @@ exports.getChargeVersions = `
 `;
 
 exports.getTwoPartTariffAgreements = `
-SELECT a.*, cv."EFF_END_DATE" as charge_version_end_date, cv."EFF_ST_DATE" as charge_version_start_date  
+SELECT 
+  a.*, 
+  cv."EFF_END_DATE" as charge_version_end_date, 
+  cv."EFF_ST_DATE" as charge_version_start_date,
+  cv."VERS_NO" as version_number
 FROM import."NALD_CHG_VERSIONS" cv
 JOIN import."NALD_CHG_ELEMENTS" e ON cv."FGAC_REGION_CODE"=e."FGAC_REGION_CODE" AND cv."VERS_NO"=e."ACVR_VERS_NO" AND cv."AABL_ID"=e."ACVR_AABL_ID"
 JOIN import."NALD_CHG_AGRMNTS" a ON e."FGAC_REGION_CODE"=a."FGAC_REGION_CODE" AND e."ID"=a."ACEL_ID"

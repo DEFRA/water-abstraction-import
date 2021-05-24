@@ -63,9 +63,9 @@ const createComplexLicence = () => {
       data.createChargeVersion(licence, { VERS_NO: '2', EFF_ST_DATE: '15/05/2016', ACON_APAR_ID: '1001', IAS_CUST_REF: 'Y7890' })
     ],
     tptAgreements: [
-      { AFSA_CODE: 'S127', EFF_ST_DATE: '02/04/2015', EFF_END_DATE: '05/07/2015' },
-      { AFSA_CODE: 'S127', EFF_ST_DATE: '06/07/2015', EFF_END_DATE: '12/08/2015' },
-      { AFSA_CODE: 'S127', EFF_ST_DATE: '01/07/2017', EFF_END_DATE: 'null' }
+      { AFSA_CODE: 'S127', EFF_ST_DATE: '02/04/2015', EFF_END_DATE: '05/07/2015', version_number: 1 },
+      { AFSA_CODE: 'S127', EFF_ST_DATE: '06/07/2015', EFF_END_DATE: '12/08/2015', version_number: 2 },
+      { AFSA_CODE: 'S127', EFF_ST_DATE: '01/07/2017', EFF_END_DATE: 'null', version_number: 3 }
     ],
     section130Agreements: [
       { AFSA_CODE: 'S130', EFF_ST_DATE: '02/04/2015', EFF_END_DATE: '05/07/2015' }

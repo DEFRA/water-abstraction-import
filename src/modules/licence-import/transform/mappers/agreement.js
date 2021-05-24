@@ -3,7 +3,7 @@
 const helpers = require('@envage/water-abstraction-helpers');
 const date = require('./date');
 
-const { groupBy, sortBy, flatMap, uniqBy } = require('lodash');
+const { groupBy, sortBy, flatMap, uniqBy, mapValues } = require('lodash');
 
 const getUniqueKey = agreement =>
  `${agreement.startDate}:${agreement.endDate}:${agreement.agreementCode}`;
@@ -30,10 +30,36 @@ const mapAgreement = chargeAgreement => {
   };
 };
 
+/**
+ * Maps element-level agreements to a single charge-level agreement
+ * with the max possible date range
+ * @param {Array<Object>} tptAgreements
+ * @returns {Object}
+ */
+const mapElementLevelAgreements = tptAgreements => {
+  const startDates = tptAgreements.map(row => date.mapNaldDate(row.EFF_ST_DATE));
+  const endDates = tptAgreements.map(row => date.mapNaldDate(row.EFF_END_DATE));
+  return {
+    ...tptAgreements[0],
+    EFF_ST_DATE: date.mapIsoDateToNald(date.getMinDate(startDates)),
+    EFF_END_DATE: date.mapIsoDateToNald(date.getMaxDate(endDates))
+  };
+};
+
+const getVersionNumber = chargeAgreement => chargeAgreement.version_number;
+
+const mapTwoPartTariffAgreements = tptAgreements => {
+  const chargeVersionGroups = groupBy(tptAgreements, getVersionNumber);
+  const mappedGroups = mapValues(chargeVersionGroups, mapElementLevelAgreements);
+  return Object.values(mappedGroups);
+};
+
 const mapAgreements = (tptAgreements, s130Agreements = []) => {
+  const mappedTptAgreements = mapTwoPartTariffAgreements(tptAgreements);
+
   // Map and de-duplicate identical agreements
   const mapped = uniqBy(
-    [...tptAgreements, ...s130Agreements].map(mapAgreement),
+    [...mappedTptAgreements, ...s130Agreements].map(mapAgreement),
     getUniqueKey
   );
 
