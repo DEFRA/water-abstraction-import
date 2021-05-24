@@ -16,6 +16,35 @@ const createLicence = (expiryDate = null) => ({
   lapsedDate: null,
   revokedDate: null,
   versions: [{
+    issue: 101,
+    increment: 1,
+    status: 'current',
+    startDate: '2019-01-01',
+    endDate: null,
+    externalId: '1:100:100:1',
+    purposes: [{
+      purposePrimary: 'A',
+      purposeSecondary: 'ABC',
+      purposeUse: '123',
+      abstractionPeriodStartDay: 1,
+      abstractionPeriodStartMonth: 1,
+      abstractionPeriodEndDay: 2,
+      abstractionPeriodEndMonth: 2,
+      timeLimitedStartDate: null,
+      timeLimitedEndDate: null,
+      notes: 'testing',
+      annualQuantity: 100,
+      conditions: [{
+        code: 'AGG',
+        subcode: 'LLL',
+        param1: null,
+        param2: null,
+        notes: null,
+        externalId: '123:20'
+      }]
+    }]
+  },
+  {
     issue: 100,
     increment: 1,
     status: 'current',
@@ -33,7 +62,8 @@ const createLicence = (expiryDate = null) => ({
       timeLimitedStartDate: null,
       timeLimitedEndDate: null,
       notes: 'testing',
-      annualQuantity: 100
+      annualQuantity: 100,
+      conditions: []
     }]
   }],
   documents: [{
@@ -77,6 +107,7 @@ experiment('modules/licence-import/load/licence', () => {
   let licence;
   let licenceId;
   let licenceVersionId;
+  let purposeId;
 
   beforeEach(async () => {
     await sandbox.stub(connectors, 'createDocumentRole');
@@ -95,7 +126,11 @@ experiment('modules/licence-import/load/licence', () => {
     await sandbox.stub(connectors, 'createLicence').resolves({
       licence_id: licenceId = uuid()
     });
-    await sandbox.stub(connectors, 'createLicenceVersionPurpose');
+    await sandbox.stub(connectors, 'createLicenceVersionPurpose').resolves({
+      licence_version_purpose_id: purposeId = uuid()
+    });
+    await sandbox.stub(connectors, 'createPurposeCondition').resolves();
+    await sandbox.stub(connectors, 'cleanUpAgreements');
 
     licence = createLicence();
   });
@@ -131,6 +166,12 @@ experiment('modules/licence-import/load/licence', () => {
     test('creates the billing document role', async () => {
       expect(connectors.createDocumentRole.calledWith(
         licence.documents[0], licence.documents[0].roles[1]
+      )).to.be.true();
+    });
+
+    test('cleans up old agreements', async () => {
+      expect(connectors.cleanUpAgreements.calledWith(
+        licence
       )).to.be.true();
     });
 
@@ -179,6 +220,18 @@ experiment('modules/licence-import/load/licence', () => {
       expect(purpose.timeLimitedEndDate).to.equal(null);
       expect(purpose.notes).to.equal('testing');
       expect(purpose.annualQuantity).to.equal(100);
+    });
+
+    test('creates the licence version purpose condition', async () => {
+      const [condition, savedId] = connectors.createPurposeCondition.lastCall.args;
+      expect(savedId).to.equal(purposeId);
+      expect(condition.code).to.equal('AGG');
+      expect(condition.subcode).to.equal('LLL');
+      expect(condition.param1).to.equal(null);
+      expect(condition.param2).to.equal(null);
+      expect(condition.notes).to.equal(null);
+      expect(condition.externalId).to.equal('123:20');
+      expect(connectors.createPurposeCondition.callCount).to.equal(1);
     });
 
     test('attempts to grab the licence record', () => {

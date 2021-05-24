@@ -24,6 +24,21 @@ exports.getLicencePurposes = `
   and versions."AABL_ID" = $2;
 `;
 
+exports.getPurposeConditions = `
+select conditions.*
+from import."NALD_ABS_LIC_VERSIONS" versions
+  join import."NALD_ABS_LIC_PURPOSES" purposes
+    on versions."AABL_ID" = purposes."AABV_AABL_ID"
+    and versions."ISSUE_NO" = purposes."AABV_ISSUE_NO"
+    and versions."INCR_NO" = purposes."AABV_INCR_NO"
+    and versions."FGAC_REGION_CODE" = purposes."FGAC_REGION_CODE"
+  join import."NALD_LIC_CONDITIONS" conditions
+  on purposes."FGAC_REGION_CODE" = conditions."FGAC_REGION_CODE"
+  and purposes."ID" = conditions."AABP_ID"
+where versions."FGAC_REGION_CODE" = $1
+and versions."AABL_ID" = $2
+`;
+
 exports.getParty = `SELECT * FROM import."NALD_PARTIES" p
   WHERE p."FGAC_REGION_CODE"=$1
   AND p."ID" = $2`;
@@ -50,11 +65,28 @@ exports.getChargeVersions = `
 `;
 
 exports.getTwoPartTariffAgreements = `
-SELECT a.*, cv."EFF_END_DATE" as charge_version_end_date 
+SELECT a.*, cv."EFF_END_DATE" as charge_version_end_date, cv."EFF_ST_DATE" as charge_version_start_date  
 FROM import."NALD_CHG_VERSIONS" cv
 JOIN import."NALD_CHG_ELEMENTS" e ON cv."FGAC_REGION_CODE"=e."FGAC_REGION_CODE" AND cv."VERS_NO"=e."ACVR_VERS_NO" AND cv."AABL_ID"=e."ACVR_AABL_ID"
 JOIN import."NALD_CHG_AGRMNTS" a ON e."FGAC_REGION_CODE"=a."FGAC_REGION_CODE" AND e."ID"=a."ACEL_ID"
-WHERE cv."FGAC_REGION_CODE"=$1 AND cv."AABL_ID"=$2 AND a."AFSA_CODE"='S127'
+WHERE 
+  cv."FGAC_REGION_CODE"=$1 
+  AND cv."AABL_ID"=$2 
+  AND a."AFSA_CODE"='S127'
+  AND concat_ws(':', cv."FGAC_REGION_CODE", cv."AABL_ID", cv."VERS_NO") in (
+    -- Finds valid charge versions to select from.  
+    -- Draft charge versions are omitted.
+    -- Where multiple charge versions begin on the same date, 
+    -- pick the one with the greatest version number.
+    select concat_ws(':', 
+      ncv."FGAC_REGION_CODE", 
+      ncv."AABL_ID", 
+      max(ncv."VERS_NO"::integer)::varchar
+    ) as id
+    from import."NALD_CHG_VERSIONS" ncv
+    where ncv."STATUS"<>'DRAFT'
+    group by ncv."FGAC_REGION_CODE", ncv."AABL_ID", ncv."EFF_ST_DATE"
+  )
 ORDER BY cv."VERS_NO"::integer;
 `;
 

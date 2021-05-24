@@ -215,4 +215,17 @@ experiment('modules/licence-import/connectors/import', () => {
       expect(params).to.equal([regionCode, licenceId]);
     });
   });
+
+  experiment('getPurposeConditions', () => {
+    test('calls pool.query with the correct arguments', async () => {
+      await importConnector.getPurposeConditions();
+      const [query] = pool.query.lastCall.args;
+      expect(query).to.equal(queries.getPurposeConditions);
+    });
+
+    test('resolves with all rows found', async () => {
+      const result = await importConnector.getPurposeConditions();
+      expect(result).to.equal(data);
+    });
+  });
 });

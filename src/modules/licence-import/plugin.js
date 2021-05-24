@@ -13,10 +13,13 @@ const registerSubscribers = async server => {
   // The first step is to remove any documents that no longer exist in NALD
   await server.messageQueue.subscribe(jobs.DELETE_DOCUMENTS_JOB, handlers.deleteDocuments);
 
+  await server.messageQueue.onComplete(jobs.DELETE_DOCUMENTS_JOB,
+    job => handlers.onCompleteDeleteDocuments(server.messageQueue, job));
+
   // When the documents have been marked as deleted
   // import a list of all companies into the water_import.company_import table
-  await server.messageQueue.onComplete(jobs.DELETE_DOCUMENTS_JOB,
-    job => handlers.onCompleteDeleteDocuments(server.messageQueue, job)
+  await server.messageQueue.onComplete(jobs.IMPORT_PURPOSE_CONDITION_TYPES_JOB,
+    job => handlers.onCompleteImportPurposeConditionTypes(server.messageQueue, job)
   );
 
   // When the water_import.company_import table is ready, jobs are scheduled to import each company
@@ -24,11 +27,12 @@ const registerSubscribers = async server => {
     job => handlers.onCompleteImportCompanies(server.messageQueue, job)
   );
 
-  // Import licenced when all companies are imported
+  // Import licences when all companies are imported
   await server.messageQueue.onComplete(jobs.IMPORT_COMPANY_JOB,
     job => handlers.onCompleteImportCompany(server.messageQueue, job)
   );
 
+  await server.messageQueue.subscribe(jobs.IMPORT_PURPOSE_CONDITION_TYPES_JOB, handlers.importPurposeConditionTypes);
   await server.messageQueue.subscribe(jobs.IMPORT_COMPANIES_JOB, handlers.importCompanies);
   await server.messageQueue.subscribe(jobs.IMPORT_COMPANY_JOB, getOptions(), handlers.importCompany);
   await server.messageQueue.subscribe(jobs.IMPORT_LICENCES_JOB, handlers.importLicences);

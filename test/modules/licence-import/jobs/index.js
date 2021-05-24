@@ -49,4 +49,8 @@ experiment('modules/licence-import/transform/jobs', () => {
       singletonKey: 'import.licence.01/123'
     });
   });
+  test('importPurposeConditionTypes', async () => {
+    const { name } = jobs.importPurposeConditionTypes();
+    expect(name).to.equal(jobs.IMPORT_PURPOSE_CONDITION_TYPES_JOB);
+  });
 });

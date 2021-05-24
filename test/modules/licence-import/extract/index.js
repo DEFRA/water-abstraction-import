@@ -27,6 +27,10 @@ const data = {
     { ID: '1', AABV_AABL_ID: '7', AABV_ISSUE_NO: '100', AABV_INCR_NO: '1' },
     { ID: '2', AABV_AABL_ID: '7', AABV_ISSUE_NO: '100', AABV_INCR_NO: '2' }
   ],
+  conditions: [
+    { ID: '1', ACIN_CODE: 'AGG', ACIN_SUBCODE: 'LLL', AABP_ID: '2', PARAM1: 'null', PARAM2: 'null', TEXT: 'some text', FGAC_REGION_CODE: '4' },
+    { ID: '2', ACIN_CODE: 'AGG', ACIN_SUBCODE: 'LPL', AABP_ID: '', PARAM1: 'null', PARAM2: 'null', TEXT: 'some text', FGAC_REGION_CODE: '4' }
+  ],
   roles: [
     { ALRT_CODE: 'RT', EFF_ST_DATE: '09/04/2015', EFF_END_DATE: '12/08/2015', ACON_APAR_ID: 'party_4', ACON_AADD_ID: 'address_4', FGAC_REGION_CODE: '1' }
   ]
@@ -47,6 +51,7 @@ experiment('modules/licence-import/extract/index.js', () => {
     sandbox.stub(importConnector, 'getInvoiceAccounts').resolves(data.invoiceAccounts);
     sandbox.stub(importConnector, 'getPartyLicenceVersions').resolves(data.licenceVersions);
     sandbox.stub(importConnector, 'getLicencePurposes').resolves(data.purposes);
+    sandbox.stub(importConnector, 'getPurposeConditions').resolves(data.conditions);
     sandbox.stub(importConnector, 'getLicenceRoles').resolves(data.roles);
     sandbox.stub(importConnector, 'getPartyLicenceRoles').resolves(data.roles);
   });
@@ -114,6 +119,12 @@ experiment('modules/licence-import/extract/index.js', () => {
       ).to.be.true();
     });
 
+    test('importConnector.getPurposeConditions called with region code and licence ID', async () => {
+      expect(
+        importConnector.getPurposeConditions.calledWith('4', '7')
+      ).to.be.true();
+    });
+
     test('resolves with the retrieved data', async () => {
       expect(result.licence).to.equal(data.licence);
       expect(result.versions).to.equal(data.licenceVersions);
@@ -123,6 +134,7 @@ experiment('modules/licence-import/extract/index.js', () => {
       expect(result.parties).to.equal(data.parties);
       expect(result.addresses).to.equal(data.addresses);
       expect(result.purposes).to.equal(data.purposes);
+      expect(result.conditions).to.equal(data.conditions);
     });
   });
 

@@ -116,10 +116,11 @@ ON CONFLICT (company_id, address_id, role_id) DO UPDATE SET
   end_date=EXCLUDED.end_date,
   date_updated=EXCLUDED.date_updated`;
 
-exports.createAgreement = `insert into water.licence_agreements (licence_ref, financial_agreement_type_id, start_date, end_date, date_created, date_updated)
-  select $1, t.financial_agreement_type_id, $3, $4, NOW(), NOW()
+exports.createAgreement = `insert into water.licence_agreements (licence_ref, financial_agreement_type_id, start_date, end_date, date_created, date_updated, source)
+  select $1, t.financial_agreement_type_id, $3, $4, NOW(), NOW(), 'nald' 
     from water.financial_agreement_types t
-    where t.financial_agreement_code=$2 on conflict (licence_ref, financial_agreement_type_id, start_date)  do update set end_date=EXCLUDED.end_date, date_updated=EXCLUDED.date_updated;`;
+    where t.financial_agreement_code=$2 on conflict (licence_ref, financial_agreement_type_id, start_date)  
+    do update set end_date=EXCLUDED.end_date, date_updated=EXCLUDED.date_updated, source=EXCLUDED.source;`;
 
 exports.createLicence = `insert into water.licences (region_id, licence_ref, is_water_undertaker, regions, start_date, expired_date, lapsed_date, revoked_date)
   values (
@@ -203,8 +204,65 @@ exports.createLicenceVersionPurpose = `insert into water.licence_version_purpose
     time_limited_end_date = excluded.time_limited_end_date,
     notes = excluded.notes,
     annual_quantity = excluded.annual_quantity,
-    date_updated = now();`;
+    date_updated = now()
+    returning licence_version_purpose_id;`;
 
 exports.getLicenceByRef = 'SELECT * FROM water.licences WHERE licence_ref = $1';
 
 exports.flagLicenceForSupplementaryBilling = 'UPDATE water.licences set include_in_supplementary_billing = \'yes\' WHERE licence_id = $1';
+
+exports.cleanUpAgreements = `
+delete 
+  from water.licence_agreements la
+  using water.financial_agreement_types fat
+  where
+    la.licence_ref=$1
+    and la.source='nald'
+    and concat_ws(':', fat.financial_agreement_code, la.start_date) <> any ($2)
+    and la.financial_agreement_type_id=fat.financial_agreement_type_id
+`;
+
+exports.createPurposeConditionTypes = `
+INSERT INTO water.licence_version_purpose_condition_types (
+  code,
+  subcode,
+  description,
+  subcode_description
+  ) 
+  SELECT "CODE", "SUBCODE", "DESCR", "SUBCODE_DESC" FROM import."NALD_LIC_COND_TYPES" 
+  WHERE "AFFECTS_ABS" = 'Y' 
+  ON CONFLICT (code, subcode)
+  DO UPDATE SET
+    description = excluded.description,
+    subcode_description = excluded.subcode_description,
+    date_updated = now();
+`;
+
+exports.createPurposeCondition = `
+INSERT INTO water.licence_version_purpose_conditions (
+  licence_version_purpose_id,
+  licence_version_purpose_condition_type_id,
+  param_1,
+  param_2,
+  notes,
+  external_id
+  ) VALUES (
+  $1,
+  (SELECT licence_version_purpose_condition_type_id 
+    FROM water.licence_version_purpose_condition_types 
+    WHERE code = $2 AND subcode = $3),
+  $4,
+  $5,
+  $6,
+   $7)
+ON CONFLICT (external_id) 
+DO UPDATE SET 
+ licence_version_purpose_condition_type_id = (
+   SELECT licence_version_purpose_condition_type_id 
+   FROM water.licence_version_purpose_condition_types 
+   WHERE code = '$2' AND subcode = '$3'),
+ param_1 = excluded.param_1,
+ param_2 = excluded.param_2,
+ notes = excluded.notes,
+ date_updated = now();
+`;

@@ -90,8 +90,8 @@ const createLicence = async licence => {
   return result.rows[0];
 };
 
-const createLicenceVersionPurpose = async (purpose, licenceVersionId) =>
-  pool.query(queries.createLicenceVersionPurpose, [
+const createLicenceVersionPurpose = async (purpose, licenceVersionId) => {
+  const params = [
     licenceVersionId,
     purpose.purposePrimary,
     purpose.purposeSecondary,
@@ -105,7 +105,10 @@ const createLicenceVersionPurpose = async (purpose, licenceVersionId) =>
     purpose.notes,
     purpose.annualQuantity,
     purpose.externalId
-  ]);
+  ];
+  const result = await pool.query(queries.createLicenceVersionPurpose, params);
+  return result.rows[0];
+};
 
 const getLicenceByRef = async licenceRef => {
   const result = await pool.query(queries.getLicenceByRef, [licenceRef]);
@@ -114,6 +117,29 @@ const getLicenceByRef = async licenceRef => {
 
 const flagLicenceForSupplementaryBilling = async licenceId => pool.query(queries.flagLicenceForSupplementaryBilling, [licenceId]);
 
+const cleanUpAgreements = licence => {
+  // Create keys for the agreements we wish to keep
+  const keys = licence.agreements.map(agreement =>
+    `${agreement.agreementCode}:${agreement.startDate}`);
+
+  return pool.query(queries.cleanUpAgreements, [licence.licenceNumber, keys]);
+};
+
+const createPurposeConditionTypes = async () => pool.query(queries.createPurposeConditionTypes);
+
+const createPurposeCondition = (condition, purposeId) =>
+  pool.query(queries.createPurposeCondition, [
+    purposeId,
+    condition.code,
+    condition.subcode,
+    condition.param1,
+    condition.param2,
+    condition.notes,
+    condition.externalId
+  ]);
+
+exports.createPurposeCondition = createPurposeCondition;
+exports.createPurposeConditionTypes = createPurposeConditionTypes;
 exports.createAddress = createAddress;
 exports.createAgreement = createAgreement;
 exports.createCompany = createCompany;
@@ -129,3 +155,4 @@ exports.createLicenceVersion = createLicenceVersion;
 exports.createLicenceVersionPurpose = createLicenceVersionPurpose;
 exports.getLicenceByRef = getLicenceByRef;
 exports.flagLicenceForSupplementaryBilling = flagLicenceForSupplementaryBilling;
+exports.cleanUpAgreements = cleanUpAgreements;
