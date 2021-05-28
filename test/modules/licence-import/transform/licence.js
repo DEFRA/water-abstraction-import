@@ -55,7 +55,7 @@ const createComplexLicence = () => {
       data.createPurpose(licence, { AABV_ISSUE_NO: '2', AABV_INCR_NO: '1', APUR_APPR_CODE: 'D' })
     ],
     conditions: [
-      data.createCondition(purpose1),
+      data.createCondition(purpose1, { TEXT: 'null' }),
       data.createCondition(purpose2, { ACIN_CODE: 'ABC', ACIN_SUBCODE: 'XYZ', PARAM1: 'param 1 text', PARAM2: 'param 2 text', TEXT: 'more plain test text' })
     ],
     chargeVersions: [
@@ -277,7 +277,7 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(condition1.subcode).to.equal('LLL');
         expect(condition1.param1).to.equal(null);
         expect(condition1.param2).to.equal(null);
-        expect(condition1.notes).to.equal('The howling wolf watering hole');
+        expect(condition1.notes).to.equal(null);
 
         expect(condition2.code).to.equal('ABC');
         expect(condition2.subcode).to.equal('XYZ');
