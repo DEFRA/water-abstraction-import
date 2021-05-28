@@ -257,10 +257,7 @@ INSERT INTO water.licence_version_purpose_conditions (
    $7)
 ON CONFLICT (external_id) 
 DO UPDATE SET 
- licence_version_purpose_condition_type_id = (
-   SELECT licence_version_purpose_condition_type_id 
-   FROM water.licence_version_purpose_condition_types 
-   WHERE code = '$2' AND subcode = '$3'),
+ licence_version_purpose_condition_type_id = excluded.licence_version_purpose_condition_type_id,
  param_1 = excluded.param_1,
  param_2 = excluded.param_2,
  notes = excluded.notes,
