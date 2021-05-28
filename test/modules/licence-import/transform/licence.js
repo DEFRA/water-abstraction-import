@@ -157,9 +157,9 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(result.versions[0].purposes[0].conditions.length).to.equal(1);
         expect(condition.code).to.equal('AAG');
         expect(condition.subcode).to.equal('LLL');
-        expect(condition.param1).to.equal('null');
-        expect(condition.param2).to.equal('null');
-        expect(condition.notes).to.equal('null');
+        expect(condition.param1).to.equal(null);
+        expect(condition.param2).to.equal(null);
+        expect(condition.notes).to.equal('The howling wolf watering hole');
       });
     });
 
