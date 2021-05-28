@@ -111,7 +111,7 @@ const createCondition = (purpose, overrides) => Object.assign({}, {
   ACIN_SUBCODE: 'LLL',
   PARAM1: 'null',
   PARAM2: 'null',
-  TEXT: 'null',
+  TEXT: 'The howling wolf watering hole',
   FGAC_REGION_CODE: purpose.FGAC_REGION_CODE
 }, overrides);
 
