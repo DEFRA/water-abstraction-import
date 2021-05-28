@@ -55,8 +55,8 @@ const createComplexLicence = () => {
       data.createPurpose(licence, { AABV_ISSUE_NO: '2', AABV_INCR_NO: '1', APUR_APPR_CODE: 'D' })
     ],
     conditions: [
-      data.createCondition(purpose1),
-      data.createCondition(purpose2, { ACIN_CODE: 'ABC', ACIN_SUBCODE: 'XYZ' })
+      data.createCondition(purpose1, { TEXT: 'null' }),
+      data.createCondition(purpose2, { ACIN_CODE: 'ABC', ACIN_SUBCODE: 'XYZ', PARAM1: 'param 1 text', PARAM2: 'param 2 text', TEXT: 'more plain test text' })
     ],
     chargeVersions: [
       data.createChargeVersion(licence, { VERS_NO: '1', EFF_ST_DATE: '02/04/2015', EFF_END_DATE: '14/05/2016', ACON_APAR_ID: '1000' }),
@@ -157,9 +157,9 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(result.versions[0].purposes[0].conditions.length).to.equal(1);
         expect(condition.code).to.equal('AAG');
         expect(condition.subcode).to.equal('LLL');
-        expect(condition.param1).to.equal('null');
-        expect(condition.param2).to.equal('null');
-        expect(condition.notes).to.equal('null');
+        expect(condition.param1).to.equal(null);
+        expect(condition.param2).to.equal(null);
+        expect(condition.notes).to.equal('The howling wolf watering hole');
       });
     });
 
@@ -267,6 +267,23 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(result.versions[1].purposes[0].purposePrimary).to.equal('B');
         expect(result.versions[2].purposes[0].purposePrimary).to.equal('C');
         expect(result.versions[2].purposes[1].purposePrimary).to.equal('D');
+      });
+
+      test('the licence contains the correct purpose conditions data', async () => {
+        const condition1 = result.versions[1].purposes[0].conditions[0];
+        const condition2 = result.versions[1].purposes[0].conditions[1];
+        expect(result.versions[1].purposes[0].conditions.length).to.equal(2);
+        expect(condition1.code).to.equal('AAG');
+        expect(condition1.subcode).to.equal('LLL');
+        expect(condition1.param1).to.equal(null);
+        expect(condition1.param2).to.equal(null);
+        expect(condition1.notes).to.equal(null);
+
+        expect(condition2.code).to.equal('ABC');
+        expect(condition2.subcode).to.equal('XYZ');
+        expect(condition2.param1).to.equal('param 1 text');
+        expect(condition2.param2).to.equal('param 2 text');
+        expect(condition2.notes).to.equal('more plain test text');
       });
     });
 
