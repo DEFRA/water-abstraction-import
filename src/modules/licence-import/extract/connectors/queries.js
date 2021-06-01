@@ -75,6 +75,8 @@ JOIN import."NALD_CHG_ELEMENTS" e ON cv."FGAC_REGION_CODE"=e."FGAC_REGION_CODE" 
 JOIN import."NALD_CHG_AGRMNTS" a ON e."FGAC_REGION_CODE"=a."FGAC_REGION_CODE" AND e."ID"=a."ACEL_ID"
 WHERE 
   cv."FGAC_REGION_CODE"=$1 
+  -- Exclude charge versions that have been replaced. We know a CV is replaced because it will have the same start and end date
+  AND cv."EFF_END_DATE" <> cv."EFF_ST_DATE" 
   AND cv."AABL_ID"=$2 
   AND a."AFSA_CODE"='S127'
   AND concat_ws(':', cv."FGAC_REGION_CODE", cv."AABL_ID", cv."VERS_NO") in (
