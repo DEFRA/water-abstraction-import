@@ -25,7 +25,64 @@ nullif(nbr."NO_OF_CRNS", 'null')::integer as credit_note_count,
 (nullif(nbr."VALUE_OF_CRNS", 'null')::numeric * 100) 
 )::bigint as net_total,
 nbr."BILL_RUN_NO"::integer as bill_run_number,
-false as is_summer,
+concat_ws(':', nbr."FGAC_REGION_CODE", nbr."BILL_RUN_NO") in (
+  '1:582',
+  '1:609',
+  '1:640',
+  '1:673',
+  '1:706',
+  '1:750',
+  '1:778',
+  '2:546',
+  '2:572',
+  '2:604',
+  '2:636',
+  '2:663',
+  '2:694',
+  '2:717',
+  '3:367',
+  '3:404',
+  '3:451',
+  '3:483',
+  '3:518',
+  '3:552',
+  '3:571',
+  '4:308',
+  '4:323',
+  '4:346',
+  '4:376',
+  '4:408',
+  '4:428',
+  '4:439',
+  '5:640',
+  '5:659',
+  '5:685',
+  '5:715',
+  '5:758',
+  '5:794',
+  '5:816',
+  '6:494',
+  '6:517',
+  '6:542',
+  '6:559',
+  '6:584',
+  '6:602',
+  '6:618',
+  '7:334',
+  '7:359',
+  '7:401',
+  '7:443',
+  '7:502',
+  '7:547',
+  '7:574',
+  '8:304',
+  '8:328',
+  '8:341',
+  '8:351',
+  '8:367',
+  '8:379',
+  '8:392'
+) as is_summer,
 'nald'::water.billing_batch_source as source,
 concat_ws(':', nbr."FGAC_REGION_CODE", nbr."BILL_RUN_NO") as legacy_id,
 row_to_json(nbr) as metadata,
@@ -263,7 +320,7 @@ insert into water.billing_volumes (
 select 
 t.charge_element_id, 
 i.financial_year_ending as financial_year,
-false as is_summer,
+ntr.is_summer,
 null as calculated_volume,
 false as two_part_tariff_error,
 null as two_part_tariff_status,
@@ -276,8 +333,36 @@ from water.billing_batches b
 join water.billing_invoices i on b.billing_batch_id=i.billing_batch_id
 join water.billing_invoice_licences il on il.billing_invoice_id=i.billing_invoice_id
 join water.billing_transactions t on il.billing_invoice_licence_id=t.billing_invoice_licence_id 
-where b.source='nald' and b.batch_type='two_part_tariff'
-on conflict do nothing;
+join water.charge_elements ce on t.charge_element_id=ce.charge_element_id
+join (
+  -- Get the TPT season for each charge element/financial year combination 
+  select *,
+  case 
+    -- for Thames/Southern, summer range is 29 April to 28 November
+    when ntr."FGAC_REGION_CODE" in ('6', '7') then
+      daterange(
+        make_date(extract(year from ntr.latest_return_date)::int, 4, 29),
+        make_date(extract(year from ntr.latest_return_date)::int, 11, 28),
+        '[]'
+      )
+    -- for other regions, summer range is 16 April to 15 November
+    else
+      daterange(
+        make_date(extract(year from ntr.latest_return_date)::int, 4, 16),
+        make_date(extract(year from ntr.latest_return_date)::int, 11, 15),
+        '[]'
+      )
+  end @> ntr.latest_return_date as is_summer
+  from (
+    select 
+      ntr."FGAC_REGION_CODE", 
+      concat_ws(':', ntr."FGAC_REGION_CODE", ntr."ACEL_ID") as external_id, 
+      ntr."FIN_YEAR"::integer,
+      to_date(ntr."LATEST_RET_DATE", 'DD/MM/YYYY') as latest_return_date
+    from import."NALD_TPT_RETURNS" ntr
+  ) ntr
+) ntr on ntr.external_id=ce.external_id and i.financial_year_ending=ntr."FIN_YEAR"
+where b.source='nald' and b.batch_type='two_part_tariff';
 `;
 
 exports.importBillingBatchChargeVersionYears = `

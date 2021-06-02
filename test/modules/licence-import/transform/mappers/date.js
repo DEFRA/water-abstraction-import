@@ -79,4 +79,23 @@ experiment('modules/licence-import/mappers/date', () => {
       expect(result).to.equal('2018-06-06');
     });
   });
+
+  experiment('mapTransferDate', () => {
+    test('converts a full datestamp in NALD format to a date in YYYY-MM-DD format', async () => {
+      const result = date.mapTransferDate('04/12/2015 12:52:00');
+      expect(result).to.equal('2015-12-04');
+    });
+  });
+
+  experiment('mapIsoDateToNald', () => {
+    test('maps ISO format to NALD format', async () => {
+      const result = date.mapIsoDateToNald('2018-06-07');
+      expect(result).to.equal('07/06/2018');
+    });
+
+    test('maps true null to string "null"', async () => {
+      const result = date.mapIsoDateToNald(null);
+      expect(result).to.equal('null');
+    });
+  });
 });

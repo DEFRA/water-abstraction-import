@@ -11,7 +11,8 @@ experiment('modules/licence-import/mappers/agreement', () => {
     EFF_ST_DATE: overrides.startDate || '01/01/2020',
     EFF_END_DATE: overrides.endDate || 'null',
     charge_version_end_date: overrides.chargeVersionEndDate || 'null',
-    charge_version_start_date: overrides.chargeVersionStartDate || '01/01/2020'
+    charge_version_start_date: overrides.chargeVersionStartDate || '01/01/2020',
+    version_number: overrides.versionNumber || 1
   });
 
   test('maps agreements with no end date', async () => {
@@ -36,9 +37,9 @@ experiment('modules/licence-import/mappers/agreement', () => {
 
   test('merges adjacent date ranges with the same code', async () => {
     const agreements = [
-      createAgreement({ code: 'S130', endDate: '01/05/2020' }),
-      createAgreement({ endDate: '01/06/2021' }),
-      createAgreement({ startDate: '02/06/2021' })
+      createAgreement({ code: 'S130', endDate: '01/05/2020', versionNumber: 1 }),
+      createAgreement({ endDate: '01/06/2021', versionNumber: 2 }),
+      createAgreement({ startDate: '02/06/2021', versionNumber: 3 })
     ];
     const result = mapAgreements(agreements);
     expect(result[0]).to.equal({
@@ -61,5 +62,19 @@ experiment('modules/licence-import/mappers/agreement', () => {
     ];
     const result = mapAgreements(agreements);
     expect(result).to.be.an.array().length(1);
+  });
+
+  test('merges agreements with different date ranges on different elements', async () => {
+    const agreements = [
+      createAgreement({ startDate: '11/03/1993', chargeVersionStartDate: '11/10/1978', chargeVersionEndDate: '31/03/2006', versionNumber: 1 }),
+      createAgreement({ startDate: '11/10/1978', chargeVersionStartDate: '11/10/1978', chargeVersionEndDate: '31/03/2006', versionNumber: 1 }),
+      createAgreement({ startDate: '11/03/1993', chargeVersionStartDate: '01/04/2006', chargeVersionEndDate: '31/03/2014', versionNumber: 2 }),
+      createAgreement({ startDate: '11/10/1978', chargeVersionStartDate: '01/04/2006', chargeVersionEndDate: '31/03/2014', versionNumber: 2 }),
+      createAgreement({ startDate: '01/04/2014', chargeVersionStartDate: '01/04/2014', versionNumber: 4 })
+    ];
+    const result = mapAgreements(agreements);
+    expect(result).to.be.an.array().length(1);
+    expect(result[0].startDate).to.equal('1978-10-11');
+    expect(result[0].endDate).to.equal(null);
   });
 });

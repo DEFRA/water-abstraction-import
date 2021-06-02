@@ -37,9 +37,11 @@ const createInvoiceAccount = (company, invoiceAccount) => {
 
 const createInvoiceAccountAddress = (invoiceAccount, invoiceAccountAddress) => {
   const params = [
-    invoiceAccount.invoiceAccountNumber, invoiceAccountAddress.address.externalId,
-    invoiceAccountAddress.startDate, invoiceAccountAddress.endDate,
-    invoiceAccountAddress.agentCompany.externalId
+    invoiceAccount.invoiceAccountNumber,
+    invoiceAccountAddress.address.externalId,
+    invoiceAccountAddress.startDate,
+    invoiceAccountAddress.endDate,
+    get(invoiceAccountAddress, 'agentCompany.externalId', null)
   ];
   return pool.query(queries.createInvoiceAccountAddress, params);
 };
@@ -88,8 +90,8 @@ const createLicence = async licence => {
   return result.rows[0];
 };
 
-const createLicenceVersionPurpose = async (purpose, licenceVersionId) =>
-  pool.query(queries.createLicenceVersionPurpose, [
+const createLicenceVersionPurpose = async (purpose, licenceVersionId) => {
+  const params = [
     licenceVersionId,
     purpose.purposePrimary,
     purpose.purposeSecondary,
@@ -103,7 +105,10 @@ const createLicenceVersionPurpose = async (purpose, licenceVersionId) =>
     purpose.notes,
     purpose.annualQuantity,
     purpose.externalId
-  ]);
+  ];
+  const result = await pool.query(queries.createLicenceVersionPurpose, params);
+  return result.rows[0];
+};
 
 const getLicenceByRef = async licenceRef => {
   const result = await pool.query(queries.getLicenceByRef, [licenceRef]);
@@ -120,6 +125,21 @@ const cleanUpAgreements = licence => {
   return pool.query(queries.cleanUpAgreements, [licence.licenceNumber, keys]);
 };
 
+const createPurposeConditionTypes = async () => pool.query(queries.createPurposeConditionTypes);
+
+const createPurposeCondition = (condition, purposeId) =>
+  pool.query(queries.createPurposeCondition, [
+    purposeId,
+    condition.code,
+    condition.subcode,
+    condition.param1,
+    condition.param2,
+    condition.notes,
+    condition.externalId
+  ]);
+
+exports.createPurposeCondition = createPurposeCondition;
+exports.createPurposeConditionTypes = createPurposeConditionTypes;
 exports.createAddress = createAddress;
 exports.createAgreement = createAgreement;
 exports.createCompany = createCompany;

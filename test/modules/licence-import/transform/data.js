@@ -85,6 +85,7 @@ const createChargeVersion = (licence, overrides) => Object.assign({}, {
 }, overrides);
 
 const createPurpose = (licence, overrides) => Object.assign({}, {
+  ID: '674',
   AABV_AABL_ID: licence.ID,
   FGAC_REGION_CODE: licence.FGAC_REGION_CODE,
   AABV_ISSUE_NO: '100',
@@ -104,6 +105,16 @@ const createPurpose = (licence, overrides) => Object.assign({}, {
   NOTES: 'null'
 }, overrides);
 
+const createCondition = (purpose, overrides) => Object.assign({}, {
+  AABP_ID: purpose.ID,
+  ACIN_CODE: 'AAG',
+  ACIN_SUBCODE: 'LLL',
+  PARAM1: 'null',
+  PARAM2: 'null',
+  TEXT: 'The howling wolf watering hole',
+  FGAC_REGION_CODE: purpose.FGAC_REGION_CODE
+}, overrides);
+
 exports.createAddress = createAddress;
 exports.createAgreement = createAgreement;
 exports.createChargeVersion = createChargeVersion;
@@ -113,4 +124,5 @@ exports.createLicence = createLicence;
 exports.createParty = createParty;
 exports.createPerson = createPerson;
 exports.createPurpose = createPurpose;
+exports.createCondition = createCondition;
 exports.createVersion = createVersion;

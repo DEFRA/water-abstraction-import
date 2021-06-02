@@ -3,12 +3,12 @@
 const { test, experiment, beforeEach, afterEach, fail } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
 const sandbox = require('sinon').createSandbox();
-
 const handlers = require('../../../../src/modules/licence-import/handlers');
 const extract = require('../../../../src/modules/licence-import/extract');
 const transform = require('../../../../src/modules/licence-import/transform');
 const load = require('../../../../src/modules/licence-import/load');
 const importCompanies = require('../../../../src/modules/licence-import/connectors/import-companies');
+const purposeConditionTypesConnector = require('../../../../src/modules/licence-import/connectors/purpose-conditions-types');
 
 const { logger } = require('../../../../src/logger');
 
@@ -368,6 +368,49 @@ experiment('modules/licence-import/transform/handlers', () => {
         const [{ name }] = messageQueue.publish.lastCall.args;
         expect(name).to.equal('import.licences');
       });
+    });
+  });
+
+  experiment('importPurposeConditionTypes', () => {
+    beforeEach(async () => {
+      sandbox.stub(purposeConditionTypesConnector, 'createPurposeConditionTypes').resolves();
+      await handlers.importPurposeConditionTypes();
+    });
+
+    test('logs an info message', async () => {
+      expect(logger.info.calledWith(
+        'Import purpose condition types'
+      )).to.be.true();
+    });
+
+    test('calls the right connector method', async () => {
+      expect(purposeConditionTypesConnector.createPurposeConditionTypes.called).to.be.true();
+    });
+
+    experiment('when there are errors', () => {
+      test('an error is logged and rethrown', async () => {
+        const err = new Error('test error');
+        purposeConditionTypesConnector.createPurposeConditionTypes.throws(err);
+        try {
+          await handlers.importPurposeConditionTypes();
+        } catch (err) {
+          expect(logger.error.called).to.be.true();
+        }
+      });
+    });
+  });
+  experiment('onComplete importPurposeConditionTypes', () => {
+    let messageQueue;
+
+    beforeEach(async () => {
+      messageQueue = {
+        publish: sandbox.stub()
+      };
+    });
+
+    test('the next job is published', async () => {
+      await handlers.onCompleteImportPurposeConditionTypes(messageQueue);
+      expect(messageQueue.publish.called).to.be.true();
     });
   });
 });
