@@ -80,8 +80,10 @@ module.exports = {
       schedule: isProduction ? '0 4 * * 1,2,3,4,5' : '0 16 * * 1,2,3,4,5',
       // Note: these 2 flags need to be set to false for charging go-live
       // to suspend the import of invoice accounts and licence agreements
+      // Update: I've changed those values to false ahead of the v2.0 charging
+      // release as described in WATER-3201 - TT 20210603
       isInvoiceAccountImportEnabled: true,
-      isLicenceAgreementImportEnabled: true,
+      isLicenceAgreementImportEnabled: false,
       // Note: we think a solution is needed where a list of billing contacts
       // for a given licence is calculated from the charge version history
       // in the water service, and synced to CRM v2.
