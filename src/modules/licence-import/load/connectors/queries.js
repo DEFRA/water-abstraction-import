@@ -1,24 +1,23 @@
 exports.createDocument = `
-  INSERT INTO crm_v2.documents (regime, document_type, document_ref, version_number, status, start_date, end_date, external_id, date_created, date_updated, date_deleted)
-  VALUES ('water', 'abstraction_licence', $1, $2, $3, $4, $5, $6, NOW(), NOW(), null)
-  ON CONFLICT (regime, document_type, version_number, document_ref)
+  INSERT INTO crm_v2.documents (regime, document_type, document_ref, start_date, end_date, external_id, date_created, date_updated, date_deleted)
+  VALUES ('water', 'abstraction_licence', $1, $2, $3, $4, NOW(), NOW(), null)
+  ON CONFLICT (regime, document_type, document_ref)
   DO UPDATE SET
     start_date=EXCLUDED.start_date,
     end_date=EXCLUDED.end_date,
-    status=EXCLUDED.status,
     external_id=EXCLUDED.external_id,
     date_updated=EXCLUDED.date_updated,
     date_deleted=EXCLUDED.date_deleted;`;
 
 exports.createDocumentRole = `INSERT INTO crm_v2.document_roles (document_id, role_id, company_id, contact_id, address_id, start_date, end_date, date_created, date_updated, invoice_account_id)
-SELECT d.document_id, r.role_id, c.company_id, co.contact_id, a.address_id, $8, $9, NOW(), NOW(), ia.invoice_account_id
+SELECT d.document_id, r.role_id, c.company_id, co.contact_id, a.address_id, $7, $8, NOW(), NOW(), ia.invoice_account_id
   FROM crm_v2.documents d
-  JOIN crm_v2.roles r ON r.name=$3
-  LEFT JOIN crm_v2.companies c ON c.external_id=$4
-  LEFT JOIN crm_v2.contacts co ON co.external_id=$5
-  LEFT JOIN crm_v2.addresses a ON a.external_id=$6
-  LEFT JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=$7
-  WHERE d.document_ref=$1 AND version_number=$2
+  JOIN crm_v2.roles r ON r.name=$2
+  LEFT JOIN crm_v2.companies c ON c.external_id=$3
+  LEFT JOIN crm_v2.contacts co ON co.external_id=$4
+  LEFT JOIN crm_v2.addresses a ON a.external_id=$5
+  LEFT JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=$6
+  WHERE d.document_ref=$1
 ON CONFLICT (document_id, role_id, start_date)
   DO UPDATE SET
     company_id=EXCLUDED.company_id,
