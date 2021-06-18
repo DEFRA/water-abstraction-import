@@ -1,5 +1,6 @@
 'use strict';
 
+const { isUndefined } = require('lodash');
 const date = require('./date');
 const roles = require('./roles');
 
@@ -24,20 +25,19 @@ const compareLicenceVersions = (licenceVersionA, licenceVersionB) => {
   return versionA.issue > versionB.issue ? -1 : +1;
 };
 
-const isLicenceVersionForImport = (licenceVersion, licenceVersions) => {
-  if (licenceVersion.status === 'DRAFT') {
-    return false;
-  }
+const isLicenceVersionForImport = (licenceVersion, licenceVersions) =>
+  !isLicenceVersionDraft(licenceVersion) &&
+  !isLicenceVersionReplaced(licenceVersion, licenceVersions);
 
-  const subsequentLicenceVersions = licenceVersions.filter(
-    comparisonLicenceVersion => compareLicenceVersions(licenceVersion, comparisonLicenceVersion) === -1
-  );
+const isLicenceVersionDraft = licenceVersion => licenceVersion.STATUS === 'DRAFT';
 
-  const replacementLicenceVersion = subsequentLicenceVersions.find(
-    comparisonLicenceVersion => comparisonLicenceVersion.EFF_ST_DATE === licenceVersion.EFF_ST_DATE
-  );
-
-  return !replacementLicenceVersion;
+const isLicenceVersionReplaced = (licenceVersion, licenceVersions) => {
+  const replacementLicenceVersion = licenceVersions.find(comparisonLicenceVersion => {
+    const isSameStartDate = comparisonLicenceVersion.EFF_ST_DATE === licenceVersion.EFF_ST_DATE;
+    const isFollowingVersion = compareLicenceVersions(licenceVersion, comparisonLicenceVersion) === 1;
+    return isSameStartDate && isFollowingVersion;
+  });
+  return !isUndefined(replacementLicenceVersion);
 };
 
 /**
@@ -84,7 +84,7 @@ const isRoleForImport = role => roles.naldRoles.get(role.ALRT_CODE) === roles.RO
  * @param {Object} document
  * @param {Array} roles - array of roles loaded from NALD
  */
-const mapLicenceRoles = (document, roles, context) => roles
+const mapLicenceRoles = (document, licenceRoles, context) => licenceRoles
   .filter(isRoleForImport)
   .map(role => mapLicenceRole(role, context));
 
