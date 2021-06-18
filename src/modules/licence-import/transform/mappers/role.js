@@ -8,23 +8,6 @@ const mapLicenceHolderRoles = (document, licenceVersions, context) => licenceVer
   .filter(licenceVersion => isLicenceVersionForImport(licenceVersion, licenceVersions))
   .map(licenceVersion => mapLicenceHolderRole(document, licenceVersion, context));
 
-const getVersion = licenceVersion => ({
-  issue: parseInt(licenceVersion.ISSUE_NO),
-  increment: parseInt(licenceVersion.INCR_NO)
-});
-
-const compareLicenceVersions = (licenceVersionA, licenceVersionB) => {
-  const versionA = getVersion(licenceVersionA);
-  const versionB = getVersion(licenceVersionB);
-  if (versionA.issue === versionB.issue) {
-    if (versionA.increment === versionB.increment) {
-      return 0;
-    }
-    return versionA.increment > versionB.increment ? -1 : +1;
-  }
-  return versionA.issue > versionB.issue ? -1 : +1;
-};
-
 const isLicenceVersionForImport = (licenceVersion, licenceVersions) =>
   !isLicenceVersionDraft(licenceVersion) &&
   !isLicenceVersionReplaced(licenceVersion, licenceVersions);
@@ -39,6 +22,23 @@ const isLicenceVersionReplaced = (licenceVersion, licenceVersions) => {
   });
   return !isUndefined(replacementLicenceVersion);
 };
+
+const compareLicenceVersions = (licenceVersionA, licenceVersionB) => {
+  const versionA = getVersion(licenceVersionA);
+  const versionB = getVersion(licenceVersionB);
+  if (versionA.issue === versionB.issue) {
+    if (versionA.increment === versionB.increment) {
+      return 0;
+    }
+    return versionA.increment > versionB.increment ? -1 : +1;
+  }
+  return versionA.issue > versionB.issue ? -1 : +1;
+};
+
+const getVersion = licenceVersion => ({
+  issue: parseInt(licenceVersion.ISSUE_NO),
+  increment: parseInt(licenceVersion.INCR_NO)
+});
 
 /**
  * Creates an initial document role for the licence holder
