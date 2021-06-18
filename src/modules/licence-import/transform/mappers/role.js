@@ -1,6 +1,5 @@
 'use strict';
 
-const { isUndefined } = require('lodash');
 const date = require('./date');
 const roles = require('./roles');
 
@@ -14,14 +13,12 @@ const isLicenceVersionForImport = (licenceVersion, licenceVersions) =>
 
 const isLicenceVersionDraft = licenceVersion => licenceVersion.STATUS === 'DRAFT';
 
-const isLicenceVersionReplaced = (licenceVersion, licenceVersions) => {
-  const replacementLicenceVersion = licenceVersions.find(comparisonLicenceVersion => {
+const isLicenceVersionReplaced = (licenceVersion, licenceVersions) =>
+  licenceVersions.some(comparisonLicenceVersion => {
     const isSameStartDate = comparisonLicenceVersion.EFF_ST_DATE === licenceVersion.EFF_ST_DATE;
     const isFollowingVersion = compareLicenceVersions(licenceVersion, comparisonLicenceVersion) === 1;
     return isSameStartDate && isFollowingVersion;
   });
-  return !isUndefined(replacementLicenceVersion);
-};
 
 const compareLicenceVersions = (licenceVersionA, licenceVersionB) => {
   const versionA = getVersion(licenceVersionA);
