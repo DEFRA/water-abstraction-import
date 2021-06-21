@@ -81,7 +81,7 @@ const isRoleForImport = role => roles.naldRoles.get(role.ALRT_CODE) === roles.RO
  * @param {Object} document
  * @param {Array} roles - array of roles loaded from NALD
  */
-const mapLicenceRoles = (document, licenceRoles, context) => licenceRoles
+const mapLicenceRoles = (licenceRoles, context) => licenceRoles
   .filter(isRoleForImport)
   .map(role => mapLicenceRole(role, context));
 

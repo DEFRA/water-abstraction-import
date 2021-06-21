@@ -27,7 +27,7 @@ const transformLicence = licenceData => {
   // Get licence holder/billing document roles
   licence.document.roles = [
     ...mappers.role.mapLicenceHolderRoles(licence.document, licenceData.versions, context),
-    ...mappers.role.mapLicenceRoles(licence.document, licenceData.roles, context)
+    ...mappers.role.mapLicenceRoles(licenceData.roles, context)
   ];
 
   // Agreements - section 127/130
