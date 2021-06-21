@@ -66,7 +66,7 @@ const createLicence = (expiryDate = null) => ({
       conditions: []
     }]
   }],
-  documents: [{
+  document: {
     documentRef: '123/456',
     startDate: '2019-01-01',
     versionNumber: 1,
@@ -95,7 +95,7 @@ const createLicence = (expiryDate = null) => ({
         externalId: '1:100'
       }
     }]
-  }],
+  },
   agreements: [{
     agreementCode: 'S127',
     startDate: '2019-01-01',
@@ -153,19 +153,19 @@ experiment('modules/licence-import/load/licence', () => {
 
     test('creates document', async () => {
       expect(connectors.createDocument.calledWith(
-        licence.documents[0]
+        licence.document
       )).to.be.true();
     });
 
     test('creates the licence holder document role', async () => {
       expect(connectors.createDocumentRole.calledWith(
-        licence.documents[0], licence.documents[0].roles[0]
+        licence.document, licence.document.roles[0]
       )).to.be.true();
     });
 
     test('creates the billing document role', async () => {
       expect(connectors.createDocumentRole.calledWith(
-        licence.documents[0], licence.documents[0].roles[1]
+        licence.document, licence.document.roles[1]
       )).to.be.true();
     });
 
@@ -273,13 +273,13 @@ experiment('modules/licence-import/load/licence', () => {
 
     test('creates the licence holder document role', async () => {
       expect(connectors.createDocumentRole.calledWith(
-        licence.documents[0], licence.documents[0].roles[0]
+        licence.document, licence.document.roles[0]
       )).to.be.true();
     });
 
     test('creates the billing document role', async () => {
       expect(connectors.createDocumentRole.calledWith(
-        licence.documents[0], licence.documents[0].roles[1]
+        licence.document, licence.document.roles[1]
       )).to.be.false();
     });
   });

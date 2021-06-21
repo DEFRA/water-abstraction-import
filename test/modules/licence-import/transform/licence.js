@@ -101,20 +101,18 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(result.endDate).to.equal(null);
       });
 
-      test('a document is created for each issue number', async () => {
-        expect(result.documents.length).to.equal(1);
-        const [doc] = result.documents;
-        expect(doc.documentRef).to.equal('01/123');
-        expect(doc.versionNumber).to.equal(100);
-        expect(doc.status).to.equal('current');
-        expect(doc.startDate).to.equal('2016-04-01');
-        expect(doc.endDate).to.equal(null);
-        expect(doc.externalId).to.equal('1:123:100');
-        expect(doc.roles).to.be.an.array();
+      test('a document is created for the licence', async () => {
+        const { document } = result;
+        expect(document).to.be.an.object();
+        expect(document.documentRef).to.equal('01/123');
+        expect(document.startDate).to.equal('2016-04-01');
+        expect(document.endDate).to.equal(null);
+        expect(document.externalId).to.equal('1:123');
+        expect(document.roles).to.be.an.array();
       });
 
       test('a document role is created for the licence holder', async () => {
-        const [role] = result.documents[0].roles;
+        const [role] = result.document.roles;
         expect(role.role).to.equal('licenceHolder');
         expect(role.startDate).to.equal('2016-04-01');
         expect(role.endDate).to.equal(null);
@@ -123,23 +121,12 @@ experiment('modules/licence-import/transform/licence.js', () => {
         expect(role.address.externalId).to.equal('1:1000');
       });
 
-      test('a document role is created for the billing contact', async () => {
-        const [, role] = result.documents[0].roles;
-        expect(role.role).to.equal('billing');
-        expect(role.startDate).to.equal('2016-04-01');
-        expect(role.endDate).to.equal(null);
-        expect(role.invoiceAccount.invoiceAccountNumber).to.equal('X1234');
-        expect(role.company).to.equal(null);
-        expect(role.contact).to.equal(null);
-        expect(role.address).to.equal(null);
-      });
-
-      test('2 roles are created', async () => {
-        expect(result.documents[0].roles.length).to.equal(2);
+      test('1 role is created', async () => {
+        expect(result.document.roles.length).to.equal(1);
       });
 
       test('there are no document roles for returns', async () => {
-        expect(result.documents[0].roles.map(role => role.role)).to.only.include(['licenceHolder', 'billing']);
+        expect(result.document.roles.map(role => role.role)).to.only.include(['licenceHolder']);
       });
 
       test('there are no licence agreements', async () => {
@@ -169,77 +156,52 @@ experiment('modules/licence-import/transform/licence.js', () => {
         result = transformLicence(licenceData);
       });
 
-      test('documents are created when an issue number changes, increment changes are merged', async () => {
-        expect(result.documents.length).to.equal(2);
-        expect(result.documents[0].versionNumber).to.equal(1);
-        expect(result.documents[0].startDate).to.equal('2015-04-02');
-        expect(result.documents[0].endDate).to.equal('2015-08-12');
-        expect(result.documents[1].versionNumber).to.equal(2);
-        expect(result.documents[1].startDate).to.equal('2015-08-13');
-        expect(result.documents[1].endDate).to.equal(null);
+      test('a single document is created for the licence', async () => {
+        const { document } = result;
+        expect(document).to.be.an.object();
+        expect(result.document.startDate).to.equal('2016-04-01');
+        expect(result.document.endDate).to.be.null();
       });
 
-      test('the first document has 3 roles', async () => {
-        expect(result.documents[0].roles.length).to.equal(3);
+      test('the document has 4 roles', async () => {
+        expect(result.document.roles.length).to.equal(4);
       });
 
-      test('the first document has the correct licence holder role', async () => {
-        const [role] = result.documents[0].roles;
+      test('the first licence version is mapped to a licence holder role with dates constrained by the licence start date', async () => {
+        const [role] = result.document.roles;
         expect(role.role).to.equal('licenceHolder');
-        expect(role.startDate).to.equal('2015-04-02');
+        expect(role.startDate).to.equal('2016-04-01');
+        expect(role.endDate).to.equal('2015-07-05');
+        expect(role.company.externalId).to.equal('1:1000');
+        expect(role.contact).to.equal(null);
+        expect(role.address.externalId).to.equal('1:1000');
+      });
+
+      test('the second licence version is mapped to a licence holder role with dates constrained by the licence start date', async () => {
+        const [, role] = result.document.roles;
+        expect(role.role).to.equal('licenceHolder');
+        expect(role.startDate).to.equal('2016-04-01');
         expect(role.endDate).to.equal('2015-08-12');
         expect(role.company.externalId).to.equal('1:1000');
         expect(role.contact).to.equal(null);
         expect(role.address.externalId).to.equal('1:1000');
       });
 
-      test('the first document has the correct billing role', async () => {
-        const [, role] = result.documents[0].roles;
-        expect(role.role).to.equal('billing');
-        expect(role.startDate).to.equal('2015-04-02');
-        expect(role.endDate).to.equal('2015-08-12');
-        expect(role.invoiceAccount.invoiceAccountNumber).to.equal('X1234');
+      test('the third licence version is mapped to a licence holder role with dates constrained by the licence start date', async () => {
+        const [,, role] = result.document.roles;
+        expect(role.role).to.equal('licenceHolder');
+        expect(role.startDate).to.equal('2016-04-01');
+        expect(role.endDate).to.be.null();
+        expect(role.company.externalId).to.equal('1:1000');
+        expect(role.contact).to.equal(null);
+        expect(role.address.externalId).to.equal('1:1000');
       });
 
-      test('the first document has the correct returns to role', async () => {
-        const [,, role] = result.documents[0].roles;
+      test('the document has the correct returns to role', async () => {
+        const [,,, role] = result.document.roles;
         expect(role.role).to.equal('returnsTo');
         expect(role.startDate).to.equal('2015-04-09');
         expect(role.endDate).to.equal('2015-08-12');
-      });
-
-      test('the second document has 2 roles', async () => [
-        expect(result.documents.length).to.equal(2)
-      ]);
-
-      test('the second document has the correct licence holder role', async () => {
-        const [role] = result.documents[1].roles;
-        expect(role.role).to.equal('licenceHolder');
-        expect(role.startDate).to.equal('2015-08-13');
-        expect(role.endDate).to.equal(null);
-        expect(role.company.externalId).to.equal('1:1000');
-        expect(role.contact).to.equal(null);
-        expect(role.address.externalId).to.equal('1:1000');
-      });
-
-      test('the second document has the correct first billing role', async () => {
-        const [, role] = result.documents[1].roles;
-        expect(role.role).to.equal('billing');
-        expect(role.startDate).to.equal('2015-08-13');
-        expect(role.endDate).to.equal('2016-05-14');
-        expect(role.invoiceAccount.invoiceAccountNumber).to.equal('X1234');
-      });
-
-      test('the second document has the correct second billing role', async () => {
-        const [, , role] = result.documents[1].roles;
-        expect(role.role).to.equal('billing');
-        expect(role.startDate).to.equal('2016-05-15');
-        expect(role.endDate).to.equal(null);
-        expect(role.invoiceAccount.invoiceAccountNumber).to.equal('Y7890');
-      });
-
-      test('the second documetn has no roles for returns', async () => {
-        expect(result.documents[1].roles.map(role => role.role)).to.only.include(['licenceHolder', 'billing']);
       });
 
       test('the two part tariff agreements are merged where date ranges are adjacent', async () => {

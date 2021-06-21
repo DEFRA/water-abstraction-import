@@ -3,12 +3,12 @@ const { get } = require('lodash');
 const queries = require('./queries');
 
 const createDocument = async doc => {
-  const params = [doc.documentRef, doc.versionNumber, doc.status, doc.startDate, doc.endDate, doc.externalId];
+  const params = [doc.documentRef, doc.startDate, doc.endDate, doc.externalId];
   return pool.query(queries.createDocument, params);
 };
 
 const createDocumentRole = async (doc, role) => {
-  const params = [doc.documentRef, doc.versionNumber, role.role, get(role, 'company.externalId', null),
+  const params = [doc.documentRef, role.role, get(role, 'company.externalId', null),
     get(role, 'contact.externalId', null), get(role, 'address.externalId', null),
     get(role, 'invoiceAccount.invoiceAccountNumber', null), role.startDate, role.endDate];
   return pool.query(queries.createDocumentRole, params);
