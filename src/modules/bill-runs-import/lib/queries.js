@@ -115,7 +115,7 @@ b.billing_batch_id,
 nbh."FIN_YEAR"::integer as financial_year_ending,
 concat_ws(':', nbh."FGAC_REGION_CODE", nbh."ID") as legacy_id,
 row_to_json(nbh) as metadata,
-nullif(nbh."BILL_NO", 'null') as invoice_number
+nullif(nbh."BILL_NO", 'null') as invoice_number,
 'unrebillable' as rebilling_state
 from import."NALD_BILL_HEADERS" nbh
 left join crm_v2.invoice_accounts ia on nbh."IAS_CUST_REF"=ia.invoice_account_number
