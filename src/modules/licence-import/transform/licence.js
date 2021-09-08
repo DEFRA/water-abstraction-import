@@ -19,20 +19,16 @@ const transformLicence = licenceData => {
   const conditions = licenceData.conditions.map(mappers.purposeCondition.mapPurposeConditionFromNALD);
 
   // Get documents
-  licence.documents = mappers.document.mapDocuments(licenceData.versions, licence);
+  licence.document = mappers.document.mapLicenceToDocument(licence);
 
   // Get party/address data
   const context = mapContactData(licenceData);
 
   // Get licence holder/billing document roles
-  licence.documents.forEach(doc => {
-    const roles = [
-      ...mappers.role.mapLicenceHolderRoles(doc, context),
-      ...mappers.role.mapBillingRoles(doc, licenceData.chargeVersions, context),
-      ...mappers.role.mapLicenceRoles(doc, licenceData.roles, context)
-    ];
-    doc.roles.push(...roles);
-  });
+  licence.document.roles = [
+    ...mappers.role.mapLicenceHolderRoles(licence.document, licenceData.versions, context),
+    ...mappers.role.mapLicenceRoles(licenceData.roles, context)
+  ];
 
   // Agreements - section 127/130
   licence.agreements = mappers.agreement.mapAgreements(licenceData.tptAgreements, licenceData.section130Agreements);
