@@ -88,7 +88,6 @@ JOIN crm_v2.addresses a ON a.external_id=$2
 LEFT JOIN crm_v2.companies c ON c.external_id=$5
 WHERE ia.invoice_account_number=$1 ON CONFLICT (invoice_account_id, start_date) DO UPDATE SET
   address_id=EXCLUDED.address_id,
-  end_date=EXCLUDED.end_date,
   date_updated=EXCLUDED.date_updated,
   agent_company_id=EXCLUDED.agent_company_id;`;
 
