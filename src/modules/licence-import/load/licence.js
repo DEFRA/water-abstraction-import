@@ -69,7 +69,7 @@ const loadLicence = async licence => {
 
   const tasks = [
     connectors.createLicence(licence),
-    licence.documents.map(loadDocument),
+    loadDocument(licence.document),
     loadAgreements(licence)
   ];
 

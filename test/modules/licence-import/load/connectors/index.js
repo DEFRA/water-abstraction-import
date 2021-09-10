@@ -158,8 +158,6 @@ experiment('modules/licence-import/load/connectors', () => {
       const [, params] = pool.query.lastCall.args;
       expect(params).to.equal([
         data.document.documentRef,
-        data.document.versionNumber,
-        data.document.status,
         data.document.startDate,
         data.document.endDate,
         data.document.externalId
@@ -181,7 +179,6 @@ experiment('modules/licence-import/load/connectors', () => {
       const [, params] = pool.query.lastCall.args;
       expect(params).to.equal([
         data.document.documentRef,
-        data.document.versionNumber,
         data.licenceHolderRole.role,
         data.licenceHolderRole.company.externalId,
         data.licenceHolderRole.contact.externalId,
@@ -207,7 +204,6 @@ experiment('modules/licence-import/load/connectors', () => {
       const [, params] = pool.query.lastCall.args;
       expect(params).to.equal([
         data.document.documentRef,
-        data.document.versionNumber,
         data.billingRole.role,
         null,
         null,
