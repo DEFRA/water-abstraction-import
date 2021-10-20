@@ -5,7 +5,7 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
 
 CREATE TABLE IF NOT EXISTS "water_import"."charge_versions" (
-  "charge_version_id" varchar NOT NULL DEFAULT public.gen_random_uuid(),
+  "charge_version_id" varchar NOT NULL DEFAULT gen_random_uuid(),
   "licence_id" integer NOT NULL,
   "version" integer NOT NULL,
   "region_code" integer NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS "water_import"."charge_versions" (
 );
 
 CREATE TABLE IF NOT EXISTS "water_import"."charge_elements" (
-  "charge_element_id" varchar NOT NULL DEFAULT public.gen_random_uuid(),
+  "charge_element_id" varchar NOT NULL DEFAULT gen_random_uuid(),
   "element_id" integer NOT NULL,
   "licence_id" integer NOT NULL,
   "version" integer NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS "water_import"."charge_elements" (
 );
 
 CREATE TABLE IF NOT EXISTS "water_import"."charge_agreements" (
-  "charge_agreement_id" varchar NOT NULL DEFAULT public.gen_random_uuid(),
+  "charge_agreement_id" varchar NOT NULL DEFAULT gen_random_uuid(),
   "element_id" integer NOT NULL,
   "afsa_code" varchar NOT NULL,
   "start_date" date NOT NULL,
