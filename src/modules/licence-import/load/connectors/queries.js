@@ -117,7 +117,7 @@ ON CONFLICT (company_id, address_id, role_id) DO UPDATE SET
 exports.createAgreement = `insert into water.licence_agreements (licence_ref, financial_agreement_type_id, start_date, end_date, date_created, date_updated, source)
   select $1, t.financial_agreement_type_id, $3, $4, NOW(), NOW(), 'nald' 
     from water.financial_agreement_types t
-    where t.financial_agreement_code=$2 on conflict (licence_ref, financial_agreement_type_id, start_date)  
+    where t.financial_agreement_code=$2 on conflict (licence_ref, financial_agreement_type_id, start_date) WHERE date_deleted is null 
     do update set end_date=EXCLUDED.end_date, date_updated=EXCLUDED.date_updated, source=EXCLUDED.source;`;
 
 exports.createLicence = `insert into water.licences (region_id, licence_ref, is_water_undertaker, regions, start_date, expired_date, lapsed_date, revoked_date)
