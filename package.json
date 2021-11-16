@@ -47,7 +47,7 @@
     "@hapi/good": "^9.0.0",
     "@hapi/hapi": "^18.4.1",
     "@hapi/joi": "^15.1.1",
-    "aws-sdk": "^2.674.0",
+    "aws-sdk": "^2.814.0",
     "blipp": "^4.0.1",
     "csv-stringify": "^5.5.0",
     "db-migrate": "^0.11.11",
