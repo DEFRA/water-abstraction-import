@@ -141,6 +141,16 @@ left join water.licences l on nl."LIC_NO"=l.licence_ref
 on conflict (billing_invoice_id, licence_id) do nothing;
 `;
 
+exports.resetIsSecondPartChargeFlag = `
+update water.billing_transactions 
+set is_two_part_second_part_charge = false;
+`;
+exports.setIsSecondPartChargeFlag = `
+update water.billing_transactions 
+set is_two_part_second_part_charge = true
+where description ilike 'second%';
+`;
+
 exports.importTransactions = `
 insert into water.billing_transactions ( 
   billing_invoice_licence_id, 
@@ -163,7 +173,7 @@ insert into water.billing_transactions (
   section_126_factor,
   section_127_agreement,
   section_130_agreement,
-  is_two_part_tariff_supplementary,
+  is_two_part_second_part_charge,
   is_de_minimis,
   is_new_licence,
   charge_type,
@@ -209,7 +219,7 @@ case
   when left(nbt."LH_ACC_AGRMNTS", 4)='S130' then nbt."LH_ACC_AGRMNTS"
   else null
 end as section_130_agreement,
-nbr."BILL_RUN_TYPE"='R' as is_two_part_tariff_supplementary,
+nbr."BILL_RUN_TYPE"='R' as is_two_part_second_part_charge,
 false as is_de_minimis,
 nbt."NEW_OWN_FLAG"<>'null' as is_new_licence,
 nbt2.charge_type,
@@ -246,9 +256,9 @@ left join(
   concat(
     -- Two-part tariff charge prefix
     case 
-      when nbt2.is_two_part_tariff and nbt2.is_two_part_tariff_supplementary 
+      when nbt2.is_two_part_tariff and nbt2.is_two_part_second_part_charge 
         then concat('Second part ', nbt2.purpose_use_descr, ' charge')
-      when nbt2.is_two_part_tariff and not nbt2.is_two_part_tariff_supplementary 
+      when nbt2.is_two_part_tariff and not nbt2.is_two_part_second_part_charge 
         then concat('First part ', nbt2.purpose_use_descr, ' charge')
       end,
     -- At {charge element description} suffix for all 2PT charges
@@ -272,7 +282,7 @@ left join(
     select 
     nbt."FGAC_REGION_CODE",
     nbt."ID",
-    nbr."BILL_RUN_TYPE"='R' as is_two_part_tariff_supplementary,
+    nbr."BILL_RUN_TYPE"='R' as is_two_part_second_part_charge,
     nbt."ELEMENT_AGRMNTS"='S127' as is_two_part_tariff,
     nullif(nullif(nce."DESCR", 'null'), '') as charge_element_descr,
     npu."DESCR" as purpose_use_descr
@@ -380,7 +390,7 @@ b.date_created,
 b.date_updated,
 b.status,
 case 
-  when t.is_two_part_tariff_supplementary then 'two_part_tariff'
+  when t.is_two_part_second_part_charge then 'two_part_tariff'
   else 'annual'
 end::water.charge_version_years_transaction_type as transaction_type,
 false as is_summer
