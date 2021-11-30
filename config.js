@@ -92,7 +92,7 @@ module.exports = {
       isBillingDocumentRoleImportEnabled: false
     },
     charging: {
-      schedule: isProduction ? '0 2 * * 1,2,3,4,5' : '0 14 * * 1,2,3,4,5'
+      schedule: isProduction ? '0 1 * * 1,2,3,4,5' : '0 14 * * 1,2,3,4,5'
     },
     monitoring: {
       schedule: '* * * * *'
