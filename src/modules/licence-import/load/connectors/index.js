@@ -87,6 +87,7 @@ const createLicence = async licence => {
     licence.lapsedDate,
     licence.revokedDate
   ]);
+
   return result.rows[0];
 };
 
