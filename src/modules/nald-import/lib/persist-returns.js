@@ -82,13 +82,15 @@ const persistReturns = async (inputReturns) => {
 
     await Promise.all([
       pool.query(returnVersionQueries.importReturnVersions),
-      pool.query(returnVersionQueries.importReturnRequirements),
-      pool.query(returnVersionQueries.importReturnLinesFromNALD)
+      pool.query(returnVersionQueries.importReturnRequirements)
     ]);
   }
 
   for (const ret of inputReturns) {
     await createOrUpdateReturn(ret);
+    if (config.isAcceptanceTestTarget && config.import.nald.overwriteReturns) {
+      await pool.query(returnVersionQueries.importReturnLinesFromNALD);
+    }
   }
 };
 
