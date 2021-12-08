@@ -4,18 +4,12 @@
  * Creates or updates return cycle via returns API based on the return end date
  */
 const { pick } = require('lodash');
-const uuid = require('uuid/v4');
 const moment = require('moment');
+const uuid = require('uuid/v4');
+const { pool } = require('../../../lib/connectors/db');
 const returnsApi = require('../../../lib/connectors/returns');
 const config = require('../../../../config');
-const { getReturnId } = require('@envage/water-abstraction-helpers').returns;
-const { pool } = require('../../../lib/connectors/db');
-const { returns, versions, lines, deleteAllReturnsData } = returnsApi;
-const { getLines, isNilReturn } = require('../lib/nald-queries/returns');
-const { getLicenceFormats } = require('../transform-returns');
-const importConnector = require('../../../modules/licence-import/extract/connectors');
-const helpers = require('./transform-returns-helpers');
-const returnVersionQueries = require('../../charging-import/lib/queries/return-versions');
+const { returns, versions, lines } = returnsApi;
 
 /**
  * Checks whether return exists
@@ -41,13 +35,7 @@ const getUpdateRow = (row) => {
   if (moment(endDate).isBefore('2018-10-31')) {
     return pick(row, ['status', 'metadata', 'received_date', 'due_date']);
   } else {
-    // If this is a non production environment, we will allow the importer to import
-    // additional data points
-    const keys = ['metadata', 'due_date'];
-    if (config.isAcceptanceTestTarget) {
-      keys.push('status', 'received_date', 'due_date');
-    }
-    return pick(row, keys);
+    return pick(row, ['metadata', 'due_date']);
   }
 };
 
@@ -64,33 +52,74 @@ const createOrUpdateReturn = async row => {
   // Conditional update
   if (exists) {
     return returns.updateOne(returnId, getUpdateRow(row));
+  } else {
+    // Insert
+    const thisReturn = returns.create(row);
+    if (config.isAcceptanceTestTarget && config.import.nald.overwriteReturns) {
+      // create returns.versions
+      const version = await versions.create({
+        version_id: uuid(),
+        return_id: row.return_id,
+        user_id: 'imported@from.nald',
+        user_type: 'system',
+        version_number: JSON.parse(row.metadata).version,
+        metadata: row.metadata,
+        nil_return: false, // todo this isn't always false!
+        current: JSON.parse(row.metadata).isCurrent
+      });
+
+      // create returns.lines
+      // ARFL is under row.return_requirement
+      const NaldReturnFormatQuery = await pool.query('SELECT * FROM import."NALD_RET_FORMATS" WHERE "ID" = $1', [row.return_requirement]);
+      const NaldReturnFormat = NaldReturnFormatQuery.rows[0];
+
+      const plainEnglishFrequency = (val) => {
+        return {
+          D: 'day',
+          W: 'week',
+          M: 'month',
+          Y: 'year'
+        }[val];
+      };
+      const padDateComponent = val => {
+        if (val.length === 1) return `0${val}`;
+        return val;
+      };
+      const NaldLinesForThisReturnVersion = await pool.query('SELECT * FROM import."NALD_RET_LINES" WHERE "ARFL_ARTY_ID" = $1 AND "ARFL_DATE_FROM" like $2', [row.return_requirement, `${moment(row.start_date).format('YYYY')}${padDateComponent(NaldReturnFormat.ABS_PERIOD_ST_MONTH)}${padDateComponent(NaldReturnFormat.ABS_PERIOD_ST_DAY)}%`]);
+
+      NaldLinesForThisReturnVersion.rows.forEach(line => {
+        const retDate = line.RET_DATE / 1000000;
+
+        lines.create({
+          line_id: uuid(),
+          version_id: version.data.version_id,
+          substance: 'water',
+          quantity: parseFloat(line.RET_QTY),
+          unit: 'm³',
+          user_unit: 'Ml',
+          start_date: moment(retDate, 'YYYY-MM-DD').subtract(1, NaldReturnFormat.ARTC_REC_FREQ_CODE).startOf(NaldReturnFormat.ARTC_REC_FREQ_CODE).format('YYYY-MM-DD'),
+          end_date: moment(retDate, 'YYYY-MM-DD').format('YYYY-MM-DD'),
+          time_period: plainEnglishFrequency(NaldReturnFormat.ARTC_REC_FREQ_CODE),
+          metadata: JSON.stringify(line),
+          reading_type: line.RETURN_FORM_TYPE === 'M' ? 'measured' : 'derived'
+        });
+      });
+    }
+    return thisReturn;
   }
-  // Insert
-  return returns.create(row);
 };
 
 /**
  * Persists list of returns to API
- * @param {Array} inputReturns
+ * @param {Array} returns
  * @return {Promise} resolves when all processed
  */
-const persistReturns = async (inputReturns) => {
-  if (config.isAcceptanceTestTarget && config.import.nald.overwriteReturns) {
-    for (const ret of inputReturns) {
-      await deleteAllReturnsData(ret.return_id);
-    }
-
-    await Promise.all([
-      pool.query(returnVersionQueries.importReturnVersions),
-      pool.query(returnVersionQueries.importReturnRequirements)
-    ]);
-  }
-
-  for (const ret of inputReturns) {
-    await createOrUpdateReturn(ret);
+const persistReturns = async (returns) => {
+  for (const ret of returns) {
     if (config.isAcceptanceTestTarget && config.import.nald.overwriteReturns) {
-      await pool.query(returnVersionQueries.importReturnLinesFromNALD);
+      await returnsApi.deleteAllReturnsData(ret.return_id);
     }
+    await createOrUpdateReturn(ret);
   }
 };
 

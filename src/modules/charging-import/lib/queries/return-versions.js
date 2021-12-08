@@ -89,64 +89,6 @@ join water.purposes_uses u on nrp."APUR_APUS_CODE"=u.legacy_id
 join water.return_requirements r on r.external_id = concat_ws(':', nrp."FGAC_REGION_CODE", nrp."ARTY_ID") on conflict(external_id) do update set  purpose_alias=excluded.purpose_alias, date_updated=excluded.date_updated;
 `;
 
-const importReturnLinesFromNALD = `
-  insert into
-   returns.lines (
-   line_id,
-   version_id,
-   substance,
-   quantity,
-   unit,
-   start_date,
-   end_date,
-   time_period,
-   metadata,
-   reading_type,
-   user_unit,
-   created_at,
-   updated_at
-  )
-select
-    public.gen_random_uuid(),
-   v.version_id as version_id,
-   'water' as substance,
-   nrl."RET_QTY"::float as quantity,
-   'm³' as unit,
-   TO_DATE(nrfl."FORM_PROD_ST_DATE", 'DD/MM/YYYY') as start_date,
-   TO_DATE(nrfl."SENT_DATE", 'DD/MM/YYYY') as end_date,
-   case
-      when nrf."ARTC_REC_FREQ_CODE" = 'D' then 'day'
-      when nrf."ARTC_REC_FREQ_CODE" = 'W' then 'week'
-      when nrf."ARTC_REC_FREQ_CODE" = 'M' then 'month'
-      when nrf."ARTC_REC_FREQ_CODE" = 'Q' then 'quarter'
-      when nrf."ARTC_REC_FREQ_CODE" = 'A' then 'year'
-   end::water.returns_frequency as time_period,
-   '{}' as metadata,
-   'measured' as reading_type,
-   'm³' as user_unit,
-   TO_DATE(nrfl."FORM_PROD_ST_DATE", 'DD/MM/YYYY'),
-   TO_DATE(nrfl."FORM_PROD_ST_DATE", 'DD/MM/YYYY')
-from
-   import."NALD_RET_LINES" nrl
-join import."NALD_RET_FORMATS" nrf on
-      nrf."ID" = nrl."ARFL_ARTY_ID"
-join import."NALD_RET_FORM_LOGS" nrfl on
-      nrl."ARFL_ARTY_ID" = nrfl."ARTY_ID"
-   and nrfl."FORM_PROD_ST_DATE" <> 'null'
-   and nrfl."SENT_DATE" <> 'null'
-join import."NALD_RET_VERSIONS" nrv on
-      nrv."AABL_ID" = nrf."ARVN_AABL_ID"
-   and nrv."STATUS" = 'CURR'
-   and nrv."EFF_ST_DATE" <> 'null'
-join import."NALD_ABS_LICENCES" nal on
-      nal."ID" = nrf."ARVN_AABL_ID"
-join returns.versions v on
-   v.return_id = concat('v1:', nal."FGAC_REGION_CODE", ':', nal."LIC_NO", ':' , nrfl."ARTY_ID", ':', TO_DATE(nrfl."FORM_PROD_ST_DATE", 'DD/MM/YYYY'), ':', TO_DATE(nrfl."SENT_DATE", 'DD/MM/YYYY'))
-where
-   nrl."RET_QTY" <> '' on conflict do nothing;
-`;
-
 exports.importReturnVersions = importReturnVersions;
 exports.importReturnRequirements = importReturnRequirements;
 exports.importReturnRequirementPurposes = importReturnRequirementPurposes;
-exports.importReturnLinesFromNALD = importReturnLinesFromNALD;
