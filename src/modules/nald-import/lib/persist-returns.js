@@ -4,7 +4,9 @@
  * Creates or updates return cycle via returns API based on the return end date
  */
 const { pick } = require('lodash');
+const { logger } = require('../../../logger');
 const moment = require('moment');
+const lodash = require('lodash');
 const uuid = require('uuid/v4');
 const { pool } = require('../../../lib/connectors/db');
 const returnsApi = require('../../../lib/connectors/returns');
@@ -54,7 +56,9 @@ const createOrUpdateReturn = async row => {
     return returns.updateOne(returnId, getUpdateRow(row));
   } else {
     // Insert
-    const thisReturn = returns.create(row);
+    const thisReturn = await returns.create(row);
+
+    /* For non-production environments, we allow the system to import the returns data so we can test billing */
     if (config.isAcceptanceTestTarget && config.import.nald.overwriteReturns) {
       // create returns.versions
       const version = await versions.create({
@@ -64,14 +68,12 @@ const createOrUpdateReturn = async row => {
         user_type: 'system',
         version_number: JSON.parse(row.metadata).version,
         metadata: row.metadata,
-        nil_return: false, // todo this isn't always false!
+        nil_return: false,
         current: JSON.parse(row.metadata).isCurrent
       });
 
-      // create returns.lines
-      // ARFL is under row.return_requirement
-      const NaldReturnFormatQuery = await pool.query('SELECT * FROM import."NALD_RET_FORMATS" WHERE "ID" = $1', [row.return_requirement]);
-      const NaldReturnFormat = NaldReturnFormatQuery.rows[0];
+      const naldReturnFormatQuery = await pool.query('SELECT * FROM import."NALD_RET_FORMATS" WHERE "ID" = $1', [row.return_requirement]);
+      const naldReturnFormat = naldReturnFormatQuery.rows[0];
 
       const plainEnglishFrequency = (val) => {
         return {
@@ -85,25 +87,71 @@ const createOrUpdateReturn = async row => {
         if (val.length === 1) return `0${val}`;
         return val;
       };
-      const NaldLinesForThisReturnVersion = await pool.query('SELECT * FROM import."NALD_RET_LINES" WHERE "ARFL_ARTY_ID" = $1 AND "ARFL_DATE_FROM" like $2', [row.return_requirement, `${moment(row.start_date).format('YYYY')}${padDateComponent(NaldReturnFormat.ABS_PERIOD_ST_MONTH)}${padDateComponent(NaldReturnFormat.ABS_PERIOD_ST_DAY)}%`]);
 
-      NaldLinesForThisReturnVersion.rows.forEach(line => {
-        const retDate = line.RET_DATE / 1000000;
+      const naldLinesFromNaldReturnFormLogs = await pool.query('SELECT * FROM import."NALD_RET_FORM_LOGS" WHERE "ARTY_ID" = $1 AND "DATE_FROM" = $2', [
+        row.return_requirement,
+        `${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}/${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}/${moment(row.start_date).format('YYYY')}`
+      ]);
 
-        lines.create({
-          line_id: uuid(),
-          version_id: version.data.version_id,
-          substance: 'water',
-          quantity: parseFloat(line.RET_QTY),
-          unit: 'm³',
-          user_unit: 'Ml',
-          start_date: moment(retDate, 'YYYY-MM-DD').subtract(1, NaldReturnFormat.ARTC_REC_FREQ_CODE).startOf(NaldReturnFormat.ARTC_REC_FREQ_CODE).format('YYYY-MM-DD'),
-          end_date: moment(retDate, 'YYYY-MM-DD').format('YYYY-MM-DD'),
-          time_period: plainEnglishFrequency(NaldReturnFormat.ARTC_REC_FREQ_CODE),
-          metadata: JSON.stringify(line),
-          reading_type: line.RETURN_FORM_TYPE === 'M' ? 'measured' : 'derived'
+      const returnLinesFromNaldReturnLines = await pool.query('SELECT * FROM import."NALD_RET_LINES" WHERE "ARFL_ARTY_ID" = $1 AND "ARFL_DATE_FROM" >= $2 AND "ARFL_DATE_FROM" < $3', [
+        row.return_requirement,
+        `${moment(row.start_date).format('YYYY')}${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}000000`,
+        `${moment(row.start_date).format('YYYY')}${padDateComponent(naldReturnFormat.ABS_PERIOD_END_MONTH)}${padDateComponent(naldReturnFormat.ABS_PERIOD_END_DAY)}000000`
+      ]);
+
+      let mode = 0;
+      let qtyKey;
+      let iterable;
+
+      if (returnLinesFromNaldReturnLines.rows.length > 0) {
+        qtyKey = 'RET_QTY';
+        mode = 1;
+        iterable = returnLinesFromNaldReturnLines.rows;
+      } else if (naldLinesFromNaldReturnFormLogs.rows.length > 0) {
+        qtyKey = 'MONTHLY_RET_QTY';
+        mode = 2;
+        iterable = naldLinesFromNaldReturnFormLogs.rows;
+      } else {
+        iterable = [];
+      }
+      const sumOfLines = lodash.sum(iterable.map(a => parseFloat(a[qtyKey])).filter(n => ![null, undefined, NaN].includes(n)));
+
+      logger.info(`Return ${version.data.return_id} has ${iterable.length} lines`);
+      if (sumOfLines === 0) {
+        logger.info(`Return ${version.data.return_id} is being marked as a nil return`);
+        await versions.updateOne(version.data.version_id, { nil_return: true }, ['nil_return']);
+      } else {
+        logger.info(`Return ${version.data.return_id} has lines which will now be created`);
+
+        iterable.forEach((line, n) => {
+          let startDate;
+          let endDate;
+
+          if (mode === 1) {
+            startDate = moment(line.RET_DATE, 'YYYYMMDD000000').format('YYYY-MM-DD');
+            endDate = moment(line.RET_DATE, 'YYYYMMDD000000').add(n, plainEnglishFrequency(naldReturnFormat.ARTC_REC_FREQ_CODE)).format('YYYY-MM-DD');
+          }
+          if (mode === 2) {
+            startDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').startOf(plainEnglishFrequency(naldReturnFormat.ARTC_REC_FREQ_CODE)).format('YYYY-MM-DD');
+            endDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').startOf(plainEnglishFrequency(naldReturnFormat.ARTC_REC_FREQ_CODE)).add(n, plainEnglishFrequency(naldReturnFormat.ARTC_REC_FREQ_CODE)).format('YYYY-MM-DD');
+          }
+          logger.info(`Return ${version.data.return_id}: Importing lines ${n} of ${iterable.length}`);
+
+          lines.create({
+            line_id: uuid(),
+            version_id: version.data.version_id,
+            substance: 'water',
+            quantity: parseFloat(line[qtyKey]),
+            unit: 'm³',
+            user_unit: 'm³',
+            start_date: startDate,
+            end_date: endDate,
+            time_period: plainEnglishFrequency(naldReturnFormat.ARTC_REC_FREQ_CODE),
+            metadata: JSON.stringify(line),
+            reading_type: line.RETURN_FORM_TYPE === 'M' ? 'measured' : 'derived'
+          });
         });
-      });
+      }
     }
     return thisReturn;
   }

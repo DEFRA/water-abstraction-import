@@ -64,14 +64,13 @@ const deleteAllReturnsData = async returnId => {
   const deleteReturnVersionsQuery = 'delete from water.return_versions where return_version_id::varchar in (SELECT version_id::varchar from returns.versions where return_id = $1)';
   const deleteReturnRequirementsQuery = 'delete from water.return_requirements where return_version_id::varchar in (SELECT version_id::varchar from returns.versions where return_id = $1)';
 
-  return Promise.all([
-    pool.query(deleteReturnVersionsQuery, [returnId]),
-    pool.query(deleteReturnRequirementPurposesQuery, [returnId]),
-    pool.query(deleteReturnRequirementsQuery, [returnId]),
-    pool.query(deleteLinesQuery, [returnId]),
-    pool.query(deleteVersionsQuery, [returnId]),
-    pool.query(deleteReturnsQuery, [returnId])
-  ]);
+  await pool.query(deleteReturnVersionsQuery, [returnId]);
+  await pool.query(deleteReturnRequirementPurposesQuery, [returnId]);
+  await pool.query(deleteReturnRequirementsQuery, [returnId]);
+
+  await pool.query(deleteLinesQuery, [returnId]);
+  await pool.query(deleteVersionsQuery, [returnId]);
+  await pool.query(deleteReturnsQuery, [returnId]);
 };
 
 exports.versions = versions;

@@ -59,10 +59,8 @@ const load = async (licenceNumber) => {
   const licenceData = await getLicenceJson(licenceNumber);
 
   if (licenceData.data.versions.length > 0) {
-    await Promise.all([
-      loadPermitAndDocumentHeader(licenceNumber, licenceData),
-      loadReturns(licenceNumber)
-    ]);
+    await loadPermitAndDocumentHeader(licenceNumber, licenceData);
+    await loadReturns(licenceNumber);
   } else {
     logger.info(`No versions found for ${licenceNumber}`);
   }
