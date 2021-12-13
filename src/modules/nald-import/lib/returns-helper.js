@@ -9,21 +9,14 @@ const { versions, lines } = returnsApi;
 const dbDateFormat = 'YYYY-MM-DD';
 
 /* UTILS */
-const plainEnglishFrequency = (val = 'M') => {
-  return {
-    D: 'day',
-    W: 'week',
-    M: 'month',
-    Y: 'year'
-  }[val];
-};
+const plainEnglishFrequency = (val = 'M') => ({
+  D: 'day',
+  W: 'week',
+  M: 'month',
+  Y: 'year'
+}[val]);
 
-const padDateComponent = (val = '1') => {
-  if (val.length === 1) {
-    return `0${val}`;
-  }
-  return val;
-};
+const padDateComponent = (val = '1') => val.length === 1 ? `0${val}` : val;
 
 const createLine = (versionId, startDate, endDate, frequency, line, qtyKey) => parseFloat(line[qtyKey]) > 0 &&
   lines.create({
@@ -110,7 +103,7 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
   } else {
     logger.info(`Return ${version.data.return_id} - Creating ${iterable.length} lines`);
 
-    iterable.forEach((line, n) => {
+    iterable.forEach(line => {
       let startDate;
       let endDate;
 
