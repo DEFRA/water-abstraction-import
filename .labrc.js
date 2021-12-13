@@ -31,7 +31,9 @@ module.exports = {
     'Response',
     'Headers',
     'Request',
-    '__coverage__'
+    '__coverage__',
+    '__createBinding',
+    '__spreadArray'
   ].join(','),
   verbose: true,
 

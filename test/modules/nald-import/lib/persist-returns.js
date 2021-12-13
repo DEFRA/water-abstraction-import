@@ -4,8 +4,10 @@ const sandbox = require('sinon').createSandbox();
 
 const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
 const { expect } = require('@hapi/code');
+const { v4: uuid } = require('uuid');
 
 const returnsApi = require('../../../../src/lib/connectors/returns');
+const db = require('../../../../src/modules/nald-import/lib/db');
 const persistReturns = require('../../../../src/modules/nald-import/lib/persist-returns');
 
 const naldReturn = {
@@ -18,7 +20,7 @@ const naldReturn = {
   returns_frequency: 'month',
   status: 'completed',
   source: 'NALD',
-  metadata: { param: 'value' },
+  metadata: JSON.stringify({ param: 'value', version: '1' }),
   received_date: '2017-11-24',
   return_requirement: '012345',
   due_date: '2017-11-28'
@@ -34,7 +36,7 @@ const digitalServiceReturn = {
   returns_frequency: 'month',
   status: 'due',
   source: 'NALD',
-  metadata: { param: 'value' },
+  metadata: { param: 'value', version: '1' },
   received_date: '2018-11-24',
   return_requirement: '67890',
   due_date: '2018-11-28'
@@ -42,9 +44,21 @@ const digitalServiceReturn = {
 
 experiment('test/modules/nald-import/lib/persist-returns', () => {
   beforeEach(async () => {
+    sandbox.stub(db, 'dbQuery').resolves([{}]);
+
     sandbox.stub(returnsApi.returns, 'findOne');
     sandbox.stub(returnsApi.returns, 'create');
     sandbox.stub(returnsApi.returns, 'updateOne');
+
+    sandbox.stub(returnsApi.versions, 'create').resolves({
+      data: {
+        version_id: uuid(),
+        return_id: 'v1:234:789'
+      }
+    }); ;
+    sandbox.stub(returnsApi.versions, 'updateOne');
+
+    sandbox.stub(returnsApi.lines, 'create');
   });
 
   afterEach(async () => {
@@ -70,7 +84,7 @@ experiment('test/modules/nald-import/lib/persist-returns', () => {
       const data = persistReturns.getUpdateRow(naldReturn);
       expect(data).to.equal({
         status: 'completed',
-        metadata: { param: 'value' },
+        metadata: JSON.stringify({ param: 'value', version: '1' }),
         received_date: '2017-11-24',
         due_date: '2017-11-28'
       });
@@ -79,7 +93,7 @@ experiment('test/modules/nald-import/lib/persist-returns', () => {
     test('updates metadata and due date only for a return managed by the digital service', async () => {
       const data = persistReturns.getUpdateRow(digitalServiceReturn);
       expect(data).to.equal({
-        metadata: { param: 'value' },
+        metadata: { param: 'value', version: '1' },
         due_date: '2018-11-28'
       });
     });
