@@ -8,6 +8,7 @@ const { versions, lines } = returnsApi;
 
 const dbDateFormat = 'YYYY-MM-DD';
 
+/* UTILS */
 const plainEnglishFrequency = (val = 'M') => {
   return {
     D: 'day',
@@ -17,7 +18,30 @@ const plainEnglishFrequency = (val = 'M') => {
   }[val];
 };
 
-const replicateReturnsDataFromNaldForNonProductionEnvironments = async (thisReturn) => {
+const padDateComponent = (val = '1') => {
+  if (val.length === 1) {
+    return `0${val}`;
+  }
+  return val;
+};
+
+const createLine = (versionId, startDate, endDate, frequency, line, qtyKey) => parseFloat(line[qtyKey]) > 0 &&
+  lines.create({
+    line_id: uuid(),
+    version_id: versionId,
+    substance: 'water',
+    quantity: parseFloat(line[qtyKey]),
+    unit: 'm³',
+    user_unit: 'm³',
+    start_date: startDate,
+    end_date: endDate,
+    time_period: plainEnglishFrequency(frequency),
+    metadata: JSON.stringify(line),
+    reading_type: 'measured'
+  });
+
+/* MAIN FUNC */
+const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisReturn => {
   const { metadata } = thisReturn;
   // create returns.versions
   const version = await versions.create({
@@ -33,13 +57,6 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async (thisRetu
 
   const naldReturnFormatQuery = await db.dbQuery('SELECT * FROM import."NALD_RET_FORMATS" WHERE "ID" = $1', [thisReturn.return_requirement]);
   const naldReturnFormat = naldReturnFormatQuery[0];
-
-  const padDateComponent = (val = '1') => {
-    if (val.length === 1) {
-      return `0${val}`;
-    }
-    return val;
-  };
 
   const naldLinesFromNaldReturnFormLogs = await db.dbQuery(`
         SELECT * FROM import."NALD_RET_FORM_LOGS" 
@@ -64,8 +81,12 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async (thisRetu
   [
     thisReturn.return_requirement,
     naldReturnFormat.FGAC_REGION_CODE,
-      `${moment(thisReturn.start_date).add((naldReturnFormat.ABS_PERIOD_END_MONTH) < (naldReturnFormat.ABS_PERIOD_ST_MONTH) ? 1 : 0, 'year').format('YYYY')}-${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}-${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}`,
-      `${moment(thisReturn.start_date).add((naldReturnFormat.ABS_PERIOD_END_MONTH) < (naldReturnFormat.ABS_PERIOD_ST_MONTH) ? 1 : 0, 'year').format('YYYY')}-${padDateComponent(naldReturnFormat.ABS_PERIOD_END_MONTH)}-${padDateComponent(naldReturnFormat.ABS_PERIOD_END_DAY)}`
+      `${moment(thisReturn.start_date).add(naldReturnFormat.ABS_PERIOD_END_MONTH < naldReturnFormat.ABS_PERIOD_ST_MONTH ? 1 : 0, 'year').format('YYYY')}
+        -${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}
+        -${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}`,
+      `${moment(thisReturn.start_date).add(naldReturnFormat.ABS_PERIOD_END_MONTH < naldReturnFormat.ABS_PERIOD_ST_MONTH ? 1 : 0, 'year').format('YYYY')}
+        -${padDateComponent(naldReturnFormat.ABS_PERIOD_END_MONTH)}
+        -${padDateComponent(naldReturnFormat.ABS_PERIOD_END_DAY)}`
   ]);
 
   let qtyKey;
@@ -83,12 +104,11 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async (thisRetu
 
   const sumOfLines = lodash.sum(iterable.map(a => parseFloat(a[qtyKey])).filter(n => ![null, undefined, NaN].includes(n)));
 
-  logger.info(`Return ${version.data.return_id} has ${iterable.length} lines`);
   if (sumOfLines === 0) {
-    logger.info(`Return ${version.data.return_id} is being marked as a nil return`);
+    logger.info(`Return ${version.data.return_id} has a sum of zero and is being marked as a nil return`);
     await versions.updateOne(version.data.version_id, { nil_return: true }, ['nil_return']);
   } else {
-    logger.info(`Return ${version.data.return_id} has lines which will now be created`);
+    logger.info(`Return ${version.data.return_id} - Creating ${iterable.length} lines`);
 
     iterable.forEach((line, n) => {
       let startDate;
@@ -102,23 +122,7 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async (thisRetu
         endDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').endOf(plainEnglishFrequency(naldReturnFormat.ARTC_REC_FREQ_CODE)).format(dbDateFormat);
       }
 
-      logger.info(`Return ${version.data.return_id}: Importing lines ${n + 1} of ${iterable.length}`);
-
-      if (parseFloat(line[qtyKey]) > 0) {
-        lines.create({
-          line_id: uuid(),
-          version_id: version.data.version_id,
-          substance: 'water',
-          quantity: parseFloat(line[qtyKey]),
-          unit: 'm³',
-          user_unit: 'm³',
-          start_date: startDate,
-          end_date: endDate,
-          time_period: plainEnglishFrequency(naldReturnFormat.ARTC_REC_FREQ_CODE),
-          metadata: JSON.stringify(line),
-          reading_type: 'measured'
-        });
-      }
+      createLine(version.data.version_id, startDate, endDate, naldReturnFormat.ARTC_REC_FREQ_CODE, line, qtyKey);
     });
   }
 };
