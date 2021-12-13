@@ -6,7 +6,7 @@
   "scripts": {
     "test": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/permits-test lab",
     "test:bail": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/permits-test lab --bail",
-    "test:travis": "lab -c -t 55 -m 0 -r lcov -o coverage/lcov.info -r console -o stdout",
+    "test:ci": "lab -c -t 55 -m 0 -r lcov -o coverage/lcov.info -r console -o stdout",
     "lint": "eslint .",
     "codecov": "codecov",
     "version": "auto-changelog -p --commit-limit false && git add CHANGELOG.md",
