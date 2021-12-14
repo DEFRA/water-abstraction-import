@@ -6,7 +6,7 @@ const db = require('./db');
 const returnsApi = require('../../../lib/connectors/returns');
 const { versions, lines } = returnsApi;
 
-const dbDateFormat = 'YYYY-MM-DD';
+const dbdateformat = 'YYYY-MM-DD';
 
 /* UTILS */
 const plainEnglishFrequency = (val = 'M') => ({
@@ -67,8 +67,8 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
             SELECT * FROM import."NALD_RET_LINES" WHERE 
             "ARFL_ARTY_ID" = $1 
             AND "FGAC_REGION_CODE" = $2 
-            AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')>=to_date($3, dbDateFormat)
-            AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')<=to_date($4, dbDateFormat)
+            AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')>=to_date($3, '${dbdateformat}')
+            AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')<=to_date($4, '${dbdateformat}')
             ORDER BY "RET_DATE";
         `,
   [
@@ -106,13 +106,14 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
     iterable.forEach(line => {
       let startDate;
       let endDate;
+      const frequency = plainEnglishFrequency(naldReturnFormat.ARTC_REC_FREQ_CODE);
 
       if (returnLinesFromNaldReturnLines.length > 0) {
-        startDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(dbDateFormat);
-        endDate = moment(line.RET_DATE, 'YYYYMMDD000000').add(1, plainEnglishFrequency(naldReturnFormat.ARTC_REC_FREQ_CODE)).format(dbDateFormat);
+        startDate = moment(line.RET_DATE, 'YYYYMMDD000000').add(1, 'day').format(dbdateformat);
+        endDate = moment(line.RET_DATE, 'YYYYMMDD000000').add(1, frequency).format(dbdateformat);
       } else {
-        startDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').startOf(plainEnglishFrequency(naldReturnFormat.ARTC_REC_FREQ_CODE)).format(dbDateFormat);
-        endDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').endOf(plainEnglishFrequency(naldReturnFormat.ARTC_REC_FREQ_CODE)).format(dbDateFormat);
+        startDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').startOf(frequency).add(1, 'day').format(dbdateformat);
+        endDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').add(1, frequency).startOf(frequency).format(dbdateformat);
       }
 
       createLine(version.data.version_id, startDate, endDate, naldReturnFormat.ARTC_REC_FREQ_CODE, line, qtyKey);
