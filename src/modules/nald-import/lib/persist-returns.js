@@ -5,8 +5,10 @@
  */
 const { pick } = require('lodash');
 const moment = require('moment');
-const returnsApi = require('../../../lib/connectors/returns');
 
+const { replicateReturnsDataFromNaldForNonProductionEnvironments } = require('./returns-helper');
+const returnsApi = require('../../../lib/connectors/returns');
+const config = require('../../../../config');
 const { returns } = returnsApi;
 
 /**
@@ -29,6 +31,7 @@ const returnExists = async (returnId) => {
  */
 const getUpdateRow = (row) => {
   const { end_date: endDate } = row;
+
   if (moment(endDate).isBefore('2018-10-31')) {
     return pick(row, ['status', 'metadata', 'received_date', 'due_date']);
   } else {
@@ -38,7 +41,6 @@ const getUpdateRow = (row) => {
 
 /**
  * Creates or updates return depending on whether start_date
- * @TODO can check whether row exists by doing update and looking for NotFoundError
  * @param {Object} row
  * @return {Promise} resolves when row is created/updated
  */
@@ -50,9 +52,16 @@ const createOrUpdateReturn = async row => {
   // Conditional update
   if (exists) {
     return returns.updateOne(returnId, getUpdateRow(row));
+  } else {
+    // Insert
+    const thisReturn = await returns.create(row);
+
+    /* For non-production environments, we allow the system to import the returns data so we can test billing */
+    if (config.isAcceptanceTestTarget && config.import.nald.overwriteReturns) {
+      await replicateReturnsDataFromNaldForNonProductionEnvironments(row);
+    }
+    return thisReturn;
   }
-  // Insert
-  return returns.create(row);
 };
 
 /**
@@ -62,6 +71,9 @@ const createOrUpdateReturn = async row => {
  */
 const persistReturns = async (returns) => {
   for (const ret of returns) {
+    if (config.isAcceptanceTestTarget && config.import.nald.overwriteReturns) {
+      await returnsApi.deleteAllReturnsData(ret.return_id);
+    }
     await createOrUpdateReturn(ret);
   }
 };

@@ -22,7 +22,7 @@ const importReturnVersions = `insert into water.return_versions (licence_id, ver
       date_updated=excluded.date_updated;
 `;
 
-const importReturnRequirements = ` insert into water.return_requirements  ( return_version_id, legacy_id,  abstraction_period_start_day, abstraction_period_start_month,
+const importReturnRequirements = `insert into water.return_requirements  ( return_version_id, legacy_id,  abstraction_period_start_day, abstraction_period_start_month,
   abstraction_period_end_day,
   abstraction_period_end_month,
   site_description,
