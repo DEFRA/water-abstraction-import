@@ -67,19 +67,16 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
             SELECT * FROM import."NALD_RET_LINES" WHERE 
             "ARFL_ARTY_ID" = $1 
             AND "FGAC_REGION_CODE" = $2 
-            AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')>=to_date($3, '${dbdateformat}')
-            AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')<=to_date($4, '${dbdateformat}')
+            AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')>=to_date($3, $5)
+            AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')<=to_date($4, $5)
             ORDER BY "RET_DATE";
         `,
   [
     thisReturn.return_requirement,
     naldReturnFormat.FGAC_REGION_CODE,
-      `${moment(thisReturn.start_date).add(naldReturnFormat.ABS_PERIOD_END_MONTH < naldReturnFormat.ABS_PERIOD_ST_MONTH ? 1 : 0, 'year').format('YYYY')}
-        -${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}
-        -${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}`,
-      `${moment(thisReturn.start_date).add(naldReturnFormat.ABS_PERIOD_END_MONTH < naldReturnFormat.ABS_PERIOD_ST_MONTH ? 1 : 0, 'year').format('YYYY')}
-        -${padDateComponent(naldReturnFormat.ABS_PERIOD_END_MONTH)}
-        -${padDateComponent(naldReturnFormat.ABS_PERIOD_END_DAY)}`
+      `${moment(thisReturn.start_date).format('YYYY')}-${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}-${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}`,
+      `${moment(thisReturn.start_date).add(naldReturnFormat.ABS_PERIOD_END_MONTH < naldReturnFormat.ABS_PERIOD_ST_MONTH ? 1 : 0, 'year').format('YYYY')}-${padDateComponent(naldReturnFormat.ABS_PERIOD_END_MONTH)}-${padDateComponent(naldReturnFormat.ABS_PERIOD_END_DAY)}`,
+      dbdateformat
   ]);
 
   let qtyKey;
@@ -106,14 +103,13 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
     iterable.forEach(line => {
       let startDate;
       let endDate;
-      const frequency = plainEnglishFrequency(naldReturnFormat.ARTC_REC_FREQ_CODE);
 
       if (returnLinesFromNaldReturnLines.length > 0) {
-        startDate = moment(line.RET_DATE, 'YYYYMMDD000000').add(1, 'day').format(dbdateformat);
-        endDate = moment(line.RET_DATE, 'YYYYMMDD000000').add(1, frequency).format(dbdateformat);
+        startDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(dbdateformat);
+        endDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(dbdateformat);
       } else {
-        startDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').startOf(frequency).add(1, 'day').format(dbdateformat);
-        endDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').add(1, frequency).startOf(frequency).format(dbdateformat);
+        startDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').format(dbdateformat);
+        endDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').format(dbdateformat);
       }
 
       createLine(version.data.version_id, startDate, endDate, naldReturnFormat.ARTC_REC_FREQ_CODE, line, qtyKey);
