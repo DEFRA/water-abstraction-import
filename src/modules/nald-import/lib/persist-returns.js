@@ -44,7 +44,7 @@ const getUpdateRow = (row) => {
  * @param {Object} row
  * @return {Promise} resolves when row is created/updated
  */
-const createOrUpdateReturn = async row => {
+const createOrUpdateReturn = async (row, skipImportRoutineCheck = false) => {
   const { return_id: returnId } = row;
 
   const exists = await returnExists(returnId);
@@ -57,7 +57,7 @@ const createOrUpdateReturn = async row => {
     const thisReturn = await returns.create(row);
 
     /* For non-production environments, we allow the system to import the returns data so we can test billing */
-    if (config.isAcceptanceTestTarget && config.import.nald.overwriteReturns) {
+    if (config.isAcceptanceTestTarget && (config.import.nald.overwriteReturns || skipImportRoutineCheck)) {
       await replicateReturnsDataFromNaldForNonProductionEnvironments(row);
     }
     return thisReturn;
@@ -67,14 +67,16 @@ const createOrUpdateReturn = async row => {
 /**
  * Persists list of returns to API
  * @param {Array} returns
+ * @param skipImportRoutineCheck tells the function not to worry about which day of the week this is, which is used
+ *                          in determining whether or not returns should be over-written in a non-production context
  * @return {Promise} resolves when all processed
  */
-const persistReturns = async (returns) => {
+const persistReturns = async (returns, skipImportRoutineCheck = false) => {
   for (const ret of returns) {
-    if (config.isAcceptanceTestTarget && config.import.nald.overwriteReturns) {
+    if (config.isAcceptanceTestTarget && (config.import.nald.overwriteReturns || skipImportRoutineCheck)) {
       await returnsApi.deleteAllReturnsData(ret.return_id);
     }
-    await createOrUpdateReturn(ret);
+    await createOrUpdateReturn(ret, skipImportRoutineCheck);
   }
 };
 

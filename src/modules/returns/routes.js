@@ -2,6 +2,7 @@
 
 const Joi = require('@hapi/joi');
 const controller = require('./controller');
+const config = require('../../../config');
 
 const getVersions = {
   method: 'GET',
@@ -55,8 +56,28 @@ const getReturns = {
   path: '/etl/returns'
 };
 
-module.exports = [
+const reimportReturns = {
+  method: 'POST',
+  handler: controller.postReimportReturns,
+  options: {
+    description: 'Re-imports returns data for a given licence - to be used in non-production environments only.',
+    validate: {
+      payload: {
+        licenceRef: Joi.string().required()
+      }
+    }
+  },
+  path: '/etl/returns/re-import'
+};
+
+const routes = [
   getVersions,
   getLinesForVersion,
   getReturns
 ];
+
+if (config.isAcceptanceTestTarget) {
+  routes.push(reimportReturns);
+}
+
+module.exports = routes;

@@ -9,6 +9,7 @@ const {
   transformLine,
   filterLines
 } = require('./lib/transformers');
+const { loadReturns } = require('../nald-import/load');
 const { generateNilLines } = require('./lib/generate-nil-lines');
 const { flatMap } = require('lodash');
 const { logger } = require('../../logger');
@@ -127,8 +128,15 @@ const getReturns = async (request, h) => {
   }
 };
 
+const postReimportReturns = async (request, h) => {
+  const { licenceRef } = request.payload;
+
+  return loadReturns(licenceRef, true);
+};
+
 module.exports = {
   getVersions,
   getLinesForVersion,
-  getReturns
+  getReturns,
+  postReimportReturns
 };

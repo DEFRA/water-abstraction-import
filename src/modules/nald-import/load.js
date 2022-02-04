@@ -39,15 +39,15 @@ const loadPermitAndDocumentHeader = async (licenceNumber, licenceData) => {
  * @param {Object} licenceData - extracted from NALD import tables
  * @return {Promise} resolves when returns imported
  */
-const loadReturns = async (licenceNumber) => {
+const loadReturns = async (licenceNumber, skipImportRoutineCheck = false) => {
   logger.info(`Import: returns for ${licenceNumber}`);
 
   const { returns } = await buildReturnsPacket(licenceNumber);
-  await persistReturns(returns);
+  await persistReturns(returns, skipImportRoutineCheck);
 
   // Clean up invalid cycles
   const returnIds = returns.map(row => row.return_id);
-  await returnsConnector.voidReturns(licenceNumber, returnIds);
+  return returnsConnector.voidReturns(licenceNumber, returnIds);
 };
 
 /**
@@ -69,3 +69,4 @@ const load = async (licenceNumber) => {
 };
 
 exports.load = load;
+exports.loadReturns = loadReturns;
