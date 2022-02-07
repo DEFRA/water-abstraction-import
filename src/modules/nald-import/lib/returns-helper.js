@@ -37,6 +37,7 @@ const createLine = (versionId, startDate, endDate, frequency, line, qtyKey) => p
 const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisReturn => {
   const { metadata } = thisReturn;
   // create returns.versions
+  console.time('creating versions');
   const version = await versions.create({
     metadata,
     version_id: uuid(),
@@ -47,7 +48,9 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
     nil_return: false,
     current: JSON.parse(metadata).isCurrent
   });
+  console.timeEnd('creating versions');
 
+  console.time('q1');
   const naldReturnFormatQuery = await db.dbQuery('SELECT * FROM import."NALD_RET_FORMATS" WHERE "ID" = $1', [thisReturn.return_requirement]);
   const naldReturnFormat = naldReturnFormatQuery[0];
 
@@ -63,6 +66,8 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
       `${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}/${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}/${moment(thisReturn.start_date).format('YYYY')}`
   ]);
 
+  console.timeEnd('q1');
+  console.time('q2');
   const returnLinesFromNaldReturnLines = await db.dbQuery(`
             SELECT * FROM import."NALD_RET_LINES" WHERE 
             "ARFL_ARTY_ID" = $1 
@@ -79,21 +84,31 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
       dbdateformat
   ]);
 
+  console.timeEnd('q2');
+
   let qtyKey;
   let iterable;
 
+  console.time('setting iterables');
   if (returnLinesFromNaldReturnLines.length > 0) {
+    console.log('METHOD: returnLinesFromNaldReturnLines')
     qtyKey = 'RET_QTY';
     iterable = returnLinesFromNaldReturnLines;
   } else if (naldLinesFromNaldReturnFormLogs.length > 0) {
+    console.log('METHOD: naldLinesFromNaldReturnFormLogs')
     qtyKey = 'MONTHLY_RET_QTY';
     iterable = naldLinesFromNaldReturnFormLogs;
   } else {
     iterable = [];
   }
 
-  const sumOfLines = lodash.sum(iterable.map(a => parseFloat(a[qtyKey])).filter(n => ![null, undefined, NaN].includes(n)));
+  console.timeEnd('setting iterables');
 
+  console.time('calculating sum of lines');
+  const sumOfLines = lodash.sum(iterable.map(a => parseFloat(a[qtyKey])).filter(n => ![null, undefined, NaN].includes(n)));
+  console.timeEnd('calculating sum of lines');
+
+  console.time('creating lines');
   if (sumOfLines === 0) {
     logger.info(`Return ${version.data.return_id} has a sum of zero and is being marked as a nil return`);
     await versions.updateOne(version.data.version_id, { nil_return: true }, ['nil_return']);
@@ -115,6 +130,7 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
       createLine(version.data.version_id, startDate, endDate, naldReturnFormat.ARTC_REC_FREQ_CODE, line, qtyKey);
     });
   }
+  console.timeEnd('creating lines');
 };
 module.exports = {
   replicateReturnsDataFromNaldForNonProductionEnvironments
