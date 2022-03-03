@@ -75,7 +75,7 @@ module.exports = {
       isEtagCheckEnabled: !isTest,
       zipPassword: process.env.NALD_ZIP_PASSWORD,
       path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release',
-      overwriteReturns: isAcceptanceTestTarget && new Date().getDay() === 2 // only run on Tuesday, to reduce server load
+      overwriteReturns: false // Set to false as this is highly disruptive
     },
     licences: {
       schedule: isProduction ? '0 4 * * 1,2,3,4,5' : '0 16 * * 1,2,3,4,5',
