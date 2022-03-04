@@ -403,3 +403,25 @@ where b.source='nald'
 on conflict do nothing;
 `
 ;
+
+exports.removeConstraints = `
+alter table water.billing_invoices 
+drop constraint fk_original_billing_invoice_id;
+
+alter table water.billing_transactions
+drop constraint billing_transactions_billing_invoice_licence_id_fkey,
+drop constraint billing_transactions_billing_transactions_fk_source_transaction_id;`;
+
+exports.addConstraints = `               
+alter table water.billing_invoices 
+add constraint fk_original_billing_invoice_id 
+foreign key (original_billing_invoice_id) 
+references water.billing_invoices (billing_invoice_id);
+
+alter table water.billing_transactions
+ADD constraint billing_transactions_billing_invoice_licence_id_fkey 
+  foreign key (billing_invoice_licence_id)
+  references water.billing_invoice_licences (billing_invoice_licence_id),
+ADD constraint billing_transactions_billing_transactions_fk_source_transaction_id
+  foreign key (source_transaction_id) 
+  references water.billing_transactions (billing_transaction_id);`;
