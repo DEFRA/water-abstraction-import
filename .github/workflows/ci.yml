@@ -16,7 +16,6 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   test:
-    # You must use a Linux environment when using service containers or container jobs
     runs-on: ubuntu-latest
     strategy:
       matrix:
