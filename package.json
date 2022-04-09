@@ -59,7 +59,7 @@
     "hapi-auth-jwt2": "^8.8.1",
     "lodash": "^4.17.19",
     "mkdir": "0.0.2",
-    "moment": "^2.26.0",
+    "moment": "^2.29.2",
     "node-cron": "^2.0.3",
     "notifications-node-client": "^5.1.0",
     "pg": "^8.5.1",
