@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/permits-test lab",
-    "test:bail": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/permits-test lab --bail",
+    "test": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits lab",
+    "test:bail": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits lab --bail",
     "test:ci": "lab -c -t 55 -m 0 -r lcov -o coverage/lcov.info -r console -o stdout",
     "lint": "eslint .",
     "codecov": "codecov",
@@ -13,7 +13,7 @@
     "migrate": "node scripts/create-schema && db-migrate up --verbose",
     "migrate:down": "db-migrate down --verbose",
     "migrate:create": "db-migrate create --sql-file --",
-    "migrate:local-test": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/permits-test node scripts/create-schema && DATABASE_URL=postgres://postgres:postgres@localhost:5432/permits-test db-migrate up --verbose"
+    "migrate:local-test": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits node scripts/create-schema && DATABASE_URL=postgres://water_user:password@localhost:5432/permits db-migrate up --verbose"
   },
   "repository": {
     "type": "git",
@@ -31,17 +31,17 @@
     "auto-changelog": "^1.16.4",
     "codecov": "^3.7.1",
     "db-migrate-pg": "^1.2.2",
-    "eslint": "^6.8.0",
+    "eslint": "^8.13.0",
     "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-standard": "^5.0.0",
     "sinon": "^9.0.2"
   },
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^4.1.2",
-    "@envage/water-abstraction-helpers": "^4.3.1",
+    "@envage/water-abstraction-helpers": "4.8.0",
     "@hapi/boom": "^9.1.0",
     "@hapi/catbox-redis": "^5.0.5",
     "@hapi/good": "^9.0.0",
