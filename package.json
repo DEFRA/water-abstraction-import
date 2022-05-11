@@ -4,16 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/permits-test lab",
-    "test:bail": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/permits-test lab --bail",
-    "test:ci": "lab -c -t 55 -m 0 -r lcov -o coverage/lcov.info -r console -o stdout",
+    "test": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits lab",
+    "test:bail": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits lab --bail",
+    "test:ci": "lab -t 55 -m 0 -r lcov -o coverage/lcov.info -r console -o stdout",
     "lint": "eslint .",
     "codecov": "codecov",
     "version": "auto-changelog -p --commit-limit false && git add CHANGELOG.md",
     "migrate": "node scripts/create-schema && db-migrate up --verbose",
     "migrate:down": "db-migrate down --verbose",
     "migrate:create": "db-migrate create --sql-file --",
-    "migrate:local-test": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/permits-test node scripts/create-schema && DATABASE_URL=postgres://postgres:postgres@localhost:5432/permits-test db-migrate up --verbose"
+    "migrate:local-test": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits node scripts/create-schema && DATABASE_URL=postgres://water_user:password@localhost:5432/permits db-migrate up --verbose"
   },
   "repository": {
     "type": "git",
@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^4.1.2",
-    "@envage/water-abstraction-helpers": "^4.3.1",
+    "@envage/water-abstraction-helpers": "4.8.0",
     "@hapi/boom": "^9.1.0",
     "@hapi/catbox-redis": "^5.0.5",
     "@hapi/good": "^9.0.0",
