@@ -125,14 +125,16 @@ const _createReturnVersionReasonCache = () => {
 
 const _getReturnVersionReasonCache = _createReturnVersionReasonCache();
 
-exports._createReturnVersionReasonCache = _createReturnVersionReasonCache;
-exports._getReturnVersionReasonCache = _getReturnVersionReasonCache;
-exports.getFormats = getFormats;
-exports.getFormatPurposes = getFormatPurposes;
-exports.getFormatPoints = getFormatPoints;
-exports.getLogs = getLogs;
-exports.getLines = getLines;
-exports.getLogLines = getLogLines;
-exports.isNilReturn = isNilReturn;
-exports.getSplitDate = getSplitDate;
-exports.getReturnVersionReason = getReturnVersionReason;
+module.exports = {
+  _createReturnVersionReasonCache,
+  _getReturnVersionReasonCache,
+  getFormats,
+  getFormatPurposes,
+  getFormatPoints,
+  getLogs,
+  getLines,
+  getLogLines,
+  isNilReturn,
+  getSplitDate,
+  getReturnVersionReason
+};

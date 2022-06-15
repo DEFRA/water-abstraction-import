@@ -166,4 +166,6 @@ const mapNALDChargeVersionsToWRLS = (licence, chargeVersions) => {
   return sortBy(arr, ['start_date', 'version_number']);
 };
 
-exports.mapNALDChargeVersionsToWRLS = mapNALDChargeVersionsToWRLS;
+module.exports = {
+  mapNALDChargeVersionsToWRLS
+};

@@ -112,12 +112,14 @@ const getReturnVersionReason = `
   AND rv."FGAC_REGION_CODE" = $3;
 `;
 
-exports.getFormats = getFormats;
-exports.getFormatPurposes = getFormatPurposes;
-exports.getFormatPoints = getFormatPoints;
-exports.getLogs = getLogs;
-exports.getLines = getLines;
-exports.getLogLines = getLogLines;
-exports.isNilReturn = isNilReturn;
-exports.getSplitDate = getSplitDate;
-exports.getReturnVersionReason = getReturnVersionReason;
+module.exports = {
+  getFormats,
+  getFormatPurposes,
+  getFormatPoints,
+  getLogs,
+  getLines,
+  getLogLines,
+  isNilReturn,
+  getSplitDate,
+  getReturnVersionReason
+};

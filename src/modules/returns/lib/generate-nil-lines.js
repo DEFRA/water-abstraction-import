@@ -225,11 +225,13 @@ const generateNilLines = (returnData) => {
   return lines.map(line => mapLine(line, absPeriod));
 };
 
-exports.getDays = getDays;
-exports.getMonths = getMonths;
-exports.getWeeks = getWeeks;
-exports.getRequiredLines = getRequiredLines;
-exports.generateNilLines = generateNilLines;
-exports.isDateWithinAbstractionPeriod = isDateWithinAbstractionPeriod;
-exports.getAbsPeriod = getAbsPeriod;
-exports.mapLine = mapLine;
+module.exports = {
+  getDays,
+  getMonths,
+  getWeeks,
+  getRequiredLines,
+  generateNilLines,
+  isDateWithinAbstractionPeriod,
+  getAbsPeriod,
+  mapLine
+};

@@ -28,4 +28,6 @@ const getRoles = `
     and (r."EFF_END_DATE" = 'null' or to_date(r."EFF_END_DATE", 'DD/MM/YYYY') > now());
 `;
 
-exports.getRoles = getRoles;
+module.exports = {
+  getRoles
+};

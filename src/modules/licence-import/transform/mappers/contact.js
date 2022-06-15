@@ -19,4 +19,6 @@ const mapContact = party => {
   };
 };
 
-exports.mapContact = mapContact;
+module.exports = {
+  mapContact
+};

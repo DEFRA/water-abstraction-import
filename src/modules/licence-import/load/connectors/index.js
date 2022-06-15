@@ -139,21 +139,23 @@ const createPurposeCondition = (condition, purposeId) =>
     condition.externalId
   ]);
 
-exports.createPurposeCondition = createPurposeCondition;
-exports.createPurposeConditionTypes = createPurposeConditionTypes;
-exports.createAddress = createAddress;
-exports.createAgreement = createAgreement;
-exports.createCompany = createCompany;
-exports.createCompanyAddress = createCompanyAddress;
-exports.createCompanyContact = createCompanyContact;
-exports.createContact = createContact;
-exports.createDocument = createDocument;
-exports.createDocumentRole = createDocumentRole;
-exports.createInvoiceAccount = createInvoiceAccount;
-exports.createInvoiceAccountAddress = createInvoiceAccountAddress;
-exports.createLicence = createLicence;
-exports.createLicenceVersion = createLicenceVersion;
-exports.createLicenceVersionPurpose = createLicenceVersionPurpose;
-exports.getLicenceByRef = getLicenceByRef;
-exports.flagLicenceForSupplementaryBilling = flagLicenceForSupplementaryBilling;
-exports.cleanUpAgreements = cleanUpAgreements;
+module.exports = {
+  createPurposeCondition,
+  createPurposeConditionTypes,
+  createAddress,
+  createAgreement,
+  createCompany,
+  createCompanyAddress,
+  createCompanyContact,
+  createContact,
+  createDocument,
+  createDocumentRole,
+  createInvoiceAccount,
+  createInvoiceAccountAddress,
+  createLicence,
+  createLicenceVersion,
+  createLicenceVersionPurpose,
+  getLicenceByRef,
+  flagLicenceForSupplementaryBilling,
+  cleanUpAgreements
+};

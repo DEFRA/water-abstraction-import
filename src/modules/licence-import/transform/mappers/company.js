@@ -33,4 +33,6 @@ const mapCompany = party => ({
   _nald: party
 });
 
-exports.mapCompany = mapCompany;
+module.exports = {
+  mapCompany
+};

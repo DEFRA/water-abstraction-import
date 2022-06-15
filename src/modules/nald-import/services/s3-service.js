@@ -24,5 +24,7 @@ const download = async () => {
   return s3.download(s3Path, localPath);
 };
 
-exports.getEtag = getEtag;
-exports.download = download;
+module.exports = {
+  getEtag,
+  download
+};

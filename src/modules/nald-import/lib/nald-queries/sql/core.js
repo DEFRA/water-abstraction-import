@@ -6,4 +6,6 @@ const importTableExists = `
   where table_schema = 'import';
 `;
 
-exports.importTableExists = importTableExists;
+module.exports = {
+  importTableExists
+};

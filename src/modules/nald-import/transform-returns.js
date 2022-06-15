@@ -97,6 +97,8 @@ const buildReturnsPacket = async (licenceNumber) => {
   return returnsData;
 };
 
-exports.buildReturnsPacket = buildReturnsPacket;
-exports.getLicenceFormats = getLicenceFormats;
-exports.getCycleLogs = getCycleLogs;
+module.exports = {
+  buildReturnsPacket,
+  getLicenceFormats,
+  getCycleLogs
+};

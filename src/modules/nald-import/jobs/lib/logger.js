@@ -18,10 +18,11 @@ const logHandlingOnCompleteError = (job, err) =>
 const logAbortingOnComplete = job =>
   logger.info(`Aborting onComplete job: ${job.data.request.name}`, job.data);
 
-exports.logHandlingJob = logHandlingJob;
-exports.logFailedJob = logFailedJob;
-exports.logJobError = logJobError;
-
-exports.logHandlingOnCompleteJob = logHandlingOnCompleteJob;
-exports.logHandlingOnCompleteError = logHandlingOnCompleteError;
-exports.logAbortingOnComplete = logAbortingOnComplete;
+module.exports = {
+  logHandlingJob,
+  logFailedJob,
+  logJobError,
+  logHandlingOnCompleteJob,
+  logHandlingOnCompleteError,
+  logAbortingOnComplete
+};

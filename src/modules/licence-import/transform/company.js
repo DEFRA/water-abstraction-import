@@ -24,4 +24,6 @@ const transformCompany = companyData => {
   return mappers.licence.omitNaldData(company);
 };
 
-exports.transformCompany = transformCompany;
+module.exports = {
+  transformCompany
+};

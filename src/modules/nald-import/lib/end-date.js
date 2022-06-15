@@ -24,4 +24,6 @@ const getEndDate = (data = {}) => {
   return first(sortedAndFiltered);
 };
 
-exports.getEndDate = getEndDate;
+module.exports = {
+  getEndDate
+};

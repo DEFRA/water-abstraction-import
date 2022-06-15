@@ -89,4 +89,6 @@ const mapCompanyAddresses = (licenceVersions, chargeVersions, licenceRoles, cont
   ];
 };
 
-exports.mapCompanyAddresses = mapCompanyAddresses;
+module.exports = {
+  mapCompanyAddresses
+};

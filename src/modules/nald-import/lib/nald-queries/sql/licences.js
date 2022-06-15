@@ -66,7 +66,9 @@ const getCurrentFormats = `
   AND rv."STATUS" = 'CURR';
 `;
 
-exports.getLicence = getLicence;
-exports.getCurrentVersion = getCurrentVersion;
-exports.getVersions = getVersions;
-exports.getCurrentFormats = getCurrentFormats;
+module.exports = {
+  getLicence,
+  getCurrentVersion,
+  getVersions,
+  getCurrentFormats
+};

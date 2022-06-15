@@ -185,5 +185,7 @@ const buildPermitRepoPacket = (licenceRef, regimeId, licenceTypeId, data) => {
   return permitRepoData;
 };
 
-exports.getLicenceJson = getLicenceJson;
-exports.buildPermitRepoPacket = buildPermitRepoPacket;
+module.exports = {
+  getLicenceJson,
+  buildPermitRepoPacket
+};

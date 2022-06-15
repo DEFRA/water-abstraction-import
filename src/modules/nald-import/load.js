@@ -68,4 +68,6 @@ const load = async (licenceNumber) => {
   await chargeVersionMetadataImportService.importChargeVersionMetadataForLicence(licenceData);
 };
 
-exports.load = load;
+module.exports = {
+  load
+};

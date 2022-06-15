@@ -34,8 +34,12 @@ const registerSubscribers = async server => {
   }
 };
 
-exports.plugin = {
+const plugin = {
   name: 'importNaldData',
   dependencies: ['pgBoss'],
   register: registerSubscribers
+};
+
+module.exports = {
+  plugin
 };

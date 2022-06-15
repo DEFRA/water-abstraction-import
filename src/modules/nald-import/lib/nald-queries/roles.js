@@ -7,4 +7,6 @@ const getRoles = async (AABL_ID, FGAC_REGION_CODE) => {
   return db.dbQuery(sql.getRoles, [AABL_ID, FGAC_REGION_CODE]);
 };
 
-exports.getRoles = getRoles;
+module.exports = {
+  getRoles
+};

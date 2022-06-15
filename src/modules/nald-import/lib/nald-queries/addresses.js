@@ -7,4 +7,6 @@ const getAddress = async (addressId, regionCode) => {
   return db.dbQuery(sql.getAddress, [addressId, regionCode]);
 };
 
-exports.getAddress = getAddress;
+module.exports = {
+  getAddress
+};

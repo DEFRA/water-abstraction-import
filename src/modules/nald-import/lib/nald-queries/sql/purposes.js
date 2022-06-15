@@ -43,7 +43,9 @@ const getPurposePointLicenceConditions = `
   order by "DISP_ORD" asc;
 `;
 
-exports.getPurpose = getPurpose;
-exports.getPurposePoints = getPurposePoints;
-exports.getPurposePointLicenceAgreements = getPurposePointLicenceAgreements;
-exports.getPurposePointLicenceConditions = getPurposePointLicenceConditions;
+module.exports = {
+  getPurpose,
+  getPurposePoints,
+  getPurposePointLicenceAgreements,
+  getPurposePointLicenceConditions
+};

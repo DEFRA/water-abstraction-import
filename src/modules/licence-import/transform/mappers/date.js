@@ -42,9 +42,11 @@ const mapTransferDate = str =>
 const getPreviousDay = str =>
   moment(str, DATE_FORMAT).subtract(1, 'day').format(DATE_FORMAT);
 
-exports.mapNaldDate = mapNaldDate;
-exports.getMinDate = getMinDate;
-exports.getMaxDate = getMaxDate;
-exports.mapTransferDate = mapTransferDate;
-exports.getPreviousDay = getPreviousDay;
-exports.mapIsoDateToNald = mapIsoDateToNald;
+module.exports = {
+  mapNaldDate,
+  getMinDate,
+  getMaxDate,
+  mapTransferDate,
+  getPreviousDay,
+  mapIsoDateToNald
+};

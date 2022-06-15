@@ -65,5 +65,7 @@ const mapInvoiceAccounts = (iasAccounts, context) => {
   });
 };
 
-exports.mapInvoiceAccount = mapInvoiceAccount;
-exports.mapInvoiceAccounts = mapInvoiceAccounts;
+module.exports = {
+  mapInvoiceAccount,
+  mapInvoiceAccounts
+};

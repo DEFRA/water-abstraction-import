@@ -78,7 +78,9 @@ const persistReturns = async (returns) => {
   }
 };
 
-exports.createOrUpdateReturn = createOrUpdateReturn;
-exports.getUpdateRow = getUpdateRow;
-exports.returnExists = returnExists;
-exports.persistReturns = persistReturns;
+module.exports = {
+  createOrUpdateReturn,
+  getUpdateRow,
+  returnExists,
+  persistReturns
+};

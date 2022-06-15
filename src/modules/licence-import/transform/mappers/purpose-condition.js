@@ -18,4 +18,6 @@ const mapPurposeConditionFromNALD = data => {
   };
 };
 
-exports.mapPurposeConditionFromNALD = mapPurposeConditionFromNALD;
+module.exports = {
+  mapPurposeConditionFromNALD
+};

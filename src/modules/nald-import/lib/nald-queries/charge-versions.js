@@ -32,4 +32,6 @@ ORDER BY
   v."VERS_NO"::integer;
 `;
 
-exports.getNonDraftChargeVersionsForLicence = getNonDraftChargeVersionsForLicence;
+module.exports = {
+  getNonDraftChargeVersionsForLicence
+};

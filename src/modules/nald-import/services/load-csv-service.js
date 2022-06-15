@@ -134,4 +134,6 @@ async function importFiles (schemaName) {
   }
 }
 
-exports.importFiles = importFiles;
+module.exports = {
+  importFiles
+};

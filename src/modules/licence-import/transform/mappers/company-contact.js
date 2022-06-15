@@ -39,4 +39,6 @@ const mapCompanyContacts = (contact, licenceVersions, chargeVersions) => {
   return contacts;
 };
 
-exports.mapCompanyContacts = mapCompanyContacts;
+module.exports = {
+  mapCompanyContacts
+};

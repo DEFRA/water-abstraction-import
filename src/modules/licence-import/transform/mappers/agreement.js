@@ -76,4 +76,6 @@ const mapAgreements = (tptAgreements, s130Agreements = []) => {
   return flatMap(merged);
 };
 
-exports.mapAgreements = mapAgreements;
+module.exports = {
+  mapAgreements
+};

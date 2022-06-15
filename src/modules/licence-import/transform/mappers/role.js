@@ -85,5 +85,7 @@ const mapLicenceRoles = (licenceRoles, context) => licenceRoles
   .filter(isRoleForImport)
   .map(role => mapLicenceRole(role, context));
 
-exports.mapLicenceHolderRoles = mapLicenceHolderRoles;
-exports.mapLicenceRoles = mapLicenceRoles;
+module.exports = {
+  mapLicenceHolderRoles,
+  mapLicenceRoles
+};

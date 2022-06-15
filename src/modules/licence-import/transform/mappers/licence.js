@@ -101,5 +101,7 @@ const omitNaldData = value => {
   return value;
 };
 
-exports.mapLicence = mapLicence;
-exports.omitNaldData = omitNaldData;
+module.exports = {
+  mapLicence,
+  omitNaldData
+};

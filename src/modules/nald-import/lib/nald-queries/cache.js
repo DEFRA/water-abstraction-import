@@ -22,5 +22,7 @@ const createId = (key, params) => {
   };
 };
 
-exports.createCachedQuery = createCachedQuery;
-exports.createId = createId;
+module.exports = {
+  createCachedQuery,
+  createId
+};

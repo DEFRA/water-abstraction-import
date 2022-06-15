@@ -80,4 +80,6 @@ const importChargeVersionMetadataForLicence = async licence => {
   }
 };
 
-exports.importChargeVersionMetadataForLicence = importChargeVersionMetadataForLicence;
+module.exports = {
+  importChargeVersionMetadataForLicence
+};

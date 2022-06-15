@@ -58,10 +58,12 @@ const getPurposePointLicenceConditions = async (AABP_ID, FGAC_REGION_CODE) => {
   return db.dbQuery(sql.getPurposePointLicenceConditions, params);
 };
 
-exports._getPurposeCache = _getPurposeCache;
-exports._createPurposeCache = _createPurposeCache;
-exports.getPurposes = getPurposes;
-exports.getPurposePoints = getPurposePoints;
-exports.getPurpose = getPurpose;
-exports.getPurposePointLicenceAgreements = getPurposePointLicenceAgreements;
-exports.getPurposePointLicenceConditions = getPurposePointLicenceConditions;
+module.exports = {
+  _getPurposeCache,
+  _createPurposeCache,
+  getPurposes,
+  getPurposePoints,
+  getPurpose,
+  getPurposePointLicenceAgreements,
+  getPurposePointLicenceConditions
+};

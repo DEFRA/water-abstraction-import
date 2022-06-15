@@ -65,4 +65,6 @@ const getDueDate = async (endDate, format) => {
   return moment(refDate, 'YYYY-MM-DD').add(28, 'days').format('YYYY-MM-DD');
 };
 
-exports.getDueDate = getDueDate;
+module.exports = {
+  getDueDate
+};
