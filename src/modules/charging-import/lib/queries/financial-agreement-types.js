@@ -11,4 +11,6 @@ DO
     date_updated = now();
 `;
 
-exports.importFinancialAgreementTypes = importFinancialAgreementTypes;
+module.exports = {
+  importFinancialAgreementTypes
+};

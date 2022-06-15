@@ -7,4 +7,6 @@ const createMessage = jobName => ({
   }
 });
 
-exports.createMessage = createMessage;
+module.exports = {
+  createMessage
+};

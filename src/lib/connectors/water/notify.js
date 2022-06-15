@@ -14,4 +14,6 @@ const postSendNotify = (key, data) => {
   });
 };
 
-exports.postSendNotify = postSendNotify;
+module.exports = {
+  postSendNotify
+};

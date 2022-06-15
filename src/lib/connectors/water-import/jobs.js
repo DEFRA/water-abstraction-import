@@ -58,5 +58,7 @@ const getFailedJobs = async () => {
   });
 };
 
-exports.getFailedJobs = getFailedJobs;
-exports.getJobSummary = getJobSummary;
+module.exports = {
+  getFailedJobs,
+  getJobSummary
+};

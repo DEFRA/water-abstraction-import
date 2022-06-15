@@ -9,4 +9,6 @@ const queries = require('./queries/documents');
  */
 const deleteRemovedDocuments = () => pool.query(queries.deleteCrmV2Documents);
 
-exports.deleteRemovedDocuments = deleteRemovedDocuments;
+module.exports = {
+  deleteRemovedDocuments
+};

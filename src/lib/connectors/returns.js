@@ -82,8 +82,10 @@ const deleteAllReturnsData = async returnId => {
   await pool.query(deleteReturnsQuery, [returnId]);
 };
 
-exports.versions = versions;
-exports.lines = lines;
-exports.returns = returns;
-exports.voidReturns = voidReturns;
-exports.deleteAllReturnsData = deleteAllReturnsData;
+module.exports = {
+  versions,
+  lines,
+  returns,
+  voidReturns,
+  deleteAllReturnsData
+};

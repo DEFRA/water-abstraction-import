@@ -89,6 +89,8 @@ join water.purposes_uses u on nrp."APUR_APUS_CODE"=u.legacy_id
 join water.return_requirements r on r.external_id = concat_ws(':', nrp."FGAC_REGION_CODE", nrp."ARTY_ID") on conflict(external_id) do update set  purpose_alias=excluded.purpose_alias, date_updated=excluded.date_updated;
 `;
 
-exports.importReturnVersions = importReturnVersions;
-exports.importReturnRequirements = importReturnRequirements;
-exports.importReturnRequirementPurposes = importReturnRequirementPurposes;
+module.exports = {
+  importReturnVersions,
+  importReturnRequirements,
+  importReturnRequirementPurposes
+};

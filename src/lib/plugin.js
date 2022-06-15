@@ -15,4 +15,6 @@ const createRegister = (server, registerSubscribers) => {
   return registerSubscribers(server);
 };
 
-exports.createRegister = createRegister;
+module.exports = {
+  createRegister
+};

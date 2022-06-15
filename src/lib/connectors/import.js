@@ -27,5 +27,7 @@ const deleteRemovedDocuments = () => {
   return pool.query(deleteCrmV1DocumentsQuery);
 };
 
-exports.getLicenceNumbers = getLicenceNumbers;
-exports.deleteRemovedDocuments = deleteRemovedDocuments;
+module.exports = {
+  getLicenceNumbers,
+  deleteRemovedDocuments
+};

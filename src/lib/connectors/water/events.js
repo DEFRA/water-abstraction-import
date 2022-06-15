@@ -14,4 +14,6 @@ const events = new APIClient(rp, {
   }
 });
 
-exports.events = events;
+module.exports = {
+  events
+};

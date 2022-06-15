@@ -5,4 +5,6 @@ const statusResponse = pick(pkg, 'version');
 
 const getStatus = () => statusResponse;
 
-exports.getStatus = getStatus;
+module.exports = {
+  getStatus
+};

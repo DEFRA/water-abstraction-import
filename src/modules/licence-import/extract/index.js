@@ -75,7 +75,9 @@ const getCompanyData = async (regionCode, partyId) => {
   };
 };
 
-exports.getLicenceData = getLicenceData;
-exports.getCompanyData = getCompanyData;
-exports.getAllParties = importConnector.getAllParties;
-exports.getAllLicenceNumbers = importConnector.getAllLicenceNumbers;
+module.exports = {
+  getLicenceData,
+  getCompanyData,
+  getAllParties: importConnector.getAllParties,
+  getAllLicenceNumbers: importConnector.getAllLicenceNumbers
+};

@@ -25,6 +25,8 @@ const handler = () => queryLoader.loadQueries('Import charging data', [
   returnVersionQueries.importReturnRequirementPurposes
 ]);
 
-exports.jobName = jobName;
-exports.createMessage = createMessage;
-exports.handler = handler;
+module.exports = {
+  jobName,
+  createMessage,
+  handler
+};

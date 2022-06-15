@@ -10,5 +10,7 @@ const get = async identifier => {
 
 const save = (key = constants.APPLICATION_STATE_KEY, data = {}) => applicationStateConnector.postState(key, data);
 
-exports.get = get;
-exports.save = save;
+module.exports = {
+  get,
+  save
+};

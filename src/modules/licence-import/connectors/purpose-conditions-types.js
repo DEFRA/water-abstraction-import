@@ -9,4 +9,6 @@ const queries = require('./queries/purpose-condition-types');
  */
 const createPurposeConditionTypes = async () => pool.query(queries.createPurposeConditionTypes);
 
-exports.createPurposeConditionTypes = createPurposeConditionTypes;
+module.exports = {
+  createPurposeConditionTypes
+};

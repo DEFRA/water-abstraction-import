@@ -12,5 +12,7 @@ const deleteRemovedDocuments = async () => {
   return importConnector.deleteRemovedDocuments();
 };
 
-exports.deleteRemovedDocuments = deleteRemovedDocuments;
-exports.getLicenceNumbers = getLicenceNumbers;
+module.exports = {
+  deleteRemovedDocuments,
+  getLicenceNumbers
+};

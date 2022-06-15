@@ -57,4 +57,6 @@ const importBillRuns = async () => {
   }
 };
 
-exports.importBillRuns = importBillRuns;
+module.exports = {
+  importBillRuns
+};

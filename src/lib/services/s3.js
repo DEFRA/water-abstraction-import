@@ -61,7 +61,9 @@ const download = async (key, destination) => {
  */
 const getHead = key => callS3MethodWithKey('headObject', key);
 
-exports.upload = upload;
-exports.getObject = getObject;
-exports.download = download;
-exports.getHead = getHead;
+module.exports = {
+  upload,
+  getObject,
+  download,
+  getHead
+};
