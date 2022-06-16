@@ -48,5 +48,5 @@ const handler = async job => {
 module.exports = {
   createMessage,
   handler,
-  JOB_NAME
+  jobName: JOB_NAME
 };
