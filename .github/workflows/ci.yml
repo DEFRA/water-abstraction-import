@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 12.x, 14.x ]
+        node-version: [ 14.x ]
     name: Test  - Node.js ${{ matrix.node-version }}
     env:
       # These need to be duplicated in services section for postgres. Unfortunately, there is not a way to reuse them
@@ -65,10 +65,6 @@ jobs:
       - name: Run database migrations
         run: |
           npm run migrate
-      - name: Test & publish code coverage
-        uses: paambaati/codeclimate-action@v2.7.4
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-        with:
-          coverageCommand: npm run test:ci
-          debug: true
+      - name: Test
+        run:
+          npm run test:ci
