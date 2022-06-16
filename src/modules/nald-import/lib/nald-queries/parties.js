@@ -34,12 +34,12 @@ const getParty = async (partyId, regionCode) => {
   return db.dbQuery(sql.getParty, [partyId, regionCode]);
 };
 
-exports._createPartiesCache = _createPartiesCache;
-exports._createPartyContactsCache = _createPartyContactsCache;
-
-exports._getPartiesCache = _getPartiesCache;
-exports._getPartyContactsCache = _getPartyContactsCache;
-
-exports.getParties = getParties;
-exports.getParty = getParty;
-exports.getPartyContacts = getPartyContacts;
+module.exports = {
+  _createPartiesCache,
+  _createPartyContactsCache,
+  _getPartiesCache,
+  _getPartyContactsCache,
+  getParties,
+  getParty,
+  getPartyContacts
+};

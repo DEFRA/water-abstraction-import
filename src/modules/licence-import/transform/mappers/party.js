@@ -16,4 +16,6 @@ const mapParties = parties => parties.reduce((acc, party) => {
   return acc;
 }, createRegionSkeleton());
 
-exports.mapParties = mapParties;
+module.exports = {
+  mapParties
+};

@@ -10,4 +10,6 @@ const assertImportTablesExist = async () => {
   }
 };
 
-exports.assertImportTablesExist = assertImportTablesExist;
+module.exports = {
+  assertImportTablesExist
+};

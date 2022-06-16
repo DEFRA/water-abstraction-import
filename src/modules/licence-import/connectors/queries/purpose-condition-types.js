@@ -1,5 +1,5 @@
 
-exports.createPurposeConditionTypes = `
+const createPurposeConditionTypes = `
 INSERT INTO water.licence_version_purpose_condition_types (
   code,
   subcode,
@@ -14,3 +14,7 @@ INSERT INTO water.licence_version_purpose_condition_types (
     subcode_description = excluded.subcode_description,
     date_updated = now();
 `;
+
+module.exports = {
+  createPurposeConditionTypes
+};

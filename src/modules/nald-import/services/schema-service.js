@@ -22,6 +22,8 @@ const swapTemporarySchema = async () => {
   await renameSchema(constants.SCHEMA_TEMP, constants.SCHEMA_IMPORT);
 };
 
-exports.dropAndCreateSchema = dropAndCreateSchema;
-exports.swapTemporarySchema = swapTemporarySchema;
-exports.renameSchema = renameSchema;
+module.exports = {
+  dropAndCreateSchema,
+  swapTemporarySchema,
+  renameSchema
+};

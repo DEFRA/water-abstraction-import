@@ -31,8 +31,12 @@ const registerSubscribers = async server => {
   }
 };
 
-exports.plugin = {
+const plugin = {
   name: 'importTracker',
   dependencies: ['pgBoss'],
   register: registerSubscribers
+};
+
+module.exports = {
+  plugin
 };

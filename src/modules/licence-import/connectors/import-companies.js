@@ -36,7 +36,9 @@ const getPendingCount = async () => {
   return parseInt(count);
 };
 
-exports.clear = clear;
-exports.initialise = initialise;
-exports.setImportedStatus = setImportedStatus;
-exports.getPendingCount = getPendingCount;
+module.exports = {
+  clear,
+  initialise,
+  setImportedStatus,
+  getPendingCount
+};

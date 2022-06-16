@@ -88,5 +88,7 @@ const copyTestFiles = async () => {
   return loadCsvService.importFiles(constants.SCHEMA_IMPORT);
 };
 
-exports.copyTestFiles = copyTestFiles;
-exports.downloadAndExtract = downloadAndExtract;
+module.exports = {
+  copyTestFiles,
+  downloadAndExtract
+};

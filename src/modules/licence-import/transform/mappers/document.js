@@ -9,4 +9,6 @@ const mapLicenceToDocument = licence => ({
   _nald: licence._nald
 });
 
-exports.mapLicenceToDocument = mapLicenceToDocument;
+module.exports = {
+  mapLicenceToDocument
+};

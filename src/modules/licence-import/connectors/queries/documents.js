@@ -1,4 +1,4 @@
-exports.deleteCrmV2Documents = `
+const deleteCrmV2Documents = `
   update crm_v2.documents
   set date_deleted = now()
   where document_ref not in (
@@ -9,3 +9,7 @@ exports.deleteCrmV2Documents = `
   and regime = 'water'
   and document_type = 'abstraction_licence';
 `;
+
+module.exports = {
+  deleteCrmV2Documents
+};

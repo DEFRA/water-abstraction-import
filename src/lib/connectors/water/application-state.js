@@ -18,5 +18,7 @@ const postState = (key, data) => {
   });
 };
 
-exports.getState = getState;
-exports.postState = postState;
+module.exports = {
+  getState,
+  postState
+};

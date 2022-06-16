@@ -48,5 +48,7 @@ const pgBossFailedJobs = `select name, sum(count) as count, max(max_completed_da
         group by a.name) cte 
         group by name`;
 
-exports.pgBossFailedJobs = pgBossFailedJobs;
-exports.pgBossJobOverview = pgBossJobOverview;
+module.exports = {
+  pgBossFailedJobs,
+  pgBossJobOverview
+};

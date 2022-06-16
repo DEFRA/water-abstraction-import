@@ -277,13 +277,15 @@ const getFormatCycles = (format, splitDate) => {
  */
 const getStatus = receivedDate => receivedDate === null ? 'due' : 'completed';
 
-exports.mapPeriod = mapPeriod;
-exports.mapProductionMonth = mapProductionMonth;
-exports.formatReturnMetadata = formatReturnMetadata;
-exports.getFormatCycles = getFormatCycles;
-exports.mapReceivedDate = mapReceivedDate;
-exports.getReturnCycles = getReturnCycles;
-exports.addDate = addDate;
-exports.getStatus = getStatus;
-exports.getFormatStartDate = getFormatStartDate;
-exports.getFormatEndDate = getFormatEndDate;
+module.exports = {
+  mapPeriod,
+  mapProductionMonth,
+  formatReturnMetadata,
+  getFormatCycles,
+  mapReceivedDate,
+  getReturnCycles,
+  addDate,
+  getStatus,
+  getFormatStartDate,
+  getFormatEndDate
+};

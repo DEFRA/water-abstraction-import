@@ -22,4 +22,6 @@ const sendEmail = async (recipient, messageRef, personalisation) => {
   return notifyConnector.postSendNotify('email', { templateId, recipient, personalisation });
 };
 
-exports.sendEmail = sendEmail;
+module.exports = {
+  sendEmail
+};

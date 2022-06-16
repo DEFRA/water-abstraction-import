@@ -21,4 +21,6 @@ const createServerForRoute = route => {
   return server;
 };
 
-exports.createServerForRoute = createServerForRoute;
+module.exports = {
+  createServerForRoute
+};

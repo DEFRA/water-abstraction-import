@@ -1,10 +1,10 @@
-exports.getLicence = `
+const getLicence = `
   SELECT *
   FROM import."NALD_ABS_LICENCES" l
   WHERE l."LIC_NO"=$1;
 `;
 
-exports.getLicenceVersions = `
+const getLicenceVersions = `
   SELECT *
   FROM import."NALD_ABS_LIC_VERSIONS" v
   WHERE v."FGAC_REGION_CODE"=$1
@@ -12,7 +12,7 @@ exports.getLicenceVersions = `
   AND v."STATUS"<>'DRAFT';
 `;
 
-exports.getLicencePurposes = `
+const getLicencePurposes = `
   select purposes.*
   from import."NALD_ABS_LIC_VERSIONS" versions
     join import."NALD_ABS_LIC_PURPOSES" purposes
@@ -24,7 +24,7 @@ exports.getLicencePurposes = `
   and versions."AABL_ID" = $2;
 `;
 
-exports.getPurposeConditions = `
+const getPurposeConditions = `
 select conditions.*
 from import."NALD_ABS_LIC_VERSIONS" versions
   join import."NALD_ABS_LIC_PURPOSES" purposes
@@ -39,19 +39,19 @@ where versions."FGAC_REGION_CODE" = $1
 and versions."AABL_ID" = $2
 `;
 
-exports.getParty = `SELECT * FROM import."NALD_PARTIES" p
+const getParty = `SELECT * FROM import."NALD_PARTIES" p
   WHERE p."FGAC_REGION_CODE"=$1
   AND p."ID" = $2`;
 
-exports.getAddress = `SELECT * FROM import."NALD_ADDRESSES" a
+const getAddress = `SELECT * FROM import."NALD_ADDRESSES" a
   WHERE a."FGAC_REGION_CODE"=$1
   AND a."ID" = $2`;
 
-exports.getAllAddresses = 'SELECT * FROM import."NALD_ADDRESSES"';
+const getAllAddresses = 'SELECT * FROM import."NALD_ADDRESSES"';
 
-exports.getAllParties = 'SELECT "FGAC_REGION_CODE", "ID" FROM import."NALD_PARTIES"';
+const getAllParties = 'SELECT "FGAC_REGION_CODE", "ID" FROM import."NALD_PARTIES"';
 
-exports.getChargeVersions = `
+const getChargeVersions = `
   SELECT *
   FROM import."NALD_CHG_VERSIONS" cv
     JOIN import."NALD_IAS_INVOICE_ACCS" ia
@@ -64,7 +64,7 @@ exports.getChargeVersions = `
   ORDER BY cv."VERS_NO"::integer;
 `;
 
-exports.getTwoPartTariffAgreements = `
+const getTwoPartTariffAgreements = `
 SELECT 
   a.*, 
   cv."EFF_END_DATE" as charge_version_end_date, 
@@ -96,7 +96,7 @@ WHERE
 ORDER BY cv."VERS_NO"::integer;
 `;
 
-exports.getSection130Agreements = `SELECT * FROM import."NALD_LH_AGRMNTS" ag
+const getSection130Agreements = `SELECT * FROM import."NALD_LH_AGRMNTS" ag
 JOIN (
   SELECT DISTINCT cv."FGAC_REGION_CODE", cv."AIIA_ALHA_ACC_NO"
   FROM import."NALD_CHG_VERSIONS" cv
@@ -105,7 +105,7 @@ JOIN (
 AND ag."AFSA_CODE" IN ('S127', 'S130S', 'S130T', 'S130U', 'S130W')
 `;
 
-exports.getInvoiceAccounts = `
+const getInvoiceAccounts = `
 select a."ACON_APAR_ID" AS licence_holder_party_id, p."NAME" AS licence_holder_party_name,
 p2."NAME" AS invoice_account_party_name,
 i.*
@@ -131,31 +131,52 @@ where
   and a."ACON_APAR_ID"=$2
 `;
 
-exports.getPartyLicenceVersions = `SELECT lv.*, l."REV_DATE", l."LAPSED_DATE", l."EXPIRY_DATE" FROM import."NALD_ABS_LIC_VERSIONS" lv
+const getPartyLicenceVersions = `SELECT lv.*, l."REV_DATE", l."LAPSED_DATE", l."EXPIRY_DATE" FROM import."NALD_ABS_LIC_VERSIONS" lv
 JOIN import."NALD_ABS_LICENCES" l ON lv."AABL_ID"=l."ID" AND lv."FGAC_REGION_CODE"=l."FGAC_REGION_CODE"
 WHERE lv."FGAC_REGION_CODE"=$1 AND lv."ACON_APAR_ID"=$2
 AND lv."STATUS"<>'DRAFT'`;
 
-exports.getParties = `SELECT * FROM import."NALD_PARTIES" p
+const getParties = `SELECT * FROM import."NALD_PARTIES" p
 WHERE p."FGAC_REGION_CODE"=$1
 AND p."ID" =  any (string_to_array($2, ',')::text[])`;
 
-exports.getAddresses = `SELECT * FROM import."NALD_ADDRESSES" a
+const getAddresses = `SELECT * FROM import."NALD_ADDRESSES" a
 WHERE a."FGAC_REGION_CODE"=$1
 AND a."ID" =  any (string_to_array($2, ',')::text[])`;
 
-exports.getAllLicenceNumbers = `
+const getAllLicenceNumbers = `
   SELECT l."LIC_NO"
   FROM import."NALD_ABS_LICENCES" l;
 `;
 
-exports.getLicenceRoles = `
+const getLicenceRoles = `
 select * from import."NALD_LIC_ROLES" r
 where r."FGAC_REGION_CODE"=$1 and r."AABL_ID"=$2
 order by to_date(r."EFF_ST_DATE", 'DD/MM/YYYY')
 `;
 
-exports.getPartyLicenceRoles = `
+const getPartyLicenceRoles = `
 select * from import."NALD_LIC_ROLES" r
   where r."FGAC_REGION_CODE"=$1 and r."ACON_APAR_ID"=$2
 `;
+
+module.exports = {
+  getLicence,
+  getLicenceVersions,
+  getLicencePurposes,
+  getPurposeConditions,
+  getParty,
+  getAddress,
+  getAllAddresses,
+  getAllParties,
+  getChargeVersions,
+  getTwoPartTariffAgreements,
+  getSection130Agreements,
+  getInvoiceAccounts,
+  getPartyLicenceVersions,
+  getParties,
+  getAddresses,
+  getAllLicenceNumbers,
+  getLicenceRoles,
+  getPartyLicenceRoles
+};

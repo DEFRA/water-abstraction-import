@@ -20,5 +20,7 @@ const getSortedDates = arr => sortBy(
 const getMinDate = arr => first(getSortedDates(arr));
 const getMaxDate = arr => last(getSortedDates(arr));
 
-exports.getMinDate = getMinDate;
-exports.getMaxDate = getMaxDate;
+module.exports = {
+  getMinDate,
+  getMaxDate
+};

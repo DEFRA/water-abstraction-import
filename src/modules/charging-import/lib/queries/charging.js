@@ -194,8 +194,10 @@ DELETE FROM water.charge_versions WHERE charge_version_id IN (
     and billing_batch_charge_version_year_id is null
 );`;
 
-exports.importChargeElements = importChargeElements;
-exports.cleanupChargeElements = cleanupChargeElements;
-exports.insertChargeVersion = insertChargeVersion;
-exports.importChargeVersions = importChargeVersions;
-exports.cleanupChargeVersions = cleanupChargeVersions;
+module.exports = {
+  importChargeElements,
+  cleanupChargeElements,
+  insertChargeVersion,
+  importChargeVersions,
+  cleanupChargeVersions
+};

@@ -22,6 +22,8 @@ const getParty = `
   where "ID" = $1 and "FGAC_REGION_CODE" = $2;
 `;
 
-exports.getParties = getParties;
-exports.getPartyContacts = getPartyContacts;
-exports.getParty = getParty;
+module.exports = {
+  getParties,
+  getPartyContacts,
+  getParty
+};

@@ -42,4 +42,6 @@ const transformLicence = licenceData => {
   return finalLicence;
 };
 
-exports.transformLicence = transformLicence;
+module.exports = {
+  transformLicence
+};

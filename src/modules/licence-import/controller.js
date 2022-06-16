@@ -28,17 +28,23 @@ const createImportLicenceJob = request => jobs.importLicence(request.query.licen
 /**
  * Import all companies/licences
  */
-exports.postImport = partialRight(postImportHandler, createImportJob, 'Error importing companies');
+const postImport = partialRight(postImportHandler, createImportJob, 'Error importing companies');
 
 /**
  * Import single licence
  * @param {String} request.query.licenceNumber
  */
-exports.postImportLicence = partialRight(postImportHandler, createImportLicenceJob, 'Error importing licence');
+const postImportLicence = partialRight(postImportHandler, createImportLicenceJob, 'Error importing licence');
 
 /**
  * Import single company
  * @param {Number} request.query.regionCode
  * @param {Number} request.query.partyId
  */
-exports.postImportCompany = partialRight(postImportHandler, createImportCompanyJob, 'Error importing company');
+const postImportCompany = partialRight(postImportHandler, createImportCompanyJob, 'Error importing company');
+
+module.exports = {
+  postImport,
+  postImportLicence,
+  postImportCompany
+};

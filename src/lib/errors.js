@@ -10,4 +10,6 @@ class DBError extends Error {
   }
 }
 
-exports.DBError = DBError;
+module.exports = {
+  DBError
+};

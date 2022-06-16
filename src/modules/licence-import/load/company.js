@@ -80,4 +80,6 @@ const loadCompany = async company => {
   return { entities, relationships };
 };
 
-exports.loadCompany = loadCompany;
+module.exports = {
+  loadCompany
+};

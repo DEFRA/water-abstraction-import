@@ -78,6 +78,8 @@ const handler = async job => {
   }
 };
 
-exports.createMessage = createMessage;
-exports.handler = handler;
-exports.jobName = JOB_NAME;
+module.exports = {
+  createMessage,
+  handler,
+  jobName: JOB_NAME
+};

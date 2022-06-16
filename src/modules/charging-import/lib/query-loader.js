@@ -33,4 +33,6 @@ const loadQueries = async (name, queries) => {
   }
 };
 
-exports.loadQueries = loadQueries;
+module.exports = {
+  loadQueries
+};

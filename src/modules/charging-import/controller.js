@@ -19,4 +19,6 @@ const createPostHandler = async (createMessage, request) => {
  */
 const postImportChargingData = partial(createPostHandler, chargeVersionsJob.createMessage);
 
-exports.postImportChargingData = postImportChargingData;
+module.exports = {
+  postImportChargingData
+};

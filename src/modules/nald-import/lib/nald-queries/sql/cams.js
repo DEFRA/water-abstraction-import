@@ -6,4 +6,6 @@ const getCams = `
   where "CODE" = $1 and "FGAC_REGION_CODE" = $2;
 `;
 
-exports.getCams = getCams;
+module.exports = {
+  getCams
+};

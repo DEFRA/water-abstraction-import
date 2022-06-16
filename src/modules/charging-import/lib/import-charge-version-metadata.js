@@ -21,4 +21,6 @@ const importChargeVersionMetadata = async () => {
   }
 };
 
-exports.importChargeVersionMetadata = importChargeVersionMetadata;
+module.exports = {
+  importChargeVersionMetadata
+};

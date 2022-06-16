@@ -13,4 +13,8 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 const dateMapper = str => moment(str).format(DATE_FORMAT);
 pg.types.setTypeParser(pg.types.builtins.DATE, dateMapper);
 
-exports.pool = helpers.db.createPool(config.pg, logger);
+const pool = helpers.db.createPool(config.pg, logger);
+
+module.exports = {
+  pool
+};

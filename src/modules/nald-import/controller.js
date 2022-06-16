@@ -102,9 +102,11 @@ const postImportLicence = async (request, h) => {
   }
 };
 
-exports.getLicence = getLicence;
-exports.getReturns = getReturns;
-exports.getReturnsFormats = getReturnsFormats;
-exports.getReturnsLogs = getReturnsLogs;
-exports.getReturnsLogLines = getReturnsLogLines;
-exports.postImportLicence = postImportLicence;
+module.exports = {
+  getLicence,
+  getReturns,
+  getReturnsFormats,
+  getReturnsLogs,
+  getReturnsLogLines,
+  postImportLicence
+};

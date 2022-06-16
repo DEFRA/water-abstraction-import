@@ -38,7 +38,9 @@ const handler = async job => {
   }
 };
 
-exports.createMessage = createMessage;
-exports.handler = handler;
-exports.jobName = JOB_NAME;
-exports.options = options;
+module.exports = {
+  createMessage,
+  handler,
+  jobName: JOB_NAME,
+  options
+};

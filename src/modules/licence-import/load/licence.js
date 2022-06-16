@@ -89,4 +89,6 @@ const loadLicence = async licence => {
   return loadVersions(licence, savedLicence.licence_id);
 };
 
-exports.loadLicence = loadLicence;
+module.exports = {
+  loadLicence
+};

@@ -19,8 +19,12 @@ const registerSubscribers = async server => {
   );
 };
 
-exports.plugin = {
+const plugin = {
   name: 'importChargingData',
   dependencies: ['pgBoss'],
   register: server => createRegister(server, registerSubscribers)
+};
+
+module.exports = {
+  plugin
 };

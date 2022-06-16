@@ -11,8 +11,9 @@ const ROLE_RETURNS_TO = 'returnsTo';
 const naldRoles = new Map();
 naldRoles.set('RT', ROLE_RETURNS_TO);
 
-exports.ROLE_LICENCE_HOLDER = ROLE_LICENCE_HOLDER;
-exports.ROLE_BILLING = ROLE_BILLING;
-exports.ROLE_RETURNS_TO = ROLE_RETURNS_TO;
-
-exports.naldRoles = naldRoles;
+module.exports = {
+  ROLE_LICENCE_HOLDER,
+  ROLE_BILLING,
+  ROLE_RETURNS_TO,
+  naldRoles
+};

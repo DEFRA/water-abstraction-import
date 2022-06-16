@@ -20,5 +20,7 @@ const createNullKeys = (...keys) => {
   }, {});
 };
 
-exports.getCommonObject = getCommonObject;
-exports.createNullKeys = createNullKeys;
+module.exports = {
+  getCommonObject,
+  createNullKeys
+};

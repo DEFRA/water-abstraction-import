@@ -26,4 +26,6 @@ const mapLicencePurpose = data => {
   return purpose;
 };
 
-exports.mapLicencePurpose = mapLicencePurpose;
+module.exports = {
+  mapLicencePurpose
+};

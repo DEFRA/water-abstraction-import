@@ -19,6 +19,8 @@ const getCams = (code, regionCode) => {
   return _getCamsCache.get(id);
 };
 
-exports.getCams = getCams;
-exports._getCamsCache = _getCamsCache;
-exports._createCamsCache = _createCamsCache;
+module.exports = {
+  getCams,
+  _getCamsCache,
+  _createCamsCache
+};

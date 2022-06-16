@@ -20,5 +20,7 @@ const mapAddresses = addresses => addresses.reduce((acc, address) => {
   return acc;
 }, createRegionSkeleton());
 
-exports.mapAddress = mapAddress;
-exports.mapAddresses = mapAddresses;
+module.exports = {
+  mapAddress,
+  mapAddresses
+};

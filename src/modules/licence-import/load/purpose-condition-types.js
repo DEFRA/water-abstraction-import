@@ -2,4 +2,8 @@
 
 const connectors = require('./connectors');
 
-exports.createPurposeConditionTypes = () => connectors.createPurposeConditionTypes();
+const createPurposeConditionTypes = () => connectors.createPurposeConditionTypes();
+
+module.exports = {
+  createPurposeConditionTypes
+};

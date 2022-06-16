@@ -30,4 +30,6 @@ function post (message) {
     });
 }
 
-exports.post = post;
+module.exports = {
+  post
+};

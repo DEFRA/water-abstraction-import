@@ -16,4 +16,6 @@ const importTableExists = async () => {
   return false;
 };
 
-exports.importTableExists = importTableExists;
+module.exports = {
+  importTableExists
+};

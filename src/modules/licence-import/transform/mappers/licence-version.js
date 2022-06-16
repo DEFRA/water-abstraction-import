@@ -39,4 +39,6 @@ const mapLicenceVersion = (licenceVersionData, mappedPurposes = [], mappedCondit
   };
 };
 
-exports.mapLicenceVersion = mapLicenceVersion;
+module.exports = {
+  mapLicenceVersion
+};

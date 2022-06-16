@@ -41,4 +41,6 @@ const extract = async () => {
   }
 };
 
-exports.extract = extract;
+module.exports = {
+  extract
+};

@@ -13,4 +13,6 @@ on conflict (external_id) do update set
   date_updated=NOW();
 `;
 
-exports.insertChargeVersionMetadata = insertChargeVersionMetadata;
+module.exports = {
+  insertChargeVersionMetadata
+};

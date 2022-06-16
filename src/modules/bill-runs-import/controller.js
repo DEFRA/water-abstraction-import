@@ -9,4 +9,6 @@ const postImportBillRuns = async request => {
   };
 };
 
-exports.postImportBillRuns = postImportBillRuns;
+module.exports = {
+  postImportBillRuns
+};

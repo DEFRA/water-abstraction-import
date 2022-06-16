@@ -6,4 +6,6 @@ const getAddress = `
   where "ID"=$1 and "FGAC_REGION_CODE" = $2;
 `;
 
-exports.getAddress = getAddress;
+module.exports = {
+  getAddress
+};

@@ -51,7 +51,9 @@ JOIN water.purposes_secondary as ps ON NALD_P."APSE_CODE" = ps."legacy_id"
 JOIN water.purposes_uses as pu ON NALD_P."APUS_CODE" = pu."legacy_id"
 WHERE NALD_P."DISABLED" = 'N' ON CONFLICT DO NOTHING;`;
 
-exports.importPrimaryPurposes = importPrimaryPurposes;
-exports.importSecondaryPurposes = importSecondaryPurposes;
-exports.importUses = importUses;
-exports.importValidPurposeCombinations = importValidPurposeCombinations;
+module.exports = {
+  importPrimaryPurposes,
+  importSecondaryPurposes,
+  importUses,
+  importValidPurposeCombinations
+};

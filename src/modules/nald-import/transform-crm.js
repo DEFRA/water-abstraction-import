@@ -126,6 +126,8 @@ function buildCRMPacket (licenceData, licenceRef, licenceId) {
   return crmData;
 }
 
-exports.buildCRMPacket = buildCRMPacket;
-exports.buildCRMMetadata = buildCRMMetadata;
-exports.contactsFormatter = contactsFormatter;
+module.exports = {
+  buildCRMPacket,
+  buildCRMMetadata,
+  contactsFormatter
+};

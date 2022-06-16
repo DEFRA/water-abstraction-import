@@ -62,20 +62,22 @@ const getLicenceRoles = (regionCode, licenceId) =>
 const getPartyLicenceRoles = (regionCode, partyId) =>
   findMany(queries.getPartyLicenceRoles, [regionCode, partyId]);
 
-exports.getPurposeConditions = getPurposeConditions;
-exports.getAddresses = getAddresses;
-exports.getAllAddresses = getAllAddresses;
-exports.getAllLicenceNumbers = getAllLicenceNumbers;
-exports.getAllParties = getAllParties;
-exports.getChargeVersions = getChargeVersions;
-exports.getInvoiceAccounts = getInvoiceAccounts;
-exports.getLicence = getLicence;
-exports.getLicencePurposes = getLicencePurposes;
-exports.getLicenceVersions = getLicenceVersions;
-exports.getParties = getParties;
-exports.getParty = getParty;
-exports.getPartyLicenceVersions = getPartyLicenceVersions;
-exports.getSection130Agreements = getSection130Agreements;
-exports.getTwoPartTariffAgreements = getTwoPartTariffAgreements;
-exports.getLicenceRoles = getLicenceRoles;
-exports.getPartyLicenceRoles = getPartyLicenceRoles;
+module.exports = {
+  getPurposeConditions,
+  getAddresses,
+  getAllAddresses,
+  getAllLicenceNumbers,
+  getAllParties,
+  getChargeVersions,
+  getInvoiceAccounts,
+  getLicence,
+  getLicencePurposes,
+  getLicenceVersions,
+  getParties,
+  getParty,
+  getPartyLicenceVersions,
+  getSection130Agreements,
+  getTwoPartTariffAgreements,
+  getLicenceRoles,
+  getPartyLicenceRoles
+};
