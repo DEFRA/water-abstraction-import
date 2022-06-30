@@ -84,7 +84,9 @@ module.exports = {
       // Update: I've changed those values to false ahead of the v2.0 charging
       // release as described in WATER-3201 - TT 20210603
       isInvoiceAccountImportEnabled: true,
-      isLicenceAgreementImportEnabled: false,
+      // Credit to https://stackoverflow.com/a/323546/6117745 for how to handle
+      // converting the env var to a boolean
+      isLicenceAgreementImportEnabled: (process.env.IMPORT_LICENCE_AGREEMENTS === 'true') || false,
       // Note: we think a solution is needed where a list of billing contacts
       // for a given licence is calculated from the charge version history
       // in the water service, and synced to CRM v2.
