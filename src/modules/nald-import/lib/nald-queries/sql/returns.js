@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const getFormats = `
   SELECT f.*,
@@ -17,7 +17,7 @@ const getFormats = `
       AND f."FGAC_REGION_CODE"=v."FGAC_REGION_CODE"
   WHERE l."LIC_NO"=$1
   ORDER BY to_date(v."EFF_ST_DATE", 'DD/MM/YYYY');
-`;
+`
 
 const getFormatPurposes = `
   SELECT p.*,
@@ -32,7 +32,7 @@ const getFormatPurposes = `
     LEFT JOIN "import"."NALD_PURP_USES" p3
       ON p."APUR_APUS_CODE" = p3."CODE"
   WHERE p."ARTY_ID" = $1 AND p."FGAC_REGION_CODE" = $2;
-`;
+`
 
 const getFormatPoints = `
   SELECT p.*
@@ -41,14 +41,14 @@ const getFormatPoints = `
       ON fp."AAIP_ID" = p."ID" AND fp."FGAC_REGION_CODE" = p."FGAC_REGION_CODE"
   WHERE fp."ARTY_ID" = $1
   AND fp."FGAC_REGION_CODE" = $2;
-`;
+`
 
 const getLogs = `
   SELECT l.*
   FROM "import"."NALD_RET_FORM_LOGS" l
   WHERE l."ARTY_ID" = $1 AND l."FGAC_REGION_CODE" = $2
   ORDER BY to_date(l."DATE_FROM", 'DD/MM/YYYY');
-`;
+`
 
 const getLines = `
   SELECT l.*
@@ -58,7 +58,7 @@ const getLines = `
   AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')>=to_date($3, 'YYYY-MM-DD')
   AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')<=to_date($4, 'YYYY-MM-DD')
   ORDER BY "RET_DATE";
-`;
+`
 
 const getLogLines = `
   SELECT l.*
@@ -67,7 +67,7 @@ const getLogLines = `
   AND l."FGAC_REGION_CODE" = $2
   AND "ARFL_DATE_FROM" = $3
   ORDER BY "RET_DATE";
-`;
+`
 
 const isNilReturn = `
   SELECT SUM(
@@ -81,7 +81,7 @@ const isNilReturn = `
   AND l."FGAC_REGION_CODE"=$2
   AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')>=to_date($3, 'YYYY-MM-DD')
   AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')<=to_date($4, 'YYYY-MM-DD');
-`;
+`
 
 const getSplitDate = `
   SELECT l."ID", v."ISSUE_NO", v."INCR_NO", v."EFF_ST_DATE", m.*
@@ -97,7 +97,7 @@ const getSplitDate = `
   AND m."AMRE_CODE" = 'SUCC'
   ORDER BY to_date(v."EFF_ST_DATE", 'DD/MM/YYYY') DESC
   LIMIT 1;
-`;
+`
 
 const getReturnVersionReason = `
   SELECT l."AMRE_CODE"
@@ -110,7 +110,7 @@ const getReturnVersionReason = `
   WHERE rv."AABL_ID" = $1
   AND rv."VERS_NO" = $2
   AND rv."FGAC_REGION_CODE" = $3;
-`;
+`
 
 module.exports = {
   getFormats,
@@ -122,4 +122,4 @@ module.exports = {
   isNilReturn,
   getSplitDate,
   getReturnVersionReason
-};
+}

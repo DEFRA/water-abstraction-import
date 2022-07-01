@@ -2,7 +2,7 @@ const getLicence = `
   SELECT *
   FROM import."NALD_ABS_LICENCES" l
   WHERE l."LIC_NO"=$1;
-`;
+`
 
 const getLicenceVersions = `
   SELECT *
@@ -10,7 +10,7 @@ const getLicenceVersions = `
   WHERE v."FGAC_REGION_CODE"=$1
   AND v."AABL_ID"=$2
   AND v."STATUS"<>'DRAFT';
-`;
+`
 
 const getLicencePurposes = `
   select purposes.*
@@ -22,7 +22,7 @@ const getLicencePurposes = `
       and versions."FGAC_REGION_CODE" = purposes."FGAC_REGION_CODE"
   where versions."FGAC_REGION_CODE" = $1
   and versions."AABL_ID" = $2;
-`;
+`
 
 const getPurposeConditions = `
 select conditions.*
@@ -37,19 +37,19 @@ from import."NALD_ABS_LIC_VERSIONS" versions
   and purposes."ID" = conditions."AABP_ID"
 where versions."FGAC_REGION_CODE" = $1
 and versions."AABL_ID" = $2
-`;
+`
 
 const getParty = `SELECT * FROM import."NALD_PARTIES" p
   WHERE p."FGAC_REGION_CODE"=$1
-  AND p."ID" = $2`;
+  AND p."ID" = $2`
 
 const getAddress = `SELECT * FROM import."NALD_ADDRESSES" a
   WHERE a."FGAC_REGION_CODE"=$1
-  AND a."ID" = $2`;
+  AND a."ID" = $2`
 
-const getAllAddresses = 'SELECT * FROM import."NALD_ADDRESSES"';
+const getAllAddresses = 'SELECT * FROM import."NALD_ADDRESSES"'
 
-const getAllParties = 'SELECT "FGAC_REGION_CODE", "ID" FROM import."NALD_PARTIES"';
+const getAllParties = 'SELECT "FGAC_REGION_CODE", "ID" FROM import."NALD_PARTIES"'
 
 const getChargeVersions = `
   SELECT *
@@ -62,7 +62,7 @@ const getChargeVersions = `
     AND cv."AABL_ID"=$2 AND cv."STATUS"<>'DRAFT'
     AND ia."IAS_XFER_DATE"<>'null'
   ORDER BY cv."VERS_NO"::integer;
-`;
+`
 
 const getTwoPartTariffAgreements = `
 SELECT 
@@ -94,7 +94,7 @@ WHERE
     group by ncv."FGAC_REGION_CODE", ncv."AABL_ID", ncv."EFF_ST_DATE"
   )
 ORDER BY cv."VERS_NO"::integer;
-`;
+`
 
 const getSection130Agreements = `SELECT * FROM import."NALD_LH_AGRMNTS" ag
 JOIN (
@@ -103,7 +103,7 @@ JOIN (
   WHERE cv."FGAC_REGION_CODE"=$1 AND cv."AABL_ID"=$2 AND cv."STATUS"<>'DRAFT'
 ) cv ON ag."FGAC_REGION_CODE"=cv."FGAC_REGION_CODE" AND ag."ALHA_ACC_NO"=cv."AIIA_ALHA_ACC_NO"
 AND ag."AFSA_CODE" IN ('S127', 'S130S', 'S130T', 'S130U', 'S130W')
-`;
+`
 
 const getInvoiceAccounts = `
 select a."ACON_APAR_ID" AS licence_holder_party_id, p."NAME" AS licence_holder_party_name,
@@ -129,36 +129,36 @@ where
   i."IAS_XFER_DATE"<>'null'
   and a."FGAC_REGION_CODE"=$1
   and a."ACON_APAR_ID"=$2
-`;
+`
 
 const getPartyLicenceVersions = `SELECT lv.*, l."REV_DATE", l."LAPSED_DATE", l."EXPIRY_DATE" FROM import."NALD_ABS_LIC_VERSIONS" lv
 JOIN import."NALD_ABS_LICENCES" l ON lv."AABL_ID"=l."ID" AND lv."FGAC_REGION_CODE"=l."FGAC_REGION_CODE"
 WHERE lv."FGAC_REGION_CODE"=$1 AND lv."ACON_APAR_ID"=$2
-AND lv."STATUS"<>'DRAFT'`;
+AND lv."STATUS"<>'DRAFT'`
 
 const getParties = `SELECT * FROM import."NALD_PARTIES" p
 WHERE p."FGAC_REGION_CODE"=$1
-AND p."ID" =  any (string_to_array($2, ',')::text[])`;
+AND p."ID" =  any (string_to_array($2, ',')::text[])`
 
 const getAddresses = `SELECT * FROM import."NALD_ADDRESSES" a
 WHERE a."FGAC_REGION_CODE"=$1
-AND a."ID" =  any (string_to_array($2, ',')::text[])`;
+AND a."ID" =  any (string_to_array($2, ',')::text[])`
 
 const getAllLicenceNumbers = `
   SELECT l."LIC_NO"
   FROM import."NALD_ABS_LICENCES" l;
-`;
+`
 
 const getLicenceRoles = `
 select * from import."NALD_LIC_ROLES" r
 where r."FGAC_REGION_CODE"=$1 and r."AABL_ID"=$2
 order by to_date(r."EFF_ST_DATE", 'DD/MM/YYYY')
-`;
+`
 
 const getPartyLicenceRoles = `
 select * from import."NALD_LIC_ROLES" r
   where r."FGAC_REGION_CODE"=$1 and r."ACON_APAR_ID"=$2
-`;
+`
 
 module.exports = {
   getLicence,
@@ -179,4 +179,4 @@ module.exports = {
   getAllLicenceNumbers,
   getLicenceRoles,
   getPartyLicenceRoles
-};
+}

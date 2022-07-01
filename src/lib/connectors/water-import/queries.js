@@ -21,7 +21,7 @@ where
     and (a.createdon > now() - interval '3 days' or a.completedon > now() - interval '3 days')
     and a.name = $1
     group by a.state) cte 
-    group by state`;
+    group by state`
 
 const pgBossFailedJobs = `select name, sum(count) as count, max(max_completed_date) as max_completed_date, max(max_created_date) as max_created_date from (select
         name,
@@ -46,9 +46,9 @@ const pgBossFailedJobs = `select name, sum(count) as count, max(max_completed_da
         a.state = 'failed'
         and (a.createdon > now() - interval '12 hours' or a.completedon > now() - interval '12 hours')        
         group by a.name) cte 
-        group by name`;
+        group by name`
 
 module.exports = {
   pgBossFailedJobs,
   pgBossJobOverview
-};
+}

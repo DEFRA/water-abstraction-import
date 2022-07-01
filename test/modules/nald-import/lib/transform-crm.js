@@ -1,23 +1,23 @@
-'use strict';
+'use strict'
 
 const {
   beforeEach,
   experiment,
   test
-} = exports.lab = require('@hapi/lab').script();
-const { expect } = require('@hapi/code');
-const moment = require('moment');
+} = exports.lab = require('@hapi/lab').script()
+const { expect } = require('@hapi/code')
+const moment = require('moment')
 
-const transformCrm = require('../../../../src/modules/nald-import/transform-crm');
+const transformCrm = require('../../../../src/modules/nald-import/transform-crm')
 
 experiment('modules/nald-import/lib/transform-crm', () => {
   experiment('.buildCRMMetadata', () => {
     test('returns a default object if the current version is falsy', async () => {
-      const meta = transformCrm.buildCRMMetadata();
+      const meta = transformCrm.buildCRMMetadata()
       expect(meta).to.equal({
         IsCurrent: false
-      });
-    });
+      })
+    })
 
     test('IsCurrent is true if the currentVersion is supplied', async () => {
       const currentVersion = {
@@ -25,26 +25,26 @@ experiment('modules/nald-import/lib/transform-crm', () => {
         version_effective_date: moment().subtract(1, 'month').format('YYYYMMDD'),
         party: {},
         address: {}
-      };
+      }
 
-      const meta = transformCrm.buildCRMMetadata(currentVersion);
-      expect(meta.IsCurrent).to.be.true();
-      expect(meta.Expires).to.equal(currentVersion.expiry_date);
-      expect(meta.Modified).to.equal(currentVersion.version_effective_date);
-    });
-  });
+      const meta = transformCrm.buildCRMMetadata(currentVersion)
+      expect(meta.IsCurrent).to.be.true()
+      expect(meta.Expires).to.equal(currentVersion.expiry_date)
+      expect(meta.Modified).to.equal(currentVersion.version_effective_date)
+    })
+  })
 
   experiment('.contactsFormatter', () => {
     experiment('when the current version is null', () => {
       test('an empty array is returned', async () => {
-        const contacts = transformCrm.contactsFormatter(null, []);
-        expect(contacts).to.equal([]);
-      });
-    });
+        const contacts = transformCrm.contactsFormatter(null, [])
+        expect(contacts).to.equal([])
+      })
+    })
 
     experiment('when the current version is present without a licence role', () => {
-      let currentVersion;
-      let roles;
+      let currentVersion
+      let roles
 
       beforeEach(async () => {
         currentVersion = {
@@ -66,31 +66,31 @@ experiment('modules/nald-import/lib/transform-crm', () => {
               ]
             }
           ]
-        };
+        }
 
-        roles = [];
-      });
+        roles = []
+      })
 
       test('the licence holder is added to the contacts', async () => {
-        const contacts = transformCrm.contactsFormatter(currentVersion, roles);
-        const licenceHolder = contacts[0];
-        expect(licenceHolder.role).to.equal('Licence holder');
-        expect(licenceHolder.type).to.equal('Person');
-        expect(licenceHolder.forename).to.equal('forename');
-        expect(licenceHolder.name).to.equal('name');
-        expect(licenceHolder.addressLine1).to.equal('test-1');
-      });
+        const contacts = transformCrm.contactsFormatter(currentVersion, roles)
+        const licenceHolder = contacts[0]
+        expect(licenceHolder.role).to.equal('Licence holder')
+        expect(licenceHolder.type).to.equal('Person')
+        expect(licenceHolder.forename).to.equal('forename')
+        expect(licenceHolder.name).to.equal('name')
+        expect(licenceHolder.addressLine1).to.equal('test-1')
+      })
 
       test('the roles are added after the licence holder', async () => {
-        const contacts = transformCrm.contactsFormatter(currentVersion, roles);
-        const role = contacts[1];
-        expect(role).to.equal(undefined);
-      });
-    });
-  });
+        const contacts = transformCrm.contactsFormatter(currentVersion, roles)
+        const role = contacts[1]
+        expect(role).to.equal(undefined)
+      })
+    })
+  })
   experiment('when the current version is present with a licence role', () => {
-    let currentVersion;
-    let roles;
+    let currentVersion
+    let roles
 
     beforeEach(async () => {
       currentVersion = {
@@ -112,7 +112,7 @@ experiment('modules/nald-import/lib/transform-crm', () => {
             ]
           }
         ]
-      };
+      }
 
       roles = [
         {
@@ -128,26 +128,26 @@ experiment('modules/nald-import/lib/transform-crm', () => {
             NAME: 'forname4role'
           }
         }
-      ];
-    });
+      ]
+    })
 
     test('the licence holder is added to the contacts', async () => {
-      const contacts = transformCrm.contactsFormatter(currentVersion, roles);
-      const licenceHolder = contacts[0];
-      expect(licenceHolder.role).to.equal('Licence holder');
-      expect(licenceHolder.type).to.equal('Person');
-      expect(licenceHolder.forename).to.equal('forename');
-      expect(licenceHolder.name).to.equal('name');
-      expect(licenceHolder.addressLine1).to.equal('test-1');
-    });
+      const contacts = transformCrm.contactsFormatter(currentVersion, roles)
+      const licenceHolder = contacts[0]
+      expect(licenceHolder.role).to.equal('Licence holder')
+      expect(licenceHolder.type).to.equal('Person')
+      expect(licenceHolder.forename).to.equal('forename')
+      expect(licenceHolder.name).to.equal('name')
+      expect(licenceHolder.addressLine1).to.equal('test-1')
+    })
 
     test('the roles are added after the licence holder', async () => {
-      const contacts = transformCrm.contactsFormatter(currentVersion, roles);
-      const role = contacts[1];
-      expect(role.role).to.equal('For returns');
-      expect(role.type).to.equal('Person');
-      expect(role.name).to.equal('forname4role');
-      expect(role.addressLine1).to.equal('test-1');
-    });
-  });
-});
+      const contacts = transformCrm.contactsFormatter(currentVersion, roles)
+      const role = contacts[1]
+      expect(role.role).to.equal('For returns')
+      expect(role.type).to.equal('Person')
+      expect(role.name).to.equal('forname4role')
+      expect(role.addressLine1).to.equal('test-1')
+    })
+  })
+})

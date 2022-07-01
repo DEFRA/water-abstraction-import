@@ -1,4 +1,4 @@
-const config = require('../../../../config');
+const config = require('../../../../config')
 
 module.exports = {
   S3_IMPORT_PATH: config.import.nald.path,
@@ -8,4 +8,4 @@ module.exports = {
   SCHEMA_IMPORT: 'import',
   SCHEMA_TEMP: 'import_temp',
   APPLICATION_STATE_KEY: 'nald-import'
-};
+}

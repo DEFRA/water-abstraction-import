@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const getLicence = `
   select l.*,
@@ -10,7 +10,7 @@ const getLicence = `
   ) as end_date
   from import."NALD_ABS_LICENCES" l
   where l."LIC_NO" = $1;
-`;
+`
 
 const getCurrentVersion = `
   SELECT v.*, t.*
@@ -46,13 +46,13 @@ const getCurrentVersion = `
   )
   ORDER BY "ISSUE_NO" DESC, "INCR_NO" DESC
   LIMIT 1;
-`;
+`
 
 const getVersions = `
   select *
   from import."NALD_ABS_LIC_VERSIONS"
   where "AABL_ID" = $1 and "FGAC_REGION_CODE" = $2;
-`;
+`
 
 const getCurrentFormats = `
   SELECT f.*
@@ -64,11 +64,11 @@ const getCurrentFormats = `
   WHERE rv."AABL_ID" = $1
   AND rv."FGAC_REGION_CODE" = $2
   AND rv."STATUS" = 'CURR';
-`;
+`
 
 module.exports = {
   getLicence,
   getCurrentVersion,
   getVersions,
   getCurrentFormats
-};
+}

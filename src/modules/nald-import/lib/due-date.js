@@ -1,8 +1,8 @@
-const moment = require('moment');
-const { intersection } = require('lodash');
-const returnsQueries = require('./nald-queries/returns');
-const { returns: { date: { getPeriodEnd } } } = require('@envage/water-abstraction-helpers');
-const { mapProductionMonth } = require('./transform-returns-helpers');
+const moment = require('moment')
+const { intersection } = require('lodash')
+const returnsQueries = require('./nald-queries/returns')
+const { returns: { date: { getPeriodEnd } } } = require('@envage/water-abstraction-helpers')
+const { mapProductionMonth } = require('./transform-returns-helpers')
 
 /**
  * Gets the return version end date of the supplied format
@@ -11,10 +11,10 @@ const { mapProductionMonth } = require('./transform-returns-helpers');
  */
 const getReturnVersionEndDate = format => {
   if (format.EFF_END_DATE === 'null') {
-    return null;
+    return null
   }
-  return moment(format.EFF_END_DATE, 'DD/MM/YYYY').format('YYYY-MM-DD');
-};
+  return moment(format.EFF_END_DATE, 'DD/MM/YYYY').format('YYYY-MM-DD')
+}
 
 /**
  * Checks whether the results returned from the mod logs query contains
@@ -23,10 +23,10 @@ const getReturnVersionEndDate = format => {
  * @return {Boolean}         true if a code is matched
  */
 const isVariationCode = modLogs => {
-  const eventCodes = ['VARF', 'VARM', 'AMND', 'NAME', 'REDS', 'SPAC', 'SPAN', 'XCORR'];
-  const codes = modLogs.map(row => row.AMRE_CODE);
-  return intersection(codes, eventCodes).length > 0;
-};
+  const eventCodes = ['VARF', 'VARM', 'AMND', 'NAME', 'REDS', 'SPAC', 'SPAN', 'XCORR']
+  const codes = modLogs.map(row => row.AMRE_CODE)
+  return intersection(codes, eventCodes).length > 0
+}
 
 /**
  * Gets the due date for the supplied cycle end date and format
@@ -35,36 +35,36 @@ const isVariationCode = modLogs => {
  * @return {Promise<String>} resolved with due date YYYY-MM-DD
  */
 const getDueDate = async (endDate, format) => {
-  let refDate = endDate;
+  let refDate = endDate
 
-  const returnVersionEndDate = getReturnVersionEndDate(format);
+  const returnVersionEndDate = getReturnVersionEndDate(format)
 
   // If the end date of the calculated return cycle matches the end date of
   // the return version, we may have a split
   if (endDate === returnVersionEndDate) {
     // Find the mod log reason codes for the following return version
-    const nextReturnVersion = parseInt(format.VERS_NO) + 1;
+    const nextReturnVersion = parseInt(format.VERS_NO) + 1
     const results = await returnsQueries.getReturnVersionReason(
       format.AABL_ID, format.FGAC_REGION_CODE, nextReturnVersion
-    );
+    )
 
     // If the code matches, use the end date of the full return cycle to
     // calculate the due date
     if (isVariationCode(results)) {
-      const { isSummer } = mapProductionMonth(format.FORM_PRODN_MONTH);
-      refDate = getPeriodEnd(endDate, isSummer);
+      const { isSummer } = mapProductionMonth(format.FORM_PRODN_MONTH)
+      refDate = getPeriodEnd(endDate, isSummer)
     }
   }
 
   // Due to Coronavirus in 2020, the winter/all year period ending 2020-03-31
   // had the deadline extended to 16 October
   if (refDate === '2020-03-31') {
-    return '2020-10-16';
+    return '2020-10-16'
   }
 
-  return moment(refDate, 'YYYY-MM-DD').add(28, 'days').format('YYYY-MM-DD');
-};
+  return moment(refDate, 'YYYY-MM-DD').add(28, 'days').format('YYYY-MM-DD')
+}
 
 module.exports = {
   getDueDate
-};
+}

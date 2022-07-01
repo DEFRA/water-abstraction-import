@@ -1,44 +1,44 @@
-const date = require('./date');
-const roles = require('./roles');
+const date = require('./date')
+const roles = require('./roles')
 
 const getLicenceHolderContact = (contact, licenceVersions) => {
-  const startDates = licenceVersions.map(row => date.mapNaldDate(row.EFF_ST_DATE));
+  const startDates = licenceVersions.map(row => date.mapNaldDate(row.EFF_ST_DATE))
   return {
     role: roles.ROLE_LICENCE_HOLDER,
     startDate: date.getMinDate(startDates),
     endDate: null,
     contact
-  };
-};
+  }
+}
 
 const getBillingContact = (contact, chargeVersions) => {
-  const startDates = chargeVersions.map(row => date.mapTransferDate(row.IAS_XFER_DATE));
+  const startDates = chargeVersions.map(row => date.mapTransferDate(row.IAS_XFER_DATE))
   return {
     role: roles.ROLE_BILLING,
     startDate: date.getMinDate(startDates),
     endDate: null,
     contact
-  };
-};
+  }
+}
 
 const mapCompanyContacts = (contact, licenceVersions, chargeVersions) => {
   if (contact === null) {
-    return [];
+    return []
   }
 
-  const contacts = [];
+  const contacts = []
 
   if (licenceVersions.length > 0) {
-    contacts.push(getLicenceHolderContact(contact, licenceVersions));
+    contacts.push(getLicenceHolderContact(contact, licenceVersions))
   }
 
   if (chargeVersions.length > 0) {
-    contacts.push(getBillingContact(contact, chargeVersions));
+    contacts.push(getBillingContact(contact, chargeVersions))
   }
 
-  return contacts;
-};
+  return contacts
+}
 
 module.exports = {
   mapCompanyContacts
-};
+}

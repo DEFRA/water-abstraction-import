@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const Joi = require('@hapi/joi');
-const controller = require('./controller');
+const Joi = require('@hapi/joi')
+const controller = require('./controller')
 
 const getVersions = {
   method: 'GET',
@@ -20,7 +20,7 @@ const getVersions = {
     }
   },
   path: '/etl/versions'
-};
+}
 
 const getLinesForVersion = {
   method: 'GET',
@@ -34,7 +34,7 @@ const getLinesForVersion = {
     }
   },
   path: '/etl/versions/{versionID}/lines'
-};
+}
 
 const getReturns = {
   method: 'GET',
@@ -53,10 +53,10 @@ const getReturns = {
     }
   },
   path: '/etl/returns'
-};
+}
 
 module.exports = [
   getVersions,
   getLinesForVersion,
   getReturns
-];
+]

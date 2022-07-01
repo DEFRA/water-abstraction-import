@@ -1,23 +1,23 @@
-'use strict';
+'use strict'
 
-const logger = require('./lib/logger');
+const logger = require('./lib/logger')
 
-const populatePendingImportJob = require('./populate-pending-import');
-const deleteRemovedDocumentsJob = require('./delete-removed-documents');
-const importLicenceJob = require('./import-licence');
+const populatePendingImportJob = require('./populate-pending-import')
+const deleteRemovedDocumentsJob = require('./delete-removed-documents')
+const importLicenceJob = require('./import-licence')
 
 const s3DownloadComplete = async (job, messageQueue) => {
   if (job.failed) {
-    return logger.logFailedJob(job);
+    return logger.logFailedJob(job)
   }
 
-  logger.logHandlingOnCompleteJob(job);
+  logger.logHandlingOnCompleteJob(job)
 
   try {
-    const { isRequired } = job.data.response;
+    const { isRequired } = job.data.response
 
     if (!isRequired) {
-      return logger.logAbortingOnComplete(job);
+      return logger.logAbortingOnComplete(job)
     }
 
     // Delete existing PG boss import queues
@@ -25,14 +25,14 @@ const s3DownloadComplete = async (job, messageQueue) => {
       messageQueue.deleteQueue(importLicenceJob.jobName),
       messageQueue.deleteQueue(deleteRemovedDocumentsJob.jobName),
       messageQueue.deleteQueue(populatePendingImportJob.jobName)
-    ]);
+    ])
 
     // Publish a new job to delete any removed documents
-    await messageQueue.publish(deleteRemovedDocumentsJob.createMessage());
+    await messageQueue.publish(deleteRemovedDocumentsJob.createMessage())
   } catch (err) {
-    logger.logHandlingOnCompleteError(job, err);
-    throw err;
+    logger.logHandlingOnCompleteError(job, err)
+    throw err
   }
-};
+}
 
-module.exports = s3DownloadComplete;
+module.exports = s3DownloadComplete

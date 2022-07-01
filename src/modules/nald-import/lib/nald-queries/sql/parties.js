@@ -1,10 +1,10 @@
-'use strict';
+'use strict'
 
 const getParties = `
   select p.*
   from import."NALD_PARTIES" p
   where p."ID" = $1 and "FGAC_REGION_CODE" = $2;
-`;
+`
 
 const getPartyContacts = `
   select c.*, row_to_json(a.*) AS party_address
@@ -14,16 +14,16 @@ const getPartyContacts = `
   where c."APAR_ID" = $1
   and c."FGAC_REGION_CODE" = $2
   and a."FGAC_REGION_CODE" = $2;
-`;
+`
 
 const getParty = `
   select p.*
   from import."NALD_PARTIES" p
   where "ID" = $1 and "FGAC_REGION_CODE" = $2;
-`;
+`
 
 module.exports = {
   getParties,
   getPartyContacts,
   getParty
-};
+}

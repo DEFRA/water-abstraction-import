@@ -1,7 +1,7 @@
 class ReturnFormatPurpose {
   setFormat (format) {
-    this.format = format;
-    return this;
+    this.format = format
+    return this
   }
 
   export () {
@@ -15,8 +15,8 @@ class ReturnFormatPurpose {
       FGAC_REGION_CODE: 1,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = ReturnFormatPurpose;
+module.exports = ReturnFormatPurpose

@@ -1,17 +1,17 @@
 class Contact {
   constructor () {
-    this.party = null;
-    this.address = null;
+    this.party = null
+    this.address = null
   }
 
   setParty (party) {
-    this.party = party;
-    return this;
+    this.party = party
+    return this
   }
 
   setAddress (address) {
-    this.address = address;
-    return this;
+    this.address = address
+    return this
   }
 
   export () {
@@ -22,8 +22,8 @@ class Contact {
       FGAC_REGION_CODE: 1,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = Contact;
+module.exports = Contact

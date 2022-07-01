@@ -1,13 +1,13 @@
-'use strict';
+'use strict'
 
-const moment = require('moment');
-const queries = require('./lib/nald-queries/returns');
+const moment = require('moment')
+const queries = require('./lib/nald-queries/returns')
 
-const helpers = require('./lib/transform-returns-helpers.js');
+const helpers = require('./lib/transform-returns-helpers.js')
 
-const dueDate = require('./lib/due-date');
+const dueDate = require('./lib/due-date')
 
-const { getReturnId } = require('@envage/water-abstraction-helpers').returns;
+const { getReturnId } = require('@envage/water-abstraction-helpers').returns
 
 /**
  * Loads licence formats from DB
@@ -15,59 +15,59 @@ const { getReturnId } = require('@envage/water-abstraction-helpers').returns;
  * @return {Promise} resolves with array of formats
  */
 const getLicenceFormats = async (licenceNumber) => {
-  const splitDate = await queries.getSplitDate(licenceNumber);
+  const splitDate = await queries.getSplitDate(licenceNumber)
 
-  const formats = await queries.getFormats(licenceNumber);
+  const formats = await queries.getFormats(licenceNumber)
 
   // Load format data
   for (const format of formats) {
-    format.purposes = await queries.getFormatPurposes(format.ID, format.FGAC_REGION_CODE);
-    format.points = await queries.getFormatPoints(format.ID, format.FGAC_REGION_CODE);
-    format.cycles = helpers.getFormatCycles(format, splitDate);
+    format.purposes = await queries.getFormatPurposes(format.ID, format.FGAC_REGION_CODE)
+    format.points = await queries.getFormatPoints(format.ID, format.FGAC_REGION_CODE)
+    format.cycles = helpers.getFormatCycles(format, splitDate)
   }
-  return formats;
-};
+  return formats
+}
 
 const getCycleLogs = (logs, startDate, endDate) => {
   return logs.filter(log => {
     return (
       moment(log.DATE_TO, 'DD/MM/YYYY').isSameOrAfter(startDate) &&
       moment(log.DATE_FROM, 'DD/MM/YYYY').isSameOrBefore(endDate)
-    );
-  });
-};
+    )
+  })
+}
 
 /**
  * @param {String} licenceNumber - the abstraction licence number
  */
 const buildReturnsPacket = async (licenceNumber) => {
-  const formats = await getLicenceFormats(licenceNumber);
+  const formats = await getLicenceFormats(licenceNumber)
 
   const returnsData = {
     returns: []
-  };
+  }
 
   for (const format of formats) {
     // Get all the logs for the format here and filter later by cycle.
     // This saves having to make many requests to the database for
     // each format cycle.
-    const logs = await queries.getLogs(format.ID, format.FGAC_REGION_CODE);
+    const logs = await queries.getLogs(format.ID, format.FGAC_REGION_CODE)
 
     for (const cycle of format.cycles) {
-      const { startDate, endDate, isCurrent } = cycle;
+      const { startDate, endDate, isCurrent } = cycle
 
       // Get all form logs relating to this cycle
-      const cycleLogs = getCycleLogs(logs, startDate, endDate);
+      const cycleLogs = getCycleLogs(logs, startDate, endDate)
 
       // Only create return cycles for formats with logs to allow NALD prepop to
       // drive online returns
       if (cycleLogs.length === 0) {
-        continue;
+        continue
       }
 
-      const returnId = getReturnId(format.FGAC_REGION_CODE, licenceNumber, format.ID, startDate, endDate);
-      const receivedDate = helpers.mapReceivedDate(cycleLogs);
-      const status = helpers.getStatus(receivedDate);
+      const returnId = getReturnId(format.FGAC_REGION_CODE, licenceNumber, format.ID, startDate, endDate)
+      const receivedDate = helpers.mapReceivedDate(cycleLogs)
+      const status = helpers.getStatus(receivedDate)
 
       // Create new return row
       const returnRow = {
@@ -88,17 +88,17 @@ const buildReturnsPacket = async (licenceNumber) => {
         }),
         received_date: receivedDate,
         return_requirement: format.ID
-      };
+      }
 
-      returnsData.returns.push(returnRow);
+      returnsData.returns.push(returnRow)
     }
   }
 
-  return returnsData;
-};
+  return returnsData
+}
 
 module.exports = {
   buildReturnsPacket,
   getLicenceFormats,
   getCycleLogs
-};
+}

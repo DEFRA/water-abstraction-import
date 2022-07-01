@@ -1,15 +1,15 @@
-'use strict';
+'use strict'
 
-const { logger } = require('../../../logger');
-const purposeConditionsConnector = require('../connectors/purpose-conditions-types');
+const { logger } = require('../../../logger')
+const purposeConditionsConnector = require('../connectors/purpose-conditions-types')
 
 module.exports = async () => {
   try {
-    logger.info('Import purpose condition types');
+    logger.info('Import purpose condition types')
     // Load to data in to database
-    return purposeConditionsConnector.createPurposeConditionTypes();
+    return purposeConditionsConnector.createPurposeConditionTypes()
   } catch (err) {
-    logger.error('Import purpose condition types error', err);
-    throw err;
+    logger.error('Import purpose condition types error', err)
+    throw err
   }
-};
+}

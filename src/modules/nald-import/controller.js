@@ -1,11 +1,11 @@
-'use strict';
+'use strict'
 
-const Boom = require('@hapi/boom');
-const { getLicenceJson } = require('./transform-permit');
-const { buildReturnsPacket } = require('./transform-returns');
+const Boom = require('@hapi/boom')
+const { getLicenceJson } = require('./transform-permit')
+const { buildReturnsPacket } = require('./transform-returns')
 
-const jobs = require('./jobs');
-const { getFormats, getLogs, getLogLines } = require('./lib/nald-queries/returns');
+const jobs = require('./jobs')
+const { getFormats, getLogs, getLogLines } = require('./lib/nald-queries/returns')
 
 /**
  * For test purposes, builds licence from the data in the NALD import
@@ -14,17 +14,17 @@ const { getFormats, getLogs, getLogLines } = require('./lib/nald-queries/returns
  */
 const getLicence = async (request, h) => {
   try {
-    const filter = JSON.parse(request.query.filter);
-    const data = await getLicenceJson(filter.licenceNumber);
+    const filter = JSON.parse(request.query.filter)
+    const data = await getLicenceJson(filter.licenceNumber)
 
     if (data) {
-      return data;
+      return data
     }
-    return Boom.notFound('The requested licence number could not be found');
+    return Boom.notFound('The requested licence number could not be found')
   } catch (err) {
-    throw Boom.boomify(err, { statusCode: 400 });
+    throw Boom.boomify(err, { statusCode: 400 })
   }
-};
+}
 
 /**
  * For test purposes, builds returns data
@@ -32,17 +32,17 @@ const getLicence = async (request, h) => {
  */
 const getReturns = async (request, h) => {
   try {
-    const filter = JSON.parse(request.query.filter);
-    const data = await buildReturnsPacket(filter.licenceNumber);
+    const filter = JSON.parse(request.query.filter)
+    const data = await buildReturnsPacket(filter.licenceNumber)
 
     if (data) {
-      return data;
+      return data
     }
-    return Boom.notFound('The requested licence number could not be found');
+    return Boom.notFound('The requested licence number could not be found')
   } catch (err) {
-    throw Boom.boomify(err, { statusCode: 400 });
+    throw Boom.boomify(err, { statusCode: 400 })
   }
-};
+}
 
 /**
  * For test purposes, gets returns formats for given licence number
@@ -50,14 +50,14 @@ const getReturns = async (request, h) => {
  */
 const getReturnsFormats = async (request, h) => {
   try {
-    const filter = JSON.parse(request.query.filter);
-    const data = await getFormats(filter.licenceNumber);
+    const filter = JSON.parse(request.query.filter)
+    const data = await getFormats(filter.licenceNumber)
 
-    return data;
+    return data
   } catch (err) {
-    throw Boom.boomify(err, { statusCode: 400 });
+    throw Boom.boomify(err, { statusCode: 400 })
   }
-};
+}
 
 /**
  * For test purposes, gets returns formats for given licence number
@@ -65,14 +65,14 @@ const getReturnsFormats = async (request, h) => {
  */
 const getReturnsLogs = async (request, h) => {
   try {
-    const filter = JSON.parse(request.query.filter);
-    const { formatId, regionCode } = filter;
-    const data = await getLogs(formatId, regionCode);
-    return data;
+    const filter = JSON.parse(request.query.filter)
+    const { formatId, regionCode } = filter
+    const data = await getLogs(formatId, regionCode)
+    return data
   } catch (err) {
-    throw Boom.boomify(err, { statusCode: 400 });
+    throw Boom.boomify(err, { statusCode: 400 })
   }
-};
+}
 
 /**
  * For test purposes, gets returns formats for given licence number
@@ -80,27 +80,27 @@ const getReturnsLogs = async (request, h) => {
  */
 const getReturnsLogLines = async (request, h) => {
   try {
-    const filter = JSON.parse(request.query.filter);
-    const { formatId, regionCode, dateFrom } = filter;
-    const data = await getLogLines(formatId, regionCode, dateFrom);
-    return data;
+    const filter = JSON.parse(request.query.filter)
+    const { formatId, regionCode, dateFrom } = filter
+    const data = await getLogLines(formatId, regionCode, dateFrom)
+    return data
   } catch (err) {
-    throw Boom.boomify(err, { statusCode: 400 });
+    throw Boom.boomify(err, { statusCode: 400 })
   }
-};
+}
 
 const postImportLicence = async (request, h) => {
-  const { job } = jobs.importLicence;
-  const { licenceNumber } = request.payload;
-  const message = job.createMessage(licenceNumber);
+  const { job } = jobs.importLicence
+  const { licenceNumber } = request.payload
+  const message = job.createMessage(licenceNumber)
 
   try {
-    await request.server.messageQueue.publish(message);
-    return h.response(message).code(202);
+    await request.server.messageQueue.publish(message)
+    return h.response(message).code(202)
   } catch (err) {
-    throw Boom.boomify(err);
+    throw Boom.boomify(err)
   }
-};
+}
 
 module.exports = {
   getLicence,
@@ -109,4 +109,4 @@ module.exports = {
   getReturnsLogs,
   getReturnsLogLines,
   postImportLicence
-};
+}

@@ -1,8 +1,8 @@
-let idCounter = 1000000000;
+let idCounter = 1000000000
 
 function getNextId () {
-  idCounter++;
-  return idCounter;
+  idCounter++
+  return idCounter
 }
 
-module.exports = getNextId;
+module.exports = getNextId

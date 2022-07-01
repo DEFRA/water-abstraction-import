@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-const common = require('./common');
+const common = require('./common')
 
 const gridRef = (index, sheet = null, east = null, north = null, cartEast = null, cartNorth = null) => ({
   [`NGR${index}_SHEET`]: sheet,
@@ -8,20 +8,20 @@ const gridRef = (index, sheet = null, east = null, north = null, cartEast = null
   [`NGR${index}_NORTH`]: north,
   [`CART${index}_EAST`]: cartEast,
   [`CART${index}_NORTH`]: cartNorth
-});
+})
 
-const getHydro = () => common.createNullKeys('HYDRO_REF', 'HYDRO_INTERCEPT_DIST', 'HYDRO_GW_OFFSET_DIST');
+const getHydro = () => common.createNullKeys('HYDRO_REF', 'HYDRO_INTERCEPT_DIST', 'HYDRO_GW_OFFSET_DIST')
 
-const getNextId = require('./next-id.js');
+const getNextId = require('./next-id.js')
 
 class Point {
   constructor () {
-    this.id = getNextId();
-    this.source = null;
+    this.id = getNextId()
+    this.source = null
   }
 
   setSource (source) {
-    this.source = source;
+    this.source = source
   }
 
   export () {
@@ -41,8 +41,8 @@ class Point {
       ...common.createNullKeys('WRB_NO', 'BGS_NO', 'REG_WELL_INDEX_REF', 'NOTES'),
       ...getHydro(),
       ...common.getCommonObject('FGAC_REGION_CODE', 'SOURCE_CODE', 'BATCH_RUN_DATE')
-    };
+    }
   }
 }
 
-module.exports = Point;
+module.exports = Point

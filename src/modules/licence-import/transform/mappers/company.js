@@ -1,5 +1,5 @@
-const { identity } = require('lodash');
-const str = require('./str');
+const { identity } = require('lodash')
+const str = require('./str')
 
 /**
  * Maps a party object to a full name for organisation/person
@@ -7,19 +7,19 @@ const str = require('./str');
  * @return {String}
  */
 const mapName = party => {
-  const firstNameKey = party.FORENAME === 'null' ? 'INITIALS' : 'FORENAME';
+  const firstNameKey = party.FORENAME === 'null' ? 'INITIALS' : 'FORENAME'
 
   const parts = [
     party.SALUTATION,
     party[firstNameKey],
     party.NAME
-  ];
+  ]
 
   return parts
     .map(str.mapNull)
     .filter(identity)
-    .join(' ');
-};
+    .join(' ')
+}
 
 /**
  * Maps NALD party to CRM company
@@ -31,8 +31,8 @@ const mapCompany = party => ({
   name: mapName(party),
   externalId: `${party.FGAC_REGION_CODE}:${party.ID}`,
   _nald: party
-});
+})
 
 module.exports = {
   mapCompany
-};
+}

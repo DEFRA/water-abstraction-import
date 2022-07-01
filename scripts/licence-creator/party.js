@@ -1,20 +1,20 @@
-const moment = require('moment');
-const getNextId = require('./next-id');
+const moment = require('moment')
+const getNextId = require('./next-id')
 
 class Party {
   constructor () {
-    this.id = getNextId();
-    this.isOrg = false;
-    this.name = 'Doe';
-    this.foreName = 'John';
-    this.initials = 'H';
-    this.salutation = 'Mr';
-    this.contacts = [];
+    this.id = getNextId()
+    this.isOrg = false
+    this.name = 'Doe'
+    this.foreName = 'John'
+    this.initials = 'H'
+    this.salutation = 'Mr'
+    this.contacts = []
   }
 
   addContact (contact) {
-    this.contacts.push(contact);
-    return this;
+    this.contacts.push(contact)
+    return this
   }
 
   export () {
@@ -37,8 +37,8 @@ class Party {
       FGAC_REGION_CODE: 1,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = Party;
+module.exports = Party

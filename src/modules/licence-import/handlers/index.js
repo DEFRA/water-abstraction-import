@@ -15,4 +15,4 @@ module.exports = {
 
   importPurposeConditionTypes: require('./import-purpose-condition-types'),
   onCompleteImportPurposeConditionTypes: require('./on-complete-import-purpose-condition-types')
-};
+}

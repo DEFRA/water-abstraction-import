@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const getPurposePoints = `
   select
@@ -14,7 +14,7 @@ const getPurposePoints = `
   where pp."AABP_ID" = $1
   and pp."FGAC_REGION_CODE" = $2
   and p."FGAC_REGION_CODE" = $2;
-`;
+`
 
 const getPurpose = `
   select
@@ -26,12 +26,12 @@ const getPurpose = `
     left join import."NALD_PURP_SECS" p2 on p2."CODE" = $2
     left join import."NALD_PURP_USES" p3 on p3."CODE" = $3
   where p1."CODE" = $1;
-`;
+`
 const getPurposePointLicenceAgreements = `
   select *
   from import."NALD_LIC_AGRMNTS"
   where "AABP_ID" = $1 and "FGAC_REGION_CODE" = $2;
-`;
+`
 
 const getPurposePointLicenceConditions = `
   select c.*, row_to_json(ct.*) as condition_type
@@ -41,11 +41,11 @@ const getPurposePointLicenceConditions = `
       and ct."SUBCODE" = c."ACIN_SUBCODE"
   where c."AABP_ID" = $1 and c."FGAC_REGION_CODE" = $2
   order by "DISP_ORD" asc;
-`;
+`
 
 module.exports = {
   getPurpose,
   getPurposePoints,
   getPurposePointLicenceAgreements,
   getPurposePointLicenceConditions
-};
+}

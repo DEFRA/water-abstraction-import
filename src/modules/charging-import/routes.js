@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-const controller = require('./controller');
+const controller = require('./controller')
 
 module.exports = [
   {
@@ -8,4 +8,4 @@ module.exports = [
     handler: controller.postImportChargingData,
     path: '/import/1.0/charging'
   }
-];
+]

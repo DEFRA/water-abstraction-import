@@ -1,36 +1,36 @@
-'use strict';
+'use strict'
 
-const common = require('./common');
+const common = require('./common')
 
-const getNextId = require('./next-id.js');
+const getNextId = require('./next-id.js')
 
 class ReturnFormat {
   constructor () {
-    this.id = getNextId();
-    this.points = [];
-    this.purposes = [];
+    this.id = getNextId()
+    this.points = []
+    this.purposes = []
   }
 
   setLicence (licence) {
-    this.licence = licence;
-    return this;
+    this.licence = licence
+    return this
   }
 
   setReturnVersion (returnVersion) {
-    this.returnVersion = returnVersion;
-    return this;
+    this.returnVersion = returnVersion
+    return this
   }
 
   addPoint (point) {
-    point.setFormat(this);
-    this.points.push(point);
-    return this;
+    point.setFormat(this)
+    this.points.push(point)
+    return this
   }
 
   addPurpose (purpose) {
-    purpose.setFormat(this);
-    this.purposes.push(purpose);
-    return this;
+    purpose.setFormat(this)
+    this.purposes.push(purpose)
+    return this
   }
 
   getAbstractionPeriod () {
@@ -41,7 +41,7 @@ class ReturnFormat {
       ABS_PERIOD_END_MONTH: '12',
       TIMELTD_ST_DATE: null,
       TIMELTD_END_DATE: null
-    };
+    }
   }
 
   export () {
@@ -64,8 +64,8 @@ class ReturnFormat {
       ANNUAL_QTY_USABILITY: null,
       CC_IND: null,
       ...common.getCommonObject('FGAC_REGION_CODE', 'SOURCE_CODE', 'BATCH_RUN_DATE')
-    };
+    }
   }
 }
 
-module.exports = ReturnFormat;
+module.exports = ReturnFormat

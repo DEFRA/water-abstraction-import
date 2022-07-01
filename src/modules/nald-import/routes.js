@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
-const Joi = require('@hapi/joi');
+const Joi = require('@hapi/joi')
 
-const controller = require('./controller');
+const controller = require('./controller')
 
 module.exports = [
   {
@@ -47,4 +47,4 @@ module.exports = [
       }
     }
   }
-];
+]

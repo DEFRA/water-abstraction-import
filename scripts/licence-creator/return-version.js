@@ -1,24 +1,24 @@
 
 class ReturnVersion {
   constructor () {
-    this.startDate = '01/01/2018';
-    this.formats = [];
-    this.versionNumber = 100;
+    this.startDate = '01/01/2018'
+    this.formats = []
+    this.versionNumber = 100
   }
 
   setLicence (licence) {
-    this.licence = licence;
-    return this;
+    this.licence = licence
+    return this
   }
 
   addFormat (format) {
-    format.setReturnVersion(this);
-    this.formats.push(format);
-    return this;
+    format.setReturnVersion(this)
+    this.formats.push(format)
+    return this
   }
 
   getVersionNumber () {
-    return this.versionNumber;
+    return this.versionNumber
   }
 
   export () {
@@ -32,8 +32,8 @@ class ReturnVersion {
       FGAC_REGION_CODE: 1,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = ReturnVersion;
+module.exports = ReturnVersion

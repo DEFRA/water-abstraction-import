@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-const { isArray, chunk } = require('lodash');
+const { isArray, chunk } = require('lodash')
 
 class Repository {
   /**
@@ -13,8 +13,8 @@ class Repository {
    * @param {Array} config.upsert.set - the field(s) to update on conflict
    */
   constructor (pool, config) {
-    this.pool = pool;
-    this.config = config;
+    this.pool = pool
+    this.config = config
   }
 
   /**
@@ -24,35 +24,35 @@ class Repository {
    * @return {Promise} resolves with return value from Postgres pool.query
    */
   async persistBatch (data, columns = null) {
-    const { table, upsert } = this.config;
+    const { table, upsert } = this.config
 
     // Convert all data to array
-    const insertData = isArray(data) ? data : [data];
+    const insertData = isArray(data) ? data : [data]
 
-    const fields = Object.keys(insertData[0]);
+    const fields = Object.keys(insertData[0])
 
-    let query = `INSERT INTO ${table} (${fields.join(',')}) VALUES `;
+    let query = `INSERT INTO ${table} (${fields.join(',')}) VALUES `
 
-    let queryParams = [];
+    let queryParams = []
     const rows = insertData.map(row => {
-      const values = fields.map((value, i) => `$${i + 1 + queryParams.length}`);
+      const values = fields.map((value, i) => `$${i + 1 + queryParams.length}`)
       // Add values to query params
-      queryParams = [...queryParams, ...Object.values(row)];
-      return '(' + values.join(',') + ')';
-    });
+      queryParams = [...queryParams, ...Object.values(row)]
+      return '(' + values.join(',') + ')'
+    })
 
-    query += rows.join(',');
+    query += rows.join(',')
 
     if (upsert) {
-      const parts = upsert.set.map(field => `${field}=EXCLUDED.${field}`);
-      query += ` ON CONFLICT (${upsert.fields.join(',')}) DO UPDATE SET ${parts.join(',')}`;
+      const parts = upsert.set.map(field => `${field}=EXCLUDED.${field}`)
+      query += ` ON CONFLICT (${upsert.fields.join(',')}) DO UPDATE SET ${parts.join(',')}`
     }
 
     if (columns) {
-      query += ` RETURNING ${columns.join('","')}`;
+      query += ` RETURNING ${columns.join('","')}`
     }
 
-    return this.pool.query(query, queryParams);
+    return this.pool.query(query, queryParams)
   }
 
   /**
@@ -63,23 +63,23 @@ class Repository {
    */
   async persist (data, columns = null) {
     if (isArray(data) && data.length === 0) {
-      return;
+      return
     }
 
-    const insertData = isArray(data) ? data : [data];
-    const maxRows = Math.floor(65535 / Object.keys(insertData[0]).length);
+    const insertData = isArray(data) ? data : [data]
+    const maxRows = Math.floor(65535 / Object.keys(insertData[0]).length)
 
-    const chunks = chunk(insertData, maxRows);
-    const result = { rows: [], rowCount: 0 };
+    const chunks = chunk(insertData, maxRows)
+    const result = { rows: [], rowCount: 0 }
 
     for (const batch of chunks) {
-      const { rows, rowCount } = await this.persistBatch(batch, columns);
-      result.rows.push(...rows);
-      result.rowCount += rowCount;
+      const { rows, rowCount } = await this.persistBatch(batch, columns)
+      result.rows.push(...rows)
+      result.rowCount += rowCount
     }
 
-    return result;
+    return result
   }
 }
 
-module.exports = Repository;
+module.exports = Repository

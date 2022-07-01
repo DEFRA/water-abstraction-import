@@ -8,8 +8,8 @@ const deleteCrmV2Documents = `
   and date_deleted is null
   and regime = 'water'
   and document_type = 'abstraction_licence';
-`;
+`
 
 module.exports = {
   deleteCrmV2Documents
-};
+}
