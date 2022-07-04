@@ -120,18 +120,17 @@ const getVersionsJson = async (licenceRow) => {
 const getLicenceJson = async (licenceNumber) => {
   try {
     const data = await licenceQueries.getLicence(licenceNumber)
+    const licenceRow = data[0]
 
-    for (const licenceRow in data) {
-      const thisLicenceRow = data[licenceRow]
-      thisLicenceRow.vmlVersion = 2
-      thisLicenceRow.data = {}
-      thisLicenceRow.data.versions = await getVersionsJson(thisLicenceRow)
-      thisLicenceRow.data.current_version = await getCurrentVersionJson(thisLicenceRow)
-      thisLicenceRow.data.cams = await cams.getCams(thisLicenceRow.AREP_CAMS_CODE, thisLicenceRow.FGAC_REGION_CODE)
-      thisLicenceRow.data.roles = await rolesQueries.getRoles(thisLicenceRow.ID, thisLicenceRow.FGAC_REGION_CODE)
-      thisLicenceRow.data.purposes = await getPurposesJson(thisLicenceRow)
-      return thisLicenceRow
-    }
+    licenceRow.vmlVersion = 2
+    licenceRow.data = {}
+    licenceRow.data.versions = await getVersionsJson(licenceRow)
+    licenceRow.data.current_version = await getCurrentVersionJson(licenceRow)
+    licenceRow.data.cams = await cams.getCams(licenceRow.AREP_CAMS_CODE, licenceRow.FGAC_REGION_CODE)
+    licenceRow.data.roles = await rolesQueries.getRoles(licenceRow.ID, licenceRow.FGAC_REGION_CODE)
+    licenceRow.data.purposes = await getPurposesJson(licenceRow)
+
+    return licenceRow
   } catch (error) {
     logger.error('Error getting licence JSON', error, { licenceNumber })
   }

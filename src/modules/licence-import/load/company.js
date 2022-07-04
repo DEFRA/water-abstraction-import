@@ -58,9 +58,9 @@ const loadCompanyContacts = async company => {
 }
 
 const loadCompanyAddresses = async company => {
-  const tasks = company.addresses.map(address => {
+  const tasks = company.addresses.map(address =>
     connectors.createCompanyAddress(company, address)
-  })
+  )
   return Promise.all(tasks)
 }
 
