@@ -1,19 +1,19 @@
-'use strict';
+'use strict'
 
-const { serviceRequest } = require('@envage/water-abstraction-helpers');
-const urlJoin = require('url-join');
+const { serviceRequest } = require('@envage/water-abstraction-helpers')
+const urlJoin = require('url-join')
 
-const config = require('../../../../config');
+const config = require('../../../../config')
 
-const getUrl = key => urlJoin(config.services.water, 'notify', key);
+const getUrl = key => urlJoin(config.services.water, 'notify', key)
 
 const postSendNotify = (key, data) => {
-  const url = getUrl(key);
+  const url = getUrl(key)
   return serviceRequest.post(url, {
     body: data
-  });
-};
+  })
+}
 
 module.exports = {
   postSendNotify
-};
+}

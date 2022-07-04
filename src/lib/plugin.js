@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-const { logger } = require('../logger');
+const { logger } = require('../logger')
 
 /**
  * Registers subscribers in relevant environments
@@ -9,12 +9,12 @@ const { logger } = require('../logger');
  */
 const createRegister = (server, registerSubscribers) => {
   if (process.env.TRAVIS) {
-    logger.info('Abort register of subscribers in Travis environment');
-    return;
+    logger.info('Abort register of subscribers in Travis environment')
+    return
   }
-  return registerSubscribers(server);
-};
+  return registerSubscribers(server)
+}
 
 module.exports = {
   createRegister
-};
+}

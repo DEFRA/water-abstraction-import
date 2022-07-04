@@ -1,19 +1,19 @@
-'use strict';
+'use strict'
 
-const Boom = require('@hapi/boom');
-const { lines, returns, versions } = require('../../lib/connectors/returns');
-const { events } = require('../../lib/connectors/water/events');
+const Boom = require('@hapi/boom')
+const { lines, returns, versions } = require('../../lib/connectors/returns')
+const { events } = require('../../lib/connectors/water/events')
 const {
   transformReturn,
   transformWeeklyLine,
   transformLine,
   filterLines
-} = require('./lib/transformers');
-const { generateNilLines } = require('./lib/generate-nil-lines');
-const { flatMap } = require('lodash');
-const { logger } = require('../../logger');
+} = require('./lib/transformers')
+const { generateNilLines } = require('./lib/generate-nil-lines')
+const { flatMap } = require('lodash')
+const { logger } = require('../../logger')
 
-const { getVersionFilter, getEventFilter, getPagination } = require('./lib/api-helpers');
+const { getVersionFilter, getEventFilter, getPagination } = require('./lib/api-helpers')
 
 /**
  * Gets all the current versions that have a created_date
@@ -23,44 +23,44 @@ const { getVersionFilter, getEventFilter, getPagination } = require('./lib/api-h
  */
 const getVersions = async (request, h) => {
   try {
-    const filter = getVersionFilter(request);
-    const pagination = getPagination(request);
-    return versions.findMany(filter, {}, pagination, ['version_id', 'return_id', 'nil_return']);
+    const filter = getVersionFilter(request)
+    const pagination = getPagination(request)
+    return versions.findMany(filter, {}, pagination, ['version_id', 'return_id', 'nil_return'])
   } catch (err) {
-    logger.error('getVersions error', err);
-    throw err;
+    logger.error('getVersions error', err)
+    throw err
   }
-};
+}
 
 const firstItemOrNotFound = (id, { data }) => {
   if (data.length === 0) {
-    throw Boom.notFound(`Data not found for ${id}`);
+    throw Boom.notFound(`Data not found for ${id}`)
   }
-  return data[0];
-};
+  return data[0]
+}
 
 const getVersion = async versionId => {
-  const response = await versions.findMany({ version_id: versionId });
-  return firstItemOrNotFound(versionId, response);
-};
+  const response = await versions.findMany({ version_id: versionId })
+  return firstItemOrNotFound(versionId, response)
+}
 
 const getReturn = async returnId => {
-  const response = await returns.findMany({ return_id: returnId });
-  return firstItemOrNotFound(returnId, response);
-};
+  const response = await returns.findMany({ return_id: returnId })
+  return firstItemOrNotFound(returnId, response)
+}
 
 const getLines = async versionId => {
-  const filter = { version_id: versionId };
-  const pagination = { perPage: 2000 };
-  const { data } = await lines.findMany(filter, {}, pagination);
-  return data;
-};
+  const filter = { version_id: versionId }
+  const pagination = { perPage: 2000 }
+  const { data } = await lines.findMany(filter, {}, pagination)
+  return data
+}
 
 const getLinesTransformer = returnData => {
   return returnData.returns_frequency === 'week'
     ? transformWeeklyLine
-    : transformLine;
-};
+    : transformLine
+}
 
 /**
  * Gets an object containing all line information for a given
@@ -71,18 +71,18 @@ const getLinesTransformer = returnData => {
  * and instead saves daily data.
  */
 const getLinesForVersion = async (request, h) => {
-  const { versionID } = request.params;
+  const { versionID } = request.params
 
   try {
     const [version, linesResponse] = await Promise.all([
       getVersion(versionID),
       getLines(versionID)
-    ]);
+    ])
 
-    const returnData = await getReturn(version.return_id);
-    const linesTransformer = getLinesTransformer(returnData);
-    const linesData = version.nil_return ? generateNilLines(returnData, version) : linesResponse;
-    const lines = flatMap(linesData, linesTransformer);
+    const returnData = await getReturn(version.return_id)
+    const linesTransformer = getLinesTransformer(returnData)
+    const linesData = version.nil_return ? generateNilLines(returnData, version) : linesResponse
+    const lines = flatMap(linesData, linesTransformer)
 
     return {
       error: null,
@@ -93,18 +93,18 @@ const getLinesForVersion = async (request, h) => {
         return: transformReturn(returnData),
         lines: filterLines(returnData, lines)
       }
-    };
+    }
   } catch (err) {
-    logger.error('getLinesForVersion error', err);
-    throw err;
+    logger.error('getLinesForVersion error', err)
+    throw err
   }
-};
+}
 
 const fetchReturn = async (row) => {
-  const returnId = row['?column?'];
-  const data = await getReturn(returnId);
-  return transformReturn(data, ['return_id']);
-};
+  const returnId = row['?column?']
+  const data = await getReturn(returnId)
+  return transformReturn(data, ['return_id'])
+}
 
 /**
  * Gets returns where a return.status event has been recorded within a
@@ -112,23 +112,23 @@ const fetchReturn = async (row) => {
  */
 const getReturns = async (request, h) => {
   try {
-    const filter = getEventFilter(request);
-    const pagination = getPagination(request);
+    const filter = getEventFilter(request)
+    const pagination = getPagination(request)
 
-    const response = await events.findMany(filter, {}, pagination, ['metadata->>returnId']);
+    const response = await events.findMany(filter, {}, pagination, ['metadata->>returnId'])
 
-    const tasks = response.data.map(row => fetchReturn(row));
+    const tasks = response.data.map(row => fetchReturn(row))
 
-    response.data = await Promise.all(tasks);
-    return response;
+    response.data = await Promise.all(tasks)
+    return response
   } catch (err) {
-    logger.error('getReturns error', err);
-    throw err;
+    logger.error('getReturns error', err)
+    throw err
   }
-};
+}
 
 module.exports = {
   getVersions,
   getLinesForVersion,
   getReturns
-};
+}

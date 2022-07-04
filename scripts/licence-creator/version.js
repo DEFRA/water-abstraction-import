@@ -1,49 +1,49 @@
-'use strict';
+'use strict'
 
-const common = require('./common');
+const common = require('./common')
 
-const getNextId = require('./next-id.js');
+const getNextId = require('./next-id.js')
 
 class Version {
   constructor () {
-    this.id = getNextId();
-    this.startDate = '01/01/2018';
+    this.id = getNextId()
+    this.startDate = '01/01/2018'
 
-    this.address = null;
-    this.licence = null;
-    this.party = null;
-    this.purposes = [];
+    this.address = null
+    this.licence = null
+    this.party = null
+    this.purposes = []
 
-    this.waLicenceType = null;
+    this.waLicenceType = null
   }
 
   setLicence (licence) {
-    this.licence = licence;
-    return this;
+    this.licence = licence
+    return this
   }
 
   setWALicenceType (waLicenceType) {
-    this.waLicenceType = waLicenceType;
-    return this;
+    this.waLicenceType = waLicenceType
+    return this
   }
 
   setParty (party) {
-    this.party = party;
-    return this;
+    this.party = party
+    return this
   }
 
   setAddress (address) {
-    this.address = address;
-    return this;
+    this.address = address
+    return this
   }
 
   addPurpose (purpose) {
-    this.purposes.push(purpose);
-    return this;
+    this.purposes.push(purpose)
+    return this
   }
 
   setStartDate (date) {
-    this.startDate = date;
+    this.startDate = date
   }
 
   export () {
@@ -68,8 +68,8 @@ class Version {
       WRT_CODE: 'N',
       DEREG_CODE: 'CONF',
       FGAC_REGION_CODE: 1
-    };
+    }
   }
 }
 
-module.exports = Version;
+module.exports = Version

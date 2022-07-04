@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-const controller = require('./controller');
+const controller = require('./controller')
 
 const status = {
   method: 'GET',
@@ -10,7 +10,7 @@ const status = {
     description: 'Checks if the service is alive'
   },
   path: '/status'
-};
+}
 
 const testing = {
   method: 'GET',
@@ -20,6 +20,6 @@ const testing = {
     description: 'For testing etl path mapping'
   },
   path: '/etl/testing'
-};
+}
 
-module.exports = [status, testing];
+module.exports = [status, testing]

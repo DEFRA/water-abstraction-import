@@ -1,14 +1,14 @@
-'use strict';
+'use strict'
 
 const {
   experiment,
   test,
   beforeEach
-} = exports.lab = require('@hapi/lab').script();
+} = exports.lab = require('@hapi/lab').script()
 
-const { expect } = require('@hapi/code');
+const { expect } = require('@hapi/code')
 
-const mapper = require('../../../../../src/modules/licence-import/transform/mappers/role');
+const mapper = require('../../../../../src/modules/licence-import/transform/mappers/role')
 
 experiment('modules/licence-import/transform/mappers/role', () => {
   experiment('.mapLicenceHolderRoles', () => {
@@ -48,12 +48,12 @@ experiment('modules/licence-import/transform/mappers/role', () => {
       STATUS: 'CURR',
       ACON_APAR_ID: '123',
       ACON_AADD_ID: '456'
-    }];
+    }]
 
     const document = {
       startDate: '2020-01-01',
       endDate: null
-    };
+    }
 
     const context = {
       parties: {
@@ -73,25 +73,25 @@ experiment('modules/licence-import/transform/mappers/role', () => {
           }
         }
       }
-    };
+    }
 
-    let roles;
+    let roles
 
     beforeEach(async () => {
-      roles = mapper.mapLicenceHolderRoles(document, licenceVersions, context);
-    });
+      roles = mapper.mapLicenceHolderRoles(document, licenceVersions, context)
+    })
 
     test('maps a single valid role', async () => {
-      expect(roles).to.be.an.array().length(1);
-    });
+      expect(roles).to.be.an.array().length(1)
+    })
 
     test('maps the single valid role', async () => {
-      expect(roles[0].role).to.equal('licenceHolder');
-      expect(roles[0].startDate).to.equal('2020-05-01');
-      expect(roles[0].endDate).to.equal(null);
-      expect(roles[0].company).to.equal(context.parties['1']['123'].company);
-      expect(roles[0].contact).to.be.null();
-      expect(roles[0].address).to.equal(context.addresses['1']['456']);
-    });
-  });
-});
+      expect(roles[0].role).to.equal('licenceHolder')
+      expect(roles[0].startDate).to.equal('2020-05-01')
+      expect(roles[0].endDate).to.equal(null)
+      expect(roles[0].company).to.equal(context.parties['1']['123'].company)
+      expect(roles[0].contact).to.be.null()
+      expect(roles[0].address).to.equal(context.addresses['1']['456'])
+    })
+  })
+})

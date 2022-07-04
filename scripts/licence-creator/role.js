@@ -1,45 +1,45 @@
-const moment = require('moment');
-const getNextId = require('./next-id.js');
+const moment = require('moment')
+const getNextId = require('./next-id.js')
 
 class Role {
   constructor () {
-    this.id = getNextId();
+    this.id = getNextId()
 
-    this.licence = null;
-    this.party = null;
-    this.address = null;
+    this.licence = null
+    this.party = null
+    this.address = null
 
-    this.startDate = moment().format('DD/MM/YYYY');
-    this.endDate = moment().add(1, 'year').format('DD/MM/YYYY');
+    this.startDate = moment().format('DD/MM/YYYY')
+    this.endDate = moment().add(1, 'year').format('DD/MM/YYYY')
 
-    this.contactNos = [];
+    this.contactNos = []
 
-    this.roleType = null;
+    this.roleType = null
   }
 
   setRoleType (roleType) {
-    this.roleType = roleType;
-    return this;
+    this.roleType = roleType
+    return this
   }
 
   setLicence (licence) {
-    this.licence = licence;
-    return this;
+    this.licence = licence
+    return this
   }
 
   setParty (party) {
-    this.party = party;
-    return this;
+    this.party = party
+    return this
   }
 
   setAddress (address) {
-    this.address = address;
-    return this;
+    this.address = address
+    return this
   }
 
   addContactNo (contactNo) {
-    this.contactNos.push(contactNo);
-    return this;
+    this.contactNos.push(contactNo)
+    return this
   }
 
   export () {
@@ -55,8 +55,8 @@ class Role {
       FGAC_REGION_CODE: 1,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = Role;
+module.exports = Role

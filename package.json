@@ -7,7 +7,8 @@
     "test": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits lab",
     "test:bail": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits lab --bail",
     "test:ci": "lab -t 55 -m 0 -r lcov -o coverage/lcov.info -r console -o stdout",
-    "lint": "eslint .",
+    "lint": "standard",
+    "lint:fix": "standard --fix",
     "codecov": "codecov",
     "version": "auto-changelog -p --commit-limit false && git add CHANGELOG.md",
     "migrate": "node scripts/create-schema && db-migrate up --verbose",
@@ -25,20 +26,6 @@
     "url": "https://github.com/DEFRA/water-abstraction-import/issues"
   },
   "homepage": "https://github.com/DEFRA/water-abstraction-import#readme",
-  "devDependencies": {
-    "@hapi/code": "^8.0.1",
-    "@hapi/lab": "^22.0.4",
-    "auto-changelog": "^1.16.4",
-    "codecov": "^3.7.1",
-    "db-migrate-pg": "^1.2.2",
-    "eslint": "^6.8.0",
-    "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.21.2",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "sinon": "^9.0.2"
-  },
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^4.1.2",
     "@envage/water-abstraction-helpers": "4.8.0",
@@ -71,5 +58,14 @@
     "traverse": "^0.6.6",
     "url-join": "^4.0.1",
     "winston": "2.4.4"
+  },
+  "devDependencies": {
+    "@hapi/code": "^8.0.1",
+    "@hapi/lab": "^22.0.4",
+    "auto-changelog": "^1.16.4",
+    "codecov": "^3.7.1",
+    "db-migrate-pg": "^1.2.2",
+    "sinon": "^9.0.2",
+    "standard": "^17.0.0"
   }
 }

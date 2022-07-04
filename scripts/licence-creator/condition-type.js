@@ -1,10 +1,10 @@
 
 class ConditionType {
   constructor () {
-    this.code = 'CES';
-    this.subCode = 'FLOW';
-    this.description = 'Cessation Condition';
-    this.subCodeDescription = 'Flow';
+    this.code = 'CES'
+    this.subCode = 'FLOW'
+    this.description = 'Cessation Condition'
+    this.subCodeDescription = 'Flow'
   }
 
   export () {
@@ -18,8 +18,8 @@ class ConditionType {
       DISP_ORD: null,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = ConditionType;
+module.exports = ConditionType

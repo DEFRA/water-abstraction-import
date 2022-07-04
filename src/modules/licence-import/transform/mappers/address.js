@@ -1,6 +1,6 @@
-const { set } = require('lodash');
-const str = require('./str');
-const { createRegionSkeleton } = require('./region-skeleton');
+const { set } = require('lodash')
+const str = require('./str')
+const { createRegionSkeleton } = require('./region-skeleton')
 
 const mapAddress = address => ({
   address1: str.mapNull(address.ADDR_LINE1),
@@ -13,14 +13,14 @@ const mapAddress = address => ({
   country: str.mapNull(address.COUNTRY),
   externalId: `${address.FGAC_REGION_CODE}:${address.ID}`,
   _nald: address
-});
+})
 
 const mapAddresses = addresses => addresses.reduce((acc, address) => {
-  set(acc, `${address.FGAC_REGION_CODE}.${address.ID}`, mapAddress(address));
-  return acc;
-}, createRegionSkeleton());
+  set(acc, `${address.FGAC_REGION_CODE}.${address.ID}`, mapAddress(address))
+  return acc
+}, createRegionSkeleton())
 
 module.exports = {
   mapAddress,
   mapAddresses
-};
+}

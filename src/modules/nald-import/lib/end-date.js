@@ -1,9 +1,9 @@
-const moment = require('moment');
-const { first } = require('lodash');
+const moment = require('moment')
+const { first } = require('lodash')
 
-const isValidDate = value => moment(value, 'DD/MM/YYYY').isValid();
+const isValidDate = value => moment(value, 'DD/MM/YYYY').isValid()
 
-const mapDate = value => moment(value, 'DD/MM/YYYY').format('YYYY-MM-DD');
+const mapDate = value => moment(value, 'DD/MM/YYYY').format('YYYY-MM-DD')
 
 /**
  * End date is the minimum of expiry date, revoked date and lapsed date
@@ -15,15 +15,15 @@ const getEndDate = (data = {}) => {
     data.EXPIRY_DATE,
     data.REV_DATE,
     data.LAPSED_DATE
-  ];
+  ]
   const sortedAndFiltered = dates
     .filter(isValidDate)
     .map(mapDate)
-    .sort();
+    .sort()
 
-  return first(sortedAndFiltered);
-};
+  return first(sortedAndFiltered)
+}
 
 module.exports = {
   getEndDate
-};
+}

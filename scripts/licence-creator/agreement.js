@@ -1,16 +1,16 @@
-const getNextId = require('./next-id.js');
+const getNextId = require('./next-id.js')
 
 class Agreement {
   constructor () {
-    this.id = getNextId();
-    this.startDate = '01/01/2018';
-    this.endDate = '01/01/2020';
-    this.purpose = null;
+    this.id = getNextId()
+    this.startDate = '01/01/2018'
+    this.endDate = '01/01/2020'
+    this.purpose = null
   }
 
   setPurpose (purpose) {
-    this.purpose = purpose;
-    return this;
+    this.purpose = purpose
+    return this
   }
 
   export () {
@@ -28,8 +28,8 @@ class Agreement {
       FGAC_REGION_CODE: 1,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = Agreement;
+module.exports = Agreement

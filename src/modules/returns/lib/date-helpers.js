@@ -1,4 +1,4 @@
-const moment = require('moment');
+const moment = require('moment')
 
 /**
  * Checks whether the supplied date is within the return cycle
@@ -7,10 +7,10 @@ const moment = require('moment');
  * @return {Boolean} true if within return cycle
  */
 const isDateWithinReturnCycle = (returnData, date) => {
-  const { start_date: startDate, end_date: endDate } = returnData;
-  return moment(date).isBetween(startDate, endDate, 'day', '[]');
-};
+  const { start_date: startDate, end_date: endDate } = returnData
+  return moment(date).isBetween(startDate, endDate, 'day', '[]')
+}
 
 module.exports = {
   isDateWithinReturnCycle
-};
+}

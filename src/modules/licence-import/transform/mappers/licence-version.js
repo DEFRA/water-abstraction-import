@@ -1,17 +1,17 @@
-'use strict';
+'use strict'
 
-const dateMapper = require('./date');
+const dateMapper = require('./date')
 
 const statuses = {
   CURR: 'current',
   SUPER: 'superseded',
   DRAFT: 'draft'
-};
+}
 
 const createExternalId = licenceVersionData => {
-  const { FGAC_REGION_CODE, AABL_ID, ISSUE_NO, INCR_NO } = licenceVersionData;
-  return `${FGAC_REGION_CODE}:${AABL_ID}:${ISSUE_NO}:${INCR_NO}`;
-};
+  const { FGAC_REGION_CODE, AABL_ID, ISSUE_NO, INCR_NO } = licenceVersionData
+  return `${FGAC_REGION_CODE}:${AABL_ID}:${ISSUE_NO}:${INCR_NO}`
+}
 
 /**
  * Creates a mapped licence version object in a preferred format over
@@ -22,8 +22,8 @@ const createExternalId = licenceVersionData => {
  * @param {Array<Object>} mappedConditions An array of conditions
  */
 const mapLicenceVersion = (licenceVersionData, mappedPurposes = [], mappedConditions = []) => {
-  const issue = +licenceVersionData.ISSUE_NO;
-  const increment = +licenceVersionData.INCR_NO;
+  const issue = +licenceVersionData.ISSUE_NO
+  const increment = +licenceVersionData.INCR_NO
   return {
     issue,
     increment,
@@ -32,13 +32,13 @@ const mapLicenceVersion = (licenceVersionData, mappedPurposes = [], mappedCondit
     endDate: dateMapper.mapNaldDate(licenceVersionData.EFF_END_DATE),
     externalId: createExternalId(licenceVersionData),
     purposes: mappedPurposes.filter(p => {
-      return p.issue === issue && p.increment === increment;
+      return p.issue === issue && p.increment === increment
     }).map(p => {
-      return { ...p, conditions: mappedConditions.filter(c => c.purposeExternalId === p.externalId) };
+      return { ...p, conditions: mappedConditions.filter(c => c.purposeExternalId === p.externalId) }
     })
-  };
-};
+  }
+}
 
 module.exports = {
   mapLicenceVersion
-};
+}

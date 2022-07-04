@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const insertChargeVersionMetadata = `
 insert into water_import.charge_versions_metadata
@@ -11,8 +11,8 @@ on conflict (external_id) do update set
   status=EXCLUDED.status,
   is_nald_gap=EXCLUDED.is_nald_gap,
   date_updated=NOW();
-`;
+`
 
 module.exports = {
   insertChargeVersionMetadata
-};
+}

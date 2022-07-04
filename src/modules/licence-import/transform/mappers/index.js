@@ -14,4 +14,4 @@ module.exports = {
   party: require('./party'),
   role: require('./role'),
   purposeCondition: require('./purpose-condition')
-};
+}

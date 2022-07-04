@@ -1,28 +1,28 @@
 const {
   experiment,
   test
-} = exports.lab = require('@hapi/lab').script();
-const { expect } = require('@hapi/code');
+} = exports.lab = require('@hapi/lab').script()
+const { expect } = require('@hapi/code')
 
-const { mapLicence } = require('../../../../../src/modules/licence-import/transform/mappers/licence');
+const { mapLicence } = require('../../../../../src/modules/licence-import/transform/mappers/licence')
 
 experiment('modules/licence-import/transform/mappers/licence', () => {
   experiment('.mapLicence', () => {
     test('sets the licenceNumber', async () => {
-      const licenceNumber = 'test-licence';
-      const input = { LIC_NO: licenceNumber, AREP_EIUC_CODE: 'ANOTH' };
-      const mapped = mapLicence(input);
-      expect(mapped.licenceNumber).to.equal(licenceNumber);
-    });
+      const licenceNumber = 'test-licence'
+      const input = { LIC_NO: licenceNumber, AREP_EIUC_CODE: 'ANOTH' }
+      const mapped = mapLicence(input)
+      expect(mapped.licenceNumber).to.equal(licenceNumber)
+    })
 
     test('sets the startDate when the original effective date is not null', async () => {
-      const input = { ORIG_EFF_DATE: '01/02/2003', AREP_EIUC_CODE: 'ANOTH' };
-      const mapped = mapLicence(input);
-      expect(mapped.startDate).to.equal('2003-02-01');
-    });
+      const input = { ORIG_EFF_DATE: '01/02/2003', AREP_EIUC_CODE: 'ANOTH' }
+      const mapped = mapLicence(input)
+      expect(mapped.startDate).to.equal('2003-02-01')
+    })
 
     test('gets the start date from the earliest non-draft licence version if the original effective date is null', async () => {
-      const licence = { ORIG_EFF_DATE: 'null', AREP_EIUC_CODE: 'ANOTH' };
+      const licence = { ORIG_EFF_DATE: 'null', AREP_EIUC_CODE: 'ANOTH' }
       const licenceVersions = [{
         STATUS: 'DRAFT',
         EFF_ST_DATE: '01/01/2018'
@@ -32,10 +32,10 @@ experiment('modules/licence-import/transform/mappers/licence', () => {
       }, {
         STATUS: 'CURR',
         EFF_ST_DATE: '03/01/2018'
-      }];
-      const mapped = mapLicence(licence, licenceVersions);
-      expect(mapped.startDate).to.equal('2018-01-02');
-    });
+      }]
+      const mapped = mapLicence(licence, licenceVersions)
+      expect(mapped.startDate).to.equal('2018-01-02')
+    })
 
     test('sets the end date to the minimum date', async () => {
       const input = {
@@ -43,80 +43,80 @@ experiment('modules/licence-import/transform/mappers/licence', () => {
         REV_DATE: 'null',
         LAPSED_DATE: '01/01/2005',
         AREP_EIUC_CODE: 'ANOTH'
-      };
+      }
 
-      const mapped = mapLicence(input);
+      const mapped = mapLicence(input)
 
-      expect(mapped.endDate).to.equal('2003-01-01');
-    });
+      expect(mapped.endDate).to.equal('2003-01-01')
+    })
 
     test('sets documents to an empty array', async () => {
-      const input = { AREP_EIUC_CODE: 'ANOTH' };
-      const mapped = mapLicence(input);
-      expect(mapped.documents).to.equal([]);
-    });
+      const input = { AREP_EIUC_CODE: 'ANOTH' }
+      const mapped = mapLicence(input)
+      expect(mapped.documents).to.equal([])
+    })
 
     test('sets agreements to an empty array', async () => {
-      const input = { AREP_EIUC_CODE: 'ANOTH' };
-      const mapped = mapLicence(input);
-      expect(mapped.agreements).to.equal([]);
-    });
+      const input = { AREP_EIUC_CODE: 'ANOTH' }
+      const mapped = mapLicence(input)
+      expect(mapped.agreements).to.equal([])
+    })
 
     test('creates an external id', async () => {
       const input = {
         FGAC_REGION_CODE: 'region',
         ID: 'id',
         AREP_EIUC_CODE: 'ANOTH'
-      };
-      const mapped = mapLicence(input);
-      expect(mapped.externalId).to.equal('region:id');
-    });
+      }
+      const mapped = mapLicence(input)
+      expect(mapped.externalId).to.equal('region:id')
+    })
 
     experiment('.isWaterUndertaker', () => {
       test('is false if the AREP_EIUC_CODE does not end with "SWC"', async () => {
         const input = {
           AREP_EIUC_CODE: 'SOOTH'
-        };
-        const mapped = mapLicence(input);
-        expect(mapped.isWaterUndertaker).to.be.false();
-      });
+        }
+        const mapped = mapLicence(input)
+        expect(mapped.isWaterUndertaker).to.be.false()
+      })
 
       test('is true if the AREP_EIUC_CODE ends with "SWC"', async () => {
         const input = {
           AREP_EIUC_CODE: 'SOSWC'
-        };
-        const mapped = mapLicence(input);
-        expect(mapped.isWaterUndertaker).to.be.true();
-      });
-    });
+        }
+        const mapped = mapLicence(input)
+        expect(mapped.isWaterUndertaker).to.be.true()
+      })
+    })
 
     test('sets the expired date', async () => {
-      const input = { EXPIRY_DATE: '31/10/2012', AREP_EIUC_CODE: 'ANOTH' };
+      const input = { EXPIRY_DATE: '31/10/2012', AREP_EIUC_CODE: 'ANOTH' }
 
-      const mapped = mapLicence(input);
-      expect(mapped.expiredDate).to.equal('2012-10-31');
-    });
+      const mapped = mapLicence(input)
+      expect(mapped.expiredDate).to.equal('2012-10-31')
+    })
 
     test('sets the lapsed date', async () => {
-      const input = { LAPSED_DATE: '01/05/2009', AREP_EIUC_CODE: 'ANOTH' };
+      const input = { LAPSED_DATE: '01/05/2009', AREP_EIUC_CODE: 'ANOTH' }
 
-      const mapped = mapLicence(input);
-      expect(mapped.lapsedDate).to.equal('2009-05-01');
-    });
+      const mapped = mapLicence(input)
+      expect(mapped.lapsedDate).to.equal('2009-05-01')
+    })
 
     test('sets the revoked date', async () => {
-      const input = { REV_DATE: '30/06/2010', AREP_EIUC_CODE: 'ANOTH' };
+      const input = { REV_DATE: '30/06/2010', AREP_EIUC_CODE: 'ANOTH' }
 
-      const mapped = mapLicence(input);
-      expect(mapped.revokedDate).to.equal('2010-06-30');
-    });
+      const mapped = mapLicence(input)
+      expect(mapped.revokedDate).to.equal('2010-06-30')
+    })
 
     experiment('.regions', () => {
       test('sets the historicalAreaCode', async () => {
-        const input = { AREP_AREA_CODE: 'TEST', AREP_EIUC_CODE: 'ANOTH' };
-        const mapped = mapLicence(input);
+        const input = { AREP_AREA_CODE: 'TEST', AREP_EIUC_CODE: 'ANOTH' }
+        const mapped = mapLicence(input)
 
-        expect(mapped.regions.historicalAreaCode).to.equal('TEST');
+        expect(mapped.regions.historicalAreaCode).to.equal('TEST')
       });
 
       [
@@ -142,25 +142,25 @@ experiment('modules/licence-import/transform/mappers/licence', () => {
         test(`sets regionalChargeArea to ${data.expected} for ${data.in}`, async () => {
           const input = {
             AREP_EIUC_CODE: data.in
-          };
-          const mapped = mapLicence(input);
-          expect(mapped.regions.regionalChargeArea).to.equal(data.expected);
-        });
-      });
-    });
+          }
+          const mapped = mapLicence(input)
+          expect(mapped.regions.regionalChargeArea).to.equal(data.expected)
+        })
+      })
+    })
 
     experiment('.regionCode', () => {
       test('copies a numeric value from the source data', async () => {
-        const input = { FGAC_REGION_CODE: 1, AREP_EIUC_CODE: 'ANOTH' };
-        const mapped = mapLicence(input);
-        expect(mapped.regionCode).to.equal(1);
-      });
+        const input = { FGAC_REGION_CODE: 1, AREP_EIUC_CODE: 'ANOTH' }
+        const mapped = mapLicence(input)
+        expect(mapped.regionCode).to.equal(1)
+      })
 
       test('converts a string value from the source data to a number', async () => {
-        const input = { FGAC_REGION_CODE: '1', AREP_EIUC_CODE: 'ANOTH' };
-        const mapped = mapLicence(input);
-        expect(mapped.regionCode).to.equal(1);
-      });
-    });
-  });
-});
+        const input = { FGAC_REGION_CODE: '1', AREP_EIUC_CODE: 'ANOTH' }
+        const mapped = mapLicence(input)
+        expect(mapped.regionCode).to.equal(1)
+      })
+    })
+  })
+})

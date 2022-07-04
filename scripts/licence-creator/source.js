@@ -1,9 +1,9 @@
 class Source {
   constructor () {
-    this.code = 'GWSOS';
-    this.name = 'GROUND WATER SOURCE OF SUPPLY';
-    this.localName = 'GROUND WATER';
-    this.sourceType = 'GW';
+    this.code = 'GWSOS'
+    this.name = 'GROUND WATER SOURCE OF SUPPLY'
+    this.localName = 'GROUND WATER'
+    this.sourceType = 'GW'
   }
 
   export () {
@@ -23,8 +23,8 @@ class Source {
       FGAC_REGION_CODE: 1,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = Source;
+module.exports = Source

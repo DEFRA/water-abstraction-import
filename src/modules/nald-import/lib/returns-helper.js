@@ -1,12 +1,12 @@
-const { logger } = require('../../../logger');
-const lodash = require('lodash');
-const moment = require('moment');
-const uuid = require('uuid/v4');
-const db = require('./db');
-const returnsApi = require('../../../lib/connectors/returns');
-const { versions, lines } = returnsApi;
+const { logger } = require('../../../logger')
+const lodash = require('lodash')
+const moment = require('moment')
+const uuid = require('uuid/v4')
+const db = require('./db')
+const returnsApi = require('../../../lib/connectors/returns')
+const { versions, lines } = returnsApi
 
-const dbdateformat = 'YYYY-MM-DD';
+const dbdateformat = 'YYYY-MM-DD'
 
 /* UTILS */
 const plainEnglishFrequency = (val = 'M') => ({
@@ -14,9 +14,9 @@ const plainEnglishFrequency = (val = 'M') => ({
   W: 'week',
   M: 'month',
   Y: 'year'
-}[val]);
+}[val])
 
-const padDateComponent = (val = '1') => val.length === 1 ? `0${val}` : val;
+const padDateComponent = (val = '1') => val.length === 1 ? `0${val}` : val
 
 const createLine = (versionId, startDate, endDate, frequency, line, qtyKey) => parseFloat(line[qtyKey]) > 0 &&
   lines.create({
@@ -31,11 +31,11 @@ const createLine = (versionId, startDate, endDate, frequency, line, qtyKey) => p
     time_period: plainEnglishFrequency(frequency),
     metadata: JSON.stringify(line),
     reading_type: 'measured'
-  });
+  })
 
 /* MAIN FUNC */
 const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisReturn => {
-  const { metadata } = thisReturn;
+  const { metadata } = thisReturn
   // create returns.versions
   const version = await versions.create({
     metadata,
@@ -46,10 +46,10 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
     version_number: JSON.parse(metadata).version,
     nil_return: false,
     current: JSON.parse(metadata).isCurrent
-  });
+  })
 
-  const naldReturnFormatQuery = await db.dbQuery('SELECT * FROM import."NALD_RET_FORMATS" WHERE "ID" = $1', [thisReturn.return_requirement]);
-  const naldReturnFormat = naldReturnFormatQuery[0];
+  const naldReturnFormatQuery = await db.dbQuery('SELECT * FROM import."NALD_RET_FORMATS" WHERE "ID" = $1', [thisReturn.return_requirement])
+  const naldReturnFormat = naldReturnFormatQuery[0]
 
   const naldLinesFromNaldReturnFormLogs = await db.dbQuery(`
         SELECT * FROM import."NALD_RET_FORM_LOGS" 
@@ -61,7 +61,7 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
     thisReturn.return_requirement,
     naldReturnFormat.FGAC_REGION_CODE,
       `${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}/${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}/${moment(thisReturn.start_date).format('YYYY')}`
-  ]);
+  ])
 
   const returnLinesFromNaldReturnLines = await db.dbQuery(`
             SELECT * FROM import."NALD_RET_LINES" WHERE 
@@ -77,45 +77,45 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
       `${moment(thisReturn.start_date).format('YYYY')}-${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}-${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}`,
       `${moment(thisReturn.start_date).add(naldReturnFormat.ABS_PERIOD_END_MONTH < naldReturnFormat.ABS_PERIOD_ST_MONTH ? 1 : 0, 'year').format('YYYY')}-${padDateComponent(naldReturnFormat.ABS_PERIOD_END_MONTH)}-${padDateComponent(naldReturnFormat.ABS_PERIOD_END_DAY)}`,
       dbdateformat
-  ]);
+  ])
 
-  let qtyKey;
-  let iterable;
+  let qtyKey
+  let iterable
 
   if (returnLinesFromNaldReturnLines.length > 0) {
-    qtyKey = 'RET_QTY';
-    iterable = returnLinesFromNaldReturnLines;
+    qtyKey = 'RET_QTY'
+    iterable = returnLinesFromNaldReturnLines
   } else if (naldLinesFromNaldReturnFormLogs.length > 0) {
-    qtyKey = 'MONTHLY_RET_QTY';
-    iterable = naldLinesFromNaldReturnFormLogs;
+    qtyKey = 'MONTHLY_RET_QTY'
+    iterable = naldLinesFromNaldReturnFormLogs
   } else {
-    iterable = [];
+    iterable = []
   }
 
-  const sumOfLines = lodash.sum(iterable.map(a => parseFloat(a[qtyKey])).filter(n => ![null, undefined, NaN].includes(n)));
+  const sumOfLines = lodash.sum(iterable.map(a => parseFloat(a[qtyKey])).filter(n => ![null, undefined, NaN].includes(n)))
 
   if (sumOfLines === 0) {
-    logger.info(`Return ${version.data.return_id} has a sum of zero and is being marked as a nil return`);
-    await versions.updateOne(version.data.version_id, { nil_return: true }, ['nil_return']);
+    logger.info(`Return ${version.data.return_id} has a sum of zero and is being marked as a nil return`)
+    await versions.updateOne(version.data.version_id, { nil_return: true }, ['nil_return'])
   } else {
-    logger.info(`Return ${version.data.return_id} - Creating ${iterable.length} lines`);
+    logger.info(`Return ${version.data.return_id} - Creating ${iterable.length} lines`)
 
     iterable.forEach(line => {
-      let startDate;
-      let endDate;
+      let startDate
+      let endDate
 
       if (returnLinesFromNaldReturnLines.length > 0) {
-        startDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(dbdateformat);
-        endDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(dbdateformat);
+        startDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(dbdateformat)
+        endDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(dbdateformat)
       } else {
-        startDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').format(dbdateformat);
-        endDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').format(dbdateformat);
+        startDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').format(dbdateformat)
+        endDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').format(dbdateformat)
       }
 
-      createLine(version.data.version_id, startDate, endDate, naldReturnFormat.ARTC_REC_FREQ_CODE, line, qtyKey);
-    });
+      createLine(version.data.version_id, startDate, endDate, naldReturnFormat.ARTC_REC_FREQ_CODE, line, qtyKey)
+    })
   }
-};
+}
 module.exports = {
   replicateReturnsDataFromNaldForNonProductionEnvironments
-};
+}

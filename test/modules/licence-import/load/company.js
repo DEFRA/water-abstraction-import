@@ -1,11 +1,11 @@
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
-const { expect } = require('@hapi/code');
-const sandbox = require('sinon').createSandbox();
+const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
+const { expect } = require('@hapi/code')
+const sandbox = require('sinon').createSandbox()
 
-const { loadCompany } = require('../../../../src/modules/licence-import/load/company');
-const connectors = require('../../../../src/modules/licence-import/load/connectors');
+const { loadCompany } = require('../../../../src/modules/licence-import/load/company')
+const connectors = require('../../../../src/modules/licence-import/load/connectors')
 
-const config = require('../../../../config');
+const config = require('../../../../config')
 
 const createCompany = () => ({
   externalId: '1:100',
@@ -47,106 +47,106 @@ const createCompany = () => ({
       }
     }]
   }]
-});
+})
 
 experiment('modules/licence-import/load/company', () => {
-  let company;
+  let company
 
   beforeEach(async () => {
-    sandbox.stub(connectors, 'createCompany');
-    sandbox.stub(connectors, 'createAddress');
-    sandbox.stub(connectors, 'createContact');
-    sandbox.stub(connectors, 'createCompanyAddress');
-    sandbox.stub(connectors, 'createCompanyContact');
-    sandbox.stub(connectors, 'createInvoiceAccount');
-    sandbox.stub(connectors, 'createInvoiceAccountAddress');
+    sandbox.stub(connectors, 'createCompany')
+    sandbox.stub(connectors, 'createAddress')
+    sandbox.stub(connectors, 'createContact')
+    sandbox.stub(connectors, 'createCompanyAddress')
+    sandbox.stub(connectors, 'createCompanyContact')
+    sandbox.stub(connectors, 'createInvoiceAccount')
+    sandbox.stub(connectors, 'createInvoiceAccountAddress')
 
-    company = createCompany();
-  });
+    company = createCompany()
+  })
 
   afterEach(async () => {
-    sandbox.restore();
-  });
+    sandbox.restore()
+  })
 
   experiment('when the flags are enabled in the config', () => {
     beforeEach(async () => {
-      sandbox.stub(config.import.licences, 'isInvoiceAccountImportEnabled').value(true);
+      sandbox.stub(config.import.licences, 'isInvoiceAccountImportEnabled').value(true)
 
-      await loadCompany(company);
-    });
+      await loadCompany(company)
+    })
 
     test('creates company', async () => {
       expect(
         connectors.createCompany.calledWith(company)
-      ).to.be.true();
-    });
+      ).to.be.true()
+    })
 
     test('creates addresses', async () => {
       expect(
         connectors.createAddress.calledWith(company.addresses[0].address)
-      ).to.be.true();
-    });
+      ).to.be.true()
+    })
 
     test('creates company addresses', async () => {
       expect(
         connectors.createCompanyAddress.calledWith(company, company.addresses[0])
-      ).to.be.true();
-    });
+      ).to.be.true()
+    })
 
     test('creates invoice account addresses', async () => {
       expect(
         connectors.createAddress.calledWith(company.invoiceAccounts[0].addresses[0].address)
-      ).to.be.true();
-    });
+      ).to.be.true()
+    })
 
     test('creates contacts', async () => {
       expect(
         connectors.createContact.calledWith(company.contacts[0].contact)
-      ).to.be.true();
-    });
+      ).to.be.true()
+    })
 
     test('creates company contact', async () => {
       expect(
         connectors.createCompanyContact.calledWith(company, company.contacts[0])
-      ).to.be.true();
-    });
+      ).to.be.true()
+    })
 
     test('creates invoice account', async () => {
       expect(
         connectors.createInvoiceAccount.calledWith(company, company.invoiceAccounts[0])
-      ).to.be.true();
-    });
+      ).to.be.true()
+    })
 
     test('creates invoice account addresses', async () => {
       expect(
         connectors.createInvoiceAccountAddress.calledWith(company.invoiceAccounts[0], company.invoiceAccounts[0].addresses[0])
-      ).to.be.true();
-    });
-  });
+      ).to.be.true()
+    })
+  })
 
   experiment('when the isInvoiceAccountImportEnabled flag is disabled in the config', () => {
     beforeEach(async () => {
-      sandbox.stub(config.import.licences, 'isInvoiceAccountImportEnabled').value(false);
+      sandbox.stub(config.import.licences, 'isInvoiceAccountImportEnabled').value(false)
 
-      await loadCompany(company);
-    });
+      await loadCompany(company)
+    })
 
     test('creates invoice account addresses', async () => {
       expect(
         connectors.createAddress.calledWith(company.invoiceAccounts[0].addresses[0].address)
-      ).to.be.false();
-    });
+      ).to.be.false()
+    })
 
     test('creates invoice account', async () => {
       expect(
         connectors.createInvoiceAccount.calledWith(company, company.invoiceAccounts[0])
-      ).to.be.false();
-    });
+      ).to.be.false()
+    })
 
     test('creates invoice account addresses', async () => {
       expect(
         connectors.createInvoiceAccountAddress.calledWith(company.invoiceAccounts[0], company.invoiceAccounts[0].addresses[0])
-      ).to.be.false();
-    });
-  });
-});
+      ).to.be.false()
+    })
+  })
+})

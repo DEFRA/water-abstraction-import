@@ -1,5 +1,5 @@
-const Repository = require('./lib/repository');
-const { pool } = require('../../lib/connectors/db');
+const Repository = require('./lib/repository')
+const { pool } = require('../../lib/connectors/db')
 
 const repoConfig = {
 
@@ -44,7 +44,7 @@ const repoConfig = {
     }
   }
 
-};
+}
 
 module.exports = {
   licence: new Repository(pool, repoConfig.licence),
@@ -52,4 +52,4 @@ module.exports = {
   return: new Repository(pool, repoConfig.return),
   version: new Repository(pool, repoConfig.version),
   line: new Repository(pool, repoConfig.line)
-};
+}
