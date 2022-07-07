@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits lab",
+    "test": "DATABASE_URL=postgres://water_user:password@localhost:5432/wabs_test lab",
     "test:bail": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits lab --bail",
-    "test:ci": "lab -t 55 -m 0 -r lcov -o coverage/lcov.info -r console -o stdout",
     "lint": "standard",
     "lint:fix": "standard --fix",
     "codecov": "codecov",
@@ -14,7 +13,7 @@
     "migrate": "node scripts/create-schema && db-migrate up --verbose",
     "migrate:down": "db-migrate down --verbose",
     "migrate:create": "db-migrate create --sql-file --",
-    "migrate:local-test": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits node scripts/create-schema && DATABASE_URL=postgres://water_user:password@localhost:5432/permits db-migrate up --verbose"
+    "migrate:local-test": "DATABASE_URL=postgres://water_user:password@localhost:5432/wabs_test node scripts/create-schema && DATABASE_URL=postgres://water_user:password@localhost:5432/wabs_test db-migrate up --verbose"
   },
   "repository": {
     "type": "git",
