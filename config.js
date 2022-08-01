@@ -1,19 +1,19 @@
-'use strict';
+'use strict'
 
-require('dotenv').config();
+require('dotenv').config()
 
-const ENV_LOCAL = 'local';
-const ENV_DEV = 'dev';
-const ENV_QA = 'qa';
-const ENV_TEST = 'test';
-const ENV_PREPROD = 'preprod';
-const ENV_PRODUCTION = 'production';
+const ENV_LOCAL = 'local'
+const ENV_DEV = 'dev'
+const ENV_QA = 'qa'
+const ENV_TEST = 'test'
+const ENV_PREPROD = 'preprod'
+const ENV_PRODUCTION = 'production'
 
-const isAcceptanceTestTarget = [ENV_LOCAL, ENV_DEV, ENV_TEST, ENV_QA, ENV_PREPROD].includes(process.env.NODE_ENV);
-const testMode = parseInt(process.env.TEST_MODE) === 1;
-const isProduction = process.env.NODE_ENV === ENV_PRODUCTION;
-const isLocal = process.env.NODE_ENV === ENV_LOCAL;
-const isTest = process.env.NODE_ENV === ENV_TEST;
+const isAcceptanceTestTarget = [ENV_LOCAL, ENV_DEV, ENV_TEST, ENV_QA, ENV_PREPROD].includes(process.env.NODE_ENV)
+const testMode = parseInt(process.env.TEST_MODE) === 1
+const isProduction = process.env.NODE_ENV === ENV_PRODUCTION
+const isLocal = process.env.NODE_ENV === ENV_LOCAL
+const isTest = process.env.NODE_ENV === ENV_TEST
 
 module.exports = {
 
@@ -84,7 +84,9 @@ module.exports = {
       // Update: I've changed those values to false ahead of the v2.0 charging
       // release as described in WATER-3201 - TT 20210603
       isInvoiceAccountImportEnabled: true,
-      isLicenceAgreementImportEnabled: false,
+      // Credit to https://stackoverflow.com/a/323546/6117745 for how to handle
+      // converting the env var to a boolean
+      isLicenceAgreementImportEnabled: (process.env.IMPORT_LICENCE_AGREEMENTS === 'true') || false,
       // Note: we think a solution is needed where a list of billing contacts
       // for a given licence is calculated from the charge version history
       // in the water service, and synced to CRM v2.
@@ -114,4 +116,4 @@ module.exports = {
       service_status_alert: 'c34d1b16-694b-4364-8e7e-83e9dbd34a62'
     }
   }
-};
+}

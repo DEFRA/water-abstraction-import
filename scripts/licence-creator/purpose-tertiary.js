@@ -1,7 +1,7 @@
 class PurposeTertiary {
   constructor () {
-    this.code = '140';
-    this.description = 'General Farming & Domestic';
+    this.code = '140'
+    this.description = 'General Farming & Domestic'
   }
 
   export () {
@@ -13,8 +13,8 @@ class PurposeTertiary {
       DISP_ORD: null,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:05:59'
-    };
+    }
   }
 }
 
-module.exports = PurposeTertiary;
+module.exports = PurposeTertiary

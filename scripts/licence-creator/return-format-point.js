@@ -1,12 +1,12 @@
 class ReturnFormatPoint {
   setFormat (format) {
-    this.format = format;
-    return this;
+    this.format = format
+    return this
   }
 
   setPoint (point) {
-    this.point = point;
-    return this;
+    this.point = point
+    return this
   }
 
   export () {
@@ -16,8 +16,8 @@ class ReturnFormatPoint {
       FGAC_REGION_CODE: 1,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = ReturnFormatPoint;
+module.exports = ReturnFormatPoint

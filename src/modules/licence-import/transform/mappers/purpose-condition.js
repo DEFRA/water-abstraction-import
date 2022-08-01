@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const mapPurposeConditionFromNALD = data => {
   return {
@@ -15,7 +15,9 @@ const mapPurposeConditionFromNALD = data => {
       : data.TEXT,
     purposeExternalId: `${data.FGAC_REGION_CODE}:${data.AABP_ID}`,
     externalId: `${data.ID}:${data.FGAC_REGION_CODE}:${data.AABP_ID}`
-  };
-};
+  }
+}
 
-exports.mapPurposeConditionFromNALD = mapPurposeConditionFromNALD;
+module.exports = {
+  mapPurposeConditionFromNALD
+}

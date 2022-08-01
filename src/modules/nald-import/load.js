@@ -1,19 +1,19 @@
-'use strict';
+'use strict'
 
 /**
  * Code for loading imported data to the target database(s)
  */
-const uuidV4 = require('uuid/v4');
-const { buildCRMPacket } = require('./transform-crm');
-const { buildReturnsPacket } = require('./transform-returns');
-const { getLicenceJson, buildPermitRepoPacket } = require('./transform-permit');
-const returnsConnector = require('../../lib/connectors/returns');
-const { persistReturns } = require('./lib/persist-returns');
+const uuidV4 = require('uuid/v4')
+const { buildCRMPacket } = require('./transform-crm')
+const { buildReturnsPacket } = require('./transform-returns')
+const { getLicenceJson, buildPermitRepoPacket } = require('./transform-permit')
+const returnsConnector = require('../../lib/connectors/returns')
+const { persistReturns } = require('./lib/persist-returns')
 
-const repository = require('./repositories');
-const { logger } = require('../../logger');
+const repository = require('./repositories')
+const { logger } = require('../../logger')
 
-const chargeVersionMetadataImportService = require('./services/charge-version-metadata-import');
+const chargeVersionMetadataImportService = require('./services/charge-version-metadata-import')
 
 /**
  * Loads data into the permit repository and CRM doc header
@@ -22,15 +22,15 @@ const chargeVersionMetadataImportService = require('./services/charge-version-me
  * @return {Promise} resolves when completed
  */
 const loadPermitAndDocumentHeader = async (licenceNumber, licenceData) => {
-  logger.info(`Import: permit for ${licenceNumber}`);
-  const permit = buildPermitRepoPacket(licenceNumber, 1, 8, licenceData);
-  const { rows: [{ licence_id: permitRepoId }] } = await repository.licence.persist(permit, ['licence_id']);
+  logger.info(`Import: permit for ${licenceNumber}`)
+  const permit = buildPermitRepoPacket(licenceNumber, 1, 8, licenceData)
+  const { rows: [{ licence_id: permitRepoId }] } = await repository.licence.persist(permit, ['licence_id'])
 
   // Create CRM data and persist
-  logger.info(`Import: document header for ${licenceNumber}`);
-  const crmData = buildCRMPacket(licenceData, licenceNumber, permitRepoId);
-  await repository.document.persist({ document_id: uuidV4(), ...crmData });
-};
+  logger.info(`Import: document header for ${licenceNumber}`)
+  const crmData = buildCRMPacket(licenceData, licenceNumber, permitRepoId)
+  await repository.document.persist({ document_id: uuidV4(), ...crmData })
+}
 
 /**
  * Calculates and imports a list of return cycles for the given licence
@@ -40,15 +40,15 @@ const loadPermitAndDocumentHeader = async (licenceNumber, licenceData) => {
  * @return {Promise} resolves when returns imported
  */
 const loadReturns = async (licenceNumber) => {
-  logger.info(`Import: returns for ${licenceNumber}`);
+  logger.info(`Import: returns for ${licenceNumber}`)
 
-  const { returns } = await buildReturnsPacket(licenceNumber);
-  await persistReturns(returns);
+  const { returns } = await buildReturnsPacket(licenceNumber)
+  await persistReturns(returns)
 
   // Clean up invalid cycles
-  const returnIds = returns.map(row => row.return_id);
-  await returnsConnector.voidReturns(licenceNumber, returnIds);
-};
+  const returnIds = returns.map(row => row.return_id)
+  await returnsConnector.voidReturns(licenceNumber, returnIds)
+}
 
 /**
  * Imports the whole licence
@@ -56,16 +56,18 @@ const loadReturns = async (licenceNumber) => {
  * @return {Promise} resolves when complete
  */
 const load = async (licenceNumber) => {
-  const licenceData = await getLicenceJson(licenceNumber);
+  const licenceData = await getLicenceJson(licenceNumber)
 
   if (licenceData.data.versions.length > 0) {
-    await loadPermitAndDocumentHeader(licenceNumber, licenceData);
-    await loadReturns(licenceNumber);
+    await loadPermitAndDocumentHeader(licenceNumber, licenceData)
+    await loadReturns(licenceNumber)
   } else {
-    logger.info(`No versions found for ${licenceNumber}`);
+    logger.info(`No versions found for ${licenceNumber}`)
   }
 
-  await chargeVersionMetadataImportService.importChargeVersionMetadataForLicence(licenceData);
-};
+  await chargeVersionMetadataImportService.importChargeVersionMetadataForLicence(licenceData)
+}
 
-exports.load = load;
+module.exports = {
+  load
+}

@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const date = require('./date');
-const str = require('./str');
+const date = require('./date')
+const str = require('./str')
 const {
   endsWith,
   identity,
@@ -9,7 +9,7 @@ const {
   isArray,
   isObject,
   mapValues
-} = require('lodash');
+} = require('lodash')
 
 const regions = {
   AN: 'Anglian',
@@ -21,20 +21,20 @@ const regions = {
   TH: 'Thames',
   WL: 'Wales',
   YO: 'Yorkshire'
-};
+}
 
 const getRegionData = licenceData => {
-  const historicalAreaCode = licenceData.AREP_AREA_CODE;
-  const regionPrefix = licenceData.AREP_EIUC_CODE.substr(0, 2);
-  const regionalChargeArea = regions[regionPrefix];
-  const standardUnitChargeCode = licenceData.AREP_SUC_CODE;
-  const localEnvironmentAgencyPlanCode = licenceData.AREP_LEAP_CODE;
-  return { historicalAreaCode, regionalChargeArea, standardUnitChargeCode, localEnvironmentAgencyPlanCode };
-};
+  const historicalAreaCode = licenceData.AREP_AREA_CODE
+  const regionPrefix = licenceData.AREP_EIUC_CODE.substr(0, 2)
+  const regionalChargeArea = regions[regionPrefix]
+  const standardUnitChargeCode = licenceData.AREP_SUC_CODE
+  const localEnvironmentAgencyPlanCode = licenceData.AREP_LEAP_CODE
+  return { historicalAreaCode, regionalChargeArea, standardUnitChargeCode, localEnvironmentAgencyPlanCode }
+}
 
-const isNotDraftLicenceVersion = licenceVersion => licenceVersion.STATUS !== 'DRAFT';
+const isNotDraftLicenceVersion = licenceVersion => licenceVersion.STATUS !== 'DRAFT'
 
-const getLicenceVersionStartDate = licenceVersion => date.mapNaldDate(licenceVersion.EFF_ST_DATE);
+const getLicenceVersionStartDate = licenceVersion => date.mapNaldDate(licenceVersion.EFF_ST_DATE)
 
 /**
  * Maps the licence and licence versions to a start date.
@@ -48,15 +48,15 @@ const getLicenceVersionStartDate = licenceVersion => date.mapNaldDate(licenceVer
  */
 const mapStartDate = (licence, licenceVersions) => {
   if (licence.ORIG_EFF_DATE !== 'null') {
-    return date.mapNaldDate(licence.ORIG_EFF_DATE);
+    return date.mapNaldDate(licence.ORIG_EFF_DATE)
   }
 
   return licenceVersions
     .filter(isNotDraftLicenceVersion)
     .map(getLicenceVersionStartDate)
     .sort()
-    .shift();
-};
+    .shift()
+}
 
 const mapLicence = (licence, licenceVersions) => {
   const endDates = [
@@ -66,7 +66,7 @@ const mapLicence = (licence, licenceVersions) => {
   ]
     .map(str.mapNull)
     .filter(identity)
-    .map(date.mapNaldDate);
+    .map(date.mapNaldDate)
 
   return {
     licenceNumber: licence.LIC_NO,
@@ -82,8 +82,8 @@ const mapLicence = (licence, licenceVersions) => {
     lapsedDate: date.mapNaldDate(licence.LAPSED_DATE),
     revokedDate: date.mapNaldDate(licence.REV_DATE),
     _nald: licence
-  };
-};
+  }
+}
 
 /**
  * Deep cleans up any _nald keys in a deep object
@@ -92,14 +92,16 @@ const mapLicence = (licence, licenceVersions) => {
  */
 const omitNaldData = value => {
   if (isArray(value)) {
-    return value.map(omitNaldData);
+    return value.map(omitNaldData)
   }
   if (isObject(value)) {
-    const val = omit(value, '_nald');
-    return mapValues(val, omitNaldData);
+    const val = omit(value, '_nald')
+    return mapValues(val, omitNaldData)
   }
-  return value;
-};
+  return value
+}
 
-exports.mapLicence = mapLicence;
-exports.omitNaldData = omitNaldData;
+module.exports = {
+  mapLicence,
+  omitNaldData
+}

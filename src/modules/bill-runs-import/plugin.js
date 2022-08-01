@@ -1,17 +1,21 @@
-'use strict';
+'use strict'
 
-const routes = require('./routes');
-const importer = require('./lib/import');
-const constants = require('./lib/constants');
+const routes = require('./routes')
+const importer = require('./lib/import')
+const constants = require('./lib/constants')
 
-exports.plugin = {
+const plugin = {
   name: 'importBillRunData',
   dependencies: ['pgBoss'],
   register: async server => {
     // Register routes
-    server.route(routes);
+    server.route(routes)
 
     // Register PG boss job
-    await server.messageQueue.subscribe(constants.IMPORT_BILL_RUNS, {}, importer.importBillRuns);
+    await server.messageQueue.subscribe(constants.IMPORT_BILL_RUNS, {}, importer.importBillRuns)
   }
-};
+}
+
+module.exports = {
+  plugin
+}

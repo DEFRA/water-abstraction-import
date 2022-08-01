@@ -1,14 +1,14 @@
-'use strict';
+'use strict'
 
-const uuid = require('uuid/v4');
+const uuid = require('uuid/v4')
 
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
-const { expect } = require('@hapi/code');
-const sandbox = require('sinon').createSandbox();
+const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
+const { expect } = require('@hapi/code')
+const sandbox = require('sinon').createSandbox()
 
-const { pool } = require('../../../../../src/lib/connectors/db');
-const queries = require('../../../../../src/modules/licence-import/load/connectors/queries');
-const connectors = require('../../../../../src/modules/licence-import/load/connectors');
+const { pool } = require('../../../../../src/lib/connectors/db')
+const queries = require('../../../../../src/modules/licence-import/load/connectors/queries')
+const connectors = require('../../../../../src/modules/licence-import/load/connectors')
 
 const data = {
   licence: {
@@ -133,50 +133,50 @@ const data = {
       externalId: '1:1005'
     }
   }
-};
+}
 
 experiment('modules/licence-import/load/connectors', () => {
   beforeEach(async () => {
-    sandbox.stub(pool, 'query').resolves({ rows: [{}] });
-  });
+    sandbox.stub(pool, 'query').resolves({ rows: [{}] })
+  })
 
   afterEach(async () => {
-    sandbox.restore();
-  });
+    sandbox.restore()
+  })
 
   experiment('createDocument', () => {
     beforeEach(async () => {
-      await connectors.createDocument(data.document);
-    });
+      await connectors.createDocument(data.document)
+    })
 
     test('uses the correct query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createDocument);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createDocument)
+    })
 
     test('uses the correct params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.document.documentRef,
         data.document.startDate,
         data.document.endDate,
         data.document.externalId
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('createDocumentRole for licence holder', () => {
     beforeEach(async () => {
-      await connectors.createDocumentRole(data.document, data.licenceHolderRole);
-    });
+      await connectors.createDocumentRole(data.document, data.licenceHolderRole)
+    })
 
     test('uses the correct query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createDocumentRole);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createDocumentRole)
+    })
 
     test('uses the correct params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.document.documentRef,
         data.licenceHolderRole.role,
@@ -186,22 +186,22 @@ experiment('modules/licence-import/load/connectors', () => {
         null,
         data.licenceHolderRole.startDate,
         data.licenceHolderRole.endDate
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('createDocumentRole for billing', () => {
     beforeEach(async () => {
-      await connectors.createDocumentRole(data.document, data.billingRole);
-    });
+      await connectors.createDocumentRole(data.document, data.billingRole)
+    })
 
     test('uses the correct query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createDocumentRole);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createDocumentRole)
+    })
 
     test('uses the correct params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.document.documentRef,
         data.billingRole.role,
@@ -211,42 +211,42 @@ experiment('modules/licence-import/load/connectors', () => {
         data.billingRole.invoiceAccount.invoiceAccountNumber,
         data.billingRole.startDate,
         data.billingRole.endDate
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('createCompany', () => {
     beforeEach(async () => {
-      await connectors.createCompany(data.company);
-    });
+      await connectors.createCompany(data.company)
+    })
 
     test('uses the correct query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createCompany);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createCompany)
+    })
 
     test('uses the correct params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.company.name,
         data.company.type,
         data.company.externalId
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('createAddress', () => {
     beforeEach(async () => {
-      await connectors.createAddress(data.address);
-    });
+      await connectors.createAddress(data.address)
+    })
 
     test('uses the correct query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createAddress);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createAddress)
+    })
 
     test('uses the correct params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.address.address1,
         data.address.address2,
@@ -257,152 +257,152 @@ experiment('modules/licence-import/load/connectors', () => {
         data.address.postcode,
         data.address.country,
         data.address.externalId
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('createContact', () => {
     beforeEach(async () => {
-      await connectors.createContact(data.contact);
-    });
+      await connectors.createContact(data.contact)
+    })
 
     test('uses the correct query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createContact);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createContact)
+    })
 
     test('uses the correct params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.contact.salutation,
         data.contact.initials,
         data.contact.firstName,
         data.contact.lastName,
         data.contact.externalId
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('createInvoiceAccount', () => {
     beforeEach(async () => {
-      await connectors.createInvoiceAccount(data.company, data.invoiceAccount);
-    });
+      await connectors.createInvoiceAccount(data.company, data.invoiceAccount)
+    })
 
     test('uses the correct query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createInvoiceAccount);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createInvoiceAccount)
+    })
 
     test('uses the correct params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.invoiceAccount.invoiceAccountNumber,
         data.invoiceAccount.startDate,
         data.invoiceAccount.endDate,
         data.company.externalId
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('createInvoiceAccountAddress', () => {
     beforeEach(async () => {
-      await connectors.createInvoiceAccountAddress(data.invoiceAccount, data.invoiceAccountAddress);
-    });
+      await connectors.createInvoiceAccountAddress(data.invoiceAccount, data.invoiceAccountAddress)
+    })
 
     test('uses the correct query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createInvoiceAccountAddress);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createInvoiceAccountAddress)
+    })
 
     test('uses the correct params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.invoiceAccount.invoiceAccountNumber,
         data.invoiceAccountAddress.address.externalId,
         data.invoiceAccountAddress.startDate,
         data.invoiceAccountAddress.endDate,
         data.invoiceAccountAddress.agentCompany.externalId
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('createCompanyContact', () => {
     beforeEach(async () => {
-      await connectors.createCompanyContact(data.company, data.companyContact);
-    });
+      await connectors.createCompanyContact(data.company, data.companyContact)
+    })
 
     test('uses the correct query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createCompanyContact);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createCompanyContact)
+    })
 
     test('uses the correct params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.company.externalId,
         data.companyContact.contact.externalId,
         data.companyContact.role,
         data.companyContact.startDate,
         data.companyContact.endDate
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('createCompanyAddress', () => {
     beforeEach(async () => {
-      await connectors.createCompanyAddress(data.company, data.companyAddress);
-    });
+      await connectors.createCompanyAddress(data.company, data.companyAddress)
+    })
 
     test('uses the correct query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createCompanyAddress);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createCompanyAddress)
+    })
 
     test('uses the correct params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.company.externalId,
         data.companyAddress.address.externalId,
         data.companyAddress.role,
         data.companyAddress.startDate,
         data.companyAddress.endDate
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('createAgreement', () => {
     beforeEach(async () => {
-      await connectors.createAgreement(data.licence, data.agreement);
-    });
+      await connectors.createAgreement(data.licence, data.agreement)
+    })
 
     test('uses the correct query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createAgreement);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createAgreement)
+    })
 
     test('uses the correct params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.licence.licenceNumber,
         data.agreement.agreementCode,
         data.agreement.startDate,
         data.agreement.endDate
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('createLicence', () => {
     beforeEach(async () => {
-      await connectors.createLicence(data.licence);
-    });
+      await connectors.createLicence(data.licence)
+    })
 
     test('uses the correct query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createLicence);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createLicence)
+    })
 
     test('uses the correct params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.licence.regionCode,
         data.licence.licenceNumber,
@@ -412,16 +412,16 @@ experiment('modules/licence-import/load/connectors', () => {
         data.licence.expiredDate,
         data.licence.lapsedDate,
         data.licence.revokedDate
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('.createLicenceVersion', () => {
-    let version;
-    let licenceId;
+    let version
+    let licenceId
 
     beforeEach(async () => {
-      licenceId = uuid();
+      licenceId = uuid()
 
       version = {
         issue: 100,
@@ -430,18 +430,18 @@ experiment('modules/licence-import/load/connectors', () => {
         startDate: '2000-01-01',
         endDate: null,
         externalId: '1:2:3:4'
-      };
+      }
 
-      await connectors.createLicenceVersion(version, licenceId);
-    });
+      await connectors.createLicenceVersion(version, licenceId)
+    })
 
     test('uses the expected query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createLicenceVersion);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createLicenceVersion)
+    })
 
     test('passes the expected params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
 
       expect(params).to.equal([
         licenceId,
@@ -451,16 +451,16 @@ experiment('modules/licence-import/load/connectors', () => {
         version.startDate,
         version.endDate,
         version.externalId
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('.createLicenceVersionPurpose', () => {
-    let purpose;
-    let licenceVersionId;
+    let purpose
+    let licenceVersionId
 
     beforeEach(async () => {
-      licenceVersionId = uuid();
+      licenceVersionId = uuid()
 
       purpose = {
         purposePrimary: 'A',
@@ -475,18 +475,18 @@ experiment('modules/licence-import/load/connectors', () => {
         notes: 'notes',
         annualQuantity: 1000,
         externalId: '1:111222'
-      };
+      }
 
-      await connectors.createLicenceVersionPurpose(purpose, licenceVersionId);
-    });
+      await connectors.createLicenceVersionPurpose(purpose, licenceVersionId)
+    })
 
     test('uses the expected query', async () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.createLicenceVersionPurpose);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.createLicenceVersionPurpose)
+    })
 
     test('passes the expected params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
 
       expect(params).to.equal([
         licenceVersionId,
@@ -502,64 +502,64 @@ experiment('modules/licence-import/load/connectors', () => {
         purpose.notes,
         purpose.annualQuantity,
         purpose.externalId
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   experiment('.getLicenceByRef', () => {
     beforeEach(async () => {
-      await connectors.getLicenceByRef('test-licence-ref');
-    });
+      await connectors.getLicenceByRef('test-licence-ref')
+    })
 
     test('Calls the correct query', () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.getLicenceByRef);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.getLicenceByRef)
+    })
 
     test('passes the expected params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
 
-      expect(params).to.equal(['test-licence-ref']);
-    });
-  });
+      expect(params).to.equal(['test-licence-ref'])
+    })
+  })
 
   experiment('.getLicenceByRef', () => {
     beforeEach(async () => {
-      await connectors.flagLicenceForSupplementaryBilling('test-licence-id');
-    });
+      await connectors.flagLicenceForSupplementaryBilling('test-licence-id')
+    })
 
     test('Calls the correct query', () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.flagLicenceForSupplementaryBilling);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.flagLicenceForSupplementaryBilling)
+    })
 
     test('passes the expected params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
 
-      expect(params).to.equal(['test-licence-id']);
-    });
-  });
+      expect(params).to.equal(['test-licence-id'])
+    })
+  })
 
   experiment('.cleanupAgreements', () => {
     beforeEach(async () => {
       const lic = {
         ...data.licence,
         agreements: [data.agreement]
-      };
-      await connectors.cleanUpAgreements(lic);
-    });
+      }
+      await connectors.cleanUpAgreements(lic)
+    })
 
     test('Calls the correct query', () => {
-      const [query] = pool.query.lastCall.args;
-      expect(query).to.equal(queries.cleanUpAgreements);
-    });
+      const [query] = pool.query.lastCall.args
+      expect(query).to.equal(queries.cleanUpAgreements)
+    })
 
     test('passes the expected params', async () => {
-      const [, params] = pool.query.lastCall.args;
+      const [, params] = pool.query.lastCall.args
       expect(params).to.equal([
         data.licence.licenceNumber,
         ['S127:2019-06-03']
-      ]);
-    });
-  });
-});
+      ])
+    })
+  })
+})

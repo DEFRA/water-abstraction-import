@@ -1,5 +1,5 @@
-'use strict';
+'use strict'
 
-const jobs = require('../jobs');
+const jobs = require('../jobs')
 
-module.exports = async messageQueue => messageQueue.publish(jobs.importCompanies());
+module.exports = async messageQueue => messageQueue.publish(jobs.importCompanies())

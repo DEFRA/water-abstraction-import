@@ -1,20 +1,27 @@
-'use strict';
+'use strict'
 
-exports.s3Download = {
+const s3Download = {
   job: require('./s3-download'),
   onCompleteHandler: require('./s3-download-complete')
-};
+}
 
-exports.populatePendingImport = {
+const populatePendingImport = {
   job: require('./populate-pending-import'),
   onCompleteHandler: require('./populate-pending-import-complete')
-};
+}
 
-exports.deleteRemovedDocuments = {
+const deleteRemovedDocuments = {
   job: require('./delete-removed-documents'),
   onCompleteHandler: require('./delete-removed-documents-complete')
-};
+}
 
-exports.importLicence = {
+const importLicence = {
   job: require('./import-licence')
-};
+}
+
+module.exports = {
+  s3Download,
+  populatePendingImport,
+  deleteRemovedDocuments,
+  importLicence
+}

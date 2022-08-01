@@ -1,12 +1,14 @@
-'use strict';
+'use strict'
 
-const constants = require('./lib/constants');
+const constants = require('./lib/constants')
 
 const postImportBillRuns = async request => {
-  await request.messageQueue.publish(constants.IMPORT_BILL_RUNS);
+  await request.messageQueue.publish(constants.IMPORT_BILL_RUNS)
   return {
     error: null
-  };
-};
+  }
+}
 
-exports.postImportBillRuns = postImportBillRuns;
+module.exports = {
+  postImportBillRuns
+}

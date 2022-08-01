@@ -1,4 +1,4 @@
-const getNextId = require('./next-id');
+const getNextId = require('./next-id')
 
 /**
  * NALD address class for building dummy licences
@@ -6,7 +6,7 @@ const getNextId = require('./next-id');
  */
 class Address {
   constructor () {
-    this.id = getNextId();
+    this.id = getNextId()
   }
 
   export () {
@@ -26,8 +26,8 @@ class Address {
       FGAC_REGION_CODE: 1,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = Address;
+module.exports = Address

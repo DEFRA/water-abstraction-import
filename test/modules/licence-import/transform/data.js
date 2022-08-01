@@ -8,7 +8,7 @@ const createLicence = overrides => Object.assign({}, {
   REV_DATE: 'null',
   LAPSED_DATE: 'null',
   AREP_EIUC_CODE: 'SOOTH'
-}, overrides);
+}, overrides)
 
 const createVersion = (licence, overrides) => Object.assign({}, {
   AABL_ID: licence.ID,
@@ -20,7 +20,7 @@ const createVersion = (licence, overrides) => Object.assign({}, {
   ACON_AADD_ID: '1000',
   ISSUE_NO: '100',
   INCR_NO: '1'
-}, overrides);
+}, overrides)
 
 const createParty = overrides => Object.assign({}, {
   ID: '1000',
@@ -30,9 +30,9 @@ const createParty = overrides => Object.assign({}, {
   FORENAME: 'null',
   INITIALS: 'null',
   SALUTATION: 'null'
-}, overrides);
+}, overrides)
 
-const createCompany = overrides => Object.assign({}, createParty({ ID: '1000', APAR_TYPE: 'ORG' }), overrides);
+const createCompany = overrides => Object.assign({}, createParty({ ID: '1000', APAR_TYPE: 'ORG' }), overrides)
 const createPerson = overrides => Object.assign({}, createParty({
   ID: '1001',
   APAR_TYPE: 'PER',
@@ -40,7 +40,7 @@ const createPerson = overrides => Object.assign({}, createParty({
   INITIALS: 'J',
   FORENAME: 'JOHN',
   NAME: 'DOE'
-}), overrides);
+}), overrides)
 
 const createAddress = overrides => Object.assign({}, {
   ID: '1000',
@@ -53,13 +53,13 @@ const createAddress = overrides => Object.assign({}, {
   COUNTY: 'TESTINGSHIRE',
   POSTCODE: 'TT1 1TT',
   COUNTRY: 'ENGLAND'
-}, overrides);
+}, overrides)
 
 const createAgreement = overrides => Object.assign({}, {
   AFSA_CODE: 'S130U',
   EFF_ST_DATE: '14/02/2017',
   EFF_END_DATE: '14/02/2018'
-}, overrides);
+}, overrides)
 
 const createInvoiceAccount = overrides => Object.assign({}, {
   FGAC_REGION_CODE: '1',
@@ -70,7 +70,7 @@ const createInvoiceAccount = overrides => Object.assign({}, {
   licence_holder_party_id: '1000',
   licence_holder_party_name: 'Big Co Ltd.',
   invoice_account_party_name: 'Big Co Ltd.'
-}, overrides);
+}, overrides)
 
 const createChargeVersion = (licence, overrides) => Object.assign({}, {
   AABL_ID: licence.ID,
@@ -82,7 +82,7 @@ const createChargeVersion = (licence, overrides) => Object.assign({}, {
   EFF_END_DATE: 'null',
   ACON_APAR_ID: '1000',
   ACON_AADD_ID: '1000'
-}, overrides);
+}, overrides)
 
 const createPurpose = (licence, overrides) => Object.assign({}, {
   ID: '674',
@@ -103,7 +103,7 @@ const createPurpose = (licence, overrides) => Object.assign({}, {
   TIMELTD_ST_DATE: 'null',
   TIMELTD_END_DATE: 'null',
   NOTES: 'null'
-}, overrides);
+}, overrides)
 
 const createCondition = (purpose, overrides) => Object.assign({}, {
   AABP_ID: purpose.ID,
@@ -113,16 +113,16 @@ const createCondition = (purpose, overrides) => Object.assign({}, {
   PARAM2: 'null',
   TEXT: 'The howling wolf watering hole',
   FGAC_REGION_CODE: purpose.FGAC_REGION_CODE
-}, overrides);
+}, overrides)
 
-exports.createAddress = createAddress;
-exports.createAgreement = createAgreement;
-exports.createChargeVersion = createChargeVersion;
-exports.createCompany = createCompany;
-exports.createInvoiceAccount = createInvoiceAccount;
-exports.createLicence = createLicence;
-exports.createParty = createParty;
-exports.createPerson = createPerson;
-exports.createPurpose = createPurpose;
-exports.createCondition = createCondition;
-exports.createVersion = createVersion;
+exports.createAddress = createAddress
+exports.createAgreement = createAgreement
+exports.createChargeVersion = createChargeVersion
+exports.createCompany = createCompany
+exports.createInvoiceAccount = createInvoiceAccount
+exports.createLicence = createLicence
+exports.createParty = createParty
+exports.createPerson = createPerson
+exports.createPurpose = createPurpose
+exports.createCondition = createCondition
+exports.createVersion = createVersion

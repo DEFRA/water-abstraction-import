@@ -9,6 +9,8 @@ DO
     description = excluded.description,
     disabled = excluded.disabled,
     date_updated = now();
-`;
+`
 
-exports.importFinancialAgreementTypes = importFinancialAgreementTypes;
+module.exports = {
+  importFinancialAgreementTypes
+}

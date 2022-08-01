@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
-const { pool } = require('../db');
-const { get } = require('lodash');
-const { pgBossJobOverview, pgBossFailedJobs } = require('./queries');
-const moment = require('moment');
+const { pool } = require('../db')
+const { get } = require('lodash')
+const { pgBossJobOverview, pgBossFailedJobs } = require('./queries')
+const moment = require('moment')
 
 const getJobSummary = () => {
   /**
@@ -26,15 +26,15 @@ const getJobSummary = () => {
     { id: 'import.charging-data', displayName: 'Charging data' },
     { id: 'import.companies', displayName: 'Companies' },
     { id: 'import.company', displayName: 'Company' }
-  ];
+  ]
 
   return Promise.all(pgBossJobsArray.map(async eachJob => {
-    const { rows: status } = await pool.query(pgBossJobOverview, [eachJob.id]);
+    const { rows: status } = await pool.query(pgBossJobOverview, [eachJob.id])
 
-    const failedCount = parseInt(get(status.find(row => row.state === 'failed'), 'count', 0));
-    const completedCount = parseInt(get(status.find(row => row.state === 'completed'), 'count', 0));
-    const isActive = !!status.find(row => row.state === 'active') || !!status.find(row => row.state === 'created');
-    const lastUpdated = get(status.find(row => row.state === 'completed'), 'max_completed_date', null);
+    const failedCount = parseInt(get(status.find(row => row.state === 'failed'), 'count', 0))
+    const completedCount = parseInt(get(status.find(row => row.state === 'completed'), 'count', 0))
+    const isActive = !!status.find(row => row.state === 'active') || !!status.find(row => row.state === 'created')
+    const lastUpdated = get(status.find(row => row.state === 'completed'), 'max_completed_date', null)
 
     return {
       displayName: eachJob.displayName,
@@ -42,21 +42,23 @@ const getJobSummary = () => {
       completedCount,
       isActive,
       lastUpdated
-    };
-  }));
-};
+    }
+  }))
+}
 
 const getFailedJobs = async () => {
-  const { rows } = await pool.query(pgBossFailedJobs);
+  const { rows } = await pool.query(pgBossFailedJobs)
   return rows.map(row => {
     return {
       jobName: row.name,
       total: row.count,
       dateCreated: row.max_created_date ? moment(row.max_created_date).format('DD MMM YYYY HH:mm:ss') : '',
       dateCompleted: row.max_completed_date ? moment(row.max_completed_date).format('DD MMM YYYY HH:mm:ss') : ''
-    };
-  });
-};
+    }
+  })
+}
 
-exports.getFailedJobs = getFailedJobs;
-exports.getJobSummary = getJobSummary;
+module.exports = {
+  getFailedJobs,
+  getJobSummary
+}

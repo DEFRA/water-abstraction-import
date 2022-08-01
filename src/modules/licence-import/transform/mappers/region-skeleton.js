@@ -7,6 +7,8 @@ const createRegionSkeleton = () => ({
   6: {},
   7: {},
   8: {}
-});
+})
 
-exports.createRegionSkeleton = createRegionSkeleton;
+module.exports = {
+  createRegionSkeleton
+}

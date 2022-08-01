@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const moment = require('moment');
-const { sortBy, first, last, identity } = require('lodash');
+const moment = require('moment')
+const { sortBy, first, last, identity } = require('lodash')
 
 /**
  * Given an array of dates which can be parsed by Moment,
@@ -15,10 +15,12 @@ const getSortedDates = arr => sortBy(
     .filter(identity)
     .map(value => moment(value)),
   m => m.unix()
-);
+)
 
-const getMinDate = arr => first(getSortedDates(arr));
-const getMaxDate = arr => last(getSortedDates(arr));
+const getMinDate = arr => first(getSortedDates(arr))
+const getMaxDate = arr => last(getSortedDates(arr))
 
-exports.getMinDate = getMinDate;
-exports.getMaxDate = getMaxDate;
+module.exports = {
+  getMinDate,
+  getMaxDate
+}

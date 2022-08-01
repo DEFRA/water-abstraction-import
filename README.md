@@ -1,10 +1,10 @@
 # Water Abstraction Import
 
-|               |              |  
-|---------------|--------------|
-| Build         |  ![CI](https://github.com/DEFRA/water-abstraction-import/workflows/CI/badge.svg) |
-| Test coverage | [![Test Coverage](https://api.codeclimate.com/v1/badges/36785e4052ddbae42719/test_coverage)](https://codeclimate.com/github/DEFRA/water-abstraction-import/test_coverage)  |
-| Quality check |  [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_water-abstraction-import&metric=alert_status)](https://sonarcloud.io/dashboard?id=DEFRA_water-abstraction-import) |
+![Build Status](https://github.com/DEFRA/water-abstraction-import/workflows/CI/badge.svg?branch=develop)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_water-abstraction-import&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=DEFRA_water-abstraction-import)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_water-abstraction-import&metric=coverage)](https://sonarcloud.io/dashboard?id=DEFRA_water-abstraction-import)
+[![Known Vulnerabilities](https://snyk.io/test/github/DEFRA/water-abstraction-import/badge.svg)](https://snyk.io/test/github/DEFRA/water-abstraction-import)
+[![Licence](https://img.shields.io/badge/Licence-OGLv3-blue.svg)](http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3)
 
 ## Development Team
 
@@ -37,4 +37,3 @@ The following attribution statement MUST be cited in your products and applicati
 The Open Government Licence (OGL) was developed by the Controller of Her Majesty's Stationery Office (HMSO) to enable information providers in the public sector to license the use and re-use of their information under a common open licence.
 
 It is designed to encourage use and re-use of information freely and flexibly, with only a few conditions.
-

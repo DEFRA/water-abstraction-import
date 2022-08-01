@@ -1,10 +1,10 @@
 class RoleType {
   constructor () {
-    this.code = 'LC';
-    this.description = 'Licence contact';
-    this.affectsAbs = true;
-    this.affectsImp = true;
-    this.isAgency = false;
+    this.code = 'LC'
+    this.description = 'Licence contact'
+    this.affectsAbs = true
+    this.affectsImp = true
+    this.isAgency = false
   }
 
   export () {
@@ -19,8 +19,8 @@ class RoleType {
       DISP_ORD: null,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = RoleType;
+module.exports = RoleType

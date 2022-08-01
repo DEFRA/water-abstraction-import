@@ -1,8 +1,8 @@
 
 class RepUnit {
   constructor () {
-    this.code = 100;
-    this.name = 'PARISH OF TESTINGSHIRE (ESSEX)';
+    this.code = 100
+    this.name = 'PARISH OF TESTINGSHIRE (ESSEX)'
   }
 
   export () {
@@ -23,8 +23,8 @@ class RepUnit {
       FGAC_REGION_CODE: 1,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = RepUnit;
+module.exports = RepUnit

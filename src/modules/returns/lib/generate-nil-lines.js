@@ -1,10 +1,10 @@
-'use strict';
+'use strict'
 
-const moment = require('moment');
-const { pick, mapValues } = require('lodash');
+const moment = require('moment')
+const { pick, mapValues } = require('lodash')
 
-const waterHelpers = require('@envage/water-abstraction-helpers');
-const naldDates = waterHelpers.nald.dates;
+const waterHelpers = require('@envage/water-abstraction-helpers')
+const naldDates = waterHelpers.nald.dates
 
 /**
  * Get required daily return lines
@@ -13,20 +13,20 @@ const naldDates = waterHelpers.nald.dates;
  * @return {Array} list of required return lines
  */
 const getDays = (startDate, endDate) => {
-  const datePtr = moment(startDate);
-  const lines = [];
+  const datePtr = moment(startDate)
+  const lines = []
   do {
     lines.push({
       startDate: datePtr.format('YYYY-MM-DD'),
       endDate: datePtr.format('YYYY-MM-DD'),
       timePeriod: 'day'
-    });
-    datePtr.add(1, 'day');
+    })
+    datePtr.add(1, 'day')
   }
-  while (datePtr.isSameOrBefore(endDate, 'day'));
+  while (datePtr.isSameOrBefore(endDate, 'day'))
 
-  return lines;
-};
+  return lines
+}
 
 /**
  * Get required monthly return lines
@@ -35,19 +35,19 @@ const getDays = (startDate, endDate) => {
  * @return {Array} list of required return lines
  */
 const getMonths = (startDate, endDate) => {
-  const datePtr = moment(startDate);
-  const lines = [];
+  const datePtr = moment(startDate)
+  const lines = []
   do {
     lines.push({
       startDate: datePtr.startOf('month').format('YYYY-MM-DD'),
       endDate: datePtr.endOf('month').format('YYYY-MM-DD'),
       timePeriod: 'month'
-    });
-    datePtr.add(1, 'month');
+    })
+    datePtr.add(1, 'month')
   }
-  while (datePtr.isSameOrBefore(endDate, 'month'));
-  return lines;
-};
+  while (datePtr.isSameOrBefore(endDate, 'month'))
+  return lines
+}
 
 /**
  * Get required annual return lines
@@ -60,8 +60,8 @@ const getYears = (startDate, endDate) => {
     startDate,
     endDate,
     timePeriod: 'year'
-  }];
-};
+  }]
+}
 
 /**
  * Get required weekly return lines
@@ -70,21 +70,21 @@ const getYears = (startDate, endDate) => {
  * @return {Array} list of required return lines
  */
 const getWeeks = (startDate, endDate) => {
-  let datePtr = naldDates.getWeek(startDate);
-  const lines = [];
+  let datePtr = naldDates.getWeek(startDate)
+  const lines = []
 
   do {
     lines.push({
       startDate: datePtr.start.format('YYYY-MM-DD'),
       endDate: datePtr.end.format('YYYY-MM-DD'),
       timePeriod: 'week'
-    });
-    datePtr = naldDates.getWeek(datePtr.start.add(1, 'week'));
+    })
+    datePtr = naldDates.getWeek(datePtr.start.add(1, 'week'))
   }
-  while (datePtr.end.isSameOrBefore(endDate, 'day'));
+  while (datePtr.end.isSameOrBefore(endDate, 'day'))
 
-  return lines;
-};
+  return lines
+}
 
 /**
  * Calculates lines required in return
@@ -96,21 +96,21 @@ const getWeeks = (startDate, endDate) => {
 const getRequiredLines = (startDate, endDate, frequency) => {
   switch (frequency) {
     case 'day':
-      return getDays(startDate, endDate);
+      return getDays(startDate, endDate)
 
     case 'week':
-      return getWeeks(startDate, endDate);
+      return getWeeks(startDate, endDate)
 
     case 'month':
-      return getMonths(startDate, endDate);
+      return getMonths(startDate, endDate)
 
     case 'year':
-      return getYears(startDate, endDate);
+      return getYears(startDate, endDate)
 
     default:
-      throw new Error(`Unknown frequency ${frequency}`);
+      throw new Error(`Unknown frequency ${frequency}`)
   }
-};
+}
 
 /**
  * Checks whether a supplied day/month is the same or after a reference day/month
@@ -122,10 +122,10 @@ const getRequiredLines = (startDate, endDate, frequency) => {
  */
 const isSameOrAfter = (day, month, refDay, refMonth) => {
   if (month > refMonth) {
-    return true;
+    return true
   }
-  return ((month === refMonth) && (day >= refDay));
-};
+  return ((month === refMonth) && (day >= refDay))
+}
 
 /**
  * Checks whether a supplied day/month is the same or before a reference day/month
@@ -137,10 +137,10 @@ const isSameOrAfter = (day, month, refDay, refMonth) => {
  */
 const isSameOrBefore = (day, month, refDay, refMonth) => {
   if (month < refMonth) {
-    return true;
+    return true
   }
-  return (month === refMonth) && (day <= refDay);
-};
+  return (month === refMonth) && (day <= refDay)
+}
 
 /**
  * Checks whether the specified date is within the abstraction period
@@ -158,31 +158,31 @@ const isDateWithinAbstractionPeriod = (date, options) => {
     periodEndMonth,
     periodStartDay,
     periodStartMonth
-  } = options;
+  } = options
 
   // Month and day of test date
-  const month = moment(date).month() + 1;
-  const day = moment(date).date();
+  const month = moment(date).month() + 1
+  const day = moment(date).date()
 
   // Period start date is >= period end date
   if (isSameOrAfter(periodEndDay, periodEndMonth, periodStartDay, periodStartMonth)) {
     return isSameOrAfter(day, month, periodStartDay, periodStartMonth) &&
-      isSameOrBefore(day, month, periodEndDay, periodEndMonth);
+      isSameOrBefore(day, month, periodEndDay, periodEndMonth)
   } else {
     const prevYear = isSameOrAfter(day, month, 1, 1) &&
-     isSameOrBefore(day, month, periodEndDay, periodEndMonth);
+     isSameOrBefore(day, month, periodEndDay, periodEndMonth)
 
     const thisYear = isSameOrAfter(day, month, periodStartDay, periodStartMonth) &&
-     isSameOrBefore(day, month, 31, 12);
+     isSameOrBefore(day, month, 31, 12)
 
-    return prevYear || thisYear;
+    return prevYear || thisYear
   }
-};
+}
 
 const getAbsPeriod = (returnData) => {
-  const data = pick(returnData.metadata.nald, ['periodStartDay', 'periodStartMonth', 'periodEndDay', 'periodEndMonth']);
-  return mapValues(data, parseInt);
-};
+  const data = pick(returnData.metadata.nald, ['periodStartDay', 'periodStartMonth', 'periodEndDay', 'periodEndMonth'])
+  return mapValues(data, parseInt)
+}
 
 /**
  * Accepts a line generated by the getRequiredLines call, and returns a line
@@ -193,9 +193,9 @@ const getAbsPeriod = (returnData) => {
  * @return {Object} mapped line
  */
 const mapLine = (line, absPeriod) => {
-  const { startDate, endDate, timePeriod } = line;
+  const { startDate, endDate, timePeriod } = line
 
-  const isInPeriod = isDateWithinAbstractionPeriod(endDate, absPeriod);
+  const isInPeriod = isDateWithinAbstractionPeriod(endDate, absPeriod)
 
   return {
     start_date: startDate,
@@ -205,8 +205,8 @@ const mapLine = (line, absPeriod) => {
     user_unit: 'm³',
     reading_type: 'measured',
     time_period: timePeriod
-  };
-};
+  }
+}
 
 /**
  * Given return data for a nil return, generates a list of return
@@ -216,20 +216,22 @@ const mapLine = (line, absPeriod) => {
  * @return {Array} return lines
  */
 const generateNilLines = (returnData) => {
-  const { start_date: startDate, end_date: endDate, returns_frequency: frequency } = returnData;
+  const { start_date: startDate, end_date: endDate, returns_frequency: frequency } = returnData
 
-  const absPeriod = getAbsPeriod(returnData);
+  const absPeriod = getAbsPeriod(returnData)
 
-  const lines = getRequiredLines(startDate, endDate, frequency);
+  const lines = getRequiredLines(startDate, endDate, frequency)
 
-  return lines.map(line => mapLine(line, absPeriod));
-};
+  return lines.map(line => mapLine(line, absPeriod))
+}
 
-exports.getDays = getDays;
-exports.getMonths = getMonths;
-exports.getWeeks = getWeeks;
-exports.getRequiredLines = getRequiredLines;
-exports.generateNilLines = generateNilLines;
-exports.isDateWithinAbstractionPeriod = isDateWithinAbstractionPeriod;
-exports.getAbsPeriod = getAbsPeriod;
-exports.mapLine = mapLine;
+module.exports = {
+  getDays,
+  getMonths,
+  getWeeks,
+  getRequiredLines,
+  generateNilLines,
+  isDateWithinAbstractionPeriod,
+  getAbsPeriod,
+  mapLine
+}

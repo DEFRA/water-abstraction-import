@@ -1,24 +1,24 @@
-const getNextId = require('./next-id.js');
+const getNextId = require('./next-id.js')
 
 class Condition {
   constructor () {
-    this.id = getNextId();
+    this.id = getNextId()
 
-    this.purpose = null;
-    this.param1 = 'AUTHOR';
-    this.param2 = 17.5;
+    this.purpose = null
+    this.param1 = 'AUTHOR'
+    this.param2 = 17.5
 
-    this.type = null;
+    this.type = null
   }
 
   setType (conditionType) {
-    this.type = conditionType;
-    return this;
+    this.type = conditionType
+    return this
   }
 
   setPurpose (purpose) {
-    this.purpose = purpose;
-    return this;
+    this.purpose = purpose
+    return this
   }
 
   export () {
@@ -35,8 +35,8 @@ class Condition {
       FGAC_REGION_CODE: 1,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:02:11'
-    };
+    }
   }
 }
 
-module.exports = Condition;
+module.exports = Condition

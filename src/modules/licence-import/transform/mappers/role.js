@@ -1,41 +1,41 @@
-'use strict';
+'use strict'
 
-const date = require('./date');
-const roles = require('./roles');
+const date = require('./date')
+const roles = require('./roles')
 
 const mapLicenceHolderRoles = (document, licenceVersions, context) => licenceVersions
   .filter(licenceVersion => isLicenceVersionForImport(licenceVersion, licenceVersions))
-  .map(licenceVersion => mapLicenceHolderRole(document, licenceVersion, context));
+  .map(licenceVersion => mapLicenceHolderRole(document, licenceVersion, context))
 
 const isLicenceVersionForImport = (licenceVersion, licenceVersions) =>
   !isLicenceVersionDraft(licenceVersion) &&
-  !isLicenceVersionReplaced(licenceVersion, licenceVersions);
+  !isLicenceVersionReplaced(licenceVersion, licenceVersions)
 
-const isLicenceVersionDraft = licenceVersion => licenceVersion.STATUS === 'DRAFT';
+const isLicenceVersionDraft = licenceVersion => licenceVersion.STATUS === 'DRAFT'
 
 const isLicenceVersionReplaced = (licenceVersion, licenceVersions) =>
   licenceVersions.some(comparisonLicenceVersion => {
-    const isSameStartDate = comparisonLicenceVersion.EFF_ST_DATE === licenceVersion.EFF_ST_DATE;
-    const isFollowingVersion = compareLicenceVersions(licenceVersion, comparisonLicenceVersion) === 1;
-    return isSameStartDate && isFollowingVersion;
-  });
+    const isSameStartDate = comparisonLicenceVersion.EFF_ST_DATE === licenceVersion.EFF_ST_DATE
+    const isFollowingVersion = compareLicenceVersions(licenceVersion, comparisonLicenceVersion) === 1
+    return isSameStartDate && isFollowingVersion
+  })
 
 const compareLicenceVersions = (licenceVersionA, licenceVersionB) => {
-  const versionA = getVersion(licenceVersionA);
-  const versionB = getVersion(licenceVersionB);
+  const versionA = getVersion(licenceVersionA)
+  const versionB = getVersion(licenceVersionB)
   if (versionA.issue === versionB.issue) {
     if (versionA.increment === versionB.increment) {
-      return 0;
+      return 0
     }
-    return versionA.increment > versionB.increment ? -1 : +1;
+    return versionA.increment > versionB.increment ? -1 : +1
   }
-  return versionA.issue > versionB.issue ? -1 : +1;
-};
+  return versionA.issue > versionB.issue ? -1 : +1
+}
 
 const getVersion = licenceVersion => ({
   issue: parseInt(licenceVersion.ISSUE_NO),
   increment: parseInt(licenceVersion.INCR_NO)
-});
+})
 
 /**
  * Creates an initial document role for the licence holder
@@ -57,7 +57,7 @@ const mapLicenceHolderRole = (document, licenceVersion, context) => ({
   ]),
   ...context.parties[licenceVersion.FGAC_REGION_CODE][licenceVersion.ACON_APAR_ID],
   address: context.addresses[licenceVersion.FGAC_REGION_CODE][licenceVersion.ACON_AADD_ID]
-});
+})
 
 const mapLicenceRole = (row, context) => ({
   role: roles.naldRoles.get(row.ALRT_CODE),
@@ -67,14 +67,14 @@ const mapLicenceRole = (row, context) => ({
   contact: null,
   ...context.parties[row.FGAC_REGION_CODE][row.ACON_APAR_ID],
   address: context.addresses[row.FGAC_REGION_CODE][row.ACON_AADD_ID]
-});
+})
 
 /**
  * Whether this role should be imported
  * @param {Object} role - nald licence role row data
  * @return {Boolean}
  */
-const isRoleForImport = role => roles.naldRoles.get(role.ALRT_CODE) === roles.ROLE_RETURNS_TO;
+const isRoleForImport = role => roles.naldRoles.get(role.ALRT_CODE) === roles.ROLE_RETURNS_TO
 
 /**
  * Maps NALD roles (returns to contact)
@@ -83,7 +83,9 @@ const isRoleForImport = role => roles.naldRoles.get(role.ALRT_CODE) === roles.RO
  */
 const mapLicenceRoles = (licenceRoles, context) => licenceRoles
   .filter(isRoleForImport)
-  .map(role => mapLicenceRole(role, context));
+  .map(role => mapLicenceRole(role, context))
 
-exports.mapLicenceHolderRoles = mapLicenceHolderRoles;
-exports.mapLicenceRoles = mapLicenceRoles;
+module.exports = {
+  mapLicenceHolderRoles,
+  mapLicenceRoles
+}

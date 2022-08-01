@@ -1,31 +1,31 @@
-const path = require('path');
-const processHelper = require('@envage/water-abstraction-helpers').process;
-const slack = require('../../../lib/slack');
-const { logger } = require('../../../logger');
+const path = require('path')
+const processHelper = require('@envage/water-abstraction-helpers').process
+const slack = require('../../../lib/slack')
+const { logger } = require('../../../logger')
 
-const constants = require('../lib/constants');
+const constants = require('../lib/constants')
 
-const s3Service = require('./s3-service');
-const zipService = require('./zip-service');
-const schemaService = require('./schema-service');
-const loadCsvService = require('./load-csv-service');
+const s3Service = require('./s3-service')
+const zipService = require('./zip-service')
+const schemaService = require('./schema-service')
+const loadCsvService = require('./load-csv-service')
 
 // Download / unzip paths
-const FINAL_PATH = path.join(constants.LOCAL_TEMP_PATH, constants.CSV_DIRECTORY);
+const FINAL_PATH = path.join(constants.LOCAL_TEMP_PATH, constants.CSV_DIRECTORY)
 
 /**
  * Prepares for import by removing files from tempory folder and creating directory
  */
 const prepare = async () => {
-  await processHelper.execCommand(`rm -rf ${constants.LOCAL_TEMP_PATH}`);
-  await processHelper.execCommand(`mkdir -p ${constants.LOCAL_TEMP_PATH}`);
-  await processHelper.execCommand(`mkdir -p ${FINAL_PATH}`);
-};
+  await processHelper.execCommand(`rm -rf ${constants.LOCAL_TEMP_PATH}`)
+  await processHelper.execCommand(`mkdir -p ${constants.LOCAL_TEMP_PATH}`)
+  await processHelper.execCommand(`mkdir -p ${FINAL_PATH}`)
+}
 
 const logToConsoleAndSlack = message => {
-  slack.post(message);
-  logger.info(message);
-};
+  slack.post(message)
+  logger.info(message)
+}
 
 const steps = [
   {
@@ -56,7 +56,7 @@ const steps = [
     message: 'cleaning up local files',
     action: prepare
   }
-];
+]
 
 /**
  * The download/extract tasks have been combined into a single task
@@ -66,10 +66,10 @@ const steps = [
  */
 const downloadAndExtract = async () => {
   for (const step of steps) {
-    logToConsoleAndSlack(`Import: ${step.message}`);
-    await step.action();
+    logToConsoleAndSlack(`Import: ${step.message}`)
+    await step.action()
   }
-};
+}
 
 /**
  * Move test files
@@ -78,15 +78,17 @@ const downloadAndExtract = async () => {
  * @return {Promise} resolves when command completes
  */
 const copyTestFiles = async () => {
-  await prepare();
-  await schemaService.dropAndCreateSchema(constants.SCHEMA_IMPORT);
+  await prepare()
+  await schemaService.dropAndCreateSchema(constants.SCHEMA_IMPORT)
 
   // move dummy data files
-  await processHelper.execCommand(`cp ./test/dummy-csv/* ${FINAL_PATH}`);
+  await processHelper.execCommand(`cp ./test/dummy-csv/* ${FINAL_PATH}`)
 
   // Import CSV
-  return loadCsvService.importFiles(constants.SCHEMA_IMPORT);
-};
+  return loadCsvService.importFiles(constants.SCHEMA_IMPORT)
+}
 
-exports.copyTestFiles = copyTestFiles;
-exports.downloadAndExtract = downloadAndExtract;
+module.exports = {
+  copyTestFiles,
+  downloadAndExtract
+}

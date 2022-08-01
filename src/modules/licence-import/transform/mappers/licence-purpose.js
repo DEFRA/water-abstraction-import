@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const dateMapper = require('./date');
-const nald = require('@envage/water-abstraction-helpers').nald;
+const dateMapper = require('./date')
+const nald = require('@envage/water-abstraction-helpers').nald
 
 const mapLicencePurpose = data => {
   const purpose = {
@@ -21,9 +21,11 @@ const mapLicencePurpose = data => {
       ? null
       : +data.ANNUAL_QTY,
     externalId: `${data.FGAC_REGION_CODE}:${data.ID}`
-  };
+  }
 
-  return purpose;
-};
+  return purpose
+}
 
-exports.mapLicencePurpose = mapLicencePurpose;
+module.exports = {
+  mapLicencePurpose
+}

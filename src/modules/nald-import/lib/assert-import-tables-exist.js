@@ -1,13 +1,15 @@
-'use strict';
+'use strict'
 
-const { NALDImportTablesError } = require('./errors');
-const coreQueries = require('./nald-queries/core');
+const { NALDImportTablesError } = require('./errors')
+const coreQueries = require('./nald-queries/core')
 
 const assertImportTablesExist = async () => {
-  const exists = await coreQueries.importTableExists();
+  const exists = await coreQueries.importTableExists()
   if (!exists) {
-    throw new NALDImportTablesError();
+    throw new NALDImportTablesError()
   }
-};
+}
 
-exports.assertImportTablesExist = assertImportTablesExist;
+module.exports = {
+  assertImportTablesExist
+}

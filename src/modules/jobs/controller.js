@@ -1,7 +1,9 @@
-'use strict';
+'use strict'
 
-const jobsConnector = require('../../lib/connectors/water-import/jobs');
+const jobsConnector = require('../../lib/connectors/water-import/jobs')
 
-const getJobSummary = () => jobsConnector.getJobSummary();
+const getJobSummary = () => jobsConnector.getJobSummary()
 
-exports.getJobSummary = getJobSummary;
+module.exports = {
+  getJobSummary
+}

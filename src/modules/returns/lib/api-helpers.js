@@ -5,18 +5,18 @@
  * @return {Object} filter object for HAPI rest API
  */
 const getVersionFilter = (request) => {
-  const { start, end } = request.query;
+  const { start, end } = request.query
   const filter = {
     current: true,
     created_at: { $gte: start }
-  };
-
-  if (end) {
-    filter.created_at.$lte = end;
   }
 
-  return filter;
-};
+  if (end) {
+    filter.created_at.$lte = end
+  }
+
+  return filter
+}
 
 /**
  * Gets filter for API request to water service events endpoint
@@ -25,18 +25,18 @@ const getVersionFilter = (request) => {
  * @return {Object} filter object for HAPI rest API
  */
 const getEventFilter = (request) => {
-  const { start, end } = request.query;
+  const { start, end } = request.query
   const filter = {
     created: { $gte: start },
     type: 'return.status'
-  };
-
-  if (end) {
-    filter.created.$lte = end;
   }
 
-  return filter;
-};
+  if (end) {
+    filter.created.$lte = end
+  }
+
+  return filter
+}
 
 /**
  * Gets pagination object for HAPI rest API
@@ -45,11 +45,11 @@ const getEventFilter = (request) => {
  * @return {Object} pagination object for HAPI rest API
  */
 const getPagination = (request) => {
-  return Object.assign({ perPage: 2000, page: 1 }, request.query.pagination);
-};
+  return Object.assign({ perPage: 2000, page: 1 }, request.query.pagination)
+}
 
 module.exports = {
   getVersionFilter,
   getEventFilter,
   getPagination
-};
+}

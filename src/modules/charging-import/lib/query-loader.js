@@ -1,13 +1,13 @@
-'use strict';
+'use strict'
 
-const { pool } = require('../../../lib/connectors/db');
-const { logger } = require('../../../logger');
-const slack = require('../../../lib/slack');
+const { pool } = require('../../../lib/connectors/db')
+const { logger } = require('../../../logger')
+const slack = require('../../../lib/slack')
 
 const log = msg => {
-  logger.info(msg);
-  slack.post(msg);
-};
+  logger.info(msg)
+  slack.post(msg)
+}
 
 /**
  * Generic means of running a sequence of queries in series,
@@ -19,18 +19,20 @@ const log = msg => {
  */
 const loadQueries = async (name, queries) => {
   try {
-    log(`Starting ${name}`);
+    log(`Starting ${name}`)
 
     for (const index in queries) {
-      log(`Running ${name} query ${parseInt(index) + 1} of ${queries.length}`);
-      await pool.query(queries[index]);
+      log(`Running ${name} query ${parseInt(index) + 1} of ${queries.length}`)
+      await pool.query(queries[index])
     }
 
-    log(`Finished ${name}`);
+    log(`Finished ${name}`)
   } catch (err) {
-    log(`Error: ${err.message}`);
-    throw err;
+    log(`Error: ${err.message}`)
+    throw err
   }
-};
+}
 
-exports.loadQueries = loadQueries;
+module.exports = {
+  loadQueries
+}

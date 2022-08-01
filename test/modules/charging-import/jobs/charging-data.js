@@ -1,27 +1,27 @@
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script();
-const { expect } = require('@hapi/code');
+const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
+const { expect } = require('@hapi/code')
 
-const queryLoader = require('../../../../src/modules/charging-import/lib/query-loader');
-const chargingDataJob = require('../../../../src/modules/charging-import/jobs/charging-data');
-const purposesQueries = require('../../../../src/modules/charging-import/lib/queries/purposes');
-const returnVersionQueries = require('../../../../src/modules/charging-import/lib/queries/return-versions');
-const financialAgreementTypeQueries = require('../../../../src/modules/charging-import/lib/queries/financial-agreement-types');
+const queryLoader = require('../../../../src/modules/charging-import/lib/query-loader')
+const chargingDataJob = require('../../../../src/modules/charging-import/jobs/charging-data')
+const purposesQueries = require('../../../../src/modules/charging-import/lib/queries/purposes')
+const returnVersionQueries = require('../../../../src/modules/charging-import/lib/queries/return-versions')
+const financialAgreementTypeQueries = require('../../../../src/modules/charging-import/lib/queries/financial-agreement-types')
 
-const sandbox = require('sinon').createSandbox();
+const sandbox = require('sinon').createSandbox()
 
 experiment('modules/charging-import/jobs/charging-data.js', () => {
   beforeEach(async () => {
-    sandbox.stub(queryLoader, 'loadQueries');
-  });
+    sandbox.stub(queryLoader, 'loadQueries')
+  })
 
   afterEach(async () => {
-    sandbox.restore();
-  });
+    sandbox.restore()
+  })
 
   experiment('.handler', () => {
     beforeEach(async () => {
-      chargingDataJob.handler();
-    });
+      chargingDataJob.handler()
+    })
 
     test('runs the correct queries', async () => {
       expect(queryLoader.loadQueries.calledWith(
@@ -36,7 +36,7 @@ experiment('modules/charging-import/jobs/charging-data.js', () => {
           returnVersionQueries.importReturnRequirements,
           returnVersionQueries.importReturnRequirementPurposes
         ]
-      )).to.be.true();
-    });
-  });
-});
+      )).to.be.true()
+    })
+  })
+})

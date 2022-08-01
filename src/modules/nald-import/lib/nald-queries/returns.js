@@ -1,10 +1,10 @@
-'use strict';
+'use strict'
 
-const server = require('../../../../../server');
-const moment = require('moment');
-const db = require('../db');
-const cache = require('./cache');
-const sql = require('./sql/returns');
+const server = require('../../../../../server')
+const moment = require('moment')
+const db = require('../db')
+const cache = require('./cache')
+const sql = require('./sql/returns')
 
 /**
  * Gets form logs for specified licence number
@@ -12,8 +12,8 @@ const sql = require('./sql/returns');
  * @return {Promise} resolves with array of DB records
  */
 const getFormats = (licenceNumber) => {
-  return db.dbQuery(sql.getFormats, [licenceNumber]);
-};
+  return db.dbQuery(sql.getFormats, [licenceNumber])
+}
 
 /**
  * Get purposes attached to a returns format
@@ -22,8 +22,8 @@ const getFormats = (licenceNumber) => {
  * @return {Promise} resolves with array of DB records
  */
 const getFormatPurposes = (formatId, regionCode) => {
-  return db.dbQuery(sql.getFormatPurposes, [formatId, regionCode]);
-};
+  return db.dbQuery(sql.getFormatPurposes, [formatId, regionCode])
+}
 
 /**
  * Get points attached to a returns format
@@ -32,8 +32,8 @@ const getFormatPurposes = (formatId, regionCode) => {
  * @return {Promise} resolves with array of DB records
  */
 const getFormatPoints = (formatId, regionCode) => {
-  return db.dbQuery(sql.getFormatPoints, [formatId, regionCode]);
-};
+  return db.dbQuery(sql.getFormatPoints, [formatId, regionCode])
+}
 
 /**
  * Get form logs for specified return format
@@ -41,8 +41,8 @@ const getFormatPoints = (formatId, regionCode) => {
  * @return {Promise} resolves with array of DB records
  */
 const getLogs = (formatId, regionCode) => {
-  return db.dbQuery(sql.getLogs, [formatId, regionCode]);
-};
+  return db.dbQuery(sql.getLogs, [formatId, regionCode])
+}
 
 /**
  * Get returns lines
@@ -53,9 +53,9 @@ const getLogs = (formatId, regionCode) => {
  * @return {Promise} resolves with array of DB records
  */
 const getLines = (formatId, regionCode, dateFrom, dateTo) => {
-  const params = [formatId, regionCode, dateFrom, dateTo];
-  return db.dbQuery(sql.getLines, params);
-};
+  const params = [formatId, regionCode, dateFrom, dateTo]
+  return db.dbQuery(sql.getLines, params)
+}
 
 /**
  * Get returns lines for log
@@ -65,10 +65,10 @@ const getLines = (formatId, regionCode, dateFrom, dateTo) => {
  * @return {Promise} resolves with array of DB records
  */
 const getLogLines = (formatId, regionCode, logDateFrom) => {
-  const from = moment(logDateFrom, 'DD/MM/YYYY').format('YYYYMMDD') + '000000';
-  const params = [formatId, regionCode, from];
-  return db.dbQuery(sql.getLogLines, params);
-};
+  const from = moment(logDateFrom, 'DD/MM/YYYY').format('YYYYMMDD') + '000000'
+  const params = [formatId, regionCode, from]
+  return db.dbQuery(sql.getLogLines, params)
+}
 
 /**
  * Checks for nil return over the specified time period
@@ -79,10 +79,10 @@ const getLogLines = (formatId, regionCode, logDateFrom) => {
  * @return {Promise} resolves with boolean
  */
 const isNilReturn = async (formatId, regionCode, dateFrom, dateTo) => {
-  const params = [formatId, regionCode, dateFrom, dateTo];
-  const rows = await db.dbQuery(sql.isNilReturn, params);
-  return rows[0].total_qty === 0;
-};
+  const params = [formatId, regionCode, dateFrom, dateTo]
+  const rows = await db.dbQuery(sql.isNilReturn, params)
+  return rows[0].total_qty === 0
+}
 
 /**
  * Gets the split date for considering returns as either current / non current
@@ -93,12 +93,12 @@ const isNilReturn = async (formatId, regionCode, dateFrom, dateTo) => {
  * @return {String|null} split date in format YYYY-MM-DD, or null if none found
  */
 const getSplitDate = async (licenceNumber) => {
-  const rows = await db.dbQuery(sql.getSplitDate, [licenceNumber]);
+  const rows = await db.dbQuery(sql.getSplitDate, [licenceNumber])
 
   return (rows.length === 1)
     ? moment(rows[0].EFF_ST_DATE, 'DD/MM/YYYY').format('YYYY-MM-DD')
-    : null;
-};
+    : null
+}
 
 /**
  * Gets the reason code from the mod log relating to a new return version
@@ -112,27 +112,29 @@ const getReturnVersionReason = async (licenceId, regionCode, versionNumber) => {
     licenceId,
     regionCode,
     versionNumber
-  });
-  return _getReturnVersionReasonCache.get(id);
-};
+  })
+  return _getReturnVersionReasonCache.get(id)
+}
 
 const _createReturnVersionReasonCache = () => {
   return cache.createCachedQuery(server, 'getReturnVersionReason', id => {
-    const params = [id.licenceId, id.versionNumber, id.regionCode];
-    return db.dbQuery(sql.getReturnVersionReason, params);
-  });
-};
+    const params = [id.licenceId, id.versionNumber, id.regionCode]
+    return db.dbQuery(sql.getReturnVersionReason, params)
+  })
+}
 
-const _getReturnVersionReasonCache = _createReturnVersionReasonCache();
+const _getReturnVersionReasonCache = _createReturnVersionReasonCache()
 
-exports._createReturnVersionReasonCache = _createReturnVersionReasonCache;
-exports._getReturnVersionReasonCache = _getReturnVersionReasonCache;
-exports.getFormats = getFormats;
-exports.getFormatPurposes = getFormatPurposes;
-exports.getFormatPoints = getFormatPoints;
-exports.getLogs = getLogs;
-exports.getLines = getLines;
-exports.getLogLines = getLogLines;
-exports.isNilReturn = isNilReturn;
-exports.getSplitDate = getSplitDate;
-exports.getReturnVersionReason = getReturnVersionReason;
+module.exports = {
+  _createReturnVersionReasonCache,
+  _getReturnVersionReasonCache,
+  getFormats,
+  getFormatPurposes,
+  getFormatPoints,
+  getLogs,
+  getLines,
+  getLogLines,
+  isNilReturn,
+  getSplitDate,
+  getReturnVersionReason
+}

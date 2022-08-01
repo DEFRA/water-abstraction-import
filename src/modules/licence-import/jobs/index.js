@@ -1,11 +1,11 @@
-'use strict';
+'use strict'
 
-const IMPORT_COMPANIES_JOB = 'import.companies';
-const IMPORT_COMPANY_JOB = 'import.company';
-const IMPORT_LICENCES_JOB = 'import.licences';
-const IMPORT_LICENCE_JOB = 'import.licence';
-const DELETE_DOCUMENTS_JOB = 'import.delete-documents';
-const IMPORT_PURPOSE_CONDITION_TYPES_JOB = 'import.purpose-condition-types';
+const IMPORT_COMPANIES_JOB = 'import.companies'
+const IMPORT_COMPANY_JOB = 'import.company'
+const IMPORT_LICENCES_JOB = 'import.licences'
+const IMPORT_LICENCE_JOB = 'import.licence'
+const DELETE_DOCUMENTS_JOB = 'import.delete-documents'
+const IMPORT_PURPOSE_CONDITION_TYPES_JOB = 'import.purpose-condition-types'
 
 /**
  * Formats arguments to publish a PG boss event to import all companies
@@ -18,7 +18,7 @@ const importCompanies = () => ({
     singletonHours: 1,
     expireIn: '4 hour'
   }
-});
+})
 
 /**
  * Formats arguments to publish a PG boss event to import company
@@ -36,7 +36,7 @@ const importCompany = (regionCode, partyId) => ({
     singletonKey: `${IMPORT_COMPANY_JOB}.${regionCode}.${partyId}`,
     expireIn: '4 hour'
   }
-});
+})
 
 /**
  * Formats arguments to publish a PG boss event to start company import
@@ -49,7 +49,7 @@ const importLicences = () => ({
     singletonHours: 1,
     expireIn: '4 hour'
   }
-});
+})
 
 /**
  * Formats arguments to publish a PG boss event to import licence
@@ -65,26 +65,27 @@ const importLicence = licenceNumber => ({
   options: {
     singletonKey: `${IMPORT_LICENCE_JOB}.${licenceNumber}`
   }
-});
+})
 
 const deleteDocuments = () => ({
   name: DELETE_DOCUMENTS_JOB
-});
+})
 
 const importPurposeConditionTypes = () => ({
   name: IMPORT_PURPOSE_CONDITION_TYPES_JOB
-});
+})
 
-exports.IMPORT_PURPOSE_CONDITION_TYPES_JOB = IMPORT_PURPOSE_CONDITION_TYPES_JOB;
-exports.IMPORT_COMPANIES_JOB = IMPORT_COMPANIES_JOB;
-exports.IMPORT_COMPANY_JOB = IMPORT_COMPANY_JOB;
-exports.IMPORT_LICENCES_JOB = IMPORT_LICENCES_JOB;
-exports.IMPORT_LICENCE_JOB = IMPORT_LICENCE_JOB;
-exports.DELETE_DOCUMENTS_JOB = DELETE_DOCUMENTS_JOB;
-
-exports.importPurposeConditionTypes = importPurposeConditionTypes;
-exports.importCompanies = importCompanies;
-exports.importCompany = importCompany;
-exports.importLicences = importLicences;
-exports.importLicence = importLicence;
-exports.deleteDocuments = deleteDocuments;
+module.exports = {
+  IMPORT_PURPOSE_CONDITION_TYPES_JOB,
+  IMPORT_COMPANIES_JOB,
+  IMPORT_COMPANY_JOB,
+  IMPORT_LICENCES_JOB,
+  IMPORT_LICENCE_JOB,
+  DELETE_DOCUMENTS_JOB,
+  importPurposeConditionTypes,
+  importCompanies,
+  importCompany,
+  importLicences,
+  importLicence,
+  deleteDocuments
+}

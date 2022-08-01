@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-exports.importNaldBillRuns = `
+const importNaldBillRuns = `
 insert into water.billing_batches (
   region_id, batch_type, date_created, date_updated, from_financial_year_ending,
   to_financial_year_ending, status, invoice_count, credit_note_count,
@@ -95,9 +95,9 @@ nbr."BILL_RUN_TYPE" in ('A', 'S', 'R')
 and nbr."IAS_XFER_DATE"<>'null'
 and nbr."FIN_YEAR"::integer>=2015
 on conflict (legacy_id) do nothing;
-`;
+`
 
-exports.importNaldBillHeaders = `
+const importNaldBillHeaders = `
 insert into water.billing_invoices (
   invoice_account_id, address, invoice_account_number, net_amount,
   is_credit, date_created, date_updated, billing_batch_id, financial_year_ending,
@@ -121,9 +121,9 @@ from import."NALD_BILL_HEADERS" nbh
 left join crm_v2.invoice_accounts ia on nbh."IAS_CUST_REF"=ia.invoice_account_number
 join water.billing_batches b on b.legacy_id=concat_ws(':', nbh."FGAC_REGION_CODE", nbh."ABRN_BILL_RUN_NO")
 on conflict (legacy_id) do nothing;
-`;
+`
 
-exports.importInvoiceLicences = `
+const importInvoiceLicences = `
 insert into water.billing_invoice_licences (
   billing_invoice_id, licence_ref, date_created, date_updated, licence_id
 )
@@ -139,19 +139,19 @@ left join import."NALD_BILL_TRANS" nbt on nbh."FGAC_REGION_CODE"=nbt."FGAC_REGIO
 join import."NALD_ABS_LICENCES" nl on nbt."FGAC_REGION_CODE"=nl."FGAC_REGION_CODE" and nbt."LIC_ID"=nl."ID"
 left join water.licences l on nl."LIC_NO"=l.licence_ref
 on conflict (billing_invoice_id, licence_id) do nothing;
-`;
+`
 
-exports.resetIsSecondPartChargeFlag = `
+const resetIsSecondPartChargeFlag = `
 update water.billing_transactions 
 set is_two_part_second_part_charge = false;
-`;
-exports.setIsSecondPartChargeFlag = `
+`
+const setIsSecondPartChargeFlag = `
 update water.billing_transactions 
 set is_two_part_second_part_charge = true
 where description ilike 'second%';
-`;
+`
 
-exports.importTransactions = `
+const importTransactions = `
 insert into water.billing_transactions ( 
   billing_invoice_licence_id, 
   charge_element_id, 
@@ -319,9 +319,9 @@ left join(
   where not (nbt."FINAL_A2_BILLABLE_AMOUNT"::numeric=0 and nl.is_water_undertaker=true)
 ) nbt2 on nbt2."FGAC_REGION_CODE"=nbt."FGAC_REGION_CODE" and nbt2."ID"=nbt."ID"
 on conflict (legacy_id) do nothing;
-`;
+`
 
-exports.importBillingVolumes = `
+const importBillingVolumes = `
 insert into water.billing_volumes (
   charge_element_id, financial_year, is_summer,
   calculated_volume, two_part_tariff_error, two_part_tariff_status,
@@ -374,9 +374,9 @@ join (
   ) ntr
 ) ntr on ntr.external_id=ce.external_id and i.financial_year_ending=ntr."FIN_YEAR"
 where b.source='nald' and b.batch_type='two_part_tariff';
-`;
+`
 
-exports.importBillingBatchChargeVersionYears = `
+const importBillingBatchChargeVersionYears = `
 insert into water.billing_batch_charge_version_years (
   billing_batch_id, charge_version_id, financial_year_ending,
   date_created, date_updated, status, 
@@ -402,17 +402,16 @@ join water.charge_elements ce on t.charge_element_id=ce.charge_element_id
 where b.source='nald'
 on conflict do nothing;
 `
-;
 
-exports.removeConstraints = `
+const removeConstraints = `
 alter table water.billing_invoices 
 drop constraint fk_original_billing_invoice_id;
 
 alter table water.billing_transactions
 drop constraint billing_transactions_billing_invoice_licence_id_fkey,
-drop constraint billing_transactions_billing_transactions_fk_source_transaction_id;`;
+drop constraint billing_transactions_billing_transactions_fk_source_transaction_id;`
 
-exports.addConstraints = `               
+const addConstraints = `               
 alter table water.billing_invoices 
 add constraint fk_original_billing_invoice_id 
 foreign key (original_billing_invoice_id) 
@@ -424,4 +423,17 @@ ADD constraint billing_transactions_billing_invoice_licence_id_fkey
   references water.billing_invoice_licences (billing_invoice_licence_id),
 ADD constraint billing_transactions_billing_transactions_fk_source_transaction_id
   foreign key (source_transaction_id) 
-  references water.billing_transactions (billing_transaction_id);`;
+  references water.billing_transactions (billing_transaction_id);`
+
+module.exports = {
+  addConstraints,
+  removeConstraints,
+  importBillingBatchChargeVersionYears,
+  importBillingVolumes,
+  importTransactions,
+  setIsSecondPartChargeFlag,
+  resetIsSecondPartChargeFlag,
+  importInvoiceLicences,
+  importNaldBillHeaders,
+  importNaldBillRuns
+}

@@ -1,7 +1,7 @@
 class PurposeSecondary {
   constructor () {
-    this.code = 'AGR';
-    this.description = 'General Agriculture';
+    this.code = 'AGR'
+    this.description = 'General Agriculture'
   }
 
   export () {
@@ -12,8 +12,8 @@ class PurposeSecondary {
       DISP_ORD: null,
       SOURCE_CODE: 'NALD',
       BATCH_RUN_DATE: '12/02/2018 20:05:59'
-    };
+    }
   }
 }
 
-module.exports = PurposeSecondary;
+module.exports = PurposeSecondary

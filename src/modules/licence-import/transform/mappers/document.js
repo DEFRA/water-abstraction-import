@@ -1,12 +1,14 @@
-'use strict';
+'use strict'
 
-const { pick } = require('lodash');
+const { pick } = require('lodash')
 
 const mapLicenceToDocument = licence => ({
   documentRef: licence.licenceNumber,
   ...pick(licence, ['startDate', 'endDate', 'externalId']),
   roles: [],
   _nald: licence._nald
-});
+})
 
-exports.mapLicenceToDocument = mapLicenceToDocument;
+module.exports = {
+  mapLicenceToDocument
+}

@@ -1,15 +1,15 @@
-'use strict';
+'use strict'
 
-const licenceLoader = require('../load');
-const logger = require('./lib/logger');
-const assertImportTablesExist = require('../lib/assert-import-tables-exist');
+const licenceLoader = require('../load')
+const logger = require('./lib/logger')
+const assertImportTablesExist = require('../lib/assert-import-tables-exist')
 
-const JOB_NAME = 'nald-import.import-licence';
+const JOB_NAME = 'nald-import.import-licence'
 
 const options = {
   teamSize: 75,
   teamConcurrency: 1
-};
+}
 
 const createMessage = licenceNumber => ({
   name: JOB_NAME,
@@ -17,7 +17,7 @@ const createMessage = licenceNumber => ({
   options: {
     singletonKey: licenceNumber
   }
-});
+})
 
 /**
  * Imports a single licence
@@ -25,20 +25,22 @@ const createMessage = licenceNumber => ({
  * @param {String} job.data.licenceNumber
  */
 const handler = async job => {
-  logger.logHandlingJob(job);
+  logger.logHandlingJob(job)
 
   try {
-    await assertImportTablesExist.assertImportTablesExist();
+    await assertImportTablesExist.assertImportTablesExist()
 
     // Import the licence
-    await licenceLoader.load(job.data.licenceNumber);
+    await licenceLoader.load(job.data.licenceNumber)
   } catch (err) {
-    logger.logJobError(job, err);
-    throw err;
+    logger.logJobError(job, err)
+    throw err
   }
-};
+}
 
-exports.createMessage = createMessage;
-exports.handler = handler;
-exports.jobName = JOB_NAME;
-exports.options = options;
+module.exports = {
+  createMessage,
+  handler,
+  jobName: JOB_NAME,
+  options
+}

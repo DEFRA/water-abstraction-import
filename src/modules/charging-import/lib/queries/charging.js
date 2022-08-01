@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const importChargeElements = `INSERT INTO water.charge_elements
 (charge_version_id, external_id, abstraction_period_start_day, abstraction_period_start_month,
@@ -92,7 +92,7 @@ time_limited_start_date=EXCLUDED.time_limited_start_date,
 time_limited_end_date=EXCLUDED.time_limited_end_date,
 description=EXCLUDED.description, 
 date_updated=EXCLUDED.date_updated,
-is_section_127_agreement_enabled=EXCLUDED.is_section_127_agreement_enabled;`;
+is_section_127_agreement_enabled=EXCLUDED.is_section_127_agreement_enabled;`
 
 // Deletes charge elements that are no longer present in the NALD import
 const cleanupChargeElements = `DELETE FROM water.charge_elements
@@ -106,7 +106,7 @@ WHERE charge_element_id IN (
     and nce."ID" is null 
     and t.billing_transaction_id is null
     and bv.billing_volume_id is null 
-);`;
+);`
 
 const insertChargeVersion = `
 insert into water.charge_versions
@@ -129,7 +129,7 @@ on conflict (external_id) do update set
   apportionment=EXCLUDED.apportionment,
   change_reason_id=EXCLUDED.change_reason_id,
   date_updated=NOW();
-`;
+`
 
 const importChargeVersions = `INSERT INTO water.charge_versions (licence_ref, scheme, external_id, version_number, start_date, status, apportionment,
 error, end_date, billed_upto_date, region_code, date_created, date_updated, source, invoice_account_id, company_id, licence_id, change_reason_id)
@@ -180,7 +180,7 @@ error=EXCLUDED.error, end_date=EXCLUDED.end_date,
 billed_upto_date=EXCLUDED.billed_upto_date,
 region_code=EXCLUDED.region_code, date_updated=EXCLUDED.date_updated,
 source=EXCLUDED.source, invoice_account_id=EXCLUDED.invoice_account_id, company_id=EXCLUDED.company_id,
-licence_Id=EXCLUDED.licence_id, change_reason_id=EXCLUDED.change_reason_id;`;
+licence_Id=EXCLUDED.licence_id, change_reason_id=EXCLUDED.change_reason_id;`
 
 // Deletes charge versions that are no longer present in the NALD import
 const cleanupChargeVersions = `
@@ -192,10 +192,12 @@ DELETE FROM water.charge_versions WHERE charge_version_id IN (
     where cv.source='nald'
       and cvm.external_id is null
     and billing_batch_charge_version_year_id is null
-);`;
+);`
 
-exports.importChargeElements = importChargeElements;
-exports.cleanupChargeElements = cleanupChargeElements;
-exports.insertChargeVersion = insertChargeVersion;
-exports.importChargeVersions = importChargeVersions;
-exports.cleanupChargeVersions = cleanupChargeVersions;
+module.exports = {
+  importChargeElements,
+  cleanupChargeElements,
+  insertChargeVersion,
+  importChargeVersions,
+  cleanupChargeVersions
+}

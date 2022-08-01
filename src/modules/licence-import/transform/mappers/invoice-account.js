@@ -1,15 +1,15 @@
-const { groupBy, sortBy } = require('lodash');
-const helpers = require('@envage/water-abstraction-helpers');
-const date = require('./date');
-const roles = require('./roles');
+const { groupBy, sortBy } = require('lodash')
+const helpers = require('@envage/water-abstraction-helpers')
+const date = require('./date')
+const roles = require('./roles')
 
 const mapInvoiceAccount = chargeVersion => ({
   invoiceAccountNumber: chargeVersion.IAS_CUST_REF
-});
+})
 
 const getNormalisedName = str => {
-  return str.trim().toLowerCase().replace(/ltd\.?$/, 'limited');
-};
+  return str.trim().toLowerCase().replace(/ltd\.?$/, 'limited')
+}
 
 /**
  * Gets the agent company ID for the invoice account row
@@ -23,17 +23,17 @@ const getAgentCompanyExternalId = row => {
     invoice_account_party_name: invoiceAccountPartyName,
     FGAC_REGION_CODE: regionCode,
     ACON_APAR_ID: invoiceAccountPartyId
-  } = row;
+  } = row
 
-  const isDifferentId = licenceHolderPartyId !== invoiceAccountPartyId;
-  const isDifferentName = getNormalisedName(licenceHolderPartyName) !== getNormalisedName(invoiceAccountPartyName);
+  const isDifferentId = licenceHolderPartyId !== invoiceAccountPartyId
+  const isDifferentName = getNormalisedName(licenceHolderPartyName) !== getNormalisedName(invoiceAccountPartyName)
 
-  return isDifferentId && isDifferentName ? `${regionCode}:${invoiceAccountPartyId}` : null;
-};
+  return isDifferentId && isDifferentName ? `${regionCode}:${invoiceAccountPartyId}` : null
+}
 
 const mapInvoiceAccountAddresses = (iasAccounts, context) => {
   // Sort group by transfer date
-  const sorted = sortBy(iasAccounts, row => date.mapTransferDate(row.IAS_XFER_DATE));
+  const sorted = sortBy(iasAccounts, row => date.mapTransferDate(row.IAS_XFER_DATE))
 
   // Map to new data structure
   const addresses = sorted.map((row, i, arr) => ({
@@ -44,26 +44,28 @@ const mapInvoiceAccountAddresses = (iasAccounts, context) => {
     agentCompany: {
       externalId: getAgentCompanyExternalId(row)
     }
-  }));
+  }))
 
   // Merge on date range
-  return helpers.charging.mergeHistory(addresses);
-};
+  return helpers.charging.mergeHistory(addresses)
+}
 
 const mapInvoiceAccounts = (iasAccounts, context) => {
   // Group by IAS customer ref (invoice account number)
-  const groups = groupBy(iasAccounts, row => row.IAS_CUST_REF);
+  const groups = groupBy(iasAccounts, row => row.IAS_CUST_REF)
   return Object.values(groups).map(group => {
-    const addresses = mapInvoiceAccountAddresses(group, context);
+    const addresses = mapInvoiceAccountAddresses(group, context)
 
     return {
       invoiceAccountNumber: group[0].IAS_CUST_REF,
       startDate: addresses[0].startDate,
       endDate: null,
       addresses
-    };
-  });
-};
+    }
+  })
+}
 
-exports.mapInvoiceAccount = mapInvoiceAccount;
-exports.mapInvoiceAccounts = mapInvoiceAccounts;
+module.exports = {
+  mapInvoiceAccount,
+  mapInvoiceAccounts
+}

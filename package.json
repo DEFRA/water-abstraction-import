@@ -1,43 +1,22 @@
 {
   "name": "water-abstraction-import",
   "version": "2.24.0",
-  "description": "",
+  "description": "App that manages import jobs for the Water Resource Licencing Service",
+  "homepage": "https://github.com/DEFRA/water-abstraction-team",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DEFRA/water-abstraction-import"
+  },
+  "author": "WRLS service team",
+  "license": "OGL-UK-3.0",
   "scripts": {
-    "test": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits lab",
-    "test:bail": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits lab --bail",
-    "test:ci": "lab -t 55 -m 0 -r lcov -o coverage/lcov.info -r console -o stdout",
-    "lint": "eslint .",
-    "codecov": "codecov",
-    "version": "auto-changelog -p --commit-limit false && git add CHANGELOG.md",
+    "test": "DATABASE_URL=postgres://water_user:password@localhost:5432/wabs_test lab",
+    "lint": "standard",
     "migrate": "node scripts/create-schema && db-migrate up --verbose",
     "migrate:down": "db-migrate down --verbose",
     "migrate:create": "db-migrate create --sql-file --",
-    "migrate:local-test": "DATABASE_URL=postgres://water_user:password@localhost:5432/permits node scripts/create-schema && DATABASE_URL=postgres://water_user:password@localhost:5432/permits db-migrate up --verbose"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/DEFRA/water-abstraction-import.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/DEFRA/water-abstraction-import/issues"
-  },
-  "homepage": "https://github.com/DEFRA/water-abstraction-import#readme",
-  "devDependencies": {
-    "@hapi/code": "^8.0.1",
-    "@hapi/lab": "^22.0.4",
-    "auto-changelog": "^1.16.4",
-    "codecov": "^3.7.1",
-    "db-migrate-pg": "^1.2.2",
-    "eslint": "^6.8.0",
-    "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.21.2",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "sinon": "^9.0.2"
+    "migrate:test": "DATABASE_URL=postgres://water_user:password@localhost:5432/wabs_test node scripts/create-schema && DATABASE_URL=postgres://water_user:password@localhost:5432/wabs_test db-migrate up --verbose"
   },
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^4.1.2",
@@ -50,7 +29,8 @@
     "aws-sdk": "^2.674.0",
     "blipp": "^4.0.1",
     "csv-stringify": "^5.5.0",
-    "db-migrate": "^0.11.11",
+    "db-migrate": "^0.11.13",
+    "db-migrate-pg": "^1.2.2",
     "deep-map": "^2.0.0",
     "dotenv": "^8.2.0",
     "es6-weak-map": "^2.0.3",
@@ -71,5 +51,13 @@
     "traverse": "^0.6.6",
     "url-join": "^4.0.1",
     "winston": "2.4.4"
+  },
+  "devDependencies": {
+    "@hapi/code": "^8.0.1",
+    "@hapi/lab": "^22.0.4",
+    "auto-changelog": "^1.16.4",
+    "codecov": "^3.7.1",
+    "sinon": "^9.0.2",
+    "standard": "^17.0.0"
   }
 }

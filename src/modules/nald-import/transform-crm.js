@@ -1,11 +1,11 @@
 /**
  * Transform data for loading into CRM
  */
-const { mapValues, find } = require('lodash');
-const { findCurrent, transformNull } = require('@envage/water-abstraction-helpers').nald;
-const { addressFormatter, crmNameFormatter } = require('@envage/water-abstraction-helpers').nald.formatting;
-const { sentenceCase } = require('sentence-case');
-const { logger } = require('../../logger');
+const { mapValues, find } = require('lodash')
+const { findCurrent, transformNull } = require('@envage/water-abstraction-helpers').nald
+const { addressFormatter, crmNameFormatter } = require('@envage/water-abstraction-helpers').nald.formatting
+const { sentenceCase } = require('sentence-case')
+const { logger } = require('../../logger')
 
 /**
  * Contacts formatter
@@ -16,40 +16,40 @@ const { logger } = require('../../logger');
  */
 const contactsFormatter = (currentVersion, roles) => {
   if (!currentVersion) {
-    return [];
+    return []
   }
 
   const licenceHolderParty = find(currentVersion.parties, (party) => {
-    return party.ID === currentVersion.ACON_APAR_ID;
-  });
+    return party.ID === currentVersion.ACON_APAR_ID
+  })
 
   const licenceHolderAddress = find(licenceHolderParty.contacts, (contact) => {
-    return contact.AADD_ID === currentVersion.ACON_AADD_ID;
-  });
+    return contact.AADD_ID === currentVersion.ACON_AADD_ID
+  })
 
   const contacts = [{
     role: 'Licence holder',
     ...crmNameFormatter(licenceHolderParty),
     ...addressFormatter(licenceHolderAddress.party_address)
-  }];
+  }]
 
   roles.forEach((role) => {
     contacts.push({
       role: sentenceCase(role.role_type.DESCR),
       ...crmNameFormatter(role.role_party),
       ...addressFormatter(role.role_address)
-    });
-  });
+    })
+  })
 
-  return transformNull(contacts);
-};
+  return transformNull(contacts)
+}
 
 /**
  * Data from NALD import has null as "null" string
  * prune this to empty value
  */
 function pruneNullString (data) {
-  return mapValues(data, value => value === 'null' ? '' : value);
+  return mapValues(data, value => value === 'null' ? '' : value)
 }
 
 /**
@@ -58,8 +58,8 @@ function pruneNullString (data) {
  * @return {Object} contact metadata
  */
 function buildCRMContactMetadata (currentVersion) {
-  const party = currentVersion.party;
-  const address = currentVersion.address;
+  const party = currentVersion.party
+  const address = currentVersion.address
   return {
     Name: party.NAME,
     Salutation: party.SALUTATION,
@@ -73,7 +73,7 @@ function buildCRMContactMetadata (currentVersion) {
     County: address.COUNTY,
     Postcode: address.POSTCODE,
     Country: address.COUNTRY
-  };
+  }
 }
 
 /**
@@ -85,19 +85,19 @@ function buildCRMMetadata (currentVersion) {
   if (!currentVersion) {
     return {
       IsCurrent: false
-    };
+    }
   }
-  const expires = currentVersion.expiry_date;
-  const modified = currentVersion.version_effective_date;
-  const contact = buildCRMContactMetadata(currentVersion);
+  const expires = currentVersion.expiry_date
+  const modified = currentVersion.version_effective_date
+  const contact = buildCRMContactMetadata(currentVersion)
 
   const data = {
     ...contact,
     Expires: expires,
     Modified: modified,
     IsCurrent: true
-  };
-  return pruneNullString(data);
+  }
+  return pruneNullString(data)
 }
 
 /**
@@ -113,19 +113,21 @@ function buildCRMPacket (licenceData, licenceRef, licenceId) {
     system_id: 'permit-repo',
     system_internal_id: licenceId,
     system_external_id: licenceRef
-  };
+  }
 
   try {
-    const currentVersion = licenceData.data.current_version;
-    const metadata = buildCRMMetadata(currentVersion);
-    metadata.contacts = contactsFormatter(findCurrent(licenceData.data.versions), licenceData.data.roles);
-    crmData.metadata = JSON.stringify(metadata);
+    const currentVersion = licenceData.data.current_version
+    const metadata = buildCRMMetadata(currentVersion)
+    metadata.contacts = contactsFormatter(findCurrent(licenceData.data.versions), licenceData.data.roles)
+    crmData.metadata = JSON.stringify(metadata)
   } catch (error) {
-    logger.error('Cannot build CRM packet', error, crmData);
+    logger.error('Cannot build CRM packet', error, crmData)
   }
-  return crmData;
+  return crmData
 }
 
-exports.buildCRMPacket = buildCRMPacket;
-exports.buildCRMMetadata = buildCRMMetadata;
-exports.contactsFormatter = contactsFormatter;
+module.exports = {
+  buildCRMPacket,
+  buildCRMMetadata,
+  contactsFormatter
+}

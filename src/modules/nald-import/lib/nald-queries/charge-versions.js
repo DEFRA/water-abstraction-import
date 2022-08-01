@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const getNonDraftChargeVersionsForLicence = `SELECT
   l."LIC_NO" AS licence_ref,
@@ -30,6 +30,8 @@ WHERE v."FGAC_REGION_CODE"=$1 and v."AABL_ID"=$2 and v."STATUS"<>'DRAFT'
 ORDER BY 
   to_date(v."EFF_ST_DATE", 'DD/MM/YYYY'),
   v."VERS_NO"::integer;
-`;
+`
 
-exports.getNonDraftChargeVersionsForLicence = getNonDraftChargeVersionsForLicence;
+module.exports = {
+  getNonDraftChargeVersionsForLicence
+}

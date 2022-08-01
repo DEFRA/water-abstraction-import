@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
-const logger = require('./lib/logger');
+const logger = require('./lib/logger')
 
-const JOB_NAME = 'nald-import.delete-removed-documents';
-const importService = require('../../../lib/services/import');
+const JOB_NAME = 'nald-import.delete-removed-documents'
+const importService = require('../../../lib/services/import')
 
 const createMessage = () => ({
   name: JOB_NAME,
@@ -11,19 +11,21 @@ const createMessage = () => ({
     expireIn: '1 hours',
     singletonKey: JOB_NAME
   }
-});
+})
 
 const handler = async job => {
-  logger.logHandlingJob(job);
+  logger.logHandlingJob(job)
 
   try {
-    return importService.deleteRemovedDocuments();
+    return importService.deleteRemovedDocuments()
   } catch (err) {
-    logger.logJobError(job, err);
-    throw err;
+    logger.logJobError(job, err)
+    throw err
   }
-};
+}
 
-exports.createMessage = createMessage;
-exports.handler = handler;
-exports.jobName = JOB_NAME;
+module.exports = {
+  createMessage,
+  handler,
+  jobName: JOB_NAME
+}

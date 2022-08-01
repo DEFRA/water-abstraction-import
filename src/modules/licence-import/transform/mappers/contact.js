@@ -1,4 +1,4 @@
-const str = require('./str');
+const str = require('./str')
 
 /**
  * Maps NALD party to CRM contact
@@ -7,7 +7,7 @@ const str = require('./str');
  */
 const mapContact = party => {
   if (party.APAR_TYPE === 'ORG') {
-    return null;
+    return null
   }
   return {
     salutation: str.mapNull(party.SALUTATION),
@@ -16,7 +16,9 @@ const mapContact = party => {
     lastName: str.mapNull(party.NAME),
     externalId: `${party.FGAC_REGION_CODE}:${party.ID}`,
     _nald: party
-  };
-};
+  }
+}
 
-exports.mapContact = mapContact;
+module.exports = {
+  mapContact
+}

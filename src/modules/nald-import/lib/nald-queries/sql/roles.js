@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const getRoles = `
   select
@@ -26,6 +26,8 @@ const getRoles = `
     and p."FGAC_REGION_CODE" = $2
     and a."FGAC_REGION_CODE" = $2
     and (r."EFF_END_DATE" = 'null' or to_date(r."EFF_END_DATE", 'DD/MM/YYYY') > now());
-`;
+`
 
-exports.getRoles = getRoles;
+module.exports = {
+  getRoles
+}

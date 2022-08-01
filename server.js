@@ -1,11 +1,11 @@
-'use strict';
+'use strict'
 
-require('dotenv').config();
+require('dotenv').config()
 
-const Hapi = require('@hapi/hapi');
-const CatboxRedis = require('@hapi/catbox-redis');
+const Hapi = require('@hapi/hapi')
+const CatboxRedis = require('@hapi/catbox-redis')
 
-const config = require('./config');
+const config = require('./config')
 
 const server = Hapi.server({
   ...config.server,
@@ -17,6 +17,6 @@ const server = Hapi.server({
       }
     }
   ]
-});
+})
 
-module.exports = server;
+module.exports = server
