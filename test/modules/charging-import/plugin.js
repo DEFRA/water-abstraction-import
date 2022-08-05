@@ -1,7 +1,5 @@
 'use strict'
 
-require('dotenv').config()
-
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
 const sandbox = require('sinon').createSandbox()
 const cron = require('node-cron')
