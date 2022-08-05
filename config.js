@@ -78,7 +78,7 @@ module.exports = {
       overwriteReturns: false // Set to false as this is highly disruptive
     },
     licences: {
-      schedule: isProduction ? '0 4 * * 1,2,3,4,5' : '0 16 * * 1,2,3,4,5',
+      schedule: process.env.WRLS_CRON_LICENCES || '0 4 * * 1,2,3,4,5',
       // Note: these 2 flags need to be set to false for charging go-live
       // to suspend the import of invoice accounts and licence agreements
       // Update: I've changed those values to false ahead of the v2.0 charging
@@ -95,7 +95,7 @@ module.exports = {
       isBillingDocumentRoleImportEnabled: false
     },
     charging: {
-      schedule: isProduction ? '0 1 * * 1,2,3,4,5' : '0 14 * * 1,2,3,4,5'
+      schedule: process.env.WRLS_CRON_CHARGING || '0 1 * * 1,2,3,4,5'
     },
     monitoring: {
       schedule: '* * * * *'
