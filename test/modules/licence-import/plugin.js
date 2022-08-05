@@ -2,6 +2,7 @@
 
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
 const sandbox = require('sinon').createSandbox()
+const config = require('../../../config')
 const cron = require('node-cron')
 const { plugin } = require('../../../src/modules/licence-import/plugin')
 const jobs = require('../../../src/modules/licence-import/jobs')
@@ -43,6 +44,7 @@ experiment('modules/licence-import/plugin.js', () => {
         sandbox.stub(process, 'env').value({
           NODE_ENV: 'test'
         })
+        sandbox.stub(config.import.licences, 'schedule').value('0 16 * * 1,2,3,4,5')
         await plugin.register(server)
       })
 

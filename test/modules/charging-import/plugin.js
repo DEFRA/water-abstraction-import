@@ -1,8 +1,12 @@
 'use strict'
 
+require('dotenv').config()
+
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
 const sandbox = require('sinon').createSandbox()
 const cron = require('node-cron')
+
+const config = require('../../../config')
 
 const { plugin } = require('../../../src/modules/charging-import/plugin')
 
@@ -40,8 +44,9 @@ experiment('modules/charging-import/plugin.js', () => {
     experiment('on target environments', () => {
       beforeEach(async () => {
         sandbox.stub(process, 'env').value({
-          NODE_ENV: 'test'
+          NODE_ENV: 'dev'
         })
+        sandbox.stub(config.import.charging, 'schedule').value('0 14 * * 1,2,3,4,5')
         await plugin.register(server)
       })
 
