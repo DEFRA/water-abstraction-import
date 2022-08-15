@@ -57,7 +57,7 @@ const createOrUpdateReturn = async row => {
     const thisReturn = await returns.create(row)
 
     /* For non-production environments, we allow the system to import the returns data so we can test billing */
-    if (config.isAcceptanceTestTarget && config.import.nald.overwriteReturns) {
+    if (!config.isProduction && config.import.nald.overwriteReturns) {
       await replicateReturnsDataFromNaldForNonProductionEnvironments(row)
     }
     return thisReturn
@@ -71,7 +71,7 @@ const createOrUpdateReturn = async row => {
  */
 const persistReturns = async (returns) => {
   for (const ret of returns) {
-    if (config.isAcceptanceTestTarget && config.import.nald.overwriteReturns) {
+    if (!config.isProduction && config.import.nald.overwriteReturns) {
       await returnsApi.deleteAllReturnsData(ret.return_id)
     }
     await createOrUpdateReturn(ret)

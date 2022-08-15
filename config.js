@@ -5,14 +5,6 @@ require('dotenv').config()
 const environment = process.env.ENVIRONMENT
 const isProduction = environment === 'prd'
 
-const ENV_LOCAL = 'local'
-const ENV_DEV = 'dev'
-const ENV_QA = 'qa'
-const ENV_TEST = 'test'
-const ENV_PREPROD = 'preprod'
-
-const isAcceptanceTestTarget = [ENV_LOCAL, ENV_DEV, ENV_TEST, ENV_QA, ENV_PREPROD].includes(process.env.NODE_ENV)
-
 const isTlsConnection = (process.env.REDIS_HOST || '').includes('aws')
 
 module.exports = {
@@ -65,8 +57,6 @@ module.exports = {
   },
 
   isProduction,
-
-  isAcceptanceTestTarget,
 
   proxy: process.env.PROXY,
 
