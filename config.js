@@ -11,7 +11,8 @@ const ENV_PRODUCTION = 'production'
 
 const isAcceptanceTestTarget = [ENV_LOCAL, ENV_DEV, ENV_TEST, ENV_QA, ENV_PREPROD].includes(process.env.NODE_ENV)
 const isProduction = process.env.NODE_ENV === ENV_PRODUCTION
-const isLocal = process.env.NODE_ENV === ENV_LOCAL
+
+const isTlsConnection = (process.env.REDIS_HOST || '').includes('aws')
 
 module.exports = {
 
@@ -103,10 +104,8 @@ module.exports = {
   redis: {
     host: process.env.REDIS_HOST || '127.0.0.1',
     port: process.env.REDIS_PORT || 6379,
-    ...!isLocal && {
-      password: process.env.REDIS_PASSWORD,
-      tls: {}
-    },
+    password: process.env.REDIS_PASSWORD || '',
+    ...(isTlsConnection) && { tls: {} },
     db: 0
   },
   notify: {
