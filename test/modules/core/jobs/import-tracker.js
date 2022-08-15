@@ -43,10 +43,10 @@ experiment('modules/core/jobs/import-tracker', () => {
 
     experiment('when there are jobs that have failed', () => {
       experiment('on the production environment', () => {
-        let testMessage = 'There is 1 failed import job in the production environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
+        let testMessage = 'There is 1 failed import job in the prd environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
         beforeEach(async () => {
           sandbox.stub(process, 'env').value({
-            NODE_ENV: 'production',
+            ENVIRONMENT: 'prd',
             WATER_SERVICE_MAILBOX: 'test-mailbox@test.com'
           })
           jobsConnector.getFailedJobs.resolves([{
@@ -94,10 +94,10 @@ experiment('modules/core/jobs/import-tracker', () => {
     })
 
     experiment('on the preprod environment', () => {
-      const testMessage = 'There is 1 failed import job in the preprod environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
+      const testMessage = 'There is 1 failed import job in the pre environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
       beforeEach(async () => {
         sandbox.stub(process, 'env').value({
-          NODE_ENV: 'preprod',
+          ENVIRONMENT: 'pre',
           WATER_SERVICE_MAILBOX: 'test-mailbox@test.com'
         })
         jobsConnector.getFailedJobs.resolves([{
@@ -122,10 +122,10 @@ experiment('modules/core/jobs/import-tracker', () => {
     })
 
     experiment('on the test environment', () => {
-      const testMessage = 'There is 1 failed import job in the test environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
+      const testMessage = 'There is 1 failed import job in the tst environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
       beforeEach(async () => {
         sandbox.stub(process, 'env').value({
-          NODE_ENV: 'test'
+          ENVIRONMENT: 'tst'
         })
         jobsConnector.getFailedJobs.resolves([{
           jobName: 'Test.Job.Name',
