@@ -37,15 +37,10 @@ experiment('lib/plugin', () => {
     })
 
     experiment('when not in the travis environment', () => {
-      const registerEnvironments = ['local', 'dev', 'test', 'preprod', 'production']
+      test('registerSubscribers is called', async () => {
+        plugin.createRegister(server, registerSubscribers)
 
-      registerEnvironments.forEach(env => {
-        test(`registerSubscribers is called for ${env}`, async () => {
-          sandbox.stub(process, 'env').value({ NODE_ENV: env })
-          plugin.createRegister(server, registerSubscribers)
-
-          expect(registerSubscribers.called).to.equal(true)
-        })
+        expect(registerSubscribers.called).to.equal(true)
       })
     })
   })
