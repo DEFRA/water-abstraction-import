@@ -12,7 +12,6 @@ const ENV_PRODUCTION = 'production'
 const isAcceptanceTestTarget = [ENV_LOCAL, ENV_DEV, ENV_TEST, ENV_QA, ENV_PREPROD].includes(process.env.NODE_ENV)
 const isProduction = process.env.NODE_ENV === ENV_PRODUCTION
 const isLocal = process.env.NODE_ENV === ENV_LOCAL
-const isTest = process.env.NODE_ENV === ENV_TEST
 
 module.exports = {
 
@@ -71,7 +70,7 @@ module.exports = {
 
   import: {
     nald: {
-      isEtagCheckEnabled: !isTest,
+      isEtagCheckEnabled: (process.env.ENABLE_NALD_ETAG_CHECK === 'true') || true,
       zipPassword: process.env.NALD_ZIP_PASSWORD,
       path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release',
       overwriteReturns: false // Set to false as this is highly disruptive
