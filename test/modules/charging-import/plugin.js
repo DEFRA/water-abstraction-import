@@ -41,9 +41,6 @@ experiment('modules/charging-import/plugin.js', () => {
   experiment('register', () => {
     experiment('on target environments', () => {
       beforeEach(async () => {
-        sandbox.stub(process, 'env').value({
-          NODE_ENV: 'dev'
-        })
         sandbox.stub(config.import.charging, 'schedule').value('0 14 * * 1,2,3,4,5')
         await plugin.register(server)
       })
@@ -71,7 +68,6 @@ experiment('modules/charging-import/plugin.js', () => {
 
     experiment('on production', () => {
       beforeEach(async () => {
-        sandbox.stub(process.env, 'NODE_ENV').value('production')
         await plugin.register(server)
       })
 
