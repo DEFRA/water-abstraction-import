@@ -57,6 +57,7 @@ module.exports = {
   },
 
   isProduction,
+  environment,
 
   proxy: process.env.PROXY,
 
