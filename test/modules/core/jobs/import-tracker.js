@@ -9,6 +9,7 @@ const jobsConnector = require('../../../../src/lib/connectors/water-import/jobs'
 const notifyService = require('../../../../src/lib/services/notify')
 const importTrackerJob = require('../../../../src/modules/core/jobs/import-tracker')
 const slack = require('../../../../src/lib/slack')
+const config = require('../../../../config')
 
 experiment('modules/core/jobs/import-tracker', () => {
   const jobName = 'import.tracker'
@@ -43,10 +44,11 @@ experiment('modules/core/jobs/import-tracker', () => {
 
     experiment('when there are jobs that have failed', () => {
       experiment('on the production environment', () => {
-        let testMessage = 'There is 1 failed import job in the production environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
+        let testMessage = 'There is 1 failed import job in the prd environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
         beforeEach(async () => {
+          sandbox.stub(config, 'environment').value('prd')
+          sandbox.stub(config, 'isProduction').value(true)
           sandbox.stub(process, 'env').value({
-            NODE_ENV: 'production',
             WATER_SERVICE_MAILBOX: 'test-mailbox@test.com'
           })
           jobsConnector.getFailedJobs.resolves([{
@@ -69,7 +71,7 @@ experiment('modules/core/jobs/import-tracker', () => {
           expect(data).to.equal({ content: testMessage })
         })
         test('when there are 2 failed job the sub title is pluralised', async () => {
-          testMessage = 'There are 2 failed import jobs in the production environment.' +
+          testMessage = 'There are 2 failed import jobs in the prd environment.' +
             '\n\nJob Name: Test.Job.Name 1 \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n' +
             'Job Name: Test.Job.Name 2 \nTotal Errors: 100 \nDate created: 2010-01-01 \nDate completed: 2010-01-01\n\n'
           jobsConnector.getFailedJobs.resolves([{
@@ -94,10 +96,10 @@ experiment('modules/core/jobs/import-tracker', () => {
     })
 
     experiment('on the preprod environment', () => {
-      const testMessage = 'There is 1 failed import job in the preprod environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
+      const testMessage = 'There is 1 failed import job in the pre environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
       beforeEach(async () => {
+        sandbox.stub(config, 'environment').value('pre')
         sandbox.stub(process, 'env').value({
-          NODE_ENV: 'preprod',
           WATER_SERVICE_MAILBOX: 'test-mailbox@test.com'
         })
         jobsConnector.getFailedJobs.resolves([{
@@ -113,20 +115,15 @@ experiment('modules/core/jobs/import-tracker', () => {
         const result = slack.post.lastCall.args[0]
         expect(result).to.equal(testMessage)
       })
-      test('the handler post the correct message to notify', async () => {
-        const [recipient, templateRef, data] = notifyService.sendEmail.lastCall.args
-        expect(recipient).to.equal('test-mailbox@test.com')
-        expect(templateRef).to.equal('service_status_alert')
-        expect(data).to.equal({ content: testMessage })
+      test('the handler does not post a message to notify', async () => {
+        expect(notifyService.sendEmail.calledOnce).to.be.false()
       })
     })
 
     experiment('on the test environment', () => {
-      const testMessage = 'There is 1 failed import job in the test environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
+      const testMessage = 'There is 1 failed import job in the tst environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
       beforeEach(async () => {
-        sandbox.stub(process, 'env').value({
-          NODE_ENV: 'test'
-        })
+        sandbox.stub(config, 'environment').value('tst')
         jobsConnector.getFailedJobs.resolves([{
           jobName: 'Test.Job.Name',
           total: 100,
