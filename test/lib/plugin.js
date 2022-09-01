@@ -26,22 +26,10 @@ experiment('lib/plugin', () => {
       sandbox.restore()
     })
 
-    experiment('when in the travis environment', () => {
-      test('registerSubscribers is not called', async () => {
-        sandbox.stub(process, 'env').value({
-          TRAVIS: 1
-        })
-        plugin.createRegister(server, registerSubscribers)
-        expect(registerSubscribers.called).to.equal(false)
-      })
-    })
+    test('registerSubscribers is called', async () => {
+      plugin.createRegister(server, registerSubscribers)
 
-    experiment('when not in the travis environment', () => {
-      test('registerSubscribers is called', async () => {
-        plugin.createRegister(server, registerSubscribers)
-
-        expect(registerSubscribers.called).to.equal(true)
-      })
+      expect(registerSubscribers.called).to.equal(true)
     })
   })
 })
