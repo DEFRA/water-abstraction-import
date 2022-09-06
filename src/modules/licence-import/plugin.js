@@ -1,7 +1,6 @@
 const cron = require('node-cron')
 const jobs = require('./jobs')
 const handlers = require('./handlers')
-const { createRegister } = require('../../lib/plugin')
 const config = require('../../../config')
 
 const getOptions = () => ({
@@ -50,7 +49,7 @@ const registerSubscribers = async server => {
 const plugin = {
   name: 'importLicenceData',
   dependencies: ['pgBoss'],
-  register: server => createRegister(server, registerSubscribers)
+  register: server => registerSubscribers(server)
 }
 
 module.exports = {

@@ -5,7 +5,6 @@ const cron = require('node-cron')
 const chargeVersionsJob = require('./jobs/charge-versions')
 const chargingDataJob = require('./jobs/charging-data')
 
-const { createRegister } = require('../../lib/plugin')
 const config = require('../../../config')
 
 const registerSubscribers = async server => {
@@ -22,7 +21,7 @@ const registerSubscribers = async server => {
 const plugin = {
   name: 'importChargingData',
   dependencies: ['pgBoss'],
-  register: server => createRegister(server, registerSubscribers)
+  register: server => registerSubscribers(server)
 }
 
 module.exports = {
