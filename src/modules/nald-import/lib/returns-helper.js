@@ -1,7 +1,7 @@
 const { logger } = require('../../../logger')
 const lodash = require('lodash')
 const moment = require('moment')
-const uuid = require('uuid/v4')
+const { v4: uuid } = require('uuid')
 const db = require('./db')
 const returnsApi = require('../../../lib/connectors/returns')
 const { versions, lines } = returnsApi
@@ -52,10 +52,10 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
   const naldReturnFormat = naldReturnFormatQuery[0]
 
   const naldLinesFromNaldReturnFormLogs = await db.dbQuery(`
-        SELECT * FROM import."NALD_RET_FORM_LOGS" 
-        WHERE "ARTY_ID" = $1 
-        AND "FGAC_REGION_CODE" = $2 
-        AND "DATE_FROM" = $3 
+        SELECT * FROM import."NALD_RET_FORM_LOGS"
+        WHERE "ARTY_ID" = $1
+        AND "FGAC_REGION_CODE" = $2
+        AND "DATE_FROM" = $3
         ORDER BY to_date("DATE_FROM", 'DD/MM/YYYY')`,
   [
     thisReturn.return_requirement,
@@ -64,9 +64,9 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
   ])
 
   const returnLinesFromNaldReturnLines = await db.dbQuery(`
-            SELECT * FROM import."NALD_RET_LINES" WHERE 
-            "ARFL_ARTY_ID" = $1 
-            AND "FGAC_REGION_CODE" = $2 
+            SELECT * FROM import."NALD_RET_LINES" WHERE
+            "ARFL_ARTY_ID" = $1
+            AND "FGAC_REGION_CODE" = $2
             AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')>=to_date($3, $5)
             AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')<=to_date($4, $5)
             ORDER BY "RET_DATE";

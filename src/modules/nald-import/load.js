@@ -3,7 +3,7 @@
 /**
  * Code for loading imported data to the target database(s)
  */
-const uuidV4 = require('uuid/v4')
+const { v4: uuidV4 } = require('uuid')
 const { buildCRMPacket } = require('./transform-crm')
 const { buildReturnsPacket } = require('./transform-returns')
 const { getLicenceJson, buildPermitRepoPacket } = require('./transform-permit')

@@ -1,6 +1,6 @@
 'use strict'
 
-const uuid = require('uuid/v4')
+const { v4: uuid } = require('uuid')
 
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
 const { expect } = require('@hapi/code')
