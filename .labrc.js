@@ -13,6 +13,7 @@ module.exports = {
   output: ['stdout', 'coverage/coverage.html', 'coverage/lcov.info'],
   globals: [
     '__classPrivateFieldGet',
+    '__classPrivateFieldIn',
     '__extends',
     '__assign',
     '__rest',
