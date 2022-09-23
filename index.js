@@ -11,9 +11,6 @@ const moment = require('moment')
 
 moment.locale('en-gb')
 
-// -------------- Shared code --------------------------
-const helpers = require('@envage/water-abstraction-helpers')
-
 // -------------- Require project code -----------------
 const config = require('./config')
 const routes = require('./src/routes.js')
@@ -41,15 +38,7 @@ const plugins = [
     options: config.blipp
   },
   HapiAuthJwt2,
-  {
-    plugin: helpers.hapiPgBoss,
-    options: {
-      ...config.pgBoss,
-      db: {
-        executeSql: (...args) => db.pool.query(...args)
-      }
-    }
-  },
+  require('./src/plugins/pg-boss.plugin'),
   require('./src/modules/licence-import/plugin'),
   require('./src/modules/charging-import/plugin'),
   require('./src/modules/nald-import/plugin'),
