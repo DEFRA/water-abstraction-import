@@ -10,7 +10,7 @@ const pkg = require('../../../package.json')
 // Thing under test
 const controller = require('../../../src/modules/health/controller')
 
-experiment.only('modules/health/controller', () => {
+experiment('modules/health/controller', () => {
   experiment('.getInfo', () => {
     let info
 
