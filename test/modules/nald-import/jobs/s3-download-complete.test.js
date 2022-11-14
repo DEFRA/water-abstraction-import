@@ -119,7 +119,7 @@ experiment('modules/nald-import/jobs/s3-download-import-complete', () => {
 
           const [message, error] = logger.error.lastCall.args
           expect(message).to.equal('Error handling onComplete job: nald-import.s3-download')
-          expect(error).to.equal(err)
+          expect(error).to.equal(err.stack)
         })
       })
     })

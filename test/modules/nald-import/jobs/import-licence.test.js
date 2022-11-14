@@ -101,7 +101,7 @@ experiment('modules/nald-import/jobs/import-licence', () => {
         await expect(func()).to.reject()
         expect(logger.error.calledWith(
           'Error handling job nald-import.import-licence',
-          err,
+          err.stack,
           { licenceNumber: 'test-licence-number' }
         )).to.be.true()
       })

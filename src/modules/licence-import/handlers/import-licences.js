@@ -7,7 +7,7 @@ module.exports = async job => {
     const rows = await extract.getAllLicenceNumbers()
     return rows
   } catch (err) {
-    logger.error('Import licences error', err)
+    logger.error('Import licences error', err.stack)
     throw err
   }
 }

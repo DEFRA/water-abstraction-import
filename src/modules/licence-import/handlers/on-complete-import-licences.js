@@ -10,7 +10,7 @@ module.exports = async (messageQueue, job) => {
       await messageQueue.publish(jobs.importLicence(row.LIC_NO))
     }
   } catch (err) {
-    logger.error(`Error handling onComplete ${job.data.request.name}`, err)
+    logger.error(`Error handling onComplete ${job.data.request.name}`, err.stack)
     throw err
   }
 }

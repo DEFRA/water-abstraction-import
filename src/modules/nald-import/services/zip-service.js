@@ -36,7 +36,7 @@ const extract = async () => {
     await extractArchive(primaryPath, constants.LOCAL_TEMP_PATH, zipPassword)
     await extractArchive(secondaryPath, constants.LOCAL_TEMP_PATH)
   } catch (err) {
-    logger.error('Could not extract NALD zip', err)
+    logger.error('Could not extract NALD zip', err.stack)
     throw err
   }
 }

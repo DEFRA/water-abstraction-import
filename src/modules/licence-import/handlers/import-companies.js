@@ -13,7 +13,7 @@ module.exports = async job => {
     const data = await importCompanies.initialise()
     return data.map(mapRow)
   } catch (err) {
-    logger.error('Import companies error', err)
+    logger.error('Import companies error', err.stack)
     throw err
   }
 }

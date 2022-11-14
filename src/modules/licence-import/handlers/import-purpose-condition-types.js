@@ -9,7 +9,7 @@ module.exports = async () => {
     // Load to data in to database
     return purposeConditionsConnector.createPurposeConditionTypes()
   } catch (err) {
-    logger.error('Import purpose condition types error', err)
+    logger.error('Import purpose condition types error', err.stack)
     throw err
   }
 }

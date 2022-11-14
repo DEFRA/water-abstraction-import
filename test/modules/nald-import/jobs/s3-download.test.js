@@ -183,7 +183,7 @@ experiment('modules/nald-import/jobs/s3-download', () => {
         const func = () => s3Download.handler(job)
         await expect(func()).to.reject()
         expect(logger.error.calledWith(
-          'Error handling job nald-import.s3-download', err
+          'Error handling job nald-import.s3-download', err.stack
         )).to.be.true()
       })
 

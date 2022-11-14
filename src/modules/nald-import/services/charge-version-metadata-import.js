@@ -76,7 +76,7 @@ const importChargeVersionMetadataForLicence = async licence => {
     await persistChargeVersionMetadata(wrlsChargeVersions)
     await cleanup(licence, wrlsChargeVersions)
   } catch (err) {
-    logger.error(`Error importing charge versions for licence ${licence.LIC_NO}`, err)
+    logger.error(`Error importing charge versions for licence ${licence.LIC_NO}`, err.stack)
   }
 }
 

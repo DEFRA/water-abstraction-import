@@ -41,7 +41,7 @@ const handler = async job => {
       slack.post(content)
     }
   } catch (err) {
-    logger.error(`Error handling job ${job.name}`, err)
+    logger.error(`Error handling job ${job.name}`, err.stack)
     throw err
   }
 }

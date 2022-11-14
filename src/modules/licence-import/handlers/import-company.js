@@ -22,7 +22,7 @@ module.exports = async job => {
 
     await importCompanies.setImportedStatus(regionCode, partyId)
   } catch (err) {
-    logger.error('Import company error', err)
+    logger.error('Import company error', err.stack)
     throw err
   }
 }

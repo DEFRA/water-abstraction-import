@@ -67,12 +67,12 @@ const start = async function () {
       server.log('info', `Service ${name} running at: ${uri}`)
     }
   } catch (err) {
-    logger.error(err)
+    logger.error(err.stack)
   }
 }
 
 const processError = message => err => {
-  logger.error(message, err)
+  logger.error(message, err.stack)
   process.exit(1)
 }
 

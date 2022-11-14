@@ -83,7 +83,7 @@ experiment('modules/nald-import/jobs/delete-removed-documents-complete', () => {
 
           const [message, error] = logger.error.lastCall.args
           expect(message).to.equal('Error handling onComplete job: nald-import.delete-removed-documents')
-          expect(error).to.equal(err)
+          expect(error).to.equal(err.stack)
         })
       })
     })
