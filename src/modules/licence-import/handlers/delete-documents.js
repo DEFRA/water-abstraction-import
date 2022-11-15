@@ -6,7 +6,7 @@ module.exports = async job => {
     logger.info('Deleting removed documents')
     return documentsConnector.deleteRemovedDocuments()
   } catch (err) {
-    logger.error('Failed to delete removed documents', err)
+    logger.error('Failed to delete removed documents', err.stack)
     throw err
   }
 }

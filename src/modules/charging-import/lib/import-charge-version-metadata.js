@@ -16,7 +16,7 @@ const importChargeVersionMetadata = async () => {
 
     logger.info('Charge version metadata import complete')
   } catch (err) {
-    logger.error(err)
+    logger.error(err.stack)
     throw err
   }
 }

@@ -121,7 +121,7 @@ function buildCRMPacket (licenceData, licenceRef, licenceId) {
     metadata.contacts = contactsFormatter(findCurrent(licenceData.data.versions), licenceData.data.roles)
     crmData.metadata = JSON.stringify(metadata)
   } catch (error) {
-    logger.error('Cannot build CRM packet', error, crmData)
+    logger.error('Cannot build CRM packet', error.stack, crmData)
   }
   return crmData
 }

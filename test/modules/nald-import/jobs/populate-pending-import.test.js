@@ -87,7 +87,7 @@ experiment('modules/nald-import/jobs/populate-pending-import', () => {
         const func = () => populatePendingImport.handler(job)
         await expect(func()).to.reject()
         expect(logger.error.calledWith(
-          'Error handling job nald-import.populate-pending-import', err
+          'Error handling job nald-import.populate-pending-import', err.stack
         )).to.be.true()
       })
 

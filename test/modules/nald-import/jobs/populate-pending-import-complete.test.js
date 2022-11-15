@@ -92,7 +92,7 @@ experiment('modules/nald-import/jobs/populate-pending-import-complete', () => {
 
         const [message, error] = logger.error.lastCall.args
         expect(message).to.equal('Error handling onComplete job: nald-import.populate-pending-import')
-        expect(error).to.equal(err)
+        expect(error).to.equal(err.stack)
       })
     })
   })

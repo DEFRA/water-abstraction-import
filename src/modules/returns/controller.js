@@ -27,7 +27,7 @@ const getVersions = async (request, h) => {
     const pagination = getPagination(request)
     return versions.findMany(filter, {}, pagination, ['version_id', 'return_id', 'nil_return'])
   } catch (err) {
-    logger.error('getVersions error', err)
+    logger.error('getVersions error', err.stack)
     throw err
   }
 }
@@ -95,7 +95,7 @@ const getLinesForVersion = async (request, h) => {
       }
     }
   } catch (err) {
-    logger.error('getLinesForVersion error', err)
+    logger.error('getLinesForVersion error', err.stack)
     throw err
   }
 }
@@ -122,7 +122,7 @@ const getReturns = async (request, h) => {
     response.data = await Promise.all(tasks)
     return response
   } catch (err) {
-    logger.error('getReturns error', err)
+    logger.error('getReturns error', err.stack)
     throw err
   }
 }

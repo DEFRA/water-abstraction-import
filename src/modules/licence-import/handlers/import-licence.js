@@ -16,7 +16,7 @@ module.exports = async job => {
     // Load licence to DB
     await load.licence.loadLicence(mapped)
   } catch (err) {
-    logger.error('Import licence error', err)
+    logger.error('Import licence error', err.stack)
     throw err
   }
 }

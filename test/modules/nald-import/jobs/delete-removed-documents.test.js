@@ -68,7 +68,7 @@ experiment('modules/nald-import/jobs/delete-removed-documents', () => {
         const func = () => deleteRemovedDocumentsJob.handler(job)
         await expect(func()).to.reject()
         expect(logger.error.calledWith(
-          'Error handling job nald-import.delete-removed-documents', err
+          'Error handling job nald-import.delete-removed-documents', err.stack
         )).to.equal(true)
       })
 

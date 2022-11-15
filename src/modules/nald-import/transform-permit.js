@@ -132,7 +132,7 @@ const getLicenceJson = async (licenceNumber) => {
 
     return licenceRow
   } catch (error) {
-    logger.error('Error getting licence JSON', error, { licenceNumber })
+    logger.error('Error getting licence JSON', error.stack, { licenceNumber })
   }
 }
 

@@ -56,7 +56,7 @@ experiment('modules/nald-import/services/zip-service', () => {
       test('an error is logged and rethrown', async () => {
         const func = () => zipService.extract()
         const result = await expect(func()).to.reject()
-        expect(logger.error.calledWith('Could not extract NALD zip', err)).to.be.true()
+        expect(logger.error.calledWith('Could not extract NALD zip', err.stack)).to.be.true()
         expect(result).to.equal(err)
       })
     })
