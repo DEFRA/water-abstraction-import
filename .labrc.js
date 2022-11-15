@@ -43,6 +43,17 @@ module.exports = {
     'Request',
     '__coverage__',
     '__createBinding',
-    '__spreadArray'
+    '__spreadArray',
+    'AggregateError',
+    'atob',
+    'btoa',
+    'AbortController',
+    'AbortSignal',
+    'EventTarget',
+    'Event',
+    'MessageChannel',
+    'MessagePort',
+    'MessageEvent',
+    'performance'
   ].join(',')
 };
