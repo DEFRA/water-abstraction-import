@@ -2,16 +2,8 @@
   "apps": [
     {
       "name": "import",
-      "ignore_watch": [
-        "node_modules",
-        "temp"
-      ],
       "script": "index.js",
-      "env": {
-        "watch": true
-      },
       "env_production": {
-        "watch": false,
         "instances" : "1"
       }
     }
