@@ -2,7 +2,8 @@
 
 const { beforeEach, experiment, it } = module.exports.lab = require('@hapi/lab').script()
 const { expect } = require('@hapi/code')
-const { difference, cloneDeep, set } = require('lodash')
+const { difference, set } = require('lodash')
+const Hoek = require('@hapi/hoek')
 
 const transformers = require('../../../../src/modules/returns/lib/transformers')
 
@@ -315,20 +316,20 @@ experiment('filterLines', () => {
 
 experiment('getReturnCycleStart', () => {
   it('Should return undefined if the isSummer flag is missing in the metadata', async () => {
-    const data = cloneDeep(returnResponse)
+    const data = Hoek.clone(returnResponse)
     delete data.metadata.isSummer
     const cycleStart = transformers.getReturnCycleStart(data)
     expect(cycleStart).to.equal(undefined)
   })
 
   it('Should return a summer cycle if the isSummer flag is true', async () => {
-    const data = cloneDeep(returnResponse)
+    const data = Hoek.clone(returnResponse)
     const cycleStart = transformers.getReturnCycleStart(data)
     expect(cycleStart).to.equal('2017-11-01')
   })
 
   it('Should return a winter cycle if the isSummer flag is false', async () => {
-    const data = cloneDeep(returnResponse)
+    const data = Hoek.clone(returnResponse)
     set(data, 'metadata.isSummer', false)
     const cycleStart = transformers.getReturnCycleStart(data)
     expect(cycleStart).to.equal('2017-04-01')
