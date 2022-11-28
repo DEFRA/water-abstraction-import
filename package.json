@@ -11,12 +11,12 @@
   "author": "WRLS service team",
   "license": "OGL-UK-3.0",
   "scripts": {
-    "test": "DATABASE_URL=postgres://water_user:password@localhost:5432/wabs_test lab",
+    "test": "lab",
     "lint": "standard",
     "migrate": "node scripts/create-schema && db-migrate up --verbose",
     "migrate:down": "db-migrate down --verbose",
     "migrate:create": "db-migrate create --sql-file --",
-    "migrate:test": "DATABASE_URL=postgres://water_user:password@localhost:5432/wabs_test node scripts/create-schema && DATABASE_URL=postgres://water_user:password@localhost:5432/wabs_test db-migrate up --verbose",
+    "migrate:test": "NODE_ENV=test node scripts/create-schema && NODE_END=test db-migrate up --verbose",
     "version": "npx --yes auto-changelog -p --commit-limit false && git add CHANGELOG.md"
   },
   "dependencies": {
