@@ -16,8 +16,9 @@
     "migrate": "node scripts/create-schema && db-migrate up --verbose",
     "migrate:down": "db-migrate down --verbose",
     "migrate:create": "db-migrate create --sql-file --",
-    "migrate:test": "NODE_ENV=test node scripts/create-schema && NODE_ENV=test db-migrate up --verbose",
-    "version": "npx --yes auto-changelog -p --commit-limit false && git add CHANGELOG.md"
+    "migrate:test": "export DATABASE_URL=${TEST_DATABASE_URL} && node scripts/create-schema && db-migrate up --verbose",
+    "version": "npx --yes auto-changelog -p --commit-limit false && git add CHANGELOG.md",
+    "dummy": "export DATABASE_URL=${TEST_DATABASE_URL} && echo $DATABASE_URL"
   },
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^4.1.2",
