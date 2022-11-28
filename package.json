@@ -16,7 +16,7 @@
     "migrate": "node scripts/create-schema && db-migrate up --verbose",
     "migrate:down": "db-migrate down --verbose",
     "migrate:create": "db-migrate create --sql-file --",
-    "migrate:test": "NODE_ENV=test node scripts/create-schema && NODE_END=test db-migrate up --verbose",
+    "migrate:test": "NODE_ENV=test node scripts/create-schema && NODE_ENV=test db-migrate up --verbose",
     "version": "npx --yes auto-changelog -p --commit-limit false && git add CHANGELOG.md"
   },
   "dependencies": {
