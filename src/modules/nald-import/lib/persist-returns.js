@@ -3,7 +3,6 @@
 /**
  * Creates or updates return cycle via returns API based on the return end date
  */
-const { pick } = require('lodash')
 const moment = require('moment')
 
 const { replicateReturnsDataFromNaldForNonProductionEnvironments } = require('./returns-helper')
@@ -33,9 +32,11 @@ const getUpdateRow = (row) => {
   const { end_date: endDate } = row
 
   if (moment(endDate).isBefore('2018-10-31')) {
-    return pick(row, ['status', 'metadata', 'received_date', 'due_date'])
+    const { status, metadata, received_date: receivedDate, due_date: dueDate } = row
+    return { status, metadata, received_date: receivedDate, due_date: dueDate }
   } else {
-    return pick(row, ['metadata', 'due_date'])
+    const { metadata, due_date: dueDate } = row
+    return { metadata, due_date: dueDate }
   }
 }
 

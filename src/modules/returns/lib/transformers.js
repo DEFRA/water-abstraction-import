@@ -2,7 +2,7 @@
 
 const moment = require('moment')
 const { returns: { date: { getPeriodStart } } } = require('@envage/water-abstraction-helpers')
-const { flow, toUpper, first, range, get, pick } = require('lodash')
+const { flow, toUpper, first, range, get } = require('lodash')
 const { isDateWithinReturnCycle } = require('./date-helpers')
 
 const DATE_FORMAT = 'YYYY-MM-DD'
@@ -33,7 +33,11 @@ const getReturnCycleStart = (returnData) => {
  */
 const transformReturn = (returnData, addFields = []) => {
   const pickFields = ['returns_frequency', 'licence_ref', 'start_date', 'end_date', 'status', 'received_date', 'under_query', 'under_query_comment', ...addFields]
-  const transformed = pick(returnData, pickFields)
+  const transformed = {}
+
+  pickFields.forEach((key) => {
+    transformed[key] = returnData[key]
+  })
 
   transformed.under_query_comment = returnData.under_query_comment || ''
   transformed.regionCode = get(returnData, 'metadata.nald.regionCode')
@@ -78,8 +82,8 @@ const transformLine = lineData => {
   if (lineData.time_period === 'week') {
     throw new Error('Please use transformWeeklyLine for weekly lines')
   }
-  const paths = ['start_date', 'end_date', 'time_period', 'reading_type', 'unit', 'user_unit']
-  const line = pick(lineData, paths)
+  const { start_date: startDate, end_date: endDate, time_period: timePeriod, reading_type: readingType, unit, user_unit: userUnit } = lineData
+  const line = { start_date: startDate, end_date: endDate, time_period: timePeriod, reading_type: readingType, unit, user_unit: userUnit }
   line.quantity = transformQuantity(lineData.quantity)
   line.nald_reading_type = getUpperCasedFirstCharacter(line.reading_type)
   line.nald_time_period = getUpperCasedFirstCharacter(line.time_period)

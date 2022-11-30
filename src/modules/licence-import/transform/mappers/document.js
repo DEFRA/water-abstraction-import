@@ -1,13 +1,16 @@
 'use strict'
 
-const { pick } = require('lodash')
-
-const mapLicenceToDocument = licence => ({
-  documentRef: licence.licenceNumber,
-  ...pick(licence, ['startDate', 'endDate', 'externalId']),
-  roles: [],
-  _nald: licence._nald
-})
+const mapLicenceToDocument = licence => {
+  const { startDate, endDate, externalId } = licence
+  return {
+    documentRef: licence.licenceNumber,
+    startDate,
+    endDate,
+    externalId,
+    roles: [],
+    _nald: licence._nald
+  }
+}
 
 module.exports = {
   mapLicenceToDocument

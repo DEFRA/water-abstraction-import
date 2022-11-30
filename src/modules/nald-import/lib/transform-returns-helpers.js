@@ -1,7 +1,7 @@
 'use strict'
 
 const moment = require('moment')
-const { pick, findIndex, max, chunk } = require('lodash')
+const { findIndex, max, chunk } = require('lodash')
 
 const waterHelpers = require('@envage/water-abstraction-helpers')
 
@@ -219,13 +219,21 @@ const getFormatStartDate = (format) => {
  * @return {String} date YYYY-MM-DD or null
  */
 const getFormatEndDate = (format) => {
-  const dates = Object.values(pick(format, [
-    'EFF_END_DATE',
-    'TIMELTD_END_DATE',
-    'LICENCE_LAPSED_DATE',
-    'LICENCE_REVOKED_DATE',
-    'LICENCE_EXPIRY_DATE'
-  ]))
+  const {
+    EFF_END_DATE,
+    TIMELTD_END_DATE,
+    LICENCE_LAPSED_DATE,
+    LICENCE_REVOKED_DATE,
+    LICENCE_EXPIRY_DATE
+  } = format
+
+  const dates = Object.values({
+    EFF_END_DATE,
+    TIMELTD_END_DATE,
+    LICENCE_LAPSED_DATE,
+    LICENCE_REVOKED_DATE,
+    LICENCE_EXPIRY_DATE
+  })
 
   const validDates = dates
     .map(date => moment(date, 'DD/MM/YYYY'))
