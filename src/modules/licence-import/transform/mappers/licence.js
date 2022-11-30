@@ -5,7 +5,6 @@ const str = require('./str')
 const {
   endsWith,
   identity,
-  omit,
   isArray,
   isObject,
   mapValues
@@ -95,7 +94,8 @@ const omitNaldData = value => {
     return value.map(omitNaldData)
   }
   if (isObject(value)) {
-    const val = omit(value, '_nald')
+    const val = { ...value }
+    delete val._nald
     return mapValues(val, omitNaldData)
   }
   return value
