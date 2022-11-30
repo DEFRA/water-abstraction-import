@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: postgres://water_user:password@localhost:5432/wabs_test
+      TEST_DATABASE_URL: postgres://water_user:password@localhost:5432/wabs_test
       JWT_SECRET: ItsNoSecretBecauseYouToldEverybody
       JWT_TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6InRlc3QiLCJpYXQiOjE1MDMzMTg0NDV9.eWghqjYlPrb8ZjWacYzTCTh1PBtr2BeSv-_ZIwrtmwE
       # These need to be duplicated in services section for postgres. Unfortunately, there is not a way to reuse them
@@ -86,7 +86,7 @@ jobs:
 
       - name: Database migrations
         run: |
-          npm run migrate
+          npm run migrate:test
 
       # This includes an extra run step. The sonarcloud analysis will be run in a docker container with the current
       # folder mounted as `/github/workspace`. The problem is when the lcov.info file is generated it will reference the
