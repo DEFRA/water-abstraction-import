@@ -28,12 +28,12 @@ const getSortedDates = arr => {
 
 const getMinDate = arr => {
   const sorted = getSortedDates(arr)
-  return sorted.length === 0 ? null : sorted.shift().format(DATE_FORMAT)
+  return sorted.length === 0 ? null : sorted[0].format(DATE_FORMAT)
 }
 
 const getMaxDate = arr => {
   const sorted = getSortedDates(arr)
-  return sorted.length === 0 ? null : sorted.pop().format(DATE_FORMAT)
+  return sorted.length === 0 ? null : sorted[sorted.length - 1].format(DATE_FORMAT)
 }
 
 const mapTransferDate = str =>

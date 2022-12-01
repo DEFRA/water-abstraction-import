@@ -2,7 +2,7 @@
 
 const moment = require('moment')
 const { returns: { date: { getPeriodStart } } } = require('@envage/water-abstraction-helpers')
-const { flow, toUpper, first, range, get } = require('lodash')
+const { range, get } = require('lodash')
 const { isDateWithinReturnCycle } = require('./date-helpers')
 
 const DATE_FORMAT = 'YYYY-MM-DD'
@@ -50,7 +50,7 @@ const transformReturn = (returnData, addFields = []) => {
 }
 
 const transformQuantity = (quantity = 0) => {
-  if (quantity === null || toUpper(quantity) === 'NULL') {
+  if (quantity === null || quantity.toString().toUpperCase() === 'NULL') {
     return null
   }
 
@@ -58,7 +58,11 @@ const transformQuantity = (quantity = 0) => {
   return val.includes('.') ? parseFloat(val).toFixed(3) : val
 }
 
-const getUpperCasedFirstCharacter = flow(first, toUpper)
+const getUpperCasedFirstCharacter = (arg) => {
+  const firstCharacter = arg[0]
+  const result = firstCharacter.toUpperCase()
+  return result
+}
 
 /**
  * Transforms user units to NALD unit flag
