@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@envage/hapi-pg-rest-api": "^4.1.2",
-    "@envage/water-abstraction-helpers": "4.8.1",
+    "@envage/water-abstraction-helpers": "4.8.3",
     "@hapi/boom": "^9.1.0",
     "@hapi/catbox-redis": "^5.0.5",
     "@hapi/good": "^9.0.1",
@@ -33,7 +33,6 @@
     "csv-stringify": "^5.5.0",
     "db-migrate": "^0.11.13",
     "db-migrate-pg": "^1.2.2",
-    "deep-map": "^2.0.0",
     "dotenv": "^8.2.0",
     "firstline": "^2.0.2",
     "good-winston": "^4.0.0",
