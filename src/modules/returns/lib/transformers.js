@@ -2,7 +2,7 @@
 
 const moment = require('moment')
 const { returns: { date: { getPeriodStart } } } = require('@envage/water-abstraction-helpers')
-const { range, get } = require('lodash')
+const { range } = require('lodash')
 const { isDateWithinReturnCycle } = require('./date-helpers')
 
 const DATE_FORMAT = 'YYYY-MM-DD'
@@ -21,9 +21,8 @@ const getNaldStyleDate = date => moment(date, DATE_FORMAT).format('YYYYMMDD00000
  * @return {String}            - date in format 'YYYY-MM-DD'
  */
 const getReturnCycleStart = (returnData) => {
-  const isSummer = get(returnData, 'metadata.isSummer', undefined)
-  if (typeof isSummer !== 'undefined') {
-    return getPeriodStart(returnData.start_date, isSummer)
+  if (returnData.metadata.isSummer !== undefined) {
+    return getPeriodStart(returnData.start_date, returnData.metadata.isSummer)
   }
 }
 
@@ -40,8 +39,8 @@ const transformReturn = (returnData, addFields = []) => {
   })
 
   transformed.under_query_comment = returnData.under_query_comment || ''
-  transformed.regionCode = get(returnData, 'metadata.nald.regionCode')
-  transformed.formatId = get(returnData, 'metadata.nald.formatId')
+  transformed.regionCode = returnData.metadata.nald.regionCode
+  transformed.formatId = returnData.metadata.nald.formatId
   transformed.nald_date_from = getNaldStyleDate(moment(transformed.start_date).startOf('month').format('YYYY-MM-DD'))
   transformed.nald_ret_date = getNaldStyleDate(transformed.received_date)
   transformed.return_cycle_start = getReturnCycleStart(returnData)
