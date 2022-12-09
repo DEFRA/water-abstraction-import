@@ -3,8 +3,6 @@ require('dotenv').config()
 
 // -------------- Require vendor code -----------------
 const Blipp = require('blipp')
-const Good = require('@hapi/good')
-const GoodWinston = require('good-winston')
 
 const HapiAuthJwt2 = require('hapi-auth-jwt2')
 const moment = require('moment')
@@ -15,24 +13,15 @@ moment.locale('en-gb')
 const config = require('./config')
 const routes = require('./src/routes.js')
 const db = require('./src/lib/connectors/db')
+const HapiPinoPlugin = require('./src/plugins/hapi-pino.plugin.js')
 
 // Initialise logger
 const { logger } = require('./src/logger')
-const goodWinstonStream = new GoodWinston({ winston: logger })
 
 // Define server
 const server = require('./server')
 
 const plugins = [
-  {
-    plugin: Good,
-    options: {
-      ...config.good,
-      reporters: {
-        winston: [goodWinstonStream]
-      }
-    }
-  },
   {
     plugin: Blipp,
     options: config.blipp
@@ -57,6 +46,7 @@ const configureServerAuthStrategy = (server) => {
 const start = async function () {
   try {
     await server.register(plugins)
+    await server.register(HapiPinoPlugin())
     configureServerAuthStrategy(server)
     server.route(routes)
 
