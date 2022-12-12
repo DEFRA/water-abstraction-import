@@ -1,6 +1,6 @@
 'use strict'
 
-const { isNull, sortBy } = require('lodash')
+const { isNull } = require('lodash')
 const moment = require('moment')
 const dateHelpers = require('../../../lib/date-helpers')
 
@@ -163,7 +163,20 @@ const mapNALDChargeVersionsToWRLS = (licence, chargeVersions) => {
     ...wrlsChargeVersions,
     ...nonChargeableChargeVersions
   ]
-  return sortBy(arr, ['start_date', 'version_number'])
+
+  const sortedStartDate = arr.sort(function (startDate1, startDate2) {
+    if ((startDate1.start_date) < (startDate2.start_date)) {
+      return -1
+    } else {
+      return 1
+    }
+  })
+
+  const sortedVersionNumber = sortedStartDate.sort(function (versionNumber1, versionNumber2) {
+    return versionNumber1 - versionNumber2
+  })
+
+  return sortedVersionNumber
 }
 
 module.exports = {

@@ -1,7 +1,6 @@
 'use strict'
 
 const moment = require('moment')
-const { sortBy, identity } = require('lodash')
 
 /**
  * Given an array of dates which can be parsed by Moment,
@@ -10,12 +9,18 @@ const { sortBy, identity } = require('lodash')
  * @param {Array<String>} arr
  * @return {Array<Object>}
  */
-const getSortedDates = arr => sortBy(
-  arr
-    .filter(identity)
-    .map(value => moment(value)),
-  m => m.unix()
-)
+const getSortedDates = arr => {
+  const filteredArray = arr.filter(value => value)
+  const mappedArray = filteredArray.map(value => moment(value))
+  const sortedArray = mappedArray.sort(function (startDate1, startDate2) {
+    if ((startDate1.unix > startDate2.unix)) {
+      return -1
+    } else {
+      return 1
+    }
+  })
+  return sortedArray
+}
 
 const getMinDate = arr => {
   return getSortedDates(arr)[0]

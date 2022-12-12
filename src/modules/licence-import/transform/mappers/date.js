@@ -1,5 +1,5 @@
 const moment = require('moment')
-const { sortBy, isNull } = require('lodash')
+const { isNull } = require('lodash')
 const DATE_FORMAT = 'YYYY-MM-DD'
 const NALD_FORMAT = 'DD/MM/YYYY'
 const NALD_TRANSFER_FORMAT = 'DD/MM/YYYY HH:mm:ss'
@@ -23,7 +23,10 @@ const getSortedDates = arr => {
     .map(str => moment(str, DATE_FORMAT))
     .filter(m => m.isValid())
 
-  return sortBy(moments, m => m.unix())
+  const sorted = moments.sort(function (startDate1, startDate2) {
+    return startDate1 - startDate2
+  })
+  return sorted
 }
 
 const getMinDate = arr => {
