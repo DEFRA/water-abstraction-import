@@ -1,5 +1,4 @@
 const moment = require('moment')
-const { isNull } = require('lodash')
 const DATE_FORMAT = 'YYYY-MM-DD'
 const NALD_FORMAT = 'DD/MM/YYYY'
 const NALD_TRANSFER_FORMAT = 'DD/MM/YYYY HH:mm:ss'
@@ -12,7 +11,7 @@ const mapNaldDate = str => {
 }
 
 const mapIsoDateToNald = str => {
-  if (isNull(str)) {
+  if (str === null) {
     return 'null'
   }
   return moment(str, DATE_FORMAT).format(NALD_FORMAT)
