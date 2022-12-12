@@ -4,7 +4,6 @@ const fs = require('fs')
 const Promise = require('bluebird')
 const csvStringify = require('csv-stringify/lib/sync')
 const writeFile = Promise.promisify(fs.writeFile)
-const deepMap = require('deep-map')
 const { mkdirsSync } = require('mkdir')
 
 // Licence classes
@@ -142,10 +141,20 @@ format.addPurpose(fpu)
 function writeCsv (outputPath, exportData) {
   const keys = Object.keys(exportData)
   return Promise.map(keys, (tableName) => {
-    // Convert JS null to 'null' string as in CSV data
-    const data = deepMap(exportData[tableName], (value) => {
-      return value === null ? 'null' : value
+    // Each value in exportData[tableName] is an object generated from the other modules in this folder, for example
+    // scripts/licence-creator/address.js. These objects have properties set to `null`. To make it represent the CSV
+    // data they need to be converted to `'null'`. Why on this great earth of ours it wasn't just set to that in the
+    // first place we don't know, and have not the will to find out. But that is why we need this bunch of logic to
+    // generate test only data. :-(
+    const data = exportData[tableName].map((tableObject) => {
+      const newTableObject = {}
+
+      Object.entries(tableObject).forEach(([key, value]) => {
+        newTableObject[key] = value === null ? 'null' : value
+      })
+      return newTableObject
     })
+
     console.log(`Exporting ${tableName}`)
     const columns = Object.keys(data[0])
     const csv = csvStringify(data, { columns, header: true, quoted: false, quotedEmpty: false, quotedString: false })
