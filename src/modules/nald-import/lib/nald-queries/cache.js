@@ -1,7 +1,6 @@
 'use strict'
 
 const { logger } = require('../../../../logger')
-const { flatMap } = require('lodash')
 
 const createCachedQuery = (server, methodName, generate) => {
   return server.cache({
@@ -17,11 +16,10 @@ const createCachedQuery = (server, methodName, generate) => {
 
 const createId = (key, params) => {
   return {
-    id: `${key}:${flatMap(Object.entries(params)).join(':')}`,
+    id: `${key}:${Object.entries(params).flatMap(num => num).join(':')}`,
     ...params
   }
 }
-
 module.exports = {
   createCachedQuery,
   createId

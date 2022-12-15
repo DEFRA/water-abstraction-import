@@ -3,7 +3,7 @@
 const helpers = require('@envage/water-abstraction-helpers')
 const date = require('./date')
 
-const { groupBy, sortBy, flatMap, uniqBy, mapValues } = require('lodash')
+const { groupBy, sortBy, uniqBy, mapValues } = require('lodash')
 
 const getUniqueKey = agreement =>
  `${agreement.startDate}:${agreement.endDate}:${agreement.agreementCode}`
@@ -73,7 +73,7 @@ const mapAgreements = (tptAgreements, s130Agreements = []) => {
     )
   )
 
-  return flatMap(merged)
+  return merged.flatMap(num => num)
 }
 
 module.exports = {

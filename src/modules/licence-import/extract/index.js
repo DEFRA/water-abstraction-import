@@ -1,10 +1,11 @@
 'use strict'
-const { flatMap, uniq } = require('lodash')
+const { uniq } = require('lodash')
 
 const importConnector = require('./connectors')
 
 const getIds = (idProperty, ...args) => {
-  const ids = flatMap(args).map(row => row[idProperty])
+  let ids = args.flatMap(num => num)
+  ids = ids.map(row => row[idProperty])
   return uniq(ids)
 }
 
@@ -52,7 +53,8 @@ const getLicenceData = async licenceNumber => {
 }
 
 const getCompanyAddresses = (regionCode, ...args) => {
-  const addressIds = flatMap(args).map(row => row.ACON_AADD_ID)
+  let addressIds = args.flatMap(num => num)
+  addressIds = addressIds.map(row => row.ACON_AADD_ID)
   return importConnector.getAddresses(regionCode, uniq(addressIds))
 }
 
