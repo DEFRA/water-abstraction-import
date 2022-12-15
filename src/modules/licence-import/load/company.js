@@ -1,4 +1,3 @@
-const { uniqBy } = require('lodash')
 const connectors = require('./connectors')
 const config = require('../../../../config')
 
@@ -15,7 +14,7 @@ const getAddresses = company => {
     ? [...companyAddresses, ...invoiceAccountAddresses]
     : companyAddresses
 
-  return uniqBy(addresses, row => row.externalId)
+  return [...new Set(addresses, row => row.externalId)]
 }
 
 const loadAddresses = async company => {
