@@ -23,28 +23,29 @@ const createImportJob = () => jobs.deleteDocuments()
 const createImportCompanyJob = request => jobs.importCompany(request.query.regionCode, request.query.partyId)
 const createImportLicenceJob = request => jobs.importLicence(request.query.licenceNumber)
 
-const partialRight =
-  (func, ...cachedArgs) =>
-    (...args) =>
-      func(...args, ...cachedArgs)
-
 /**
  * Import all companies/licences
  */
-const postImport = partialRight(postImportHandler, createImportJob, 'Error importing companies')
+const postImport = (request, h) => {
+  return postImportHandler(request, h, createImportJob, 'Error importing companies')
+}
 
 /**
  * Import single licence
  * @param {String} request.query.licenceNumber
  */
-const postImportLicence = partialRight(postImportHandler, createImportLicenceJob, 'Error importing licence')
+const postImportLicence = (request, h) => {
+  return postImportHandler(request, h, createImportLicenceJob, 'Error importing licence')
+}
 
 /**
  * Import single company
  * @param {Number} request.query.regionCode
  * @param {Number} request.query.partyId
  */
-const postImportCompany = partialRight(postImportHandler, createImportCompanyJob, 'Error importing company')
+const postImportCompany = (request, h) => {
+  return postImportHandler(request, h, createImportCompanyJob, 'Error importing company')
+}
 
 module.exports = {
   postImport,
