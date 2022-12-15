@@ -1,7 +1,5 @@
 'use strict'
 
-const { partial } = require('lodash')
-
 const chargeVersionsJob = require('./jobs/charge-versions')
 
 const createPostHandler = async (createMessage, request) => {
@@ -11,6 +9,11 @@ const createPostHandler = async (createMessage, request) => {
     error: null
   }
 }
+
+const partial =
+(func, ...args) =>
+  (...furtherArgs) =>
+    func(...args, ...furtherArgs)
 
 /**
  * Run SQL queries to import charge versions / elements into
