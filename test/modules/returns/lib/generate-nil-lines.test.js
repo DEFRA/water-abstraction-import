@@ -5,7 +5,6 @@ moment.locale('en-gb')
 
 const { experiment, it } = module.exports.lab = require('@hapi/lab').script()
 const { expect } = require('@hapi/code')
-const { uniq } = require('lodash')
 
 const {
   getDays,
@@ -59,7 +58,7 @@ experiment('getDays', () => {
 
   it('Should output `day` as the period', async () => {
     const days = getDays('2018-01-01', '2018-12-31')
-    const periods = uniq(days.map(day => day.timePeriod))
+    const periods = [...new Set(days.map(day => day.timePeriod))]
     expect(periods).to.equal(['day'])
   })
 })
@@ -72,7 +71,7 @@ experiment('getMonths', () => {
 
   it('Should output `month` as the period', async () => {
     const days = getMonths('2018-01-01', '2018-12-31')
-    const periods = uniq(days.map(day => day.timePeriod))
+    const periods = [...new Set(days.map(day => day.timePeriod))]
     expect(periods).to.equal(['month'])
   })
 
@@ -180,7 +179,7 @@ experiment('getWeeks', () => {
 
   it('Should output `week` as the period', async () => {
     const days = getWeeks('2018-01-01', '2018-12-31')
-    const periods = uniq(days.map(day => day.timePeriod))
+    const periods = [...new Set(days.map(day => day.timePeriod))]
     expect(periods.length).to.equal(1)
     expect(periods).to.equal(['week'])
   })
