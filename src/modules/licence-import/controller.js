@@ -5,8 +5,6 @@
  * Not used by the system (these jobs are kicked off by cron), these are used for test only.
  */
 
-const { partialRight } = require('lodash')
-
 const jobs = require('./jobs')
 const { logger } = require('../../logger')
 const Boom = require('@hapi/boom')
@@ -24,6 +22,11 @@ const postImportHandler = async (request, h, jobCreator, errorMessage) => {
 const createImportJob = () => jobs.deleteDocuments()
 const createImportCompanyJob = request => jobs.importCompany(request.query.regionCode, request.query.partyId)
 const createImportLicenceJob = request => jobs.importLicence(request.query.licenceNumber)
+
+const partialRight =
+  (func, ...cachedArgs) =>
+    (...args) =>
+      func(...args, ...cachedArgs)
 
 /**
  * Import all companies/licences
