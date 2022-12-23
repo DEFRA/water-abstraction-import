@@ -14,7 +14,7 @@
     "test": "lab",
     "lint": "standard",
     "migrate": "node scripts/create-schema && node scripts/migrate",
-    "migrate:down": "db-migrate down --verbose",
+    "migrate:down": "db-migrate down",
     "migrate:create": "db-migrate create --sql-file --",
     "migrate:test": "export NODE_ENV=test && node scripts/create-schema && node scripts/migrate",
     "version": "npx --yes auto-changelog -p --commit-limit false && git add CHANGELOG.md"
