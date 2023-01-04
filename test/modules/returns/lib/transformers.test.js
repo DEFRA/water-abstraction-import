@@ -2,7 +2,7 @@
 
 const { beforeEach, experiment, it } = module.exports.lab = require('@hapi/lab').script()
 const { expect } = require('@hapi/code')
-const { difference, set } = require('lodash')
+const { difference } = require('lodash')
 const Hoek = require('@hapi/hoek')
 
 const transformers = require('../../../../src/modules/returns/lib/transformers')
@@ -330,6 +330,17 @@ experiment('getReturnCycleStart', () => {
 
   it('Should return a winter cycle if the isSummer flag is false', async () => {
     const data = Hoek.clone(returnResponse)
+    const set = (obj, path, value) => {
+      // Regex explained: https://regexr.com/58j0k
+      const pathArray = Array.isArray(path) ? path : path.match(/([^[.\]])+/g)
+
+      pathArray.reduce((acc, key, i) => {
+        if (acc[key] === undefined) acc[key] = {}
+        if (i === pathArray.length - 1) acc[key] = value
+
+        return acc[key]
+      }, obj)
+    }
     set(data, 'metadata.isSummer', false)
     const cycleStart = transformers.getReturnCycleStart(data)
     expect(cycleStart).to.equal('2017-04-01')
