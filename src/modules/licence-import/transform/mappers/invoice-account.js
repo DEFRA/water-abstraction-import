@@ -1,4 +1,4 @@
-const { groupBy, sortBy } = require('lodash')
+const { sortBy } = require('lodash')
 const helpers = require('@envage/water-abstraction-helpers')
 const date = require('./date')
 const roles = require('./roles')
@@ -52,7 +52,13 @@ const mapInvoiceAccountAddresses = (iasAccounts, context) => {
 
 const mapInvoiceAccounts = (iasAccounts, context) => {
   // Group by IAS customer ref (invoice account number)
-  const groups = groupBy(iasAccounts, row => row.IAS_CUST_REF)
+  const groups = iasAccounts.reduce((group, row) => {
+    group[row.IAS_CUST_REF] = group[row.IAS_CUST_REF] ?? []
+    group[row.IAS_CUST_REF].push(row)
+
+    return group
+  }, {})
+
   return Object.values(groups).map(group => {
     const addresses = mapInvoiceAccountAddresses(group, context)
 

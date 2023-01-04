@@ -3,7 +3,7 @@
 const helpers = require('@envage/water-abstraction-helpers')
 const date = require('./date')
 
-const { groupBy, sortBy, mapValues } = require('lodash')
+const { sortBy, mapValues } = require('lodash')
 
 const getUniqueKey = agreement =>
  `${agreement.startDate}:${agreement.endDate}:${agreement.agreementCode}`
@@ -46,10 +46,14 @@ const mapElementLevelAgreements = tptAgreements => {
   }
 }
 
-const getVersionNumber = chargeAgreement => chargeAgreement.version_number
-
 const mapTwoPartTariffAgreements = tptAgreements => {
-  const chargeVersionGroups = groupBy(tptAgreements, getVersionNumber)
+  const chargeVersionGroups = tptAgreements.reduce((group, item) => {
+    group[item.version_number] = group[item.version_number] ?? []
+    group[item.version_number].push(item)
+
+    return group
+  }, {})
+
   const mappedGroups = mapValues(chargeVersionGroups, mapElementLevelAgreements)
   return Object.values(mappedGroups)
 }
@@ -62,7 +66,13 @@ const mapAgreements = (tptAgreements, s130Agreements = []) => {
     getUniqueKey)]
 
   // Group by agreement code
-  const groups = groupBy(mapped, agreement => agreement.agreementCode)
+  const groups = mapped.reduce((group, agreement) => {
+    // const { agreement } = item
+    group[agreement.agreementCode] = group[agreement.agreementCode] ?? []
+    group[agreement.agreementCode].push(agreement)
+
+    return group
+  }, {})
 
   // For each group, merge history
   const merged = Object.values(groups).map(group =>
