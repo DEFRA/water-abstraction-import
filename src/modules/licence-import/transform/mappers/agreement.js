@@ -3,7 +3,7 @@
 const helpers = require('@envage/water-abstraction-helpers')
 const date = require('./date')
 
-const { sortBy, mapValues } = require('lodash')
+const { mapValues } = require('lodash')
 
 const getUniqueKey = agreement =>
  `${agreement.startDate}:${agreement.endDate}:${agreement.agreementCode}`
@@ -77,7 +77,13 @@ const mapAgreements = (tptAgreements, s130Agreements = []) => {
   // For each group, merge history
   const merged = Object.values(groups).map(group =>
     helpers.charging.mergeHistory(
-      sortBy(group, agreement => agreement.startDate)
+      group.sort(function (startDate1, startDate2) {
+        if ((startDate1, startDate1.startDate) > (startDate2, startDate2.startDate)) {
+          return 1
+        } else {
+          return -1
+        }
+      })
     )
   )
 

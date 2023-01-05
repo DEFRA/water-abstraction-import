@@ -1,6 +1,6 @@
 'use strict'
 
-const { sortBy, get, identity } = require('lodash')
+const { get, identity } = require('lodash')
 const date = require('./date')
 const roles = require('./roles')
 
@@ -22,7 +22,14 @@ const getEndDate = (row, currentEnd) => {
 
 const getLicenceHolderAddresses = (licenceVersions, context) => {
   // Sort licence versions by start date
-  const sorted = sortBy(licenceVersions, row => date.mapNaldDate(row.EFF_ST_DATE))
+  // const sorted = sortBy(licenceVersions, row => date.mapNaldDate(row.EFF_ST_DATE))
+  const sorted = licenceVersions.sort(function (startDate1, startDate2) {
+    if ((startDate1, date.mapNaldDate(startDate1.EFF_ST_DATE)) > (startDate2, date.mapNaldDate(startDate2.EFF_ST_DATE))) {
+      return 1
+    } else {
+      return -1
+    }
+  })
 
   // Get the widest date range for each address
   const mapped = sorted.reduce((acc, row) => {
