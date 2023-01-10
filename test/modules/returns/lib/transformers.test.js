@@ -7,8 +7,8 @@ const { difference, cloneDeep, set } = require('lodash')
 const transformers = require('../../../../src/modules/returns/lib/transformers')
 
 const returnResponse = require('../responses/return')
-const monthlyLineResponse = require('../responses/lineMonthly')
-const weeklyLineResponse = require('../responses/lineWeekly')
+const monthlyLineResponse = require('../responses/line-monthly')
+const weeklyLineResponse = require('../responses/line-weekly')
 
 experiment('transformReturn', () => {
   let transformed
