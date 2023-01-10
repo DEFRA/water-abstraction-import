@@ -2,7 +2,6 @@
 
 const moment = require('moment')
 const { returns: { date: { getPeriodStart } } } = require('@envage/water-abstraction-helpers')
-const { range } = require('lodash')
 const { isDateWithinReturnCycle } = require('./date-helpers')
 
 const DATE_FORMAT = 'YYYY-MM-DD'
@@ -103,8 +102,8 @@ const transformWeeklyLine = lineData => {
   if (lineData.time_period !== 'week') {
     throw new Error('Please use transformLine when not weekly')
   }
-
-  const dailies = range(7).reduce((lines, daysForward) => {
+  const range = [0, 1, 2, 3, 4, 5, 6]
+  const dailies = range.reduce((lines, daysForward) => {
     const date = getFutureDate(lineData.start_date, daysForward)
     const quantity = daysForward === 6 ? lineData.quantity : null
 
