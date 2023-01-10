@@ -4,7 +4,6 @@ const date = require('./date')
 const str = require('./str')
 const {
   endsWith,
-  isObject,
   mapValues
 } = require('lodash')
 
@@ -91,7 +90,7 @@ const omitNaldData = value => {
   if (Array.isArray(value)) {
     return value.map(omitNaldData)
   }
-  if (isObject(value)) {
+  if (typeof value === 'object' && value !== null) {
     const val = { ...value }
     delete val._nald
     return mapValues(val, omitNaldData)
