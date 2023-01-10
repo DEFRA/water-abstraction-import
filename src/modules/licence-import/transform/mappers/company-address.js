@@ -1,6 +1,5 @@
 'use strict'
 
-const { identity } = require('lodash')
 const date = require('./date')
 const roles = require('./roles')
 
@@ -13,7 +12,7 @@ const getEndDate = (row, currentEnd) => {
   // Get all end dates for this row
   const endDates = [row.EFF_END_DATE, row.EXPIRY_DATE, row.REV_DATE, row.LAPSED_DATE]
     .map(date.mapNaldDate)
-    .filter(identity)
+    .filter(value => value)
 
   const arr = [date.getMinDate(endDates), currentEnd]
 

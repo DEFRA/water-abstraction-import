@@ -4,7 +4,6 @@ const date = require('./date')
 const str = require('./str')
 const {
   endsWith,
-  identity,
   isArray,
   isObject,
   mapValues
@@ -64,7 +63,7 @@ const mapLicence = (licence, licenceVersions) => {
     licence.LAPSED_DATE
   ]
     .map(str.mapNull)
-    .filter(identity)
+    .filter(value => value)
     .map(date.mapNaldDate)
 
   return {
