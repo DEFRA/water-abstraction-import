@@ -2,10 +2,7 @@
 
 const date = require('./date')
 const str = require('./str')
-const {
-  endsWith,
-  mapValues
-} = require('lodash')
+const { mapValues } = require('lodash')
 
 const regions = {
   AN: 'Anglian',
@@ -71,7 +68,7 @@ const mapLicence = (licence, licenceVersions) => {
     documents: [],
     agreements: [],
     externalId: `${licence.FGAC_REGION_CODE}:${licence.ID}`,
-    isWaterUndertaker: endsWith(licence.AREP_EIUC_CODE, 'SWC'),
+    isWaterUndertaker: licence.AREP_EIUC_CODE.endsWith('SWC'),
     regions: getRegionData(licence),
     regionCode: parseInt(licence.FGAC_REGION_CODE, 10),
     expiredDate: date.mapNaldDate(licence.EXPIRY_DATE),
