@@ -2,7 +2,6 @@
 
 const { beforeEach, experiment, it } = module.exports.lab = require('@hapi/lab').script()
 const { expect } = require('@hapi/code')
-const { difference } = require('lodash')
 const Hoek = require('@hapi/hoek')
 
 const transformers = require('../../../../src/modules/returns/lib/transformers')
@@ -10,6 +9,7 @@ const transformers = require('../../../../src/modules/returns/lib/transformers')
 const returnResponse = require('../responses/return')
 const monthlyLineResponse = require('../responses/lineMonthly')
 const weeklyLineResponse = require('../responses/lineWeekly')
+const difference = (arr1, arr2) => arr1.filter(x => !arr2.includes(x))
 
 experiment('transformReturn', () => {
   let transformed
@@ -70,7 +70,6 @@ experiment('transformReturn', () => {
       'under_query_comment',
       'return_cycle_start'
     ]
-
     expect(difference(Object.keys(transformed), allowed)).to.have.length(0)
   })
 
