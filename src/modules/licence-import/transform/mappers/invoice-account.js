@@ -32,7 +32,7 @@ const getAgentCompanyExternalId = row => {
 
 const mapInvoiceAccountAddresses = (iasAccounts, context) => {
   // Sort group by transfer date
-  const sorted = iasAccounts.sort(function (startDate1, startDate2) {
+  const sorted = iasAccounts.sort((startDate1, startDate2) => {
     if ((startDate1, date.mapTransferDate(startDate1.IAS_XFER_DATE)) > (startDate2, date.mapTransferDate(startDate2.IAS_XFER_DATE))) {
       return 1
     } else {

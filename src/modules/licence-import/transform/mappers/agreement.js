@@ -78,7 +78,7 @@ const mapAgreements = (tptAgreements, s130Agreements = []) => {
   // For each group, merge history
   const merged = Object.values(groups).map(group =>
     helpers.charging.mergeHistory(
-      group.sort(function (startDate1, startDate2) {
+      group.sort((startDate1, startDate2) => {
         if ((startDate1, startDate1.startDate) > (startDate2, startDate2.startDate)) {
           return 1
         } else {
