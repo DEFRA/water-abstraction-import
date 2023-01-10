@@ -1,6 +1,6 @@
 'use strict'
 
-const { get, identity } = require('lodash')
+const { identity } = require('lodash')
 const date = require('./date')
 const roles = require('./roles')
 
@@ -22,8 +22,7 @@ const getEndDate = (row, currentEnd) => {
 
 const getLicenceHolderAddresses = (licenceVersions, context) => {
   // Sort licence versions by start date
-  // const sorted = sortBy(licenceVersions, row => date.mapNaldDate(row.EFF_ST_DATE))
-  const sorted = licenceVersions.sort(function (startDate1, startDate2) {
+  const sorted = licenceVersions.sort((startDate1, startDate2) => {
     if ((startDate1, date.mapNaldDate(startDate1.EFF_ST_DATE)) > (startDate2, date.mapNaldDate(startDate2.EFF_ST_DATE))) {
       return 1
     } else {
@@ -32,20 +31,18 @@ const getLicenceHolderAddresses = (licenceVersions, context) => {
   })
 
   // Get the widest date range for each address
-  const mapped = sorted.reduce((acc, row) => {
-    const currentStart = get(acc, `${row.ACON_AADD_ID}.startDate`)
-    const currentEnd = get(acc, `${row.ACON_AADD_ID}.endDate`)
-
-    acc[row.ACON_AADD_ID] = {
+  const mapped = {}
+  for (const row of sorted) {
+    const id = row.ACON_AADD_ID
+    const currentStart = mapped[id]?.startDate
+    const currentEnd = mapped[id]?.endDate
+    mapped[id] = {
       role: roles.ROLE_LICENCE_HOLDER,
       startDate: date.getMinDate([date.mapNaldDate(row.EFF_ST_DATE), currentStart]),
       endDate: getEndDate(row, currentEnd),
-      address: context.addresses[row.FGAC_REGION_CODE][row.ACON_AADD_ID]
+      address: context.addresses[row.FGAC_REGION_CODE][id]
     }
-
-    return acc
-  }, {})
-
+  }
   return Object.values(mapped)
 }
 

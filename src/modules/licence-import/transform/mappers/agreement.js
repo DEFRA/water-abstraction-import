@@ -55,6 +55,7 @@ const mapTwoPartTariffAgreements = tptAgreements => {
   }, {})
 
   const mappedGroups = mapValues(chargeVersionGroups, mapElementLevelAgreements)
+
   return Object.values(mappedGroups)
 }
 
