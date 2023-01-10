@@ -4,7 +4,6 @@ const date = require('./date')
 const str = require('./str')
 const {
   endsWith,
-  isArray,
   isObject,
   mapValues
 } = require('lodash')
@@ -89,7 +88,7 @@ const mapLicence = (licence, licenceVersions) => {
  * @return {Object}
  */
 const omitNaldData = value => {
-  if (isArray(value)) {
+  if (Array.isArray(value)) {
     return value.map(omitNaldData)
   }
   if (isObject(value)) {

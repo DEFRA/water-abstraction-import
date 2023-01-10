@@ -1,6 +1,6 @@
 'use strict'
 
-const { isArray, chunk } = require('lodash')
+const { chunk } = require('lodash')
 
 class Repository {
   /**
@@ -27,7 +27,7 @@ class Repository {
     const { table, upsert } = this.config
 
     // Convert all data to array
-    const insertData = isArray(data) ? data : [data]
+    const insertData = Array.isArray(data) ? data : [data]
 
     const fields = Object.keys(insertData[0])
 
@@ -62,11 +62,11 @@ class Repository {
    * @param {Array} - columns to return
    */
   async persist (data, columns = null) {
-    if (isArray(data) && data.length === 0) {
+    if (Array.isArray(data) && data.length === 0) {
       return
     }
 
-    const insertData = isArray(data) ? data : [data]
+    const insertData = Array.isArray(data) ? data : [data]
     const maxRows = Math.floor(65535 / Object.keys(insertData[0]).length)
 
     const chunks = chunk(insertData, maxRows)
