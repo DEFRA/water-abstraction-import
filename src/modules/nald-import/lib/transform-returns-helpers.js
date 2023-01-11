@@ -1,7 +1,7 @@
 'use strict'
 
 const moment = require('moment')
-const { findIndex, max, chunk } = require('lodash')
+const { chunk } = require('lodash')
 
 const waterHelpers = require('@envage/water-abstraction-helpers')
 
@@ -113,7 +113,7 @@ const mapReceivedDate = (logs) => {
     return null
   }
 
-  if (findIndex(dates, val => val === 'null') !== -1) {
+  if (dates.findIndex(val => val === 'null') !== -1) {
     return null
   }
 
