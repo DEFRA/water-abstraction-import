@@ -119,6 +119,17 @@ const mapReceivedDate = (logs) => {
 
   const timestamps = dates.map(date => moment(date, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD'))
 
+  // Sorting the timeStamps into highest value first and returning that individual value
+  const max = (timeStamp) => {
+    const sorted = timeStamp.sort((startTime1, startTime2) => {
+      if ((startTime1.unix > startTime2.unix)) {
+        return -1
+      } else {
+        return 1
+      }
+    })
+    return sorted[0]
+  }
   return max(timestamps)
 }
 
