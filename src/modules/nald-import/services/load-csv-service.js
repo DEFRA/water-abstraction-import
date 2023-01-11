@@ -2,7 +2,6 @@ const path = require('path')
 const fs = require('fs')
 const { promisify } = require('util')
 const readFirstLine = require('firstline')
-const { intersection } = require('lodash')
 
 const readDir = promisify(fs.readdir)
 const writeFile = promisify(fs.writeFile)
@@ -74,6 +73,8 @@ const indexableFieldsList = [
  * @return {String}
  */
 const getIndexes = (schemaName, table, cols) => {
+  const intersection = (arr, ...args) =>
+    arr.filter(item => args.every(arr => arr.includes(item)))
   const indexableFields = intersection(indexableFieldsList, cols)
   if (table === 'NALD_RET_LINES') {
     // NALD_RET_LINES is large so more care is required when creating indexes which can take a long time to create
