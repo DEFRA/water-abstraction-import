@@ -2,7 +2,6 @@
 
 const date = require('./date')
 const str = require('./str')
-const { mapValues } = require('lodash')
 
 const regions = {
   AN: 'Anglian',
@@ -90,7 +89,11 @@ const omitNaldData = value => {
   if (typeof value === 'object' && value !== null) {
     const val = { ...value }
     delete val._nald
-    return mapValues(val, omitNaldData)
+    const mappedVal = {}
+    for (const key in val) {
+      mappedVal[key] = omitNaldData(val[key])
+    }
+    return mappedVal
   }
   return value
 }

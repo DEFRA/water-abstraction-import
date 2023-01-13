@@ -1,7 +1,7 @@
 /**
  * Transform data for loading into CRM
  */
-const { mapValues } = require('lodash')
+
 const { findCurrent, transformNull } = require('@envage/water-abstraction-helpers').nald
 const { addressFormatter, crmNameFormatter } = require('@envage/water-abstraction-helpers').nald.formatting
 const { sentenceCase } = require('sentence-case')
@@ -49,7 +49,14 @@ const contactsFormatter = (currentVersion, roles) => {
  * prune this to empty value
  */
 function pruneNullString (data) {
-  return mapValues(data, value => value === 'null' ? '' : value)
+  const mappedValues = {}
+  for (const key in data) {
+    if (data[key] === 'null') {
+      mappedValues[key] = ''
+    } else mappedValues[key] = data[key]
+  }
+
+  return mappedValues
 }
 
 /**

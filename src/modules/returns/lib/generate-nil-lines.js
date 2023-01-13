@@ -1,7 +1,6 @@
 'use strict'
 
 const moment = require('moment')
-const { mapValues } = require('lodash')
 
 const waterHelpers = require('@envage/water-abstraction-helpers')
 const naldDates = waterHelpers.nald.dates
@@ -182,7 +181,11 @@ const isDateWithinAbstractionPeriod = (date, options) => {
 const getAbsPeriod = (returnData) => {
   const { periodStartDay, periodStartMonth, periodEndDay, periodEndMonth } = returnData.metadata.nald
   const data = { periodStartDay, periodStartMonth, periodEndDay, periodEndMonth }
-  return mapValues(data, parseInt)
+  const valuesToInt = {}
+  for (const key in data) {
+    valuesToInt[key] = parseInt(data[key])
+  }
+  return valuesToInt
 }
 
 /**

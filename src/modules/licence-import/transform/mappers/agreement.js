@@ -3,8 +3,6 @@
 const helpers = require('@envage/water-abstraction-helpers')
 const date = require('./date')
 
-const { mapValues } = require('lodash')
-
 const getUniqueKey = agreement =>
  `${agreement.startDate}:${agreement.endDate}:${agreement.agreementCode}`
 
@@ -54,8 +52,10 @@ const mapTwoPartTariffAgreements = tptAgreements => {
     return group
   }, {})
 
-  const mappedGroups = mapValues(chargeVersionGroups, mapElementLevelAgreements)
-
+  const mappedGroups = {}
+  for (const key in chargeVersionGroups) {
+    mappedGroups[key] = mapElementLevelAgreements(chargeVersionGroups[key])
+  }
   return Object.values(mappedGroups)
 }
 
