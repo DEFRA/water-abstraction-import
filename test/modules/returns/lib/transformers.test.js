@@ -7,8 +7,8 @@ const Hoek = require('@hapi/hoek')
 const transformers = require('../../../../src/modules/returns/lib/transformers')
 
 const returnResponse = require('../responses/return')
-const monthlyLineResponse = require('../responses/lineMonthly')
-const weeklyLineResponse = require('../responses/lineWeekly')
+const monthlyLineResponse = require('../responses/line-monthly')
+const weeklyLineResponse = require('../responses/line-weekly')
 const difference = (arr1, arr2) => arr1.filter(x => !arr2.includes(x))
 
 experiment('transformReturn', () => {
