@@ -68,7 +68,6 @@ const mapAgreements = (tptAgreements, s130Agreements = []) => {
 
   // Group by agreement code
   const groups = mapped.reduce((group, agreement) => {
-    // const { agreement } = item
     group[agreement.agreementCode] = group[agreement.agreementCode] ?? []
     group[agreement.agreementCode].push(agreement)
 
