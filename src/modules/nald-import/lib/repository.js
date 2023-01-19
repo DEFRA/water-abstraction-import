@@ -67,13 +67,6 @@ class Repository {
     const insertData = Array.isArray(data) ? data : [data]
     const maxRows = Math.floor(65535 / Object.keys(insertData[0]).length)
 
-    const chunk = (arr, chunkSize = 1, cache = []) => {
-      const tmp = [...arr]
-      if (chunkSize <= 0) return cache
-      while (tmp.length) cache.push(tmp.splice(0, chunkSize))
-      return cache
-    }
-
     const chunks = chunk(insertData, maxRows)
     const result = { rows: [], rowCount: 0 }
 
@@ -85,6 +78,13 @@ class Repository {
 
     return result
   }
+}
+
+const chunk = (arr, chunkSize = 1, cache = []) => {
+  const tmp = [...arr]
+  if (chunkSize <= 0) return cache
+  while (tmp.length) cache.push(tmp.splice(0, chunkSize))
+  return cache
 }
 
 module.exports = Repository

@@ -65,6 +65,9 @@ const indexableFieldsList = [
   'ARFL_DATE_FROM'
 ]
 
+const intersection = (arr, ...args) =>
+  arr.filter(item => args.every(arr => arr.includes(item)))
+
 /**
  * Gets SQL for indexes to add to the supplied table
  * @param {String} schemaName
@@ -73,8 +76,6 @@ const indexableFieldsList = [
  * @return {String}
  */
 const getIndexes = (schemaName, table, cols) => {
-  const intersection = (arr, ...args) =>
-    arr.filter(item => args.every(arr => arr.includes(item)))
   const indexableFields = intersection(indexableFieldsList, cols)
   if (table === 'NALD_RET_LINES') {
     // NALD_RET_LINES is large so more care is required when creating indexes which can take a long time to create

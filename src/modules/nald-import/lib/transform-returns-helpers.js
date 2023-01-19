@@ -169,6 +169,13 @@ const addDate = (dates, date, startDate, endDate) => {
   return arr
 }
 
+const chunk = (arr, chunkSize = 1, cache = []) => {
+  const tmp = [...arr]
+  if (chunkSize <= 0) return cache
+  while (tmp.length) cache.push(tmp.splice(0, chunkSize))
+  return cache
+}
+
 /**
  * Gets summer/financial year return cycles, including splitting the cycles
  * by licence effective start date (split date)
@@ -195,12 +202,6 @@ const getReturnCycles = (startDate, endDate, splitDate, isSummer = false) => {
   }
   while (moment(datePtr).isBefore(endDate))
 
-  const chunk = (arr, chunkSize = 1, cache = []) => {
-    const tmp = [...arr]
-    if (chunkSize <= 0) return cache
-    while (tmp.length) cache.push(tmp.splice(0, chunkSize))
-    return cache
-  }
   const dates = chunk([startDate, ...sortAndPairSplitDates(splits), endDate], 2)
 
   return dates.map(arr => ({
