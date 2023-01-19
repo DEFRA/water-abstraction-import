@@ -65,8 +65,9 @@ const indexableFieldsList = [
   'ARFL_DATE_FROM'
 ]
 
-const intersection = (arr, ...args) =>
-  arr.filter(item => args.every(arr => arr.includes(item)))
+const intersection = (arr, ...args) => {
+  return arr.filter(item => args.every(arr => arr.includes(item)))
+}
 
 /**
  * Gets SQL for indexes to add to the supplied table
