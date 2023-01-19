@@ -1,6 +1,5 @@
 'use strict'
 
-const { get } = require('lodash')
 const applicationStateService = require('../../../lib/services/application-state-service')
 const s3Service = require('../services/s3-service')
 const extractService = require('../services/extract-service')
@@ -26,7 +25,7 @@ const createMessage = licenceNumber => ({
  * @return {Boolean}
  */
 const isNewEtag = (etag, state) => {
-  const isEtagCheckEnabled = get(config, 'import.nald.isEtagCheckEnabled', true)
+  const isEtagCheckEnabled = config?.import?.nald?.isEtagCheckEnabled ?? true
   if (isEtagCheckEnabled) {
     return etag !== state.etag
   }

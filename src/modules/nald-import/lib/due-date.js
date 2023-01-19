@@ -1,5 +1,4 @@
 const moment = require('moment')
-const { intersection } = require('lodash')
 const returnsQueries = require('./nald-queries/returns')
 const { returns: { date: { getPeriodEnd } } } = require('@envage/water-abstraction-helpers')
 const { mapProductionMonth } = require('./transform-returns-helpers')
@@ -25,7 +24,9 @@ const getReturnVersionEndDate = format => {
 const isVariationCode = modLogs => {
   const eventCodes = ['VARF', 'VARM', 'AMND', 'NAME', 'REDS', 'SPAC', 'SPAN', 'XCORR']
   const codes = modLogs.map(row => row.AMRE_CODE)
-  return intersection(codes, eventCodes).length > 0
+  const intersection = (arr, ...args) =>
+    arr.filter(item => args.every(arr => arr.includes(item)))
+  return intersection(codes, eventCodes)?.length > 0
 }
 
 /**

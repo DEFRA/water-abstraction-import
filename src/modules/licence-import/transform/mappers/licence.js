@@ -2,14 +2,6 @@
 
 const date = require('./date')
 const str = require('./str')
-const {
-  endsWith,
-  identity,
-  omit,
-  isArray,
-  isObject,
-  mapValues
-} = require('lodash')
 
 const regions = {
   AN: 'Anglian',
@@ -65,7 +57,7 @@ const mapLicence = (licence, licenceVersions) => {
     licence.LAPSED_DATE
   ]
     .map(str.mapNull)
-    .filter(identity)
+    .filter(value => value)
     .map(date.mapNaldDate)
 
   return {
@@ -75,7 +67,7 @@ const mapLicence = (licence, licenceVersions) => {
     documents: [],
     agreements: [],
     externalId: `${licence.FGAC_REGION_CODE}:${licence.ID}`,
-    isWaterUndertaker: endsWith(licence.AREP_EIUC_CODE, 'SWC'),
+    isWaterUndertaker: licence.AREP_EIUC_CODE.endsWith('SWC'),
     regions: getRegionData(licence),
     regionCode: parseInt(licence.FGAC_REGION_CODE, 10),
     expiredDate: date.mapNaldDate(licence.EXPIRY_DATE),
@@ -91,12 +83,17 @@ const mapLicence = (licence, licenceVersions) => {
  * @return {Object}
  */
 const omitNaldData = value => {
-  if (isArray(value)) {
+  if (Array.isArray(value)) {
     return value.map(omitNaldData)
   }
-  if (isObject(value)) {
-    const val = omit(value, '_nald')
-    return mapValues(val, omitNaldData)
+  if (typeof value === 'object' && value !== null) {
+    const val = { ...value }
+    delete val._nald
+    const mappedVal = {}
+    for (const key in val) {
+      mappedVal[key] = omitNaldData(val[key])
+    }
+    return mappedVal
   }
   return value
 }

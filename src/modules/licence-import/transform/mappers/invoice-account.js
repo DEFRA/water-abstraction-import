@@ -1,4 +1,3 @@
-const { groupBy, sortBy } = require('lodash')
 const helpers = require('@envage/water-abstraction-helpers')
 const date = require('./date')
 const roles = require('./roles')
@@ -33,7 +32,13 @@ const getAgentCompanyExternalId = row => {
 
 const mapInvoiceAccountAddresses = (iasAccounts, context) => {
   // Sort group by transfer date
-  const sorted = sortBy(iasAccounts, row => date.mapTransferDate(row.IAS_XFER_DATE))
+  const sorted = iasAccounts.sort((startDate1, startDate2) => {
+    if ((startDate1, date.mapTransferDate(startDate1.IAS_XFER_DATE)) > (startDate2, date.mapTransferDate(startDate2.IAS_XFER_DATE))) {
+      return 1
+    } else {
+      return -1
+    }
+  })
 
   // Map to new data structure
   const addresses = sorted.map((row, i, arr) => ({
@@ -52,7 +57,13 @@ const mapInvoiceAccountAddresses = (iasAccounts, context) => {
 
 const mapInvoiceAccounts = (iasAccounts, context) => {
   // Group by IAS customer ref (invoice account number)
-  const groups = groupBy(iasAccounts, row => row.IAS_CUST_REF)
+  const groups = iasAccounts.reduce((group, row) => {
+    group[row.IAS_CUST_REF] = group[row.IAS_CUST_REF] ?? []
+    group[row.IAS_CUST_REF].push(row)
+
+    return group
+  }, {})
+
   return Object.values(groups).map(group => {
     const addresses = mapInvoiceAccountAddresses(group, context)
 

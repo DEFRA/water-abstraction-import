@@ -1,7 +1,6 @@
 'use strict'
 
 const notifyConnector = require('../connectors/water/notify')
-const { get } = require('lodash')
 const config = require('../../../config')
 
 /**
@@ -9,8 +8,7 @@ const config = require('../../../config')
  * @param  {Object} scheduledNotification - row from scheduled_notification table
  * @return {String}                       - Notify template ID
  */
-const getNotifyTemplate = messageRef => get(config, `notify.templates.${messageRef}`)
-
+const getNotifyTemplate = messageRef => config.notify.templates[`${messageRef}`]
 /**
  * Sends an email via Water Service to Notify API
  * @param  {Object}  client                - Notify client

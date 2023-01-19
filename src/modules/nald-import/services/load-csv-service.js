@@ -2,7 +2,6 @@ const path = require('path')
 const fs = require('fs')
 const { promisify } = require('util')
 const readFirstLine = require('firstline')
-const { intersection } = require('lodash')
 
 const readDir = promisify(fs.readdir)
 const writeFile = promisify(fs.writeFile)
@@ -65,6 +64,10 @@ const indexableFieldsList = [
   'ARFL_ARTY_ID',
   'ARFL_DATE_FROM'
 ]
+
+const intersection = (arr, ...args) => {
+  return arr.filter(item => args.every(arr => arr.includes(item)))
+}
 
 /**
  * Gets SQL for indexes to add to the supplied table

@@ -2,7 +2,6 @@
 
 const moment = require('moment')
 const { returns: { date: { getPeriodStart } } } = require('@envage/water-abstraction-helpers')
-const { flow, toUpper, first, range, get, pick } = require('lodash')
 const { isDateWithinReturnCycle } = require('./date-helpers')
 
 const DATE_FORMAT = 'YYYY-MM-DD'
@@ -21,9 +20,8 @@ const getNaldStyleDate = date => moment(date, DATE_FORMAT).format('YYYYMMDD00000
  * @return {String}            - date in format 'YYYY-MM-DD'
  */
 const getReturnCycleStart = (returnData) => {
-  const isSummer = get(returnData, 'metadata.isSummer', undefined)
-  if (typeof isSummer !== 'undefined') {
-    return getPeriodStart(returnData.start_date, isSummer)
+  if (returnData.metadata.isSummer !== undefined) {
+    return getPeriodStart(returnData.start_date, returnData.metadata.isSummer)
   }
 }
 
@@ -33,11 +31,15 @@ const getReturnCycleStart = (returnData) => {
  */
 const transformReturn = (returnData, addFields = []) => {
   const pickFields = ['returns_frequency', 'licence_ref', 'start_date', 'end_date', 'status', 'received_date', 'under_query', 'under_query_comment', ...addFields]
-  const transformed = pick(returnData, pickFields)
+  const transformed = {}
+
+  pickFields.forEach((key) => {
+    transformed[key] = returnData[key]
+  })
 
   transformed.under_query_comment = returnData.under_query_comment || ''
-  transformed.regionCode = get(returnData, 'metadata.nald.regionCode')
-  transformed.formatId = get(returnData, 'metadata.nald.formatId')
+  transformed.regionCode = returnData.metadata.nald.regionCode
+  transformed.formatId = returnData.metadata.nald.formatId
   transformed.nald_date_from = getNaldStyleDate(moment(transformed.start_date).startOf('month').format('YYYY-MM-DD'))
   transformed.nald_ret_date = getNaldStyleDate(transformed.received_date)
   transformed.return_cycle_start = getReturnCycleStart(returnData)
@@ -46,7 +48,7 @@ const transformReturn = (returnData, addFields = []) => {
 }
 
 const transformQuantity = (quantity = 0) => {
-  if (quantity === null || toUpper(quantity) === 'NULL') {
+  if (quantity === null || quantity.toString().toUpperCase() === 'NULL') {
     return null
   }
 
@@ -54,7 +56,11 @@ const transformQuantity = (quantity = 0) => {
   return val.includes('.') ? parseFloat(val).toFixed(3) : val
 }
 
-const getUpperCasedFirstCharacter = flow(first, toUpper)
+const getUpperCasedFirstCharacter = (arg) => {
+  const firstCharacter = arg[0]
+  const result = firstCharacter.toUpperCase()
+  return result
+}
 
 /**
  * Transforms user units to NALD unit flag
@@ -78,8 +84,8 @@ const transformLine = lineData => {
   if (lineData.time_period === 'week') {
     throw new Error('Please use transformWeeklyLine for weekly lines')
   }
-  const paths = ['start_date', 'end_date', 'time_period', 'reading_type', 'unit', 'user_unit']
-  const line = pick(lineData, paths)
+  const { start_date: startDate, end_date: endDate, time_period: timePeriod, reading_type: readingType, unit, user_unit: userUnit } = lineData
+  const line = { start_date: startDate, end_date: endDate, time_period: timePeriod, reading_type: readingType, unit, user_unit: userUnit }
   line.quantity = transformQuantity(lineData.quantity)
   line.nald_reading_type = getUpperCasedFirstCharacter(line.reading_type)
   line.nald_time_period = getUpperCasedFirstCharacter(line.time_period)
@@ -96,8 +102,8 @@ const transformWeeklyLine = lineData => {
   if (lineData.time_period !== 'week') {
     throw new Error('Please use transformLine when not weekly')
   }
-
-  const dailies = range(7).reduce((lines, daysForward) => {
+  const range = [0, 1, 2, 3, 4, 5, 6]
+  const dailies = range.reduce((lines, daysForward) => {
     const date = getFutureDate(lineData.start_date, daysForward)
     const quantity = daysForward === 6 ? lineData.quantity : null
 

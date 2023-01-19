@@ -1,4 +1,3 @@
-const { set } = require('lodash')
 const contact = require('./contact')
 const company = require('./company')
 const { createRegionSkeleton } = require('./region-skeleton')
@@ -8,13 +7,19 @@ const { createRegionSkeleton } = require('./region-skeleton')
  * @param {Array} parties
  * @return {Object}
  */
-const mapParties = parties => parties.reduce((acc, party) => {
-  set(acc, `${party.FGAC_REGION_CODE}.${party.ID}`, {
-    company: company.mapCompany(party),
-    contact: contact.mapContact(party)
-  })
-  return acc
-}, createRegionSkeleton())
+
+const mapParties = (parties) => {
+  const mappedParties = createRegionSkeleton()
+  for (const party of parties) {
+    const value = {
+      company: company.mapCompany(party),
+      contact: contact.mapContact(party)
+    }
+    mappedParties[party.FGAC_REGION_CODE][party.ID] = value
+  }
+
+  return mappedParties
+}
 
 module.exports = {
   mapParties

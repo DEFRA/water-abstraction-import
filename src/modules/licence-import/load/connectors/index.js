@@ -1,5 +1,4 @@
 const { pool } = require('../../../../lib/connectors/db')
-const { get } = require('lodash')
 const queries = require('./queries')
 
 const createDocument = async doc => {
@@ -8,9 +7,13 @@ const createDocument = async doc => {
 }
 
 const createDocumentRole = async (doc, role) => {
-  const params = [doc.documentRef, role.role, get(role, 'company.externalId', null),
-    get(role, 'contact.externalId', null), get(role, 'address.externalId', null),
-    get(role, 'invoiceAccount.invoiceAccountNumber', null), role.startDate, role.endDate]
+  const companyExternalId = role?.company?.externalId ?? null
+  const contactExternalId = role?.contact?.externalId ?? null
+  const adressExternalId = role?.address?.externalId ?? null
+  const invoiceAccountNumber = role?.invoiceAccount?.invoiceAccountNumber ?? null
+
+  const params = [doc.documentRef, role.role, companyExternalId,
+    contactExternalId, adressExternalId, invoiceAccountNumber, role.startDate, role.endDate]
   return pool.query(queries.createDocumentRole, params)
 }
 
@@ -36,12 +39,13 @@ const createInvoiceAccount = (company, invoiceAccount) => {
 }
 
 const createInvoiceAccountAddress = (invoiceAccount, invoiceAccountAddress) => {
+  const invoiceAccountAddressExternalId = invoiceAccountAddress?.agentCompany?.externalId ?? null
   const params = [
     invoiceAccount.invoiceAccountNumber,
     invoiceAccountAddress.address.externalId,
     invoiceAccountAddress.startDate,
     invoiceAccountAddress.endDate,
-    get(invoiceAccountAddress, 'agentCompany.externalId', null)
+    invoiceAccountAddressExternalId
   ]
   return pool.query(queries.createInvoiceAccountAddress, params)
 }

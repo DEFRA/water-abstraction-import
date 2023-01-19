@@ -1,7 +1,7 @@
 /**
  * Transform data for loading into CRM
  */
-const { mapValues, find } = require('lodash')
+
 const { findCurrent, transformNull } = require('@envage/water-abstraction-helpers').nald
 const { addressFormatter, crmNameFormatter } = require('@envage/water-abstraction-helpers').nald.formatting
 const { sentenceCase } = require('sentence-case')
@@ -19,11 +19,11 @@ const contactsFormatter = (currentVersion, roles) => {
     return []
   }
 
-  const licenceHolderParty = find(currentVersion.parties, (party) => {
+  const licenceHolderParty = currentVersion.parties.find((party) => {
     return party.ID === currentVersion.ACON_APAR_ID
   })
 
-  const licenceHolderAddress = find(licenceHolderParty.contacts, (contact) => {
+  const licenceHolderAddress = licenceHolderParty.contacts.find((contact) => {
     return contact.AADD_ID === currentVersion.ACON_AADD_ID
   })
 
@@ -49,7 +49,14 @@ const contactsFormatter = (currentVersion, roles) => {
  * prune this to empty value
  */
 function pruneNullString (data) {
-  return mapValues(data, value => value === 'null' ? '' : value)
+  const mappedValues = {}
+  for (const key in data) {
+    if (data[key] === 'null') {
+      mappedValues[key] = ''
+    } else mappedValues[key] = data[key]
+  }
+
+  return mappedValues
 }
 
 /**

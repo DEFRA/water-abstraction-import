@@ -1,6 +1,5 @@
 'use strict'
 
-const { isNull, sortBy } = require('lodash')
 const moment = require('moment')
 const dateHelpers = require('../../../lib/date-helpers')
 
@@ -99,7 +98,7 @@ const getChargeVersionHistoryGaps = (licence, chargeVersions) => {
   }
 
   const licenceStart = moment(licence.start_date)
-  const licenceEnd = isNull(licence.end_date) ? null : moment(licence.end_date)
+  const licenceEnd = (licence.end_date === null) ? null : moment(licence.end_date)
 
   return currentChargeVersions
     .reduce((acc, chargeVersion, i, source) => {
@@ -121,7 +120,7 @@ const getChargeVersionHistoryGaps = (licence, chargeVersions) => {
       }
 
       // Gap between last charge version and licence end date
-      if (!next && !isNull(chargeVersion.end_date) && (isNull(licenceEnd) || licenceEnd.isAfter(chargeVersion.end_date, PERIOD_DAY))) {
+      if (!next && (chargeVersion.end_date !== null) && ((licenceEnd === null) || licenceEnd.isAfter(chargeVersion.end_date, PERIOD_DAY))) {
         acc.push(
           createGap(getNextDay(chargeVersion.end_date), licence.end_date, `${licence.FGAC_REGION_CODE}:${licence.ID}:licenceEnd`)
         )
@@ -163,7 +162,20 @@ const mapNALDChargeVersionsToWRLS = (licence, chargeVersions) => {
     ...wrlsChargeVersions,
     ...nonChargeableChargeVersions
   ]
-  return sortBy(arr, ['start_date', 'version_number'])
+
+  arr.sort(function (startDate1, startDate2) {
+    if ((startDate1.start_date) < (startDate2.start_date)) {
+      return -1
+    } else {
+      return 1
+    }
+  })
+
+  arr.sort(function (versionNumber1, versionNumber2) {
+    return versionNumber1 - versionNumber2
+  })
+
+  return arr
 }
 
 module.exports = {

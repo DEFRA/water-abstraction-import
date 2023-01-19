@@ -1,5 +1,4 @@
 const { logger } = require('../../../logger')
-const lodash = require('lodash')
 const moment = require('moment')
 const { v4: uuid } = require('uuid')
 const db = require('./db')
@@ -79,6 +78,10 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
       dbdateformat
   ])
 
+  // Two db queries have been run
+  // Now we check if they have pulled any data from the db
+  // If they have, set qtyKey to be the name of the column we will be summing up
+  // Set iterable to the data set we will be summing
   let qtyKey
   let iterable
 
@@ -92,7 +95,10 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
     iterable = []
   }
 
-  const sumOfLines = lodash.sum(iterable.map(a => parseFloat(a[qtyKey])).filter(n => ![null, undefined, NaN].includes(n)))
+  const sumOfLines = iterable
+    .map((item) => parseFloat(item[qtyKey]))
+    .filter((value) => ![null, undefined, NaN].includes(value))
+    .reduce((acc, num) => acc + num, 0)
 
   if (sumOfLines === 0) {
     logger.info(`Return ${version.data.return_id} has a sum of zero and is being marked as a nil return`)
@@ -116,6 +122,7 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
     })
   }
 }
+
 module.exports = {
   replicateReturnsDataFromNaldForNonProductionEnvironments
 }

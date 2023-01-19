@@ -10,7 +10,6 @@ const {
   filterLines
 } = require('./lib/transformers')
 const { generateNilLines } = require('./lib/generate-nil-lines')
-const { flatMap } = require('lodash')
 const { logger } = require('../../logger')
 
 const { getVersionFilter, getEventFilter, getPagination } = require('./lib/api-helpers')
@@ -82,7 +81,7 @@ const getLinesForVersion = async (request, h) => {
     const returnData = await getReturn(version.return_id)
     const linesTransformer = getLinesTransformer(returnData)
     const linesData = version.nil_return ? generateNilLines(returnData, version) : linesResponse
-    const lines = flatMap(linesData, linesTransformer)
+    const lines = linesData.flatMap(linesTransformer)
 
     return {
       error: null,

@@ -1,5 +1,4 @@
 const moment = require('moment')
-const { first } = require('lodash')
 
 const isValidDate = value => moment(value, 'DD/MM/YYYY').isValid()
 
@@ -21,7 +20,7 @@ const getEndDate = (data = {}) => {
     .map(mapDate)
     .sort()
 
-  return first(sortedAndFiltered)
+  return sortedAndFiltered[0]
 }
 
 module.exports = {

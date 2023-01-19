@@ -1,5 +1,4 @@
 const moment = require('moment')
-const { sortBy, isNull } = require('lodash')
 const DATE_FORMAT = 'YYYY-MM-DD'
 const NALD_FORMAT = 'DD/MM/YYYY'
 const NALD_TRANSFER_FORMAT = 'DD/MM/YYYY HH:mm:ss'
@@ -12,7 +11,7 @@ const mapNaldDate = str => {
 }
 
 const mapIsoDateToNald = str => {
-  if (isNull(str)) {
+  if (str === null) {
     return 'null'
   }
   return moment(str, DATE_FORMAT).format(NALD_FORMAT)
@@ -23,17 +22,20 @@ const getSortedDates = arr => {
     .map(str => moment(str, DATE_FORMAT))
     .filter(m => m.isValid())
 
-  return sortBy(moments, m => m.unix())
+  const sorted = moments.sort(function (startDate1, startDate2) {
+    return startDate1 - startDate2
+  })
+  return sorted
 }
 
 const getMinDate = arr => {
   const sorted = getSortedDates(arr)
-  return sorted.length === 0 ? null : sorted.shift().format(DATE_FORMAT)
+  return sorted.length === 0 ? null : sorted[0].format(DATE_FORMAT)
 }
 
 const getMaxDate = arr => {
   const sorted = getSortedDates(arr)
-  return sorted.length === 0 ? null : sorted.pop().format(DATE_FORMAT)
+  return sorted.length === 0 ? null : sorted[sorted.length - 1].format(DATE_FORMAT)
 }
 
 const mapTransferDate = str =>

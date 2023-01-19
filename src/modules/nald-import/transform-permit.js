@@ -1,4 +1,3 @@
-const { orderBy } = require('lodash')
 const dates = require('@envage/water-abstraction-helpers').nald.dates
 
 const licenceQueries = require('./lib/nald-queries/licences')
@@ -136,6 +135,13 @@ const getLicenceJson = async (licenceNumber) => {
   }
 }
 
+const calculateVersionScore = (version) => {
+  // We * it by 1000 so ISSUE_NO goes to the top
+  const issueNo = 1000 * parseInt(version.ISSUE_NO, 10)
+  const incrNo = parseInt(version.INCR_NO, 10)
+  return issueNo + incrNo
+}
+
 /**
  * Gets the latest version of the specified licence data
  * by sorting on the effective start date of the versions array
@@ -144,12 +150,16 @@ const getLicenceJson = async (licenceNumber) => {
  * @return {Object} latest version
  */
 const getLatestVersion = (versions) => {
-  const sortedVersions = orderBy(versions, (version) => {
-    const issueNo = 1000 * parseInt(version.ISSUE_NO, 10)
-    const incrNo = parseInt(version.INCR_NO, 10)
-    return issueNo + incrNo
+  versions.sort((version1, version2) => {
+    const total1 = calculateVersionScore(version1)
+    const total2 = calculateVersionScore(version2)
+
+    if (total1 < total2) return 1
+    if (total1 > total2) return -1
+    return 0
   })
-  return sortedVersions[sortedVersions.length - 1]
+
+  return versions[0]
 }
 
 /**
@@ -162,7 +172,6 @@ const getLatestVersion = (versions) => {
  */
 const buildPermitRepoPacket = (licenceRef, regimeId, licenceTypeId, data) => {
   const latestVersion = getLatestVersion(data.data.versions)
-
   const permitRepoData = {
     licence_ref: licenceRef,
     licence_start_dt: dates.calendarToSortable(latestVersion.EFF_ST_DATE),

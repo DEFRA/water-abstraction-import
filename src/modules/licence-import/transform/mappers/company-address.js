@@ -1,6 +1,5 @@
 'use strict'
 
-const { sortBy, get, identity, groupBy } = require('lodash')
 const date = require('./date')
 const roles = require('./roles')
 
@@ -13,7 +12,7 @@ const getEndDate = (row, currentEnd) => {
   // Get all end dates for this row
   const endDates = [row.EFF_END_DATE, row.EXPIRY_DATE, row.REV_DATE, row.LAPSED_DATE]
     .map(date.mapNaldDate)
-    .filter(identity)
+    .filter(value => value)
 
   const arr = [date.getMinDate(endDates), currentEnd]
 
@@ -22,28 +21,37 @@ const getEndDate = (row, currentEnd) => {
 
 const getLicenceHolderAddresses = (licenceVersions, context) => {
   // Sort licence versions by start date
-  const sorted = sortBy(licenceVersions, row => date.mapNaldDate(row.EFF_ST_DATE))
+  const sorted = licenceVersions.sort((startDate1, startDate2) => {
+    if ((startDate1, date.mapNaldDate(startDate1.EFF_ST_DATE)) > (startDate2, date.mapNaldDate(startDate2.EFF_ST_DATE))) {
+      return 1
+    } else {
+      return -1
+    }
+  })
 
   // Get the widest date range for each address
-  const mapped = sorted.reduce((acc, row) => {
-    const currentStart = get(acc, `${row.ACON_AADD_ID}.startDate`)
-    const currentEnd = get(acc, `${row.ACON_AADD_ID}.endDate`)
-
-    acc[row.ACON_AADD_ID] = {
+  const mapped = {}
+  for (const row of sorted) {
+    const id = row.ACON_AADD_ID
+    const currentStart = mapped[id]?.startDate
+    const currentEnd = mapped[id]?.endDate
+    mapped[id] = {
       role: roles.ROLE_LICENCE_HOLDER,
       startDate: date.getMinDate([date.mapNaldDate(row.EFF_ST_DATE), currentStart]),
       endDate: getEndDate(row, currentEnd),
-      address: context.addresses[row.FGAC_REGION_CODE][row.ACON_AADD_ID]
+      address: context.addresses[row.FGAC_REGION_CODE][id]
     }
-
-    return acc
-  }, {})
-
+  }
   return Object.values(mapped)
 }
 
 const getBillingAddresses = (chargeVersions, context) => {
-  const grouped = groupBy(chargeVersions, row => row.ACON_AADD_ID)
+  const grouped = chargeVersions.reduce((group, row) => {
+    group[row.ACON_AADD_ID] = group[row.ACON_AADD_ID] ?? []
+    group[row.ACON_AADD_ID].push(row)
+
+    return group
+  }, {})
   return Object.values(grouped).map(addressGroup => {
     const { FGAC_REGION_CODE: regionCode, ACON_AADD_ID: addressId } = addressGroup[0]
     const dates = addressGroup.map(row => date.mapTransferDate(row.IAS_XFER_DATE))
@@ -56,11 +64,18 @@ const getBillingAddresses = (chargeVersions, context) => {
   })
 }
 
-const getGroupingKey = row => `${row.FGAC_REGION_CODE}.${row.ACON_AADD_ID}.${row.ALRT_CODE}`
-
 const getLicenceRoleAddresses = (licenceRoles, context) => {
   // Group by roles with the same address and role
-  const grouped = groupBy(licenceRoles, getGroupingKey)
+  let grouped = {}
+  if (licenceRoles) {
+    grouped = licenceRoles.reduce((group, item) => {
+      const groupingKey = `${item.FGAC_REGION_CODE}.${item.ACON_AADD_ID}.${item.ALRT_CODE}`
+      group[groupingKey] = group[groupingKey] ?? []
+      group[groupingKey].push(item)
+
+      return group
+    }, {})
+  }
   return Object.values(grouped).map(addressGroup => {
     const { FGAC_REGION_CODE: regionCode, ACON_AADD_ID: addressId, ALRT_CODE: roleCode } = addressGroup[0]
     const startDates = addressGroup.map(row => date.mapNaldDate(row.EFF_ST_DATE))

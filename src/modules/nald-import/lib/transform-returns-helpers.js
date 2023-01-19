@@ -1,7 +1,6 @@
 'use strict'
 
 const moment = require('moment')
-const { pick, findIndex, max, chunk } = require('lodash')
 
 const waterHelpers = require('@envage/water-abstraction-helpers')
 
@@ -113,12 +112,23 @@ const mapReceivedDate = (logs) => {
     return null
   }
 
-  if (findIndex(dates, val => val === 'null') !== -1) {
+  if (dates.findIndex(val => val === 'null') !== -1) {
     return null
   }
 
   const timestamps = dates.map(date => moment(date, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD'))
 
+  // Sorting the timeStamps into highest value first and returning that individual value
+  const max = (timeStamp) => {
+    const sorted = timeStamp.sort((startTime1, startTime2) => {
+      if ((startTime1.unix > startTime2.unix)) {
+        return -1
+      } else {
+        return 1
+      }
+    })
+    return sorted[0]
+  }
   return max(timestamps)
 }
 
@@ -157,6 +167,13 @@ const addDate = (dates, date, startDate, endDate) => {
     arr.push(dateStr)
   }
   return arr
+}
+
+const chunk = (arr, chunkSize = 1, cache = []) => {
+  const tmp = [...arr]
+  if (chunkSize <= 0) return cache
+  while (tmp.length) cache.push(tmp.splice(0, chunkSize))
+  return cache
 }
 
 /**
@@ -219,13 +236,21 @@ const getFormatStartDate = (format) => {
  * @return {String} date YYYY-MM-DD or null
  */
 const getFormatEndDate = (format) => {
-  const dates = Object.values(pick(format, [
-    'EFF_END_DATE',
-    'TIMELTD_END_DATE',
-    'LICENCE_LAPSED_DATE',
-    'LICENCE_REVOKED_DATE',
-    'LICENCE_EXPIRY_DATE'
-  ]))
+  const {
+    EFF_END_DATE,
+    TIMELTD_END_DATE,
+    LICENCE_LAPSED_DATE,
+    LICENCE_REVOKED_DATE,
+    LICENCE_EXPIRY_DATE
+  } = format
+
+  const dates = Object.values({
+    EFF_END_DATE,
+    TIMELTD_END_DATE,
+    LICENCE_LAPSED_DATE,
+    LICENCE_REVOKED_DATE,
+    LICENCE_EXPIRY_DATE
+  })
 
   const validDates = dates
     .map(date => moment(date, 'DD/MM/YYYY'))

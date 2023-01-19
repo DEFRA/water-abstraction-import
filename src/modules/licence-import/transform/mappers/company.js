@@ -1,4 +1,3 @@
-const { identity } = require('lodash')
 const str = require('./str')
 
 /**
@@ -17,7 +16,7 @@ const mapName = party => {
 
   return parts
     .map(str.mapNull)
-    .filter(identity)
+    .filter(value => value)
     .join(' ')
 }
 

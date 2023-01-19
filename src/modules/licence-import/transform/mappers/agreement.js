@@ -3,8 +3,6 @@
 const helpers = require('@envage/water-abstraction-helpers')
 const date = require('./date')
 
-const { groupBy, sortBy, flatMap, uniqBy, mapValues } = require('lodash')
-
 const getUniqueKey = agreement =>
  `${agreement.startDate}:${agreement.endDate}:${agreement.agreementCode}`
 
@@ -46,11 +44,18 @@ const mapElementLevelAgreements = tptAgreements => {
   }
 }
 
-const getVersionNumber = chargeAgreement => chargeAgreement.version_number
-
 const mapTwoPartTariffAgreements = tptAgreements => {
-  const chargeVersionGroups = groupBy(tptAgreements, getVersionNumber)
-  const mappedGroups = mapValues(chargeVersionGroups, mapElementLevelAgreements)
+  const chargeVersionGroups = tptAgreements.reduce((group, item) => {
+    group[item.version_number] = group[item.version_number] ?? []
+    group[item.version_number].push(item)
+
+    return group
+  }, {})
+
+  const mappedGroups = {}
+  for (const key in chargeVersionGroups) {
+    mappedGroups[key] = mapElementLevelAgreements(chargeVersionGroups[key])
+  }
   return Object.values(mappedGroups)
 }
 
@@ -58,22 +63,31 @@ const mapAgreements = (tptAgreements, s130Agreements = []) => {
   const mappedTptAgreements = mapTwoPartTariffAgreements(tptAgreements)
 
   // Map and de-duplicate identical agreements
-  const mapped = uniqBy(
-    [...mappedTptAgreements, ...s130Agreements].map(mapAgreement),
-    getUniqueKey
-  )
+  const mapped = [...new Set([...mappedTptAgreements, ...s130Agreements].map(mapAgreement),
+    getUniqueKey)]
 
   // Group by agreement code
-  const groups = groupBy(mapped, agreement => agreement.agreementCode)
+  const groups = mapped.reduce((group, agreement) => {
+    group[agreement.agreementCode] = group[agreement.agreementCode] ?? []
+    group[agreement.agreementCode].push(agreement)
+
+    return group
+  }, {})
 
   // For each group, merge history
   const merged = Object.values(groups).map(group =>
     helpers.charging.mergeHistory(
-      sortBy(group, agreement => agreement.startDate)
+      group.sort((startDate1, startDate2) => {
+        if ((startDate1, startDate1.startDate) > (startDate2, startDate2.startDate)) {
+          return 1
+        } else {
+          return -1
+        }
+      })
     )
   )
 
-  return flatMap(merged)
+  return merged.flatMap(num => num)
 }
 
 module.exports = {
