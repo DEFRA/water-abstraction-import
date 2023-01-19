@@ -150,7 +150,7 @@ const calculateVersionScore = (version) => {
  * @return {Object} latest version
  */
 const getLatestVersion = (versions) => {
-  const sortedVersions = versions.sort((version1, version2) => {
+  versions.sort((version1, version2) => {
     const total1 = calculateVersionScore(version1)
     const total2 = calculateVersionScore(version2)
 
@@ -159,7 +159,7 @@ const getLatestVersion = (versions) => {
     return 0
   })
 
-  return sortedVersions[0]
+  return versions[0]
 }
 
 /**

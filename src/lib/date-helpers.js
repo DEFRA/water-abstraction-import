@@ -12,14 +12,14 @@ const moment = require('moment')
 const getSortedDates = arr => {
   const filteredArray = arr.filter(value => value)
   const mappedArray = filteredArray.map(value => moment(value))
-  const sortedArray = mappedArray.sort(function (startDate1, startDate2) {
+  mappedArray.sort(function (startDate1, startDate2) {
     if ((startDate1.unix > startDate2.unix)) {
       return -1
     } else {
       return 1
     }
   })
-  return sortedArray
+  return mappedArray
 }
 
 const getMinDate = arr => {

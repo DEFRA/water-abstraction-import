@@ -163,7 +163,7 @@ const mapNALDChargeVersionsToWRLS = (licence, chargeVersions) => {
     ...nonChargeableChargeVersions
   ]
 
-  const sortedStartDate = arr.sort(function (startDate1, startDate2) {
+  arr.sort(function (startDate1, startDate2) {
     if ((startDate1.start_date) < (startDate2.start_date)) {
       return -1
     } else {
@@ -171,11 +171,11 @@ const mapNALDChargeVersionsToWRLS = (licence, chargeVersions) => {
     }
   })
 
-  const sortedVersionNumber = sortedStartDate.sort(function (versionNumber1, versionNumber2) {
+  arr.sort(function (versionNumber1, versionNumber2) {
     return versionNumber1 - versionNumber2
   })
 
-  return sortedVersionNumber
+  return arr
 }
 
 module.exports = {
