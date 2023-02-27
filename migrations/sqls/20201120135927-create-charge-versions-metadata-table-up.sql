@@ -1,6 +1,6 @@
 CREATE TYPE charge_version_metadata_status AS ENUM('current', 'superseded');
 
-CREATE TABLE water_import.charge_versions_metadata
+CREATE TABLE IF NOT EXISTS water_import.charge_versions_metadata
 (
 	external_id varchar not null,
 	version_number integer not null,
