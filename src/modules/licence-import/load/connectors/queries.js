@@ -46,7 +46,7 @@ town=EXCLUDED.town,
 county=EXCLUDED.county,
 postcode=EXCLUDED.postcode,
 country=EXCLUDED.country,
-last_hash=EXCLUDED.current_hash, 
+last_hash=EXCLUDED.current_hash,
 current_hash=md5(CONCAT(
 EXCLUDED.address_1::varchar,
 EXCLUDED.address_2::varchar,
@@ -115,9 +115,9 @@ ON CONFLICT (company_id, address_id, role_id) DO UPDATE SET
   date_updated=EXCLUDED.date_updated`
 
 const createAgreement = `insert into water.licence_agreements (licence_ref, financial_agreement_type_id, start_date, end_date, date_created, date_updated, source)
-  select $1, t.financial_agreement_type_id, $3, $4, NOW(), NOW(), 'nald' 
+  select $1, t.financial_agreement_type_id, $3, $4, NOW(), NOW(), 'nald'
     from water.financial_agreement_types t
-    where t.financial_agreement_code=$2 on conflict (licence_ref, financial_agreement_type_id, start_date) WHERE date_deleted is null 
+    where t.financial_agreement_code=$2 on conflict (licence_ref, financial_agreement_type_id, start_date) WHERE date_deleted is null
     do update set end_date=EXCLUDED.end_date, date_updated=EXCLUDED.date_updated, source=EXCLUDED.source;`
 
 const createLicence = `insert into water.licences (region_id, licence_ref, is_water_undertaker, regions, start_date, expired_date, lapsed_date, revoked_date)
@@ -207,10 +207,35 @@ const createLicenceVersionPurpose = `insert into water.licence_version_purposes 
 
 const getLicenceByRef = 'SELECT * FROM water.licences WHERE licence_ref = $1'
 
-const flagLicenceForSupplementaryBilling = 'UPDATE water.licences set include_in_supplementary_billing = \'yes\' WHERE licence_id = $1'
+// Only update the appropriate scheme's flag depending on what the licence is linked to; both flag both, just got
+// charge versions for one scheme then flag only it, else has no charge versions then do not flag at all.
+// This updates the query to handle new SROC billing plus fixes an old problem of licences with no charge versions
+// were getting flagged (with no charge versions they can't be billed and the flag then cleared).
+const flagLicenceForSupplementaryBilling = `
+  UPDATE water.licences l
+  SET include_in_supplementary_billing = CASE
+    WHEN EXISTS (
+      SELECT 1
+      FROM water.charge_versions cv
+      WHERE cv.licence_id = l.licence_id
+        AND cv.scheme = 'alcs'
+    ) THEN 'yes'
+    ELSE include_in_supplementary_billing
+  END,
+  include_in_sroc_supplementary_billing = CASE
+    WHEN EXISTS (
+      SELECT 1
+      FROM water.charge_versions cv
+      WHERE cv.licence_id = l.licence_id
+        AND cv.scheme = 'sroc'
+    ) THEN TRUE
+    ELSE include_in_sroc_supplementary_billing
+  END
+  WHERE l.licence_id = $1;
+`
 
 const cleanUpAgreements = `
-delete 
+delete
   from water.licence_agreements la
   using water.financial_agreement_types fat
   where
@@ -226,9 +251,9 @@ INSERT INTO water.licence_version_purpose_condition_types (
   subcode,
   description,
   subcode_description
-  ) 
-  SELECT "CODE", "SUBCODE", "DESCR", "SUBCODE_DESC" FROM import."NALD_LIC_COND_TYPES" 
-  WHERE "AFFECTS_ABS" = 'Y' 
+  )
+  SELECT "CODE", "SUBCODE", "DESCR", "SUBCODE_DESC" FROM import."NALD_LIC_COND_TYPES"
+  WHERE "AFFECTS_ABS" = 'Y'
   ON CONFLICT (code, subcode)
   DO UPDATE SET
     description = excluded.description,
@@ -246,15 +271,15 @@ INSERT INTO water.licence_version_purpose_conditions (
   external_id
   ) VALUES (
   $1,
-  (SELECT licence_version_purpose_condition_type_id 
-    FROM water.licence_version_purpose_condition_types 
+  (SELECT licence_version_purpose_condition_type_id
+    FROM water.licence_version_purpose_condition_types
     WHERE code = $2 AND subcode = $3),
   $4,
   $5,
   $6,
    $7)
-ON CONFLICT (external_id) 
-DO UPDATE SET 
+ON CONFLICT (external_id)
+DO UPDATE SET
  licence_version_purpose_condition_type_id = excluded.licence_version_purpose_condition_type_id,
  param_1 = excluded.param_1,
  param_2 = excluded.param_2,
