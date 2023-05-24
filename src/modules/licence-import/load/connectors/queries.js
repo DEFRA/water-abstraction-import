@@ -207,10 +207,13 @@ const createLicenceVersionPurpose = `insert into water.licence_version_purposes 
 
 const getLicenceByRef = 'SELECT * FROM water.licences WHERE licence_ref = $1'
 
-// Only update the appropriate scheme's flag depending on what the licence is linked to; both flag both, just got
+// Only update the appropriate scheme's flag depending on what the licence is linked to; if both flag both, just got
 // charge versions for one scheme then flag only it, else has no charge versions then do not flag at all.
 // This updates the query to handle new SROC billing plus fixes an old problem of licences with no charge versions
 // were getting flagged (with no charge versions they can't be billed and the flag then cleared).
+//
+// Also, we use the date rather than the scheme column because we have found examples of charge versions with start
+// dates greater than 2022-04-01 (when SROC replaced ALCS) where the scheme is set to 'alcs'.
 const flagLicenceForSupplementaryBilling = `
   UPDATE water.licences l
   SET include_in_supplementary_billing = CASE
@@ -218,7 +221,7 @@ const flagLicenceForSupplementaryBilling = `
       SELECT 1
       FROM water.charge_versions cv
       WHERE cv.licence_id = l.licence_id
-        AND cv.scheme = 'alcs'
+        AND cv.start_date < '2022-04-01'::Date
     ) THEN 'yes'
     ELSE include_in_supplementary_billing
   END,
@@ -227,7 +230,7 @@ const flagLicenceForSupplementaryBilling = `
       SELECT 1
       FROM water.charge_versions cv
       WHERE cv.licence_id = l.licence_id
-        AND cv.scheme = 'sroc'
+        AND cv.start_date >= '2022-04-01'::Date
     ) THEN TRUE
     ELSE include_in_sroc_supplementary_billing
   END
