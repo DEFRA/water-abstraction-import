@@ -1,4 +1,3 @@
-
 const createPurposeConditionTypes = `
 INSERT INTO water.licence_version_purpose_condition_types (
   code,

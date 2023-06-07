@@ -1,4 +1,3 @@
-
 class ConditionType {
   constructor () {
     this.code = 'CES'
