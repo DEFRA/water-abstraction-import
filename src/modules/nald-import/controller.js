@@ -98,6 +98,27 @@ const postImportLicence = async (request, h) => {
     await request.server.messageQueue.publish(message)
     return h.response(message).code(202)
   } catch (err) {
+    throw Boom.boomify(err, { statusCode: 400 })
+  }
+}
+
+/**
+ * Used to manually trigger the NALD import process
+ *
+ * When called it removes any existing 'nald-import.s3-download' job. The config for that job makes it a singleton,
+ * which means PGBoss will only allow one of that 'job' to be queued. The existing schedule and mechanism means one
+ * is always present in the queue. So, our manual trigger wouldn't work without first removing what's already there.
+ */
+const postImportLicences = async (request, h) => {
+  const { job } = jobs.s3Download
+  const message = job.createMessage()
+
+  try {
+    await request.server.messageQueue.deleteQueue(jobs.s3Download.job.jobName)
+    await request.server.messageQueue.publish(message)
+
+    return h.response().code(202)
+  } catch (err) {
     throw Boom.boomify(err)
   }
 }
@@ -108,5 +129,6 @@ module.exports = {
   getReturnsFormats,
   getReturnsLogs,
   getReturnsLogLines,
-  postImportLicence
+  postImportLicence,
+  postImportLicences
 }
