@@ -11,7 +11,8 @@ let licenceData
 
 experiment('Test NALD import', () => {
   before(async () => {
-    await server.route(routes)
+    server.validator(require('@hapi/joi'))
+    server.route(routes)
 
     // Generate dummy NALD data
     await licenceCreator()

@@ -47,6 +47,7 @@ const start = async function () {
   try {
     await server.register(plugins)
     await server.register(HapiPinoPlugin())
+    server.validator(require('@hapi/joi'))
     configureServerAuthStrategy(server)
     server.route(routes)
 
