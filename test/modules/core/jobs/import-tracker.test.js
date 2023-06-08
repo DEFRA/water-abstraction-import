@@ -8,7 +8,6 @@ const { logger } = require('../../../../src/logger')
 const jobsConnector = require('../../../../src/lib/connectors/water-import/jobs')
 const notifyService = require('../../../../src/lib/services/notify')
 const importTrackerJob = require('../../../../src/modules/core/jobs/import-tracker')
-const slack = require('../../../../src/lib/slack')
 const config = require('../../../../config')
 
 experiment('modules/core/jobs/import-tracker', () => {
@@ -16,7 +15,6 @@ experiment('modules/core/jobs/import-tracker', () => {
   beforeEach(async () => {
     sandbox.stub(logger, 'info')
     sandbox.stub(logger, 'error')
-    sandbox.stub(slack, 'post')
     sandbox.stub(jobsConnector, 'getFailedJobs')
     sandbox.stub(notifyService, 'sendEmail')
   })
@@ -60,16 +58,13 @@ experiment('modules/core/jobs/import-tracker', () => {
           await importTrackerJob.handler(job)
         })
 
-        test('the handler post the correct message to slack', async () => {
-          const result = slack.post.lastCall.args[0]
-          expect(result).to.equal(testMessage)
-        })
         test('the handler post the correct message to notify', async () => {
           const [recipient, templateRef, data] = notifyService.sendEmail.lastCall.args
           expect(recipient).to.equal('test-mailbox@test.com')
           expect(templateRef).to.equal('service_status_alert')
           expect(data).to.equal({ content: testMessage })
         })
+
         test('when there are 2 failed job the sub title is pluralised', async () => {
           testMessage = 'There are 2 failed import jobs in the prd environment.' +
             '\n\nJob Name: Test.Job.Name 1 \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n' +
@@ -96,7 +91,6 @@ experiment('modules/core/jobs/import-tracker', () => {
     })
 
     experiment('on the preprod environment', () => {
-      const testMessage = 'There is 1 failed import job in the pre environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
       beforeEach(async () => {
         sandbox.stub(config, 'environment').value('pre')
         sandbox.stub(process, 'env').value({
@@ -111,17 +105,12 @@ experiment('modules/core/jobs/import-tracker', () => {
         await importTrackerJob.handler(job)
       })
 
-      test('the handler post the correct message to slack', async () => {
-        const result = slack.post.lastCall.args[0]
-        expect(result).to.equal(testMessage)
-      })
       test('the handler does not post a message to notify', async () => {
         expect(notifyService.sendEmail.calledOnce).to.be.false()
       })
     })
 
     experiment('on the test environment', () => {
-      const testMessage = 'There is 1 failed import job in the tst environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
       beforeEach(async () => {
         sandbox.stub(config, 'environment').value('tst')
         jobsConnector.getFailedJobs.resolves([{
@@ -133,10 +122,6 @@ experiment('modules/core/jobs/import-tracker', () => {
         await importTrackerJob.handler(job)
       })
 
-      test('the handler post the correct message to slack', async () => {
-        const result = slack.post.lastCall.args[0]
-        expect(result).to.equal(testMessage)
-      })
       test('the handler does not post a message to notify', async () => {
         expect(notifyService.sendEmail.calledOnce).to.be.false()
       })
@@ -148,9 +133,6 @@ experiment('modules/core/jobs/import-tracker', () => {
         await importTrackerJob.handler(job)
       })
 
-      test('the handler post the correct message to slack', async () => {
-        expect(slack.post.calledOnce).to.be.false()
-      })
       test('the handler post the correct message to notify', async () => {
         expect(notifyService.sendEmail.calledOnce).to.be.false()
       })

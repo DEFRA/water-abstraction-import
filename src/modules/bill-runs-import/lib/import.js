@@ -1,7 +1,6 @@
 'use strict'
 
 const queries = require('./queries')
-const slack = require('../../../lib/slack')
 const { pool } = require('../../../lib/connectors/db')
 const { logger } = require('../../../logger')
 
@@ -24,13 +23,12 @@ const importQueries = [
 ]
 
 /**
- * Logs a message and posts to Slack
+ * Logs a message
  * @param {String} str - the message
  */
 const log = str => {
   const message = `Bill run import: ${str}`
   logger.info(message)
-  slack.post(message)
 }
 
 /**

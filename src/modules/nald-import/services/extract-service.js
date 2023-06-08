@@ -1,6 +1,5 @@
 const path = require('path')
 const processHelper = require('@envage/water-abstraction-helpers').process
-const slack = require('../../../lib/slack')
 const { logger } = require('../../../logger')
 
 const constants = require('../lib/constants')
@@ -22,8 +21,7 @@ const prepare = async () => {
   await processHelper.execCommand(`mkdir -p ${FINAL_PATH}`)
 }
 
-const logToConsoleAndSlack = message => {
-  slack.post(message)
+const logToConsole = message => {
   logger.info(message)
 }
 
@@ -66,7 +64,7 @@ const steps = [
  */
 const downloadAndExtract = async () => {
   for (const step of steps) {
-    logToConsoleAndSlack(`Import: ${step.message}`)
+    logToConsole(`Import: ${step.message}`)
     await step.action()
   }
 }

@@ -15,13 +15,11 @@ const loadCsvService = require('../../../../src/modules/nald-import/services/loa
 
 const processHelper = require('@envage/water-abstraction-helpers').process
 
-const slack = require('../../../../src/lib/slack')
 const { logger } = require('../../../../src/logger')
 
 experiment('modules/nald-import/services/extract-service', () => {
   beforeEach(async () => {
     sandbox.stub(processHelper, 'execCommand')
-    sandbox.stub(slack, 'post')
     sandbox.stub(logger, 'info')
     sandbox.stub(s3Service, 'download')
     sandbox.stub(zipService, 'extract')
@@ -56,9 +54,8 @@ experiment('modules/nald-import/services/extract-service', () => {
     })
 
     const testMessage = (index, message) =>
-      test(`${message} message is logged and posted to slack`, async () => {
+      test(`${message} message is logged`, async () => {
         expect(logger.info.getCall(index).args[0]).to.equal(message)
-        expect(slack.post.getCall(index).args[0]).to.equal(message)
       })
 
     testMessage(0, 'Import: preparing folders')
