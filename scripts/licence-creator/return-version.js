@@ -1,4 +1,3 @@
-
 class ReturnVersion {
   constructor () {
     this.startDate = '01/01/2018'
