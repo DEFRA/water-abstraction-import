@@ -91,7 +91,6 @@ experiment('modules/core/jobs/import-tracker', () => {
     })
 
     experiment('on the preprod environment', () => {
-      const testMessage = 'There is 1 failed import job in the pre environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
       beforeEach(async () => {
         sandbox.stub(config, 'environment').value('pre')
         sandbox.stub(process, 'env').value({
@@ -112,7 +111,6 @@ experiment('modules/core/jobs/import-tracker', () => {
     })
 
     experiment('on the test environment', () => {
-      const testMessage = 'There is 1 failed import job in the tst environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
       beforeEach(async () => {
         sandbox.stub(config, 'environment').value('tst')
         jobsConnector.getFailedJobs.resolves([{
