@@ -4,7 +4,6 @@ const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi
 const { expect } = require('@hapi/code')
 const queryLoader = require('../../../../src/modules/charging-import/lib/query-loader')
 const { logger } = require('../../../../src/logger')
-const slack = require('../../../../src/lib/slack')
 const { pool } = require('../../../../src/lib/connectors/db')
 
 const sandbox = require('sinon').createSandbox()
@@ -12,7 +11,6 @@ const sandbox = require('sinon').createSandbox()
 experiment('modules/charging-import/lib/query-loader', () => {
   beforeEach(async () => {
     sandbox.stub(logger, 'info')
-    sandbox.stub(slack, 'post')
     sandbox.stub(pool, 'query')
   })
 
@@ -36,10 +34,6 @@ experiment('modules/charging-import/lib/query-loader', () => {
         expect(logger.info.firstCall.args[0]).to.equal(`Starting ${name}`)
       })
 
-      test('slacks a start message', async () => {
-        expect(slack.post.firstCall.args[0]).to.equal(`Starting ${name}`)
-      })
-
       test('runs queries in order', async () => {
         expect(pool.query.firstCall.args[0]).to.equal(queries[0])
         expect(pool.query.secondCall.args[0]).to.equal(queries[1])
@@ -47,10 +41,6 @@ experiment('modules/charging-import/lib/query-loader', () => {
 
       test('logs a finished message', async () => {
         expect(logger.info.lastCall.args[0]).to.equal(`Finished ${name}`)
-      })
-
-      test('slacks a finished message', async () => {
-        expect(slack.post.lastCall.args[0]).to.equal(`Finished ${name}`)
       })
     })
 
@@ -68,10 +58,6 @@ experiment('modules/charging-import/lib/query-loader', () => {
         expect(logger.info.firstCall.args[0]).to.equal(`Starting ${name}`)
       })
 
-      test('slacks a start message', async () => {
-        expect(slack.post.firstCall.args[0]).to.equal(`Starting ${name}`)
-      })
-
       test('runs the first query order', async () => {
         expect(pool.query.firstCall.args[0]).to.equal(queries[0])
       })
@@ -86,12 +72,6 @@ experiment('modules/charging-import/lib/query-loader', () => {
 
       test('does not log a finished message', async () => {
         expect(logger.info.calledWith(
-          `Finished ${name}`
-        )).to.be.false()
-      })
-
-      test('does not slack a finished message', async () => {
-        expect(slack.post.calledWith(
           `Finished ${name}`
         )).to.be.false()
       })

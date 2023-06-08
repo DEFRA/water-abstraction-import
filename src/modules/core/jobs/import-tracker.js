@@ -4,7 +4,6 @@ const { logger } = require('../../../logger')
 
 const config = require('../../../../config')
 
-const slack = require('../../../lib/slack')
 const jobsConnector = require('../../../lib/connectors/water-import/jobs')
 const notifyService = require('../../../lib/services/notify')
 
@@ -38,7 +37,6 @@ const handler = async job => {
       if (config.isProduction) {
         notifyService.sendEmail(process.env.WATER_SERVICE_MAILBOX, 'service_status_alert', { content })
       }
-      slack.post(content)
     }
   } catch (err) {
     logger.error(`Error handling job ${job.name}`, err.stack)

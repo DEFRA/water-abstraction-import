@@ -2,16 +2,14 @@
 
 const { pool } = require('../../../lib/connectors/db')
 const { logger } = require('../../../logger')
-const slack = require('../../../lib/slack')
 
 const log = msg => {
   logger.info(msg)
-  slack.post(msg)
 }
 
 /**
  * Generic means of running a sequence of queries in series,
- * logging progress to console/Slack
+ * logging progress to console
  *
  * @param {String} name - friendly name for log messages
  * @param {Array<String>} queries - array of SQL queries to run
