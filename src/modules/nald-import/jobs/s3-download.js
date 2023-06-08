@@ -9,7 +9,7 @@ const constants = require('../lib/constants')
 
 const JOB_NAME = 'nald-import.s3-download'
 
-const createMessage = licenceNumber => ({
+const createMessage = () => ({
   name: JOB_NAME,
   options: {
     expireIn: '1 hours',
