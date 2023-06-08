@@ -1,4 +1,3 @@
-
 const createLicence = overrides => Object.assign({}, {
   ID: '123',
   LIC_NO: '01/123',

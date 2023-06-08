@@ -1,4 +1,3 @@
-
 'use strict'
 
 const importConnector = require('../connectors/import')

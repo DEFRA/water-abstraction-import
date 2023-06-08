@@ -1,4 +1,3 @@
-
 class RepUnit {
   constructor () {
     this.code = 100
