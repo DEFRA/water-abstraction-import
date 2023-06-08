@@ -98,7 +98,7 @@ const postImportLicence = async (request, h) => {
     await request.server.messageQueue.publish(message)
     return h.response(message).code(202)
   } catch (err) {
-    throw Boom.boomify(err, { statusCode: 400 })
+    throw Boom.boomify(err)
   }
 }
 
