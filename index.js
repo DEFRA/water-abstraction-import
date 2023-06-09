@@ -13,6 +13,7 @@ moment.locale('en-gb')
 const config = require('./config')
 const routes = require('./src/routes.js')
 const db = require('./src/lib/connectors/db')
+const AirbrakePlugin = require('./src/plugins/airbrake.plugin.js')
 const HapiPinoPlugin = require('./src/plugins/hapi-pino.plugin.js')
 
 // Initialise logger
@@ -47,6 +48,7 @@ const start = async function () {
   try {
     await server.register(plugins)
     await server.register(HapiPinoPlugin())
+    await server.register(AirbrakePlugin)
     server.validator(require('@hapi/joi'))
     configureServerAuthStrategy(server)
     server.route(routes)
