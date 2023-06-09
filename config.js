@@ -36,6 +36,13 @@ module.exports = {
     airbrakeLevel: 'error'
   },
 
+  airbrake: {
+    host: process.env.AIRBRAKE_HOST,
+    projectKey: process.env.AIRBRAKE_KEY,
+    projectId: 1,
+    environment
+  },
+
   pg: {
     connectionString: process.env.NODE_ENV !== 'test' ? process.env.DATABASE_URL : process.env.TEST_DATABASE_URL,
     max: 20
