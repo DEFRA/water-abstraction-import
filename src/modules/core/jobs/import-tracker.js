@@ -1,11 +1,9 @@
 'use strict'
 
-const { logger } = require('../../../logger')
-
-const config = require('../../../../config')
-
 const jobsConnector = require('../../../lib/connectors/water-import/jobs')
 const notifyService = require('../../../lib/services/notify')
+
+const config = require('../../../../config')
 
 const JOB_NAME = 'import.tracker'
 
@@ -16,15 +14,10 @@ const createMessage = () => ({
   }
 })
 
-/**
- * Imports a single licence
- * @param {Object} job
- * @param {String} job.data.licenceNumber
- */
-const handler = async job => {
-  logger.info(`Handling job: ${job.name}`)
-
+const handler = async () => {
   try {
+    global.GlobalNotifier.omg('import.tracker: started')
+
     const jobs = await jobsConnector.getFailedJobs()
     // if there are any jobs that have failed in the last 12 hours
     if (jobs.length > 0) {
@@ -38,9 +31,11 @@ const handler = async job => {
         notifyService.sendEmail(process.env.WATER_SERVICE_MAILBOX, 'service_status_alert', { content })
       }
     }
-  } catch (err) {
-    logger.error(`Error handling job ${job.name}`, err.stack)
-    throw err
+
+    global.GlobalNotifier.omg('import.tracker: finished')
+  } catch (error) {
+    global.GlobalNotifier.omfg('import.tracker: errored', error)
+    throw error
   }
 }
 
