@@ -12,7 +12,7 @@ const jobName = 'import.charge-versions'
 
 const createMessage = () => job.createMessage(jobName)
 
-const handler = () => queryLoader.loadQueries('Import charge versions', [
+const handler = () => queryLoader.loadQueries('import.charge-versions', [
   chargingQueries.importChargeVersions,
   chargingQueries.importChargeElements,
   chargingQueries.cleanupChargeElements,
