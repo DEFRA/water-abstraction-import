@@ -6,20 +6,25 @@ const exec = util.promisify(require('child_process').exec)
 
 const pkg = require('../../../package.json')
 
-const _getCommitHash = async () => {
+async function getInfo (_request, h) {
+  const result = {
+    version: pkg.version,
+    commit: await _commitHash()
+  }
+
+  return h.response(result).code(200)
+}
+
+async function _commitHash () {
   try {
     const { stdout, stderr } = await exec('git rev-parse HEAD')
+
     return stderr ? `ERROR: ${stderr}` : stdout.replace('\n', '')
   } catch (error) {
     return `ERROR: ${error.message}`
   }
 }
 
-const getInfo = async () => {
-  return {
-    version: pkg.version,
-    commit: await _getCommitHash()
-  }
+module.exports = {
+  getInfo
 }
-
-exports.getInfo = getInfo
