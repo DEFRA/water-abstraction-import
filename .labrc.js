@@ -78,6 +78,9 @@ module.exports = {
     'CompressionStream',
     'DecompressionStream',
     'FormData',
-    'Symbol(undici.globalDispatcher.1)'
+    'Symbol(undici.globalDispatcher.1)',
+    // GlobalNotifier is added by us a global in a server plugin. It's how we make logging available anywhere in the app
+    // whilst avoiding having to pass it around
+    'GlobalNotifier'
   ].join(',')
 };

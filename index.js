@@ -14,6 +14,7 @@ const config = require('./config')
 const routes = require('./src/routes.js')
 const db = require('./src/lib/connectors/db')
 const AirbrakePlugin = require('./src/plugins/airbrake.plugin.js')
+const GlobalNotifierPlugin = require('./src/plugins/global-notifier.plugin.js')
 const HapiPinoPlugin = require('./src/plugins/hapi-pino.plugin.js')
 
 // Initialise logger
@@ -47,10 +48,17 @@ const configureServerAuthStrategy = (server) => {
 const start = async function () {
   try {
     await server.register(plugins)
+
+    // The order is important here. We need the Hapi pino logger as a base. Then Airbrake needs to be added to the
+    // server.app property. Then the GlobalNotifier can be setup as it needs access to both
     await server.register(HapiPinoPlugin())
     await server.register(AirbrakePlugin)
+    await server.register(GlobalNotifierPlugin)
+
     server.validator(require('@hapi/joi'))
+
     configureServerAuthStrategy(server)
+
     server.route(routes)
 
     if (!module.parent) {
