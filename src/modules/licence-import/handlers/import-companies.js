@@ -1,19 +1,22 @@
-const { logger } = require('../../../logger')
+'use strict'
+
 const importCompanies = require('../connectors/import-companies')
 
-const mapRow = row => ({
-  regionCode: parseInt(row.region_code),
-  partyId: parseInt(row.party_id)
-})
-
-module.exports = async job => {
+module.exports = async () => {
   try {
-    logger.info('Import companies')
+    global.GlobalNotifier.omg('import.companies: started')
+
     await importCompanies.clear()
     const data = await importCompanies.initialise()
-    return data.map(mapRow)
-  } catch (err) {
-    logger.error('Import companies error', err.stack)
-    throw err
+
+    return data.map((row) => {
+      return {
+        regionCode: parseInt(row.region_code),
+        partyId: parseInt(row.party_id)
+      }
+    })
+  } catch (error) {
+    global.GlobalNotifier.omfg('import.companies: errored', error)
+    throw error
   }
 }

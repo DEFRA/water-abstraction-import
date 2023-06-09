@@ -1,15 +1,14 @@
 'use strict'
 
-const { logger } = require('../../../logger')
 const purposeConditionsConnector = require('../connectors/purpose-conditions-types')
 
 module.exports = async () => {
   try {
-    logger.info('Import purpose condition types')
-    // Load to data in to database
+    global.GlobalNotifier.omg('import.purpose-condition-types: started')
+
     return purposeConditionsConnector.createPurposeConditionTypes()
-  } catch (err) {
-    logger.error('Import purpose condition types error', err.stack)
-    throw err
+  } catch (error) {
+    global.GlobalNotifier.omfg('import.purpose-condition-types: errored', error)
+    throw error
   }
 }
