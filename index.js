@@ -12,13 +12,9 @@ moment.locale('en-gb')
 // -------------- Require project code -----------------
 const config = require('./config')
 const routes = require('./src/routes.js')
-const db = require('./src/lib/connectors/db')
 const AirbrakePlugin = require('./src/plugins/airbrake.plugin.js')
 const GlobalNotifierPlugin = require('./src/plugins/global-notifier.plugin.js')
 const HapiPinoPlugin = require('./src/plugins/hapi-pino.plugin.js')
-
-// Initialise logger
-const { logger } = require('./src/logger')
 
 // Define server
 const server = require('./server')
@@ -46,56 +42,54 @@ const configureServerAuthStrategy = (server) => {
 }
 
 const start = async function () {
-  try {
-    await server.register(plugins)
+  await server.register(plugins)
 
-    // The order is important here. We need the Hapi pino logger as a base. Then Airbrake needs to be added to the
-    // server.app property. Then the GlobalNotifier can be setup as it needs access to both
-    await server.register(HapiPinoPlugin())
-    await server.register(AirbrakePlugin)
-    await server.register(GlobalNotifierPlugin)
+  // The order is important here. We need the Hapi pino logger as a base. Then Airbrake needs to be added to the
+  // server.app property. Then the GlobalNotifier can be setup as it needs access to both
+  await server.register(HapiPinoPlugin())
+  await server.register(AirbrakePlugin)
+  await server.register(GlobalNotifierPlugin)
 
-    server.validator(require('@hapi/joi'))
+  server.validator(require('@hapi/joi'))
 
-    configureServerAuthStrategy(server)
+  configureServerAuthStrategy(server)
 
-    server.route(routes)
+  server.route(routes)
 
-    if (!module.parent) {
-      await server.start()
-      const name = process.env.SERVICE_NAME
-      const uri = server.info.uri
-      server.log('info', `Service ${name} running at: ${uri}`)
-    }
-  } catch (err) {
-    logger.error(err.stack)
+  if (!module.parent) {
+    await server.start()
+    const name = process.env.SERVICE_NAME
+    const uri = server.info.uri
+    server.log('info', `Service ${name} running at: ${uri}`)
   }
 }
 
-const processError = message => err => {
-  logger.error(message, err.stack)
+function processError (error) {
+  console.error(error)
+
   process.exit(1)
 }
 
 process
-  .on('unhandledRejection', processError('unhandledRejection'))
-  .on('uncaughtException', processError('uncaughtException'))
+  .on('unhandledRejection', (error) => processError(error))
+  .on('uncaughtException', (error) => processError(error))
   .on('SIGINT', async () => {
-    logger.info('Stopping import service')
+    // The timeout is set to 25 seconds (it has to be passed to Hapi in milliseconds) based on AWS ECS. When it sends a
+    // stop request it allows an container 30 seconds before it sends a `SIGKILL`. We know we are not containerised
+    // (yet!) but it's a reasonable convention to use
+    const options = {
+      timeout: 25 * 1000
+    }
 
-    await server.stop()
-    logger.info('1/3: Hapi server stopped')
-
+    // If there are no in-flight requests Hapi will immediately stop. If there are they get 25 seconds to finish
+    // before Hapi terminates them
+    await server.stop(options)
     await server.messageQueue.stop()
-    logger.info('2/3: Message queue stopped')
-    logger.info('Waiting 5 secs to allow pg-boss to finish')
 
-    setTimeout(async () => {
-      await db.pool.end()
-      logger.info('3/3: Connection pool closed')
+    // Log we're shut down using the same log format as the rest of our log output
+    server.logger.info("That's all folks!")
 
-      return process.exit(0)
-    }, 5000)
+    process.exit(0)
   })
 
 start()
