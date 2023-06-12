@@ -1,5 +1,7 @@
 'use strict'
 
+const Boom = require('@hapi/boom')
+
 const { lines, returns, versions } = require('../../lib/connectors/returns')
 const { events } = require('../../lib/connectors/water/events')
 const {
@@ -81,7 +83,7 @@ const _fetchReturn = async (row) => {
 
 const _firstItemOrNotFound = (id, { data }) => {
   if (data.length === 0) {
-    throw new Error(`Data not found for ${id}`)
+    throw Boom.notFound(`Data not found for ${id}`)
   }
 
   return data[0]
