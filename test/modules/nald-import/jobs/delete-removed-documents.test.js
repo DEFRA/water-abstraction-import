@@ -1,28 +1,40 @@
 'use strict'
 
-const { afterEach, beforeEach, experiment, test } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const sandbox = require('sinon').createSandbox()
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const { logger } = require('../../../../src/logger')
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Things we need to stub
 const importService = require('../../../../src/lib/services/import')
-const deleteRemovedDocumentsJob = require('../../../../src/modules/nald-import/jobs/delete-removed-documents')
+
+// Thing under test
+const DeleteRemovedDocumentsJob = require('../../../../src/modules/nald-import/jobs/delete-removed-documents')
 
 experiment('modules/nald-import/jobs/delete-removed-documents', () => {
-  beforeEach(async () => {
-    sandbox.stub(logger, 'info')
-    sandbox.stub(logger, 'error')
+  let notifierStub
 
-    sandbox.stub(importService, 'deleteRemovedDocuments').resolves()
+  beforeEach(async () => {
+    Sinon.stub(importService, 'deleteRemovedDocuments').resolves()
+
+    // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
+    // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
+    // test we recreate the condition by setting it directly with our own stub
+    notifierStub = { omg: Sinon.stub(), omfg: Sinon.stub() }
+    global.GlobalNotifier = notifierStub
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
+    delete global.GlobalNotifier
   })
 
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const job = deleteRemovedDocumentsJob.createMessage()
+      const job = DeleteRemovedDocumentsJob.createMessage()
       expect(job).to.equal({
         name: 'nald-import.delete-removed-documents',
         options: {
@@ -40,12 +52,12 @@ experiment('modules/nald-import/jobs/delete-removed-documents', () => {
       }
 
       beforeEach(async () => {
-        await deleteRemovedDocumentsJob.handler(job)
+        await DeleteRemovedDocumentsJob.handler(job)
       })
 
       test('a message is logged', async () => {
-        const [message] = logger.info.lastCall.args
-        expect(message).to.equal('Handling job: nald-import.delete-removed-documents')
+        const [message] = notifierStub.omg.lastCall.args
+        expect(message).to.equal('nald-import.delete-removed-documents: started')
       })
 
       test('deletes the removed documents', async () => {
@@ -65,15 +77,15 @@ experiment('modules/nald-import/jobs/delete-removed-documents', () => {
       })
 
       test('logs an error message', async () => {
-        const func = () => deleteRemovedDocumentsJob.handler(job)
+        const func = () => DeleteRemovedDocumentsJob.handler(job)
         await expect(func()).to.reject()
-        expect(logger.error.calledWith(
-          'Error handling job nald-import.delete-removed-documents', err.stack
+        expect(notifierStub.omfg.calledWith(
+          'nald-import.delete-removed-documents: errored', err
         )).to.equal(true)
       })
 
       test('rethrows the error', async () => {
-        const func = () => deleteRemovedDocumentsJob.handler(job)
+        const func = () => DeleteRemovedDocumentsJob.handler(job)
         const err = await expect(func()).to.reject()
         expect(err.message).to.equal('Oops!')
       })
