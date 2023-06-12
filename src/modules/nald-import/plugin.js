@@ -24,8 +24,8 @@ const registerSubscribers = async (server) => {
 
   // Next step is to delete documents that have been removed from NALD
   await server.messageQueue.subscribe(deleteRemovedDocumentsJob.jobName, deleteRemovedDocumentsJob.handler)
-  await server.messageQueue.onComplete(deleteRemovedDocumentsJob.jobName, () => {
-    return deleteRemovedDocumentsComplete.handler(server.messageQueue)
+  await server.messageQueue.onComplete(deleteRemovedDocumentsJob.jobName, (executedJob) => {
+    return deleteRemovedDocumentsComplete.handler(server.messageQueue, executedJob)
   })
 
   // Then we get the licences to import and publish a job for each one

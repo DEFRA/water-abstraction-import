@@ -85,14 +85,15 @@ experiment('modules/nald-import/plugin', () => {
     })
 
     test('registers deleteRemovedDocuments onComplete handler', async () => {
-      const completedJob = { id: 'testing' }
+      const completedJob = { id: 'testing', failed: true }
 
       const [jobName, func] = server.messageQueue.onComplete.getCall(1).args
       func(completedJob)
 
       expect(jobName).to.equal(deleteRemovedDocumentsJob.jobName)
       expect(deleteRemovedDocumentsComplete.handler.calledWith(
-        server.messageQueue
+        server.messageQueue,
+        completedJob
       )).to.equal(true)
     })
 

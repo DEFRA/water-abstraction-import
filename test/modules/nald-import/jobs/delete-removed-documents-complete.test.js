@@ -1,49 +1,45 @@
 'use strict'
 
-const { afterEach, beforeEach, experiment, test } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const sandbox = require('sinon').createSandbox()
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const { logger } = require('../../../../src/logger')
-const deleteRemovedDocumentsCompleteJob = require('../../../../src/modules/nald-import/jobs/delete-removed-documents-complete')
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
 
-const createJob = isFailed => ({
-  failed: isFailed,
-  data: {
-    request: {
-      name: 'nald-import.delete-removed-documents'
-    }
-  }
-})
+// Thing under test
+const DeleteRemovedDocumentsCompleteJob = require('../../../../src/modules/nald-import/jobs/delete-removed-documents-complete')
 
 experiment('modules/nald-import/jobs/delete-removed-documents-complete', () => {
+  let job
   let messageQueue
+  let notifierStub
 
   beforeEach(async () => {
-    sandbox.stub(logger, 'info')
-    sandbox.stub(logger, 'error')
-
     messageQueue = {
-      publish: sandbox.stub(),
-      deleteQueue: sandbox.stub()
+      publish: Sinon.stub(),
+      deleteQueue: Sinon.stub()
     }
+
+    // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
+    // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
+    // test we recreate the condition by setting it directly with our own stub
+    notifierStub = { omg: Sinon.stub(), omfg: Sinon.stub() }
+    global.GlobalNotifier = notifierStub
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
+    delete global.GlobalNotifier
   })
 
   experiment('.handler', () => {
     experiment('when the job fails', () => {
-      const job = createJob(true)
-
       beforeEach(async () => {
-        await deleteRemovedDocumentsCompleteJob(job, messageQueue)
-      })
+        job = { failed: true }
 
-      test('a message is logged', async () => {
-        const [message] = logger.error.lastCall.args
-        expect(message).to.equal('Job: nald-import.delete-removed-documents failed, aborting')
+        await DeleteRemovedDocumentsCompleteJob.handler(messageQueue, job)
       })
 
       test('no further jobs are published', async () => {
@@ -52,15 +48,15 @@ experiment('modules/nald-import/jobs/delete-removed-documents-complete', () => {
     })
 
     experiment('when the job succeeds', () => {
-      const job = createJob(false)
-
       beforeEach(async () => {
-        await deleteRemovedDocumentsCompleteJob(job, messageQueue)
+        job = { failed: false }
+
+        await DeleteRemovedDocumentsCompleteJob.handler(messageQueue, job)
       })
 
       test('a message is logged', async () => {
-        const [message] = logger.info.lastCall.args
-        expect(message).to.equal('Handling onComplete job: nald-import.delete-removed-documents')
+        const [message] = notifierStub.omg.lastCall.args
+        expect(message).to.equal('nald-import.delete-removed-documents: finished')
       })
 
       test('a new job is published to populate the pending imports table', async () => {
@@ -71,19 +67,15 @@ experiment('modules/nald-import/jobs/delete-removed-documents-complete', () => {
       experiment('when publishing a new job fails', () => {
         const err = new Error('oops')
 
-        const job = createJob(false)
-
         beforeEach(async () => {
           messageQueue.publish.rejects(err)
         })
 
-        test('an error message is logged and rethrown', async () => {
-          const func = () => deleteRemovedDocumentsCompleteJob(job, messageQueue)
-          await expect(func()).to.reject()
+        test('an error thrown', async () => {
+          const func = () => DeleteRemovedDocumentsCompleteJob.handler(messageQueue, job)
+          const error = await expect(func()).to.reject()
 
-          const [message, error] = logger.error.lastCall.args
-          expect(message).to.equal('Error handling onComplete job: nald-import.delete-removed-documents')
-          expect(error).to.equal(err.stack)
+          expect(error).to.equal(error)
         })
       })
     })
