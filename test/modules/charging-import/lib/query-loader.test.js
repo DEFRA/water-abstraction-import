@@ -1,21 +1,34 @@
 'use strict'
 
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const queryLoader = require('../../../../src/modules/charging-import/lib/query-loader')
-const { logger } = require('../../../../src/logger')
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
+
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Things we need to stub
 const { pool } = require('../../../../src/lib/connectors/db')
 
-const sandbox = require('sinon').createSandbox()
+// Thing under test
+const QueryLoader = require('../../../../src/modules/charging-import/lib/query-loader')
 
 experiment('modules/charging-import/lib/query-loader', () => {
+  let notifierStub
+
   beforeEach(async () => {
-    sandbox.stub(logger, 'info')
-    sandbox.stub(pool, 'query')
+    Sinon.stub(pool, 'query')
+
+    // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
+    // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
+    // test we recreate the condition by setting it directly with our own stub
+    notifierStub = { omg: Sinon.stub(), omfg: Sinon.stub() }
+    global.GlobalNotifier = notifierStub
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
   })
 
   experiment('.createQueryLoader', () => {
@@ -27,11 +40,11 @@ experiment('modules/charging-import/lib/query-loader', () => {
 
     experiment('when there are no errors', () => {
       beforeEach(async () => {
-        await queryLoader.loadQueries(name, queries)
+        await QueryLoader.loadQueries(name, queries)
       })
 
       test('logs a start message', async () => {
-        expect(logger.info.firstCall.args[0]).to.equal(`Starting ${name}`)
+        expect(notifierStub.omg.calledWith('Test job: started')).to.be.true()
       })
 
       test('runs queries in order', async () => {
@@ -40,22 +53,18 @@ experiment('modules/charging-import/lib/query-loader', () => {
       })
 
       test('logs a finished message', async () => {
-        expect(logger.info.lastCall.args[0]).to.equal(`Finished ${name}`)
+        expect(notifierStub.omg.calledWith('Test job: finished')).to.be.true()
       })
     })
 
-    experiment('when there is an errors', () => {
+    experiment('when there is an error', () => {
       const err = new Error('oops!')
       let result
 
       beforeEach(async () => {
         pool.query.rejects(err)
-        const func = () => queryLoader.loadQueries(name, queries)
+        const func = () => QueryLoader.loadQueries(name, queries)
         result = await expect(func()).to.reject()
-      })
-
-      test('logs a start message', async () => {
-        expect(logger.info.firstCall.args[0]).to.equal(`Starting ${name}`)
       })
 
       test('runs the first query order', async () => {
@@ -66,14 +75,12 @@ experiment('modules/charging-import/lib/query-loader', () => {
         expect(pool.query.calledWith(queries[1])).to.be.false()
       })
 
-      test('rejects with the thrown error', async () => {
-        expect(result).to.equal(err)
+      test('logs the error', async () => {
+        expect(notifierStub.omfg.calledWith('Test job: errored', err)).to.be.true()
       })
 
-      test('does not log a finished message', async () => {
-        expect(logger.info.calledWith(
-          `Finished ${name}`
-        )).to.be.false()
+      test('rejects with the thrown error', async () => {
+        expect(result).to.equal(err)
       })
     })
   })
