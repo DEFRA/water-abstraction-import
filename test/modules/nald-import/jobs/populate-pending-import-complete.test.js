@@ -1,9 +1,15 @@
-const { afterEach, beforeEach, experiment, test } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const sandbox = require('sinon').createSandbox()
+'use strict'
 
-const { logger } = require('../../../../src/logger')
-const populatePendingImportComplete = require('../../../../src/modules/nald-import/jobs/populate-pending-import-complete')
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
+
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Thing under test
+const PopulatePendingImportComplete = require('../../../../src/modules/nald-import/jobs/populate-pending-import-complete')
 
 const createJob = failed => ({
   failed,
@@ -22,18 +28,23 @@ const createJob = failed => ({
 
 experiment('modules/nald-import/jobs/populate-pending-import-complete', () => {
   let messageQueue
+  let notifierStub
 
   beforeEach(async () => {
-    sandbox.stub(logger, 'info')
-    sandbox.stub(logger, 'error')
-
     messageQueue = {
-      publish: sandbox.stub()
+      publish: Sinon.stub()
     }
+
+    // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
+    // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
+    // test we recreate the condition by setting it directly with our own stub
+    notifierStub = { omg: Sinon.stub(), omfg: Sinon.stub() }
+    global.GlobalNotifier = notifierStub
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
+    delete global.GlobalNotifier
   })
 
   experiment('.handler', () => {
@@ -41,12 +52,12 @@ experiment('modules/nald-import/jobs/populate-pending-import-complete', () => {
       const job = createJob(false)
 
       beforeEach(async () => {
-        await populatePendingImportComplete(job, messageQueue)
+        await PopulatePendingImportComplete.handler(messageQueue, job)
       })
 
       test('a message is logged', async () => {
-        const [message] = logger.info.lastCall.args
-        expect(message).to.equal('Handling onComplete job: nald-import.populate-pending-import')
+        const [message] = notifierStub.omg.lastCall.args
+        expect(message).to.equal('nald-import.populate-pending-import: finished')
       })
 
       test('a job is published to import the first licence', async () => {
@@ -64,12 +75,12 @@ experiment('modules/nald-import/jobs/populate-pending-import-complete', () => {
       const job = createJob(true)
 
       beforeEach(async () => {
-        await populatePendingImportComplete(job, messageQueue)
+        await PopulatePendingImportComplete.handler(messageQueue, job)
       })
 
       test('a message is logged', async () => {
-        const [message] = logger.error.lastCall.args
-        expect(message).to.equal('Job: nald-import.populate-pending-import failed, aborting')
+        const [message] = notifierStub.omg.lastCall.args
+        expect(message).to.equal('nald-import.populate-pending-import: finished')
       })
 
       test('no further jobs are published', async () => {
@@ -86,13 +97,11 @@ experiment('modules/nald-import/jobs/populate-pending-import-complete', () => {
         messageQueue.publish.rejects(err)
       })
 
-      test('an error message is logged and rethrown', async () => {
-        const func = () => populatePendingImportComplete(job, messageQueue)
-        await expect(func()).to.reject()
+      test('an error message is thrown', async () => {
+        const func = () => PopulatePendingImportComplete.handler(messageQueue, job)
+        const error = await expect(func()).to.reject()
 
-        const [message, error] = logger.error.lastCall.args
-        expect(message).to.equal('Error handling onComplete job: nald-import.populate-pending-import')
-        expect(error).to.equal(err.stack)
+        expect(error).to.equal(err)
       })
     })
   })
