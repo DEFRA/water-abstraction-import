@@ -1,9 +1,15 @@
-const { afterEach, beforeEach, experiment, test } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const sandbox = require('sinon').createSandbox()
+'use strict'
 
-const { logger } = require('../../../../src/logger')
-const s3DownloadComplete = require('../../../../src/modules/nald-import/jobs/s3-download-complete')
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
+
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Thing under test
+const S3DownloadComplete = require('../../../../src/modules/nald-import/jobs/s3-download-complete')
 
 const createJob = (isFailed, isRequired) => ({
   failed: isFailed,
@@ -19,19 +25,24 @@ const createJob = (isFailed, isRequired) => ({
 
 experiment('modules/nald-import/jobs/s3-download-import-complete', () => {
   let messageQueue
+  let notifierStub
 
   beforeEach(async () => {
-    sandbox.stub(logger, 'info')
-    sandbox.stub(logger, 'error')
-
     messageQueue = {
-      publish: sandbox.stub(),
-      deleteQueue: sandbox.stub()
+      publish: Sinon.stub(),
+      deleteQueue: Sinon.stub()
     }
+
+    // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
+    // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
+    // test we recreate the condition by setting it directly with our own stub
+    notifierStub = { omg: Sinon.stub(), omfg: Sinon.stub() }
+    global.GlobalNotifier = notifierStub
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
+    delete global.GlobalNotifier
   })
 
   experiment('.handler', () => {
@@ -39,12 +50,7 @@ experiment('modules/nald-import/jobs/s3-download-import-complete', () => {
       const job = createJob(true)
 
       beforeEach(async () => {
-        await s3DownloadComplete(job, messageQueue)
-      })
-
-      test('a message is logged', async () => {
-        const [message] = logger.error.lastCall.args
-        expect(message).to.equal('Job: nald-import.s3-download failed, aborting')
+        await S3DownloadComplete.handler(messageQueue, job)
       })
 
       test('no further jobs are published', async () => {
@@ -57,12 +63,12 @@ experiment('modules/nald-import/jobs/s3-download-import-complete', () => {
         const job = createJob(false, true)
 
         beforeEach(async () => {
-          await s3DownloadComplete(job, messageQueue)
+          await S3DownloadComplete.handler(messageQueue, job)
         })
 
         test('a message is logged', async () => {
-          const [message] = logger.info.lastCall.args
-          expect(message).to.equal('Handling onComplete job: nald-import.s3-download')
+          const [message] = notifierStub.omg.lastCall.args
+          expect(message).to.equal('nald-import.s3-download: finished')
         })
 
         test('existing import.licence job queue is deleted', async () => {
@@ -87,12 +93,12 @@ experiment('modules/nald-import/jobs/s3-download-import-complete', () => {
         const job = createJob(false, false)
 
         beforeEach(async () => {
-          await s3DownloadComplete(job, messageQueue)
+          await S3DownloadComplete.handler(messageQueue, job)
         })
 
         test('a message is logged', async () => {
-          const [message] = logger.info.lastCall.args
-          expect(message).to.equal('Aborting onComplete job: nald-import.s3-download')
+          const [message] = notifierStub.omg.lastCall.args
+          expect(message).to.equal('nald-import.s3-download: finished')
         })
 
         test('job queues are not deleted', async () => {
@@ -113,13 +119,11 @@ experiment('modules/nald-import/jobs/s3-download-import-complete', () => {
           messageQueue.publish.rejects(err)
         })
 
-        test('an error message is logged and rethrown', async () => {
-          const func = () => s3DownloadComplete(job, messageQueue)
-          await expect(func()).to.reject()
+        test('an error thrown', async () => {
+          const func = () => S3DownloadComplete.handler(messageQueue, job)
+          const error = await expect(func()).to.reject()
 
-          const [message, error] = logger.error.lastCall.args
-          expect(message).to.equal('Error handling onComplete job: nald-import.s3-download')
-          expect(error).to.equal(err.stack)
+          expect(error).to.equal(err)
         })
       })
     })
