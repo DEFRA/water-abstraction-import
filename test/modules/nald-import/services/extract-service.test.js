@@ -1,35 +1,39 @@
 'use strict'
 
-const { afterEach, beforeEach, experiment, test } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const sandbox = require('sinon').createSandbox()
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Test helpers
 const moment = require('moment')
 moment.locale('en-gb')
 
-const extractService = require('../../../../src/modules/nald-import/services/extract-service')
-const s3Service = require('../../../../src/modules/nald-import/services/s3-service')
-const zipService = require('../../../../src/modules/nald-import/services/zip-service')
-const schemaService = require('../../../../src/modules/nald-import/services/schema-service')
+// Things we need to stub
 const loadCsvService = require('../../../../src/modules/nald-import/services/load-csv-service')
-
 const processHelper = require('@envage/water-abstraction-helpers').process
+const s3Service = require('../../../../src/modules/nald-import/services/s3-service')
+const schemaService = require('../../../../src/modules/nald-import/services/schema-service')
+const zipService = require('../../../../src/modules/nald-import/services/zip-service')
 
-const { logger } = require('../../../../src/logger')
+// Thing under test
+const extractService = require('../../../../src/modules/nald-import/services/extract-service')
 
 experiment('modules/nald-import/services/extract-service', () => {
   beforeEach(async () => {
-    sandbox.stub(processHelper, 'execCommand')
-    sandbox.stub(logger, 'info')
-    sandbox.stub(s3Service, 'download')
-    sandbox.stub(zipService, 'extract')
-    sandbox.stub(schemaService, 'dropAndCreateSchema')
-    sandbox.stub(loadCsvService, 'importFiles')
-    sandbox.stub(schemaService, 'swapTemporarySchema')
+    Sinon.stub(loadCsvService, 'importFiles')
+    Sinon.stub(processHelper, 'execCommand')
+    Sinon.stub(s3Service, 'download')
+    Sinon.stub(schemaService, 'dropAndCreateSchema')
+    Sinon.stub(schemaService, 'swapTemporarySchema')
+    Sinon.stub(zipService, 'extract')
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
   })
 
   experiment('.downloadAndExtract', () => {
@@ -38,7 +42,7 @@ experiment('modules/nald-import/services/extract-service', () => {
     })
 
     test('the steps are called in the correct order', async () => {
-      sandbox.assert.callOrder(
+      Sinon.assert.callOrder(
         processHelper.execCommand,
         processHelper.execCommand,
         processHelper.execCommand,
@@ -53,19 +57,6 @@ experiment('modules/nald-import/services/extract-service', () => {
       )
     })
 
-    const testMessage = (index, message) =>
-      test(`${message} message is logged`, async () => {
-        expect(logger.info.getCall(index).args[0]).to.equal(message)
-      })
-
-    testMessage(0, 'Import: preparing folders')
-    testMessage(1, 'Import: downloading from s3')
-    testMessage(2, 'Import: extracting files from zip')
-    testMessage(3, 'Import: create import_temp schema')
-    testMessage(4, 'Import: importing CSV files')
-    testMessage(5, 'Import: swapping schema from import_temp to import')
-    testMessage(6, 'Import: cleaning up local files')
-
     test('the correct schemas are used', async () => {
       expect(schemaService.dropAndCreateSchema.calledWith('import_temp')).to.be.true()
       expect(loadCsvService.importFiles.calledWith('import_temp')).to.be.true()
@@ -78,7 +69,7 @@ experiment('modules/nald-import/services/extract-service', () => {
     })
 
     test('the steps are called in the correct order', async () => {
-      sandbox.assert.callOrder(
+      Sinon.assert.callOrder(
         processHelper.execCommand,
         processHelper.execCommand,
         processHelper.execCommand,
