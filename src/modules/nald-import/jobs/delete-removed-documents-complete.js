@@ -2,11 +2,13 @@
 
 const populatePendingImportJob = require('./populate-pending-import')
 
-const deleteRemovedDocumentsComplete = async (messageQueue) => {
+async function handler (messageQueue) {
   // Publish a new job to populate pending import table
   await messageQueue.publish(populatePendingImportJob.createMessage())
 
   global.GlobalNotifier.omg('nald-import.delete-removed-documents: finished')
 }
 
-module.exports = deleteRemovedDocumentsComplete
+module.exports = {
+  handler
+}

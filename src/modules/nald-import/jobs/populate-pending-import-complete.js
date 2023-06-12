@@ -2,7 +2,7 @@
 
 const importLicenceJob = require('./import-licence')
 
-const importLicenceComplete = async (messageQueue, job) => {
+async function handler (messageQueue, job) {
   const { licenceNumbers } = job.data.response
 
   for (const licenceNumber of licenceNumbers) {
@@ -12,4 +12,6 @@ const importLicenceComplete = async (messageQueue, job) => {
   global.GlobalNotifier.omg('nald-import.populate-pending-import: finished')
 }
 
-module.exports = importLicenceComplete
+module.exports = {
+  handler
+}
