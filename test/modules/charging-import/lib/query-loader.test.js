@@ -29,6 +29,7 @@ experiment('modules/charging-import/lib/query-loader', () => {
 
   afterEach(async () => {
     Sinon.restore()
+    delete global.GlobalNotifier
   })
 
   experiment('.createQueryLoader', () => {
