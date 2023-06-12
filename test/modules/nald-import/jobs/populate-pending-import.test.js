@@ -1,27 +1,40 @@
-const { afterEach, beforeEach, experiment, test } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const sandbox = require('sinon').createSandbox()
+'use strict'
 
-const { logger } = require('../../../../src/logger')
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
+
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Things we need to stub
 const importService = require('../../../../src/lib/services/import')
-const populatePendingImport = require('../../../../src/modules/nald-import/jobs/populate-pending-import')
 const assertImportTablesExist = require('../../../../src/modules/nald-import/lib/assert-import-tables-exist')
 
+// Thing under test
+const populatePendingImport = require('../../../../src/modules/nald-import/jobs/populate-pending-import')
+
 experiment('modules/nald-import/jobs/populate-pending-import', () => {
+  let notifierStub
+
   beforeEach(async () => {
-    sandbox.stub(logger, 'info')
-    sandbox.stub(logger, 'error')
-
-    sandbox.stub(assertImportTablesExist, 'assertImportTablesExist')
-
-    sandbox.stub(importService, 'getLicenceNumbers').resolves([
+    Sinon.stub(assertImportTablesExist, 'assertImportTablesExist')
+    Sinon.stub(importService, 'getLicenceNumbers').resolves([
       'licence-1-id',
       'licence-2-id'
     ])
+
+    // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
+    // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
+    // test we recreate the condition by setting it directly with our own stub
+    notifierStub = { omg: Sinon.stub(), omfg: Sinon.stub() }
+    global.GlobalNotifier = notifierStub
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
+    delete global.GlobalNotifier
   })
 
   experiment('.createMessage', () => {
@@ -50,8 +63,8 @@ experiment('modules/nald-import/jobs/populate-pending-import', () => {
       })
 
       test('a message is logged', async () => {
-        const [message] = logger.info.lastCall.args
-        expect(message).to.equal('Handling job: nald-import.populate-pending-import')
+        const [message] = notifierStub.omg.lastCall.args
+        expect(message).to.equal('nald-import.populate-pending-import: started')
       })
 
       test('asserts that the import tables exist', async () => {
@@ -86,8 +99,8 @@ experiment('modules/nald-import/jobs/populate-pending-import', () => {
       test('logs an error message', async () => {
         const func = () => populatePendingImport.handler(job)
         await expect(func()).to.reject()
-        expect(logger.error.calledWith(
-          'Error handling job nald-import.populate-pending-import', err.stack
+        expect(notifierStub.omfg.calledWith(
+          'nald-import.populate-pending-import: errored', err
         )).to.be.true()
       })
 
