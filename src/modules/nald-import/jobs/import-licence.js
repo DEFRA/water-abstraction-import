@@ -1,8 +1,7 @@
 'use strict'
 
-const licenceLoader = require('../load')
-const logger = require('./lib/logger')
 const assertImportTablesExist = require('../lib/assert-import-tables-exist')
+const licenceLoader = require('../load')
 
 const JOB_NAME = 'nald-import.import-licence'
 
@@ -11,7 +10,7 @@ const options = {
   teamConcurrency: 1
 }
 
-const createMessage = licenceNumber => ({
+const createMessage = (licenceNumber) => ({
   name: JOB_NAME,
   data: { licenceNumber },
   options: {
@@ -24,17 +23,15 @@ const createMessage = licenceNumber => ({
  * @param {Object} job
  * @param {String} job.data.licenceNumber
  */
-const handler = async job => {
-  logger.logHandlingJob(job)
-
+const handler = async (job) => {
   try {
     await assertImportTablesExist.assertImportTablesExist()
 
     // Import the licence
     await licenceLoader.load(job.data.licenceNumber)
-  } catch (err) {
-    logger.logJobError(job, err)
-    throw err
+  } catch (error) {
+    global.GlobalNotifier.omfg('nald-import.import-licence: errored', error)
+    throw error
   }
 }
 

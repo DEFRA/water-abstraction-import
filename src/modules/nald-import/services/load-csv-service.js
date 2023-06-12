@@ -1,3 +1,5 @@
+'use strict'
+
 const path = require('path')
 const fs = require('fs')
 const { promisify } = require('util')
@@ -8,7 +10,6 @@ const writeFile = promisify(fs.writeFile)
 
 const config = require('../../../../config.js')
 const { execCommand } = require('@envage/water-abstraction-helpers').process
-const { logger } = require('../../../logger')
 
 const constants = require('../lib/constants')
 
@@ -129,7 +130,6 @@ async function importFiles (schemaName) {
   const sqlPath = path.join(finalPath, 'sql.sql')
 
   for (const file of files) {
-    logger.info(`Importing ${file} to PostGres`)
     const sql = await getSqlForFile(file, schemaName)
 
     await writeFile(sqlPath, sql)

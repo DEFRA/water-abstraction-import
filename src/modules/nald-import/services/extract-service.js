@@ -1,6 +1,7 @@
+'use strict'
+
 const path = require('path')
 const processHelper = require('@envage/water-abstraction-helpers').process
-const { logger } = require('../../../logger')
 
 const constants = require('../lib/constants')
 
@@ -13,16 +14,12 @@ const loadCsvService = require('./load-csv-service')
 const FINAL_PATH = path.join(constants.LOCAL_TEMP_PATH, constants.CSV_DIRECTORY)
 
 /**
- * Prepares for import by removing files from tempory folder and creating directory
+ * Prepares for import by removing files from temporary folder and creating directory
  */
 const prepare = async () => {
   await processHelper.execCommand(`rm -rf ${constants.LOCAL_TEMP_PATH}`)
   await processHelper.execCommand(`mkdir -p ${constants.LOCAL_TEMP_PATH}`)
   await processHelper.execCommand(`mkdir -p ${FINAL_PATH}`)
-}
-
-const logToConsole = message => {
-  logger.info(message)
 }
 
 const steps = [
@@ -64,7 +61,6 @@ const steps = [
  */
 const downloadAndExtract = async () => {
   for (const step of steps) {
-    logToConsole(`Import: ${step.message}`)
     await step.action()
   }
 }

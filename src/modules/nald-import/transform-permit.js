@@ -12,8 +12,6 @@ const { getEndDate } = require('./lib/end-date')
 
 const { getFormatPoints, getFormatPurposes } = require('./lib/nald-queries/returns')
 
-const { logger } = require('../../logger')
-
 /**
  * Gets the purposes together with their points, agreements and conditions
  * for the specified current version
@@ -117,22 +115,18 @@ const getVersionsJson = async (licenceRow) => {
  * @return {Promise} resolves with permit repo JSON packet
  */
 const getLicenceJson = async (licenceNumber) => {
-  try {
-    const data = await licenceQueries.getLicence(licenceNumber)
-    const licenceRow = data[0]
+  const data = await licenceQueries.getLicence(licenceNumber)
+  const licenceRow = data[0]
 
-    licenceRow.vmlVersion = 2
-    licenceRow.data = {}
-    licenceRow.data.versions = await getVersionsJson(licenceRow)
-    licenceRow.data.current_version = await getCurrentVersionJson(licenceRow)
-    licenceRow.data.cams = await cams.getCams(licenceRow.AREP_CAMS_CODE, licenceRow.FGAC_REGION_CODE)
-    licenceRow.data.roles = await rolesQueries.getRoles(licenceRow.ID, licenceRow.FGAC_REGION_CODE)
-    licenceRow.data.purposes = await getPurposesJson(licenceRow)
+  licenceRow.vmlVersion = 2
+  licenceRow.data = {}
+  licenceRow.data.versions = await getVersionsJson(licenceRow)
+  licenceRow.data.current_version = await getCurrentVersionJson(licenceRow)
+  licenceRow.data.cams = await cams.getCams(licenceRow.AREP_CAMS_CODE, licenceRow.FGAC_REGION_CODE)
+  licenceRow.data.roles = await rolesQueries.getRoles(licenceRow.ID, licenceRow.FGAC_REGION_CODE)
+  licenceRow.data.purposes = await getPurposesJson(licenceRow)
 
-    return licenceRow
-  } catch (error) {
-    logger.error('Error getting licence JSON', error.stack, { licenceNumber })
-  }
+  return licenceRow
 }
 
 const calculateVersionScore = (version) => {

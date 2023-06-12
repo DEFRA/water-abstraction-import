@@ -1,4 +1,5 @@
-const { logger } = require('../../../logger')
+'use strict'
+
 const moment = require('moment')
 const { v4: uuid } = require('uuid')
 const db = require('./db')
@@ -101,11 +102,8 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
     .reduce((acc, num) => acc + num, 0)
 
   if (sumOfLines === 0) {
-    logger.info(`Return ${version.data.return_id} has a sum of zero and is being marked as a nil return`)
     await versions.updateOne(version.data.version_id, { nil_return: true }, ['nil_return'])
   } else {
-    logger.info(`Return ${version.data.return_id} - Creating ${iterable.length} lines`)
-
     iterable.forEach(line => {
       let startDate
       let endDate
