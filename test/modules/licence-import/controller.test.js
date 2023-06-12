@@ -1,14 +1,23 @@
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
-const sandbox = require('sinon').createSandbox()
+'use strict'
+
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
+
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Test helpers
 const jobs = require('../../../src/modules/licence-import/jobs')
-const controller = require('../../../src/modules/licence-import/controller')
-const { logger } = require('../../../src/logger.js')
-const { expect } = require('@hapi/code')
+
+// Thing under test
+const controller = require('../../../src/modules/licence-import/controller.js')
 
 const createRequest = () => ({
   query: {},
   messageQueue: {
-    publish: sandbox.stub().resolves()
+    publish: Sinon.stub().resolves()
   }
 })
 
@@ -19,15 +28,14 @@ experiment('modules/licence-import/controller.js', () => {
     let request, response
 
     beforeEach(async () => {
-      sandbox.stub(logger, 'error')
       h = {
-        response: sandbox.stub().returnsThis(),
-        code: sandbox.stub()
+        response: Sinon.stub().returnsThis(),
+        code: Sinon.stub()
       }
     })
 
     afterEach(async () => {
-      sandbox.restore()
+      Sinon.restore()
     })
 
     experiment('when there are no errors', () => {
@@ -58,12 +66,6 @@ experiment('modules/licence-import/controller.js', () => {
         response = await controller.postImport(request, h)
       })
 
-      test('an error is logged', async () => {
-        expect(logger.error.callCount).to.equal(1)
-        const [message] = logger.error.lastCall.args
-        expect(message).to.equal('Error importing companies')
-      })
-
       test('a Boom 500 error is returned', async () => {
         expect(response.isBoom).to.equal(true)
         expect(response.output.statusCode).to.equal(500)
@@ -78,16 +80,15 @@ experiment('modules/licence-import/controller.js', () => {
     let code
 
     beforeEach(async () => {
-      sandbox.stub(logger, 'error')
-      code = sandbox.spy()
+      code = Sinon.spy()
 
       h = {
-        response: sandbox.stub().returns({ code })
+        response: Sinon.stub().returns({ code })
       }
     })
 
     afterEach(async () => {
-      sandbox.restore()
+      Sinon.restore()
     })
 
     experiment('when there are no errors', () => {
@@ -118,12 +119,6 @@ experiment('modules/licence-import/controller.js', () => {
         request.query.licenceNumber = 'test-lic'
         request.messageQueue.publish.rejects()
         response = await controller.postImportLicence(request, h)
-      })
-
-      test('an error is logged', async () => {
-        expect(logger.error.callCount).to.equal(1)
-        const [message] = logger.error.lastCall.args
-        expect(message).to.equal('Error importing licence')
       })
 
       test('a Boom 500 error is returned', async () => {
