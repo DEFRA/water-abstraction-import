@@ -1,38 +1,49 @@
 'use strict'
 
-const { test, experiment, beforeEach, afterEach, fail } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const sandbox = require('sinon').createSandbox()
-const handlers = require('../../../../src/modules/licence-import/handlers')
-const extract = require('../../../../src/modules/licence-import/extract')
-const transform = require('../../../../src/modules/licence-import/transform')
-const load = require('../../../../src/modules/licence-import/load')
-const importCompanies = require('../../../../src/modules/licence-import/connectors/import-companies')
-const purposeConditionTypesConnector = require('../../../../src/modules/licence-import/connectors/purpose-conditions-types')
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const { logger } = require('../../../../src/logger')
+const { experiment, test, beforeEach, afterEach, fail } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Things we need to stub
+const extract = require('../../../../src/modules/licence-import/extract')
+const importCompanies = require('../../../../src/modules/licence-import/connectors/import-companies')
+const load = require('../../../../src/modules/licence-import/load')
+const purposeConditionTypesConnector = require('../../../../src/modules/licence-import/connectors/purpose-conditions-types')
+const transform = require('../../../../src/modules/licence-import/transform')
+
+// Thing under test
+const handlers = require('../../../../src/modules/licence-import/handlers')
 
 experiment('modules/licence-import/transform/handlers', () => {
+  let notifierStub
   let server
 
   beforeEach(async () => {
-    sandbox.stub(logger, 'error')
-    sandbox.stub(logger, 'info')
-
     server = {
       messageQueue: {
-        publish: sandbox.stub().resolves()
+        publish: Sinon.stub().resolves()
       }
     }
+
+    // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
+    // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
+    // test we recreate the condition by setting it directly with our own stub
+    notifierStub = { omg: Sinon.stub(), omfg: Sinon.stub() }
+    global.GlobalNotifier = notifierStub
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
+    delete global.GlobalNotifier
   })
 
   experiment('importLicences', () => {
     beforeEach(async () => {
-      sandbox.stub(extract, 'getAllLicenceNumbers').resolves([
+      Sinon.stub(extract, 'getAllLicenceNumbers').resolves([
         { LIC_NO: 'A' },
         { LIC_NO: 'B' }
       ])
@@ -47,7 +58,7 @@ experiment('modules/licence-import/transform/handlers', () => {
         })
 
         test('an info message is logged', async () => {
-          expect(logger.info.callCount).to.equal(1)
+          expect(notifierStub.omg.callCount).to.equal(1)
         })
 
         test('list of licences/region codes/parties are loaded', async () => {
@@ -67,13 +78,13 @@ experiment('modules/licence-import/transform/handlers', () => {
           extract.getAllLicenceNumbers.throws()
         })
 
-        test('error is logged and rethrown', async () => {
+        test('error is logged and re-thrown', async () => {
           try {
             await handlers.importLicences()
             fail()
           } catch (err) {
-            expect(logger.error.callCount).to.equal(1)
-            expect(logger.error.lastCall.args[0]).to.equal('Import licences error')
+            expect(notifierStub.omfg.callCount).to.equal(1)
+            expect(notifierStub.omfg.lastCall.args[0]).to.equal('import.licences: errored')
           }
         })
       })
@@ -101,9 +112,7 @@ experiment('modules/licence-import/transform/handlers', () => {
       })
 
       test('an info message is logged', async () => {
-        expect(logger.info.calledWith(
-          'Handling onComplete test-name'
-        )).to.be.true()
+        expect(notifierStub.omg.calledWith('import.companies: finished')).to.be.true()
       })
 
       test('2 import jobs are published', async () => {
@@ -128,10 +137,9 @@ experiment('modules/licence-import/transform/handlers', () => {
         server.messageQueue.publish.rejects()
       })
 
-      test('an error is logged and thrown', async () => {
+      test('an error is thrown', async () => {
         const func = () => handlers.onCompleteImportLicences(server.messageQueue, job)
         await expect(func()).to.reject()
-        expect(logger.error.called).to.be.true()
       })
     })
   })
@@ -140,13 +148,13 @@ experiment('modules/licence-import/transform/handlers', () => {
     const jobData = { data: { licenceNumber: 'A' } }
 
     beforeEach(async () => {
-      sandbox.stub(extract, 'getLicenceData').resolves({
+      Sinon.stub(extract, 'getLicenceData').resolves({
         foo: 'bar'
       })
-      sandbox.stub(transform.licence, 'transformLicence').returns({
+      Sinon.stub(transform.licence, 'transformLicence').returns({
         bar: 'foo'
       })
-      sandbox.stub(load.licence, 'loadLicence')
+      Sinon.stub(load.licence, 'loadLicence')
     })
 
     experiment('when there are no errors', () => {
@@ -154,8 +162,8 @@ experiment('modules/licence-import/transform/handlers', () => {
         await handlers.importLicence(jobData)
       })
 
-      test('an info message is logged', async () => {
-        expect(logger.info.callCount).to.equal(1)
+      test('an info message is NOT logged', async () => {
+        expect(notifierStub.omg.callCount).to.equal(0)
       })
 
       test('extract.getLicenceData is called', async () => {
@@ -176,13 +184,13 @@ experiment('modules/licence-import/transform/handlers', () => {
         extract.getLicenceData.rejects()
       })
 
-      test('error is logged and rethrown', async () => {
+      test('error is logged and re-thrown', async () => {
         try {
           await handlers.importLicence()
           fail()
         } catch (err) {
-          expect(logger.error.callCount).to.equal(1)
-          expect(logger.error.lastCall.args[0]).to.equal('Import licence error')
+          expect(notifierStub.omfg.callCount).to.equal(1)
+          expect(notifierStub.omfg.lastCall.args[0]).to.equal('import.licence: errored')
         }
       })
     })
@@ -192,14 +200,14 @@ experiment('modules/licence-import/transform/handlers', () => {
     const jobData = { data: { regionCode: '1', partyId: '101' } }
 
     beforeEach(async () => {
-      sandbox.stub(extract, 'getCompanyData').resolves({
+      Sinon.stub(extract, 'getCompanyData').resolves({
         foo: 'bar'
       })
-      sandbox.stub(transform.company, 'transformCompany').returns({
+      Sinon.stub(transform.company, 'transformCompany').returns({
         bar: 'foo'
       })
-      sandbox.stub(load.company, 'loadCompany')
-      sandbox.stub(importCompanies, 'setImportedStatus')
+      Sinon.stub(load.company, 'loadCompany')
+      Sinon.stub(importCompanies, 'setImportedStatus')
     })
 
     experiment('when there are no errors', () => {
@@ -207,8 +215,8 @@ experiment('modules/licence-import/transform/handlers', () => {
         await handlers.importCompany(jobData)
       })
 
-      test('an info message is logged', async () => {
-        expect(logger.info.callCount).to.equal(1)
+      test('an info message is NOT logged', async () => {
+        expect(notifierStub.omg.callCount).to.equal(0)
       })
 
       test('extract.getCompanyData is called', async () => {
@@ -231,13 +239,13 @@ experiment('modules/licence-import/transform/handlers', () => {
         extract.getCompanyData.rejects()
       })
 
-      test('error is logged and rethrown', async () => {
+      test('error is logged and re-thrown', async () => {
         try {
           await handlers.importCompany()
           fail()
         } catch (err) {
-          expect(logger.error.callCount).to.equal(1)
-          expect(logger.error.lastCall.args[0]).to.equal('Import company error')
+          expect(notifierStub.omfg.callCount).to.equal(1)
+          expect(notifierStub.omfg.lastCall.args[0]).to.equal('import.company: errored')
         }
       })
     })
@@ -247,12 +255,12 @@ experiment('modules/licence-import/transform/handlers', () => {
     let result
 
     beforeEach(async () => {
-      sandbox.stub(importCompanies, 'clear')
+      Sinon.stub(importCompanies, 'clear')
     })
 
     experiment('when there are no errors', () => {
       beforeEach(async () => {
-        sandbox.stub(importCompanies, 'initialise').resolves([
+        Sinon.stub(importCompanies, 'initialise').resolves([
           {
             region_code: 1,
             party_id: 123
@@ -262,9 +270,7 @@ experiment('modules/licence-import/transform/handlers', () => {
       })
 
       test('logs an info message', async () => {
-        expect(logger.info.calledWith(
-          'Import companies'
-        )).to.be.true()
+        expect(notifierStub.omg.calledWith('import.companies: started')).to.be.true()
       })
 
       test('clears existing import_companies table data', async () => {
@@ -285,15 +291,15 @@ experiment('modules/licence-import/transform/handlers', () => {
 
     experiment('when there are errors', () => {
       beforeEach(async () => {
-        sandbox.stub(importCompanies, 'initialise').rejects()
+        Sinon.stub(importCompanies, 'initialise').rejects()
       })
 
-      test('an error is logged and rethrown', async () => {
+      test('an error is logged and re-thrown', async () => {
         try {
           await handlers.importCompanies()
           fail()
         } catch (err) {
-          expect(logger.error.called).to.be.true()
+          expect(notifierStub.omfg.called).to.be.true()
         }
       })
     })
@@ -304,7 +310,7 @@ experiment('modules/licence-import/transform/handlers', () => {
 
     beforeEach(async () => {
       messageQueue = {
-        publish: sandbox.stub()
+        publish: Sinon.stub()
       }
       const job = {
         data: {
@@ -332,10 +338,10 @@ experiment('modules/licence-import/transform/handlers', () => {
     let messageQueue
 
     beforeEach(async () => {
-      sandbox.stub(importCompanies, 'getPendingCount')
+      Sinon.stub(importCompanies, 'getPendingCount')
       messageQueue = {
-        deleteQueue: sandbox.stub(),
-        publish: sandbox.stub()
+        deleteQueue: Sinon.stub(),
+        publish: Sinon.stub()
       }
     })
 
@@ -373,14 +379,12 @@ experiment('modules/licence-import/transform/handlers', () => {
 
   experiment('importPurposeConditionTypes', () => {
     beforeEach(async () => {
-      sandbox.stub(purposeConditionTypesConnector, 'createPurposeConditionTypes').resolves()
+      Sinon.stub(purposeConditionTypesConnector, 'createPurposeConditionTypes').resolves()
       await handlers.importPurposeConditionTypes()
     })
 
     test('logs an info message', async () => {
-      expect(logger.info.calledWith(
-        'Import purpose condition types'
-      )).to.be.true()
+      expect(notifierStub.omg.calledWith('import.purpose-condition-types: started')).to.be.true()
     })
 
     test('calls the right connector method', async () => {
@@ -388,13 +392,13 @@ experiment('modules/licence-import/transform/handlers', () => {
     })
 
     experiment('when there are errors', () => {
-      test('an error is logged and rethrown', async () => {
+      test('an error is logged and re-thrown', async () => {
         const err = new Error('test error')
         purposeConditionTypesConnector.createPurposeConditionTypes.throws(err)
         try {
           await handlers.importPurposeConditionTypes()
         } catch (err) {
-          expect(logger.error.called).to.be.true()
+          expect(notifierStub.omfg.called).to.be.true()
         }
       })
     })
@@ -404,7 +408,7 @@ experiment('modules/licence-import/transform/handlers', () => {
 
     beforeEach(async () => {
       messageQueue = {
-        publish: sandbox.stub()
+        publish: Sinon.stub()
       }
     })
 
