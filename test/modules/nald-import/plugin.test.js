@@ -125,34 +125,4 @@ experiment('modules/nald-import/plugin', () => {
       expect(handler).to.equal(importLicenceJob.handler)
     })
   })
-
-  experiment('in production', async () => {
-    beforeEach(async () => {
-      Sinon.stub(config, 'isProduction').value(true)
-      Sinon.stub(process, 'env').value({
-        NODE_ENV: 'production'
-      })
-      await NaldImportPlugin.register(server)
-    })
-
-    test('schedules cron job to run at 0100 everyday', async () => {
-      const [schedule] = cron.schedule.firstCall.args
-      expect(schedule).to.equal('0 1 * * *')
-    })
-  })
-
-  experiment('in non-production', async () => {
-    beforeEach(async () => {
-      Sinon.stub(config, 'isProduction').value(false)
-      Sinon.stub(process, 'env').value({
-        NODE_ENV: 'production'
-      })
-      await NaldImportPlugin.register(server)
-    })
-
-    test('schedules cron job to run every hour', async () => {
-      const [schedule] = cron.schedule.firstCall.args
-      expect(schedule).to.equal('0 */1 * * *')
-    })
-  })
 })

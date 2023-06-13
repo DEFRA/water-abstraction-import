@@ -27,9 +27,7 @@ const handler = async () => {
         acc = acc + `Job Name: ${row.jobName} \nTotal Errors: ${row.total} \nDate created: ${row.dateCreated} \nDate completed: ${row.dateCompleted}\n\n`
         return acc
       }, '')
-      if (config.isProduction) {
-        notifyService.sendEmail(process.env.WATER_SERVICE_MAILBOX, 'service_status_alert', { content })
-      }
+      notifyService.sendEmail(process.env.WATER_SERVICE_MAILBOX, 'service_status_alert', { content })
     }
 
     global.GlobalNotifier.omg('import.tracker: finished')
