@@ -39,14 +39,10 @@ const registerSubscribers = async (server) => {
 
   // If we're not running the unit tests, setup the schedule for the first job in the chain
   if (process.env.NODE_ENV !== 'test') {
-    cron.schedule(_schedule(), async () => {
+    cron.schedule(config.import.nald.schedule, async () => {
       await server.messageQueue.publish(s3DownloadJob.createMessage())
     })
   }
-}
-
-const _schedule = () => {
-  return config.isProduction ? '0 1 * * *' : '0 */1 * * *'
 }
 
 const plugin = {

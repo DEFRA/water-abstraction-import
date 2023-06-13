@@ -84,7 +84,8 @@ module.exports = {
       isEtagCheckEnabled: (process.env.ENABLE_NALD_ETAG_CHECK === 'true') || true,
       zipPassword: process.env.NALD_ZIP_PASSWORD,
       path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release',
-      overwriteReturns: false // Set to false as this is highly disruptive
+      overwriteReturns: false, // Set to false as this is highly disruptive
+      schedule: process.env.WRLS_CRON_NALD || '0 1 * * *'
     },
     licences: {
       schedule: process.env.WRLS_CRON_LICENCES || '0 4 * * 1,2,3,4,5',
