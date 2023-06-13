@@ -42,41 +42,10 @@ experiment('modules/core/plugin', () => {
     })
 
     test('registers the job', async () => {
-      const [jobName, options, handler] = server.messageQueue.subscribe.getCall(0).args
+      const [jobName, handler] = server.messageQueue.subscribe.getCall(0).args
 
       expect(jobName).to.equal(job.jobName)
-      expect(options).to.equal({})
       expect(handler).to.equal(job.handler)
-    })
-  })
-
-  experiment('in production', async () => {
-    beforeEach(async () => {
-      sandbox.stub(config, 'isProduction').value(true)
-      sandbox.stub(process, 'env').value({
-        NODE_ENV: 'production'
-      })
-      await plugin.register(server)
-    })
-
-    test('schedules cron job to run at 10am every week day', async () => {
-      const [schedule] = cron.schedule.firstCall.args
-      expect(schedule).to.equal('0 10 * * 1,2,3,4,5')
-    })
-  })
-
-  experiment('in non-production', async () => {
-    beforeEach(async () => {
-      sandbox.stub(config, 'isProduction').value(false)
-      sandbox.stub(process, 'env').value({
-        NODE_ENV: 'production'
-      })
-      await plugin.register(server)
-    })
-
-    test('schedules cron job to run 3pm every week day', async () => {
-      const [schedule] = cron.schedule.firstCall.args
-      expect(schedule).to.equal('0 15 * * 1,2,3,4,5')
     })
   })
 })
