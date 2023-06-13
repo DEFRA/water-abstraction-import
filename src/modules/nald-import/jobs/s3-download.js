@@ -1,11 +1,11 @@
 'use strict'
 
 const applicationStateService = require('../../../lib/services/application-state-service')
-const s3Service = require('../services/s3-service')
-const extractService = require('../services/extract-service')
-const logger = require('./lib/logger')
-const config = require('../../../../config')
 const constants = require('../lib/constants')
+const extractService = require('../services/extract-service')
+const s3Service = require('../services/s3-service')
+
+const config = require('../../../../config')
 
 const JOB_NAME = 'nald-import.s3-download'
 
@@ -53,15 +53,10 @@ const getStatus = async () => {
   }
 }
 
-/**
- * Imports a single licence
- * @param {Object} job
- * @param {String} job.data.licenceNumber
- */
-const handler = async job => {
-  logger.logHandlingJob(job)
-
+const handler = async () => {
   try {
+    global.GlobalNotifier.omg('nald-import.s3-download: started')
+
     const status = await getStatus()
 
     if (status.isRequired) {
@@ -71,9 +66,9 @@ const handler = async job => {
     }
 
     return status
-  } catch (err) {
-    logger.logJobError(job, err)
-    throw err
+  } catch (error) {
+    global.GlobalNotifier.omfg('nald-import.s3-download: errored', error)
+    throw error
   }
 }
 

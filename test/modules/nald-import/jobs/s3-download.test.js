@@ -1,53 +1,42 @@
 'use strict'
 
-const { afterEach, beforeEach, experiment, test } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const sandbox = require('sinon').createSandbox()
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const { logger } = require('../../../../src/logger')
-const extractService = require('../../../../src/modules/nald-import/services/extract-service.js')
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Things we need to stub
 const applicationStateService = require('../../../../src/lib/services/application-state-service.js')
+const config = require('../../../../config')
+const extractService = require('../../../../src/modules/nald-import/services/extract-service.js')
 const s3Service = require('../../../../src/modules/nald-import/services/s3-service.js')
 
+// Thing under test
 const s3Download = require('../../../../src/modules/nald-import/jobs/s3-download')
-const config = require('../../../../config')
-
-const testDownloadOccurs = () => {
-  test('a message is logged', async () => {
-    const [message] = logger.info.lastCall.args
-    expect(message).to.equal('Handling job: nald-import.s3-download')
-  })
-
-  test('updates the application state with the new etag', async () => {
-    expect(applicationStateService.save.firstCall.args).to.equal(['nald-import', { etag: 'test-etag', isDownloaded: false }])
-  })
-
-  test('downloads and extracts from S3 bucket', async () => {
-    expect(extractService.downloadAndExtract.called).to.be.true()
-  })
-
-  test('updates the application state when file imported', async () => {
-    expect(applicationStateService.save.secondCall.args).to.equal(['nald-import', { etag: 'test-etag', isDownloaded: true }])
-  })
-}
 
 experiment('modules/nald-import/jobs/s3-download', () => {
+  let notifierStub
+
   beforeEach(async () => {
-    sandbox.stub(logger, 'info')
-    sandbox.stub(logger, 'error')
+    Sinon.stub(extractService, 'downloadAndExtract')
+    Sinon.stub(applicationStateService, 'get')
+    Sinon.stub(applicationStateService, 'save')
+    Sinon.stub(s3Service, 'getEtag').resolves('test-etag')
+    Sinon.stub(config.import.nald, 'isEtagCheckEnabled').value(true)
 
-    sandbox.stub(extractService, 'downloadAndExtract')
-
-    sandbox.stub(applicationStateService, 'get')
-    sandbox.stub(applicationStateService, 'save')
-
-    sandbox.stub(s3Service, 'getEtag').resolves('test-etag')
-
-    sandbox.stub(config.import.nald, 'isEtagCheckEnabled').value(true)
+    // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
+    // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
+    // test we recreate the condition by setting it directly with our own stub
+    notifierStub = { omg: Sinon.stub(), omfg: Sinon.stub() }
+    global.GlobalNotifier = notifierStub
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
+    delete global.GlobalNotifier
   })
 
   experiment('.createMessage', () => {
@@ -76,14 +65,29 @@ experiment('modules/nald-import/jobs/s3-download', () => {
         result = await s3Download.handler(job)
       })
 
-      testDownloadOccurs()
-
       test('the handler resolves with the expected values', async () => {
         expect(result).to.equal({
           etag: 'test-etag',
           state: {},
           isRequired: true
         })
+      })
+
+      test('a message is logged', async () => {
+        const [message] = notifierStub.omg.lastCall.args
+        expect(message).to.equal('nald-import.s3-download: started')
+      })
+
+      test('updates the application state with the new etag', async () => {
+        expect(applicationStateService.save.firstCall.args).to.equal(['nald-import', { etag: 'test-etag', isDownloaded: false }])
+      })
+
+      test('downloads and extracts from S3 bucket', async () => {
+        expect(extractService.downloadAndExtract.called).to.be.true()
+      })
+
+      test('updates the application state when file imported', async () => {
+        expect(applicationStateService.save.secondCall.args).to.equal(['nald-import', { etag: 'test-etag', isDownloaded: true }])
       })
     })
 
@@ -96,14 +100,29 @@ experiment('modules/nald-import/jobs/s3-download', () => {
         result = await s3Download.handler(job)
       })
 
-      testDownloadOccurs()
-
       test('the handler resolves with the expected values', async () => {
         expect(result).to.equal({
           etag: 'test-etag',
           state: { etag: 'test-etag', isDownloaded: false },
           isRequired: true
         })
+      })
+
+      test('a message is logged', async () => {
+        const [message] = notifierStub.omg.lastCall.args
+        expect(message).to.equal('nald-import.s3-download: started')
+      })
+
+      test('updates the application state with the new etag', async () => {
+        expect(applicationStateService.save.firstCall.args).to.equal(['nald-import', { etag: 'test-etag', isDownloaded: false }])
+      })
+
+      test('downloads and extracts from S3 bucket', async () => {
+        expect(extractService.downloadAndExtract.called).to.be.true()
+      })
+
+      test('updates the application state when file imported', async () => {
+        expect(applicationStateService.save.secondCall.args).to.equal(['nald-import', { etag: 'test-etag', isDownloaded: true }])
       })
     })
 
@@ -116,14 +135,29 @@ experiment('modules/nald-import/jobs/s3-download', () => {
         result = await s3Download.handler(job)
       })
 
-      testDownloadOccurs()
-
       test('the handler resolves with the expected values', async () => {
         expect(result).to.equal({
           etag: 'test-etag',
           state: { etag: 'some-old-etag', isDownloaded: true },
           isRequired: true
         })
+      })
+
+      test('a message is logged', async () => {
+        const [message] = notifierStub.omg.lastCall.args
+        expect(message).to.equal('nald-import.s3-download: started')
+      })
+
+      test('updates the application state with the new etag', async () => {
+        expect(applicationStateService.save.firstCall.args).to.equal(['nald-import', { etag: 'test-etag', isDownloaded: false }])
+      })
+
+      test('downloads and extracts from S3 bucket', async () => {
+        expect(extractService.downloadAndExtract.called).to.be.true()
+      })
+
+      test('updates the application state when file imported', async () => {
+        expect(applicationStateService.save.secondCall.args).to.equal(['nald-import', { etag: 'test-etag', isDownloaded: true }])
       })
     })
 
@@ -155,7 +189,7 @@ experiment('modules/nald-import/jobs/s3-download', () => {
 
     experiment('when the config disables etag check and the etag has not changed', () => {
       beforeEach(async () => {
-        sandbox.stub(config.import.nald, 'isEtagCheckEnabled').value(false)
+        Sinon.stub(config.import.nald, 'isEtagCheckEnabled').value(false)
         applicationStateService.get.resolves({
           etag: 'test-etag',
           isDownloaded: true
@@ -182,8 +216,8 @@ experiment('modules/nald-import/jobs/s3-download', () => {
       test('logs an error message', async () => {
         const func = () => s3Download.handler(job)
         await expect(func()).to.reject()
-        expect(logger.error.calledWith(
-          'Error handling job nald-import.s3-download', err.stack
+        expect(notifierStub.omfg.calledWith(
+          'nald-import.s3-download: errored', err
         )).to.be.true()
       })
 

@@ -9,7 +9,7 @@ const returnsRoutes = require('./modules/returns/routes')
 module.exports = [
   ...chargingImportRoutes,
   ...coreRoutes,
-  healthRoutes.getInfo,
+  ...healthRoutes,
   ...jobSummaryRoutes,
   ...licenceImportRoutes,
   ...naldImportRoutes,

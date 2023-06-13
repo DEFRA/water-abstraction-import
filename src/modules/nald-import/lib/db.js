@@ -1,5 +1,4 @@
 const { pool } = require('../../../lib/connectors/db')
-const { logger } = require('../../../logger')
 
 /**
  * Perform a database query by getting a client from the connection pool and releasing
@@ -9,16 +8,13 @@ const { logger } = require('../../../logger')
  * @return {Promise} resolves with query data
  */
 const dbQuery = async (query, params = []) => {
-  try {
-    const { error, rows } = await pool.query(query, params)
-    if (error) {
-      throw error
-    }
-    return rows
-  } catch (error) {
-    logger.error('dbQuery error', error.stack)
+  const { error, rows } = await pool.query(query, params)
+
+  if (error) {
     throw error
   }
+
+  return rows
 }
 
 module.exports = {

@@ -1,38 +1,38 @@
 'use strict'
 
-const { afterEach, beforeEach, experiment, test } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const sandbox = require('sinon').createSandbox()
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
+
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Test helpers
 const moment = require('moment')
 moment.locale('en-gb')
 
-const { logger } = require('../../../../src/logger')
-const processHelper = require('@envage/water-abstraction-helpers').process
+// Things we need to stub
 const config = require('../../../../config')
+const processHelper = require('@envage/water-abstraction-helpers').process
 
+// Thing under test
 const zipService = require('../../../../src/modules/nald-import/services/zip-service')
 
 experiment('modules/nald-import/services/zip-service', () => {
   beforeEach(async () => {
-    sandbox.stub(processHelper, 'execCommand')
-    sandbox.stub(logger, 'info')
-    sandbox.stub(logger, 'error')
-
-    sandbox.stub(config.import.nald, 'zipPassword').value('test-password')
+    Sinon.stub(config.import.nald, 'zipPassword').value('test-password')
+    Sinon.stub(processHelper, 'execCommand')
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
   })
 
   experiment('.extract', () => {
     experiment('when the zip commands succeed', () => {
       beforeEach(async () => {
         await zipService.extract()
-      })
-
-      test('logs an info message', async () => {
-        expect(logger.info.calledWith('Extracting data from NALD zip file')).to.be.true()
       })
 
       test('the first call extracts the primary zip with password', async () => {
@@ -53,10 +53,10 @@ experiment('modules/nald-import/services/zip-service', () => {
         processHelper.execCommand.rejects(err)
       })
 
-      test('an error is logged and rethrown', async () => {
+      test('an error is thrown', async () => {
         const func = () => zipService.extract()
         const result = await expect(func()).to.reject()
-        expect(logger.error.calledWith('Could not extract NALD zip', err.stack)).to.be.true()
+
         expect(result).to.equal(err)
       })
     })

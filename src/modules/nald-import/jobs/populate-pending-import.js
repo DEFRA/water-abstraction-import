@@ -1,10 +1,9 @@
 'use strict'
 
-const logger = require('./lib/logger')
 const assertImportTablesExist = require('../lib/assert-import-tables-exist')
+const importService = require('../../../lib/services/import')
 
 const JOB_NAME = 'nald-import.populate-pending-import'
-const importService = require('../../../lib/services/import')
 
 const createMessage = () => ({
   name: JOB_NAME,
@@ -14,17 +13,17 @@ const createMessage = () => ({
   }
 })
 
-const handler = async job => {
-  logger.logHandlingJob(job)
-
+const handler = async () => {
   try {
+    global.GlobalNotifier.omg('nald-import.populate-pending-import: started')
+
     await assertImportTablesExist.assertImportTablesExist()
     const licenceNumbers = await importService.getLicenceNumbers()
 
     return { licenceNumbers }
-  } catch (err) {
-    logger.logJobError(job, err)
-    throw err
+  } catch (error) {
+    global.GlobalNotifier.omfg('nald-import.populate-pending-import: errored', error)
+    throw error
   }
 }
 

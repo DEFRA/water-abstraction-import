@@ -1,26 +1,40 @@
 'use strict'
 
-const { afterEach, beforeEach, experiment, test } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const sandbox = require('sinon').createSandbox()
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const { logger } = require('../../../../src/logger')
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Things we need to stub
+const config = require('../../../../config')
 const jobsConnector = require('../../../../src/lib/connectors/water-import/jobs')
 const notifyService = require('../../../../src/lib/services/notify')
+
+// Thing under test
 const importTrackerJob = require('../../../../src/modules/core/jobs/import-tracker')
-const config = require('../../../../config')
 
 experiment('modules/core/jobs/import-tracker', () => {
   const jobName = 'import.tracker'
+
+  let notifierStub
+
   beforeEach(async () => {
-    sandbox.stub(logger, 'info')
-    sandbox.stub(logger, 'error')
-    sandbox.stub(jobsConnector, 'getFailedJobs')
-    sandbox.stub(notifyService, 'sendEmail')
+    Sinon.stub(jobsConnector, 'getFailedJobs')
+    Sinon.stub(notifyService, 'sendEmail')
+
+    // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
+    // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
+    // test we recreate the condition by setting it directly with our own stub
+    notifierStub = { omg: Sinon.stub(), omfg: Sinon.stub() }
+    global.GlobalNotifier = notifierStub
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
+    delete global.GlobalNotifier
   })
 
   experiment('.createMessage', () => {
@@ -44,9 +58,9 @@ experiment('modules/core/jobs/import-tracker', () => {
       experiment('on the production environment', () => {
         let testMessage = 'There is 1 failed import job in the prd environment.\n\nJob Name: Test.Job.Name \nTotal Errors: 100 \nDate created: 2001-01-01 \nDate completed: 2001-01-01\n\n'
         beforeEach(async () => {
-          sandbox.stub(config, 'environment').value('prd')
-          sandbox.stub(config, 'isProduction').value(true)
-          sandbox.stub(process, 'env').value({
+          Sinon.stub(config, 'environment').value('prd')
+          Sinon.stub(config, 'isProduction').value(true)
+          Sinon.stub(process, 'env').value({
             WATER_SERVICE_MAILBOX: 'test-mailbox@test.com'
           })
           jobsConnector.getFailedJobs.resolves([{
@@ -92,8 +106,8 @@ experiment('modules/core/jobs/import-tracker', () => {
 
     experiment('on the preprod environment', () => {
       beforeEach(async () => {
-        sandbox.stub(config, 'environment').value('pre')
-        sandbox.stub(process, 'env').value({
+        Sinon.stub(config, 'environment').value('pre')
+        Sinon.stub(process, 'env').value({
           WATER_SERVICE_MAILBOX: 'test-mailbox@test.com'
         })
         jobsConnector.getFailedJobs.resolves([{
@@ -112,7 +126,7 @@ experiment('modules/core/jobs/import-tracker', () => {
 
     experiment('on the test environment', () => {
       beforeEach(async () => {
-        sandbox.stub(config, 'environment').value('tst')
+        Sinon.stub(config, 'environment').value('tst')
         jobsConnector.getFailedJobs.resolves([{
           jobName: 'Test.Job.Name',
           total: 100,

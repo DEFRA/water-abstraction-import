@@ -1,23 +1,16 @@
 'use strict'
 
-const logger = require('./lib/logger')
-
 const populatePendingImportJob = require('./populate-pending-import')
 
-const deleteRemovedDocumentsComplete = async (job, messageQueue) => {
-  if (job.failed) {
-    return logger.logFailedJob(job)
-  }
-
-  logger.logHandlingOnCompleteJob(job)
-
-  try {
-    // Publish a new job to populate pending import table
+async function handler (messageQueue, job) {
+  // Publish a new job to populate pending import table but only if delete removed documents was successful
+  if (!job.failed) {
     await messageQueue.publish(populatePendingImportJob.createMessage())
-  } catch (err) {
-    logger.logHandlingOnCompleteError(job, err)
-    throw err
   }
+
+  global.GlobalNotifier.omg('nald-import.delete-removed-documents: finished')
 }
 
-module.exports = deleteRemovedDocumentsComplete
+module.exports = {
+  handler
+}

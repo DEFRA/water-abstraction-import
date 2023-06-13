@@ -1,7 +1,5 @@
 'use strict'
 
-const logger = require('./lib/logger')
-
 const JOB_NAME = 'nald-import.delete-removed-documents'
 const importService = require('../../../lib/services/import')
 
@@ -13,14 +11,14 @@ const createMessage = () => ({
   }
 })
 
-const handler = async job => {
-  logger.logHandlingJob(job)
-
+const handler = async () => {
   try {
+    global.GlobalNotifier.omg('nald-import.delete-removed-documents: started')
+
     return importService.deleteRemovedDocuments()
-  } catch (err) {
-    logger.logJobError(job, err)
-    throw err
+  } catch (error) {
+    global.GlobalNotifier.omfg('nald-import.delete-removed-documents: errored', error)
+    throw error
   }
 }
 

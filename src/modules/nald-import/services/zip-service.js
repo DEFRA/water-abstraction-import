@@ -3,7 +3,6 @@
 const path = require('path')
 
 const processHelper = require('@envage/water-abstraction-helpers').process
-const { logger } = require('../../../logger')
 const constants = require('../lib/constants')
 const config = require('../../../../config')
 
@@ -28,16 +27,9 @@ const extractArchive = async (source, destination, password) => {
  * Extracts files from zip downloaded from S3 bucket
  */
 const extract = async () => {
-  logger.info('Extracting data from NALD zip file')
-
-  try {
-    const zipPassword = config.import.nald.zipPassword
-    await extractArchive(primaryPath, constants.LOCAL_TEMP_PATH, zipPassword)
-    await extractArchive(secondaryPath, constants.LOCAL_TEMP_PATH)
-  } catch (err) {
-    logger.error('Could not extract NALD zip', err.stack)
-    throw err
-  }
+  const zipPassword = config.import.nald.zipPassword
+  await extractArchive(primaryPath, constants.LOCAL_TEMP_PATH, zipPassword)
+  await extractArchive(secondaryPath, constants.LOCAL_TEMP_PATH)
 }
 
 module.exports = {

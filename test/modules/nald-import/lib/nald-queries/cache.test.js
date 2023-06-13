@@ -1,26 +1,19 @@
 'use strict'
 
-const {
-  experiment,
-  test,
-  beforeEach,
-  afterEach
-} = exports.lab = require('@hapi/lab').script()
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const sandbox = require('sinon').createSandbox()
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
 
-const { expect } = require('@hapi/code')
-
+// Thing under test
 const cache = require('../../../../../src/modules/nald-import/lib/nald-queries/cache')
-const { logger } = require('../../../../../src/logger')
 
 experiment('modules/nald-import/lib/nald-queries/cache', () => {
-  beforeEach(async () => {
-    sandbox.stub(logger, 'info')
-  })
-
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
   })
 
   experiment('.createId', () => {
@@ -55,9 +48,9 @@ experiment('modules/nald-import/lib/nald-queries/cache', () => {
     let spy
 
     beforeEach(async () => {
-      spy = sandbox.spy()
+      spy = Sinon.spy()
       server = {
-        cache: sandbox.spy()
+        cache: Sinon.spy()
       }
 
       cache.createCachedQuery(server, 'test-method', spy)
@@ -83,10 +76,6 @@ experiment('modules/nald-import/lib/nald-queries/cache', () => {
       const generate = cacheArg.generateFunc
 
       generate({ id: 123 })
-
-      const loggerArgs = logger.info.lastCall.args
-      expect(loggerArgs[0]).to.equal('Accessing database for test-method')
-      expect(loggerArgs[1]).to.equal({ id: 123 })
 
       expect(spy.calledWith({ id: 123 })).to.equal(true)
     })

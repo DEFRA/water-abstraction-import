@@ -1,21 +1,22 @@
 'use strict'
 
-const {
-  experiment,
-  test,
-  beforeEach,
-  afterEach
-} = exports.lab = require('@hapi/lab').script()
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const { expect } = require('@hapi/code')
-const sandbox = require('sinon').createSandbox()
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
 
+// Things we need to stub
 const { lines, returns, versions } = require('../../../src/lib/connectors/returns')
+
+// Thing under test
 const controller = require('../../../src/modules/returns/controller')
 
 experiment('modules/returns/controller', () => {
   beforeEach(async () => {
-    sandbox.stub(returns, 'findMany').resolves({
+    Sinon.stub(returns, 'findMany').resolves({
       data: [
         {
           metadata: {
@@ -28,17 +29,17 @@ experiment('modules/returns/controller', () => {
       ]
     })
 
-    sandbox.stub(versions, 'findMany').resolves({
+    Sinon.stub(versions, 'findMany').resolves({
       data: [
         { return_id: 'test-return-id', nil_return: false }
       ]
     })
 
-    sandbox.stub(lines, 'findMany').resolves({ data: [] })
+    Sinon.stub(lines, 'findMany').resolves({ data: [] })
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
   })
 
   experiment('.getLinesForVersion', () => {
@@ -52,7 +53,7 @@ experiment('modules/returns/controller', () => {
       }
     })
 
-    test('throws a notFound if no version data returned', async () => {
+    test('throws an error if no version data returned', async () => {
       versions.findMany.resolves({ data: [] })
       const error = await expect(controller.getLinesForVersion(request)).to.reject()
 

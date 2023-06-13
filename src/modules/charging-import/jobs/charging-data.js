@@ -14,7 +14,7 @@ const jobName = 'import.charging-data'
 
 const createMessage = () => job.createMessage(jobName)
 
-const handler = () => queryLoader.loadQueries('Import charging data', [
+const handler = () => queryLoader.loadQueries('import.charging-data', [
   financialAgreementTypeQueries.importFinancialAgreementTypes,
   purposesQueries.importPrimaryPurposes,
   purposesQueries.importSecondaryPurposes,

@@ -1,13 +1,16 @@
-const extract = require('../extract')
-const { logger } = require('../../../logger')
+'use strict'
 
-module.exports = async job => {
+const extract = require('../extract')
+
+module.exports = async () => {
   try {
-    logger.info('Importing licences')
+    global.GlobalNotifier.omg('import.licences: started')
+
     const rows = await extract.getAllLicenceNumbers()
+
     return rows
-  } catch (err) {
-    logger.error('Import licences error', err.stack)
-    throw err
+  } catch (error) {
+    global.GlobalNotifier.omfg('import.licences: errored', error)
+    throw error
   }
 }

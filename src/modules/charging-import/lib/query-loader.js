@@ -1,33 +1,26 @@
 'use strict'
 
 const { pool } = require('../../../lib/connectors/db')
-const { logger } = require('../../../logger')
-
-const log = msg => {
-  logger.info(msg)
-}
 
 /**
- * Generic means of running a sequence of queries in series,
- * logging progress to console
+ * Generic means of running a sequence of queries in series, logging progress to console
  *
- * @param {String} name - friendly name for log messages
+ * @param {String} name - name of job
  * @param {Array<String>} queries - array of SQL queries to run
  * @returns {Promise}
  */
 const loadQueries = async (name, queries) => {
   try {
-    log(`Starting ${name}`)
+    global.GlobalNotifier.omg(`${name}: started`)
 
     for (const index in queries) {
-      log(`Running ${name} query ${parseInt(index) + 1} of ${queries.length}`)
       await pool.query(queries[index])
     }
 
-    log(`Finished ${name}`)
-  } catch (err) {
-    log(`Error: ${err.message}`)
-    throw err
+    global.GlobalNotifier.omg(`${name}: finished`)
+  } catch (error) {
+    global.GlobalNotifier.omfg(`${name}: errored`, error)
+    throw error
   }
 }
 

@@ -1,29 +1,39 @@
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
+'use strict'
 
-const queryLoader = require('../../../../src/modules/charging-import/lib/query-loader')
-const chargeVersionsJob = require('../../../../src/modules/charging-import/jobs/charge-versions')
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
+
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Test helpers
 const chargeVersionQueries = require('../../../../src/modules/charging-import/lib/queries/charging')
 
-const sandbox = require('sinon').createSandbox()
+// Things we need to stub
+const queryLoader = require('../../../../src/modules/charging-import/lib/query-loader')
+
+// Thing under test
+const ChargeVersionsJob = require('../../../../src/modules/charging-import/jobs/charge-versions.js')
 
 experiment('modules/charging-import/jobs/charge-versions.js', () => {
   beforeEach(async () => {
-    sandbox.stub(queryLoader, 'loadQueries')
+    Sinon.stub(queryLoader, 'loadQueries')
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
   })
 
   experiment('.handler', () => {
     beforeEach(async () => {
-      chargeVersionsJob.handler()
+      ChargeVersionsJob.handler()
     })
 
     test('runs the correct queries', async () => {
       expect(queryLoader.loadQueries.calledWith(
-        'Import charge versions',
+        'import.charge-versions',
         [
           chargeVersionQueries.importChargeVersions,
           chargeVersionQueries.importChargeElements,

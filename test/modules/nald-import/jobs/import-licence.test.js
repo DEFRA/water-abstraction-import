@@ -1,31 +1,37 @@
 'use strict'
 
-const {
-  afterEach,
-  beforeEach,
-  experiment,
-  test
-} = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const sandbox = require('sinon').createSandbox()
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const { logger } = require('../../../../src/logger')
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
 
-const importLicence = require('../../../../src/modules/nald-import/jobs/import-licence')
+// Things we need to stub
 const licenceLoader = require('../../../../src/modules/nald-import/load')
 const assertImportTablesExist = require('../../../../src/modules/nald-import/lib/assert-import-tables-exist')
 
-experiment('modules/nald-import/jobs/import-licence', () => {
-  beforeEach(async () => {
-    sandbox.stub(logger, 'info')
-    sandbox.stub(logger, 'error')
+// Thing under test
+const importLicence = require('../../../../src/modules/nald-import/jobs/import-licence')
 
-    sandbox.stub(licenceLoader, 'load')
-    sandbox.stub(assertImportTablesExist, 'assertImportTablesExist')
+experiment('modules/nald-import/jobs/import-licence', () => {
+  let notifierStub
+
+  beforeEach(async () => {
+    Sinon.stub(licenceLoader, 'load')
+    Sinon.stub(assertImportTablesExist, 'assertImportTablesExist')
+
+    // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
+    // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
+    // test we recreate the condition by setting it directly with our own stub
+    notifierStub = { omg: Sinon.stub(), omfg: Sinon.stub() }
+    global.GlobalNotifier = notifierStub
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
+    delete global.GlobalNotifier
   })
 
   experiment('.options', () => {
@@ -65,12 +71,8 @@ experiment('modules/nald-import/jobs/import-licence', () => {
         await importLicence.handler(job)
       })
 
-      test('a message is logged', async () => {
-        const [message, params] = logger.info.lastCall.args
-        expect(message).to.equal('Handling job: nald-import.import-licence')
-        expect(params).to.equal({
-          licenceNumber: 'test-licence-number'
-        })
+      test('a message is NOT logged', async () => {
+        expect(notifierStub.omg.called).to.be.false()
       })
 
       test('asserts that the import tables exist', async () => {
@@ -99,10 +101,9 @@ experiment('modules/nald-import/jobs/import-licence', () => {
       test('logs an error message', async () => {
         const func = () => importLicence.handler(job)
         await expect(func()).to.reject()
-        expect(logger.error.calledWith(
-          'Error handling job nald-import.import-licence',
-          err.stack,
-          { licenceNumber: 'test-licence-number' }
+        expect(notifierStub.omfg.calledWith(
+          'nald-import.import-licence: errored',
+          err
         )).to.be.true()
       })
 

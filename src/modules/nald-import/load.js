@@ -11,7 +11,6 @@ const returnsConnector = require('../../lib/connectors/returns')
 const { persistReturns } = require('./lib/persist-returns')
 
 const repository = require('./repositories')
-const { logger } = require('../../logger')
 
 const chargeVersionMetadataImportService = require('./services/charge-version-metadata-import')
 
@@ -22,12 +21,10 @@ const chargeVersionMetadataImportService = require('./services/charge-version-me
  * @return {Promise} resolves when completed
  */
 const loadPermitAndDocumentHeader = async (licenceNumber, licenceData) => {
-  logger.info(`Import: permit for ${licenceNumber}`)
   const permit = buildPermitRepoPacket(licenceNumber, 1, 8, licenceData)
   const { rows: [{ licence_id: permitRepoId }] } = await repository.licence.persist(permit, ['licence_id'])
 
   // Create CRM data and persist
-  logger.info(`Import: document header for ${licenceNumber}`)
   const crmData = buildCRMPacket(licenceData, licenceNumber, permitRepoId)
   await repository.document.persist({ document_id: uuidV4(), ...crmData })
 }
@@ -40,8 +37,6 @@ const loadPermitAndDocumentHeader = async (licenceNumber, licenceData) => {
  * @return {Promise} resolves when returns imported
  */
 const loadReturns = async (licenceNumber) => {
-  logger.info(`Import: returns for ${licenceNumber}`)
-
   const { returns } = await buildReturnsPacket(licenceNumber)
   await persistReturns(returns)
 
@@ -61,8 +56,6 @@ const load = async (licenceNumber) => {
   if (licenceData.data.versions.length > 0) {
     await loadPermitAndDocumentHeader(licenceNumber, licenceData)
     await loadReturns(licenceNumber)
-  } else {
-    logger.info(`No versions found for ${licenceNumber}`)
   }
 
   await chargeVersionMetadataImportService.importChargeVersionMetadataForLicence(licenceData)

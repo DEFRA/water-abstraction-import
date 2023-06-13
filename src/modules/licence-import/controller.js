@@ -6,7 +6,6 @@
  */
 
 const jobs = require('./jobs')
-const { logger } = require('../../logger')
 const Boom = require('@hapi/boom')
 
 const postImportHandler = async (request, h, jobCreator, errorMessage) => {
@@ -14,7 +13,6 @@ const postImportHandler = async (request, h, jobCreator, errorMessage) => {
     await request.messageQueue.publish(jobCreator(request))
     return h.response({ error: null }).code(202)
   } catch (err) {
-    logger.error(errorMessage, request.query)
     return Boom.badImplementation(errorMessage)
   };
 }

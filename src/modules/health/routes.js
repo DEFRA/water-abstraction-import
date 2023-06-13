@@ -2,8 +2,16 @@
 
 const controller = require('./controller')
 
-module.exports = {
-  getInfo: {
+const routes = [
+  {
+    method: 'GET',
+    path: '/health/airbrake',
+    handler: controller.getAirbrake,
+    config: {
+      auth: false
+    }
+  },
+  {
     method: 'GET',
     path: '/health/info',
     handler: controller.getInfo,
@@ -11,4 +19,6 @@ module.exports = {
       auth: false
     }
   }
-}
+]
+
+module.exports = routes

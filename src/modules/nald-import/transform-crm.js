@@ -5,7 +5,6 @@
 const { findCurrent, transformNull } = require('@envage/water-abstraction-helpers').nald
 const { addressFormatter, crmNameFormatter } = require('@envage/water-abstraction-helpers').nald.formatting
 const { sentenceCase } = require('sentence-case')
-const { logger } = require('../../logger')
 
 /**
  * Contacts formatter
@@ -122,14 +121,11 @@ function buildCRMPacket (licenceData, licenceRef, licenceId) {
     system_external_id: licenceRef
   }
 
-  try {
-    const currentVersion = licenceData.data.current_version
-    const metadata = buildCRMMetadata(currentVersion)
-    metadata.contacts = contactsFormatter(findCurrent(licenceData.data.versions), licenceData.data.roles)
-    crmData.metadata = JSON.stringify(metadata)
-  } catch (error) {
-    logger.error('Cannot build CRM packet', error.stack, crmData)
-  }
+  const currentVersion = licenceData.data.current_version
+  const metadata = buildCRMMetadata(currentVersion)
+  metadata.contacts = contactsFormatter(findCurrent(licenceData.data.versions), licenceData.data.roles)
+  crmData.metadata = JSON.stringify(metadata)
+
   return crmData
 }
 

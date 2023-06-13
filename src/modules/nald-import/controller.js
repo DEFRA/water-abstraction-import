@@ -1,10 +1,12 @@
 'use strict'
 
 const Boom = require('@hapi/boom')
-const { getLicenceJson } = require('./transform-permit')
-const { buildReturnsPacket } = require('./transform-returns')
 
-const jobs = require('./jobs')
+const { buildReturnsPacket } = require('./transform-returns')
+const { getLicenceJson } = require('./transform-permit')
+const importLicenceJob = require('./jobs/import-licence.js')
+const s3DownloadJob = require('./jobs/s3-download.js')
+
 const { getFormats, getLogs, getLogLines } = require('./lib/nald-queries/returns')
 
 /**
@@ -90,9 +92,8 @@ const getReturnsLogLines = async (request, h) => {
 }
 
 const postImportLicence = async (request, h) => {
-  const { job } = jobs.importLicence
   const { licenceNumber } = request.payload
-  const message = job.createMessage(licenceNumber)
+  const message = importLicenceJob.createMessage(licenceNumber)
 
   try {
     await request.server.messageQueue.publish(message)
@@ -110,11 +111,10 @@ const postImportLicence = async (request, h) => {
  * is always present in the queue. So, our manual trigger wouldn't work without first removing what's already there.
  */
 const postImportLicences = async (request, h) => {
-  const { job } = jobs.s3Download
-  const message = job.createMessage()
+  const message = s3DownloadJob.createMessage()
 
   try {
-    await request.server.messageQueue.deleteQueue(jobs.s3Download.job.jobName)
+    await request.server.messageQueue.deleteQueue(s3DownloadJob.jobName)
     await request.server.messageQueue.publish(message)
 
     return h.response().code(202)

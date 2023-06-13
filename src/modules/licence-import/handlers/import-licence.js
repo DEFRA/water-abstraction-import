@@ -1,12 +1,11 @@
+'use strict'
+
 const extract = require('../extract')
-const transform = require('../transform')
 const load = require('../load')
-const { logger } = require('../../../logger')
+const transform = require('../transform')
 
-module.exports = async job => {
+module.exports = async (job) => {
   try {
-    logger.info(`Import licence ${job.data.licenceNumber}`)
-
     // Extract data
     const data = await extract.getLicenceData(job.data.licenceNumber)
 
@@ -15,8 +14,8 @@ module.exports = async job => {
 
     // Load licence to DB
     await load.licence.loadLicence(mapped)
-  } catch (err) {
-    logger.error('Import licence error', err.stack)
-    throw err
+  } catch (error) {
+    global.GlobalNotifier.omfg('import.licence: errored', error)
+    throw error
   }
 }

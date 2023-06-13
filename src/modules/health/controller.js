@@ -6,20 +6,42 @@ const exec = util.promisify(require('child_process').exec)
 
 const pkg = require('../../../package.json')
 
-const _getCommitHash = async () => {
+async function getAirbrake (request, _h) {
+  // First section tests connecting to Airbrake through a manual notification
+  request.server.app.airbrake.notify({
+    message: 'Airbrake manual health check',
+    error: new Error('Airbrake manual health check error'),
+    session: {
+      req: {
+        id: request.info.id
+      }
+    }
+  })
+
+  // Second section throws an error and checks that we automatically capture it and then connect to Airbrake
+  throw new Error('Airbrake automatic health check error')
+}
+
+async function getInfo (_request, h) {
+  const result = {
+    version: pkg.version,
+    commit: await _commitHash()
+  }
+
+  return h.response(result).code(200)
+}
+
+async function _commitHash () {
   try {
     const { stdout, stderr } = await exec('git rev-parse HEAD')
+
     return stderr ? `ERROR: ${stderr}` : stdout.replace('\n', '')
   } catch (error) {
     return `ERROR: ${error.message}`
   }
 }
 
-const getInfo = async () => {
-  return {
-    version: pkg.version,
-    commit: await _getCommitHash()
-  }
+module.exports = {
+  getAirbrake,
+  getInfo
 }
-
-exports.getInfo = getInfo

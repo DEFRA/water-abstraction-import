@@ -1,12 +1,14 @@
-const { logger } = require('../../../logger')
+'use strict'
+
 const documentsConnector = require('../connectors/documents')
 
-module.exports = async job => {
+module.exports = async () => {
   try {
-    logger.info('Deleting removed documents')
+    global.GlobalNotifier.omg('import.delete-documents: started')
+
     return documentsConnector.deleteRemovedDocuments()
-  } catch (err) {
-    logger.error('Failed to delete removed documents', err.stack)
-    throw err
+  } catch (error) {
+    global.GlobalNotifier.omfg('import.delete-documents: errored', error)
+    throw error
   }
 }

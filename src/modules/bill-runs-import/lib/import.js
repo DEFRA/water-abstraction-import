@@ -2,7 +2,6 @@
 
 const queries = require('./queries')
 const { pool } = require('../../../lib/connectors/db')
-const { logger } = require('../../../logger')
 
 const createRow = (tableName, query) => ({
   tableName,
@@ -23,15 +22,6 @@ const importQueries = [
 ]
 
 /**
- * Logs a message
- * @param {String} str - the message
- */
-const log = str => {
-  const message = `Bill run import: ${str}`
-  logger.info(message)
-}
-
-/**
  * Run SQL queries to import bill runs to the water
  * billing tables.
  * It is envisaged this will only be run once in production
@@ -40,18 +30,16 @@ const log = str => {
  */
 const importBillRuns = async () => {
   try {
-    log('Starting...')
+    global.GlobalNotifier.omg('import.bill-runs: started')
 
-    for (const { tableName, query } of importQueries) {
-      log(`Importing ${tableName}...`)
+    for (const { query } of importQueries) {
       await pool.query(query)
-      log(`Imported ${tableName}.`)
     }
 
-    log('Complete.')
-  } catch (err) {
-    log(err.message)
-    throw err
+    global.GlobalNotifier.omg('import.bill-runs: finished')
+  } catch (error) {
+    global.GlobalNotifier.omfg('import.bill-runs: errored', error)
+    throw error
   }
 }
 
