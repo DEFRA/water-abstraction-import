@@ -106,9 +106,6 @@ module.exports = {
     },
     charging: {
       schedule: process.env.WRLS_CRON_CHARGING || '0 1 * * 1,2,3,4,5'
-    },
-    monitoring: {
-      schedule: '* * * * *'
     }
   },
 
