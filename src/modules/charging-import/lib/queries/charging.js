@@ -108,29 +108,6 @@ WHERE charge_element_id IN (
     and bv.billing_volume_id is null
 );`
 
-const insertChargeVersion = `
-insert into water.charge_versions
-(start_date, end_date, status, licence_ref, region_code, source, version_number, invoice_account_id, company_id,
-  billed_upto_date, error, scheme, external_id, apportionment, change_reason_id, licence_id, date_created)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW())
-on conflict (external_id) do update set
-  start_date=EXCLUDED.start_date,
-  end_date=EXCLUDED.end_date,
-  status=EXCLUDED.status,
-  licence_ref=EXCLUDED.licence_ref,
-  region_code=EXCLUDED.region_code,
-  source=EXCLUDED.source,
-  version_number=EXCLUDED.version_number,
-  invoice_account_id=EXCLUDED.invoice_account_id,
-  company_id=EXCLUDED.company_id,
-  billed_upto_date=EXCLUDED.billed_upto_date,
-  error=EXCLUDED.error,
-  scheme=EXCLUDED.scheme,
-  apportionment=EXCLUDED.apportionment,
-  change_reason_id=EXCLUDED.change_reason_id,
-  date_updated=NOW();
-`
-
 const importChargeVersions = `INSERT INTO water.charge_versions (licence_ref, scheme, external_id, version_number, start_date, status, apportionment,
 error, end_date, billed_upto_date, region_code, date_created, date_updated, source, invoice_account_id, company_id, licence_id, change_reason_id)
 SELECT
@@ -200,7 +177,6 @@ DELETE FROM water.charge_versions WHERE charge_version_id IN (
 module.exports = {
   importChargeElements,
   cleanupChargeElements,
-  insertChargeVersion,
   importChargeVersions,
   cleanupChargeVersions
 }
