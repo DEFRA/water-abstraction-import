@@ -4,8 +4,8 @@ const importChargeElements = `INSERT INTO water.charge_elements
 (charge_version_id, external_id, abstraction_period_start_day, abstraction_period_start_month,
 abstraction_period_end_day, abstraction_period_end_month, authorised_annual_quantity, season, season_derived,
 source, loss, purpose_primary_id, purpose_secondary_id, purpose_use_id, factors_overridden, billable_annual_quantity,
-time_limited_start_date, time_limited_end_date, description, date_created, date_updated, is_section_127_agreement_enabled) 
-SELECT v.charge_version_id, 
+time_limited_start_date, time_limited_end_date, description, date_created, date_updated, is_section_127_agreement_enabled)
+SELECT v.charge_version_id,
 concat_ws(':', e."FGAC_REGION_CODE", e."ID") as external_id,
 e."ABS_PERIOD_ST_DAY"::integer AS abstraction_period_start_day,
 e."ABS_PERIOD_ST_MONTH"::integer AS abstraction_period_start_month,
@@ -32,7 +32,7 @@ END)::water.charge_element_source AS source, (CASE e."ALSF_CODE"
   WHEN 'N' THEN 'non-chargeable'
 END)::water.charge_element_loss AS loss, pp.purpose_primary_id,
 ps.purpose_secondary_id,
-pu.purpose_use_id, e."FCTS_OVERRIDDEN"::boolean AS factors_overridden, NULLIF(e."BILLABLE_ANN_QTY", 'null')::numeric AS billable_annual_quantity, 
+pu.purpose_use_id, e."FCTS_OVERRIDDEN"::boolean AS factors_overridden, NULLIF(e."BILLABLE_ANN_QTY", 'null')::numeric AS billable_annual_quantity,
   case e."TIMELTD_ST_DATE"
     when 'null' then null
     else to_date(e."TIMELTD_ST_DATE", 'DD/MM/YYYY')
@@ -40,7 +40,7 @@ pu.purpose_use_id, e."FCTS_OVERRIDDEN"::boolean AS factors_overridden, NULLIF(e.
     when 'null' then null
     else to_date(e."TIMELTD_END_DATE", 'DD/MM/YYYY')
   end AS time_limited_end_date, NULLIF(e."DESCR", 'null') AS description, NOW() AS date_created,  NOW() AS date_updated,
-  case 
+  case
     when ncv.has_tpt_agreement and not e.has_tpt_agreement then false
     else true
   end as is_section_127_agreement_enabled
@@ -60,37 +60,37 @@ JOIN (
   -- is a S127 agreement on any of their elements
   select ncv.*,
     ncv2."FGAC_REGION_CODE" is not null as has_tpt_agreement
-    from import."NALD_CHG_VERSIONS" ncv 
+    from import."NALD_CHG_VERSIONS" ncv
     left join (
-      select distinct 
-        ncv."FGAC_REGION_CODE", 
-        ncv."AABL_ID", 
-        ncv."VERS_NO" 
+      select distinct
+        ncv."FGAC_REGION_CODE",
+        ncv."AABL_ID",
+        ncv."VERS_NO"
       from import."NALD_CHG_VERSIONS" ncv
       join import."NALD_CHG_ELEMENTS" nce on ncv."FGAC_REGION_CODE"=nce."FGAC_REGION_CODE" and ncv."AABL_ID"=nce."ACVR_AABL_ID" and nce."ACVR_VERS_NO"=ncv."VERS_NO"
       join import."NALD_CHG_AGRMNTS" nca on nce."FGAC_REGION_CODE"=nca."FGAC_REGION_CODE" and nce."ID"=nca."ACEL_ID" and nca."AFSA_CODE"='S127'
     ) ncv2 on ncv."FGAC_REGION_CODE"=ncv2."FGAC_REGION_CODE" and ncv."AABL_ID"=ncv2."AABL_ID" and ncv."VERS_NO"=ncv2."VERS_NO"
-) ncv on v.external_id=concat_ws(':', ncv."FGAC_REGION_CODE", ncv."AABL_ID", ncv."VERS_NO") 
+) ncv on v.external_id=concat_ws(':', ncv."FGAC_REGION_CODE", ncv."AABL_ID", ncv."VERS_NO")
 JOIN water.purposes_primary pp on e."APUR_APPR_CODE"=pp.legacy_id
 JOIN water.purposes_secondary ps on e."APUR_APSE_CODE"=ps.legacy_id
 JOIN water.purposes_uses pu on e."APUR_APUS_CODE"=pu.legacy_id
 ON CONFLICT (external_id) DO UPDATE SET
-charge_version_id=EXCLUDED.charge_version_id, 
+charge_version_id=EXCLUDED.charge_version_id,
 abstraction_period_start_day=EXCLUDED.abstraction_period_start_day,
 abstraction_period_start_month=EXCLUDED.abstraction_period_start_month,
 abstraction_period_end_day=EXCLUDED.abstraction_period_end_day,
 abstraction_period_end_month=EXCLUDED.abstraction_period_end_month,
 authorised_annual_quantity=EXCLUDED.authorised_annual_quantity,
 season=EXCLUDED.season, season_derived=EXCLUDED.season_derived,
-source=EXCLUDED.source, loss=EXCLUDED.loss, 
+source=EXCLUDED.source, loss=EXCLUDED.loss,
 purpose_primary_id=EXCLUDED.purpose_primary_id,
-purpose_secondary_id=EXCLUDED.purpose_secondary_id, 
+purpose_secondary_id=EXCLUDED.purpose_secondary_id,
 purpose_use_id=EXCLUDED.purpose_use_id,
 factors_overridden=EXCLUDED.factors_overridden,
 billable_annual_quantity=EXCLUDED.billable_annual_quantity,
 time_limited_start_date=EXCLUDED.time_limited_start_date,
 time_limited_end_date=EXCLUDED.time_limited_end_date,
-description=EXCLUDED.description, 
+description=EXCLUDED.description,
 date_updated=EXCLUDED.date_updated,
 is_section_127_agreement_enabled=EXCLUDED.is_section_127_agreement_enabled;`
 
@@ -103,39 +103,19 @@ WHERE charge_element_id IN (
   left join water.billing_transactions t on ce.charge_element_id=t.charge_element_id
   left join water.billing_volumes bv on bv.charge_element_id=ce.charge_element_id
   where cv.source='nald'
-    and nce."ID" is null 
+    and nce."ID" is null
     and t.billing_transaction_id is null
-    and bv.billing_volume_id is null 
+    and bv.billing_volume_id is null
 );`
-
-const insertChargeVersion = `
-insert into water.charge_versions
-(start_date, end_date, status, licence_ref, region_code, source, version_number, invoice_account_id, company_id, 
-  billed_upto_date, error, scheme, external_id, apportionment, change_reason_id, licence_id, date_created)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW())
-on conflict (external_id) do update set
-  start_date=EXCLUDED.start_date,
-  end_date=EXCLUDED.end_date,
-  status=EXCLUDED.status,
-  licence_ref=EXCLUDED.licence_ref,
-  region_code=EXCLUDED.region_code,
-  source=EXCLUDED.source,
-  version_number=EXCLUDED.version_number,
-  invoice_account_id=EXCLUDED.invoice_account_id,
-  company_id=EXCLUDED.company_id,
-  billed_upto_date=EXCLUDED.billed_upto_date,
-  error=EXCLUDED.error,
-  scheme=EXCLUDED.scheme,
-  apportionment=EXCLUDED.apportionment,
-  change_reason_id=EXCLUDED.change_reason_id,
-  date_updated=NOW();
-`
 
 const importChargeVersions = `INSERT INTO water.charge_versions (licence_ref, scheme, external_id, version_number, start_date, status, apportionment,
 error, end_date, billed_upto_date, region_code, date_created, date_updated, source, invoice_account_id, company_id, licence_id, change_reason_id)
 SELECT
   l."LIC_NO" AS licence_ref,
-  'alcs' AS scheme,
+CASE
+  WHEN cvm.start_date >= '2022-04-01'::date THEN 'sroc'
+  ELSE 'alcs'
+END AS scheme,
   cvm.external_id as external_id,
   cvm.version_number,
   cvm.start_date AS start_date,
@@ -164,7 +144,7 @@ END AS change_reason_id
 FROM water_import.charge_versions_metadata cvm
 LEFT JOIN (
   SELECT v.*, c.company_id, ia.invoice_account_id, concat_ws(':', v."FGAC_REGION_CODE", v."AABL_ID", v."VERS_NO") as external_id
-  FROM import."NALD_CHG_VERSIONS" v 
+  FROM import."NALD_CHG_VERSIONS" v
   JOIN crm_v2.invoice_accounts ia ON ia.invoice_account_number=v."AIIA_IAS_CUST_REF"
   JOIN import."NALD_LH_ACCS" lha ON v."AIIA_ALHA_ACC_NO"=lha."ACC_NO" AND v."FGAC_REGION_CODE"=lha."FGAC_REGION_CODE"
   JOIN crm_v2.companies c ON c.external_id=concat_ws(':', lha."FGAC_REGION_CODE", lha."ACON_APAR_ID")
@@ -197,7 +177,6 @@ DELETE FROM water.charge_versions WHERE charge_version_id IN (
 module.exports = {
   importChargeElements,
   cleanupChargeElements,
-  insertChargeVersion,
   importChargeVersions,
   cleanupChargeVersions
 }
