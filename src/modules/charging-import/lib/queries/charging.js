@@ -108,14 +108,14 @@ WHERE charge_element_id IN (
     and bv.billing_volume_id is null
 );`
 
+// This query is part of the one-off charge versions import job which was used to create the initial PRESROC charge
+// versions as part of billing going live in WRLS. It only has knowledge of PRESROC hence `alcs` is hardcoded as the
+// scheme. For more context check out the notes in src/modules/charging-import/jobs/charge-versions.js.
 const importChargeVersions = `INSERT INTO water.charge_versions (licence_ref, scheme, external_id, version_number, start_date, status, apportionment,
 error, end_date, billed_upto_date, region_code, date_created, date_updated, source, invoice_account_id, company_id, licence_id, change_reason_id)
 SELECT
   l."LIC_NO" AS licence_ref,
-CASE
-  WHEN cvm.start_date >= '2022-04-01'::date THEN 'sroc'
-  ELSE 'alcs'
-END AS scheme,
+  'alcs' AS scheme,
   cvm.external_id as external_id,
   cvm.version_number,
   cvm.start_date AS start_date,
@@ -152,6 +152,7 @@ LEFT JOIN (
 JOIN import."NALD_ABS_LICENCES" l ON split_part(cvm.external_id, ':', 1)=l."FGAC_REGION_CODE" and split_part(cvm.external_id, ':', 2)=l."ID"
 JOIN water.licences wl on wl.licence_ref = l."LIC_NO"
 JOIN water.change_reasons cr on cr.description='NALD gap'
+WHERE cvm.start_date < '2022-04-01'::date
 ON CONFLICT (external_id) DO UPDATE SET licence_ref=EXCLUDED.licence_ref,
 scheme=EXCLUDED.scheme,
 version_number=EXCLUDED.version_number, start_date=EXCLUDED.start_date,
