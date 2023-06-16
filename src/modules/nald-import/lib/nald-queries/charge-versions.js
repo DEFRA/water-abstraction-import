@@ -33,7 +33,7 @@ JOIN water.licences wl ON l."LIC_NO"=wl.licence_ref
 WHERE v."FGAC_REGION_CODE"=$1
 and v."AABL_ID"=$2
 and v."STATUS"<>'DRAFT'
-and to_date(v."EFF_ST_DATE", 'DD/MM/YYYY') < '2022-04-01'
+and to_date(v."EFF_ST_DATE", 'DD/MM/YYYY') < '2022-04-01'::date
 ORDER BY
   to_date(v."EFF_ST_DATE", 'DD/MM/YYYY'),
   v."VERS_NO"::integer;
