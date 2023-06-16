@@ -152,6 +152,7 @@ LEFT JOIN (
 JOIN import."NALD_ABS_LICENCES" l ON split_part(cvm.external_id, ':', 1)=l."FGAC_REGION_CODE" and split_part(cvm.external_id, ':', 2)=l."ID"
 JOIN water.licences wl on wl.licence_ref = l."LIC_NO"
 JOIN water.change_reasons cr on cr.description='NALD gap'
+WHERE cvm.start_date < '2022-04-01'::date
 ON CONFLICT (external_id) DO UPDATE SET licence_ref=EXCLUDED.licence_ref,
 scheme=EXCLUDED.scheme,
 version_number=EXCLUDED.version_number, start_date=EXCLUDED.start_date,
