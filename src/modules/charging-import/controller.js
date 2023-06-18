@@ -7,12 +7,11 @@ const chargeVersionsJob = require('./jobs/charge-versions')
  * water service tables from NALD import tables
  * @return {Promise}
  */
-const postImportChargingData = async (request, _h) => {
+const postImportChargingData = async (request, h) => {
+  await request.server.messageQueue.deleteQueue(chargeVersionsJob.jobName)
   await request.messageQueue.publish(chargeVersionsJob.createMessage())
 
-  return {
-    error: null
-  }
+  return h.response().code(204)
 }
 
 module.exports = {
