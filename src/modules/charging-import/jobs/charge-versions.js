@@ -40,7 +40,7 @@ const handler = async () => {
       await chargeVersionMetadataImportService.importChargeVersionMetadataForLicence(licenceData)
     }
 
-    queryLoader.loadQueries([
+    await queryLoader.loadQueries([
       chargingQueries.importChargeVersions,
       chargingQueries.importChargeElements,
       chargingQueries.cleanupChargeElements,

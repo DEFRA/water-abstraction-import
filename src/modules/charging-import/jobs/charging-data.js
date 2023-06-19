@@ -14,11 +14,11 @@ const jobName = 'import.charging-data'
 
 const createMessage = () => job.createMessage(jobName)
 
-const handler = () => {
+const handler = async () => {
   try {
     global.GlobalNotifier.omg('import.charging-data: started')
 
-    queryLoader.loadQueries([
+    await queryLoader.loadQueries([
       financialAgreementTypeQueries.importFinancialAgreementTypes,
       purposesQueries.importPrimaryPurposes,
       purposesQueries.importSecondaryPurposes,
@@ -28,6 +28,8 @@ const handler = () => {
       returnVersionQueries.importReturnRequirements,
       returnVersionQueries.importReturnRequirementPurposes
     ])
+
+    global.GlobalNotifier.omg('import.charging-data: finished')
   } catch (error) {
     global.GlobalNotifier.omfg('import.charging-data: errored', error)
     throw error
