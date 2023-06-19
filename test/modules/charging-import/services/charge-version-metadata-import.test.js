@@ -1,17 +1,24 @@
 'use strict'
 
-const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const sandbox = require('sinon').createSandbox()
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
 
-const chargeVersionMetadataImport = require('../../../../src/modules/nald-import/services/charge-version-metadata-import')
+// Test helpers
+const queries = {
+  charging: require('../../../../src/modules/charging-import/lib/queries/charge-versions'),
+  chargeVersionMetadata: require('../../../../src/modules/charging-import/lib/queries/charge-versions-metadata')
+}
+
+// Things we need to stub
 const { pool } = require('../../../../src/lib/connectors/db')
 
-const queries = {
-  charging: require('../../../../src/modules/nald-import/lib/nald-queries/charge-versions'),
-  chargeVersionMetadata: require('../../../../src/modules/nald-import/lib/nald-queries/charge-versions-metadata')
-}
+// Thing under test
+const chargeVersionMetadataImport = require('../../../../src/modules/charging-import/services/charge-version-metadata-import')
 
 const REGION_CODE = 1
 const LICENCE_ID = 'test-licence-id'
@@ -49,11 +56,11 @@ const licence = {
 
 experiment('modules/charging-import/services/charge-version-import.js', () => {
   beforeEach(async () => {
-    sandbox.stub(pool, 'query')
+    Sinon.stub(pool, 'query')
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
   })
 
   experiment('.importChargeVersions', () => {
