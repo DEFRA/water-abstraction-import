@@ -3,7 +3,7 @@
 const { test, experiment, beforeEach } = exports.lab = require('@hapi/lab').script()
 const { expect } = require('@hapi/code')
 
-const mapper = require('../../../../src/modules/nald-import/mappers/charge-versions')
+const mapper = require('../../../../src/modules/charging-import/mappers/charge-versions')
 
 const NALD_GAP_ID = 'nald-gap-id'
 const STATUS_SUPERSEDED = 'superseded'
@@ -19,7 +19,7 @@ const getLicence = (overrides = {}) => ({
   end_date: overrides.end_date || null
 })
 
-experiment('modules/nald-import/mappers/charge-versions.js', () => {
+experiment('modules/charging-import/mappers/charge-versions.js', () => {
   let result
 
   experiment('.mapNALDChargeVersionsToWRLS', () => {

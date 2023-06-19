@@ -1,13 +1,11 @@
 'use strict'
 
-const mapper = require('../mappers/charge-versions')
-
-const queries = {
-  charging: require('../lib/nald-queries/charge-versions'),
-  chargeVersionMetatdata: require('../lib/nald-queries/charge-versions-metadata')
-}
-
+const mapper = require('../mappers/charge-versions.js')
 const { pool } = require('../../../lib/connectors/db')
+const queries = {
+  chargeVersions: require('../lib/queries/charge-versions.js'),
+  chargeVersionMetatdata: require('../lib/queries/charge-versions-metadata.js')
+}
 
 /**
  * Gets charge versions for licence from DB
@@ -16,7 +14,7 @@ const { pool } = require('../../../lib/connectors/db')
  * @return {Promise<Object>}
  */
 const getNonDraftChargeVersions = (regionCode, licenceId) =>
-  pool.query(queries.charging.getNonDraftChargeVersionsForLicence, [regionCode, licenceId])
+  pool.query(queries.chargeVersions.getNonDraftChargeVersionsForLicence, [regionCode, licenceId])
 
 /**
  * Inserts a single charge version record into the water.charge_versions DB table
@@ -65,6 +63,11 @@ const persistChargeVersionMetadata = async wrlsChargeVersions => {
 const importChargeVersionMetadataForLicence = async licence => {
   // Note: charge versions are already sorted by start date, version number from the DB query
   const { rows: chargeVersions } = await getNonDraftChargeVersions(licence.FGAC_REGION_CODE, licence.ID)
+
+  // Stop here if there are no NALD charge versions (NALD_CHG_VERSIONS)
+  if (!chargeVersions || chargeVersions.length === 0) {
+    return
+  }
 
   // Map to WRLS charge versions
   const wrlsChargeVersions = mapper.mapNALDChargeVersionsToWRLS(licence, chargeVersions)
