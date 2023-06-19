@@ -8,7 +8,7 @@ const chargeVersionsJob = require('./jobs/charge-versions')
  * @return {Promise}
  */
 const postImportChargingData = async (request, h) => {
-  await request.server.messageQueue.deleteQueue(chargeVersionsJob.jobName)
+  await request.messageQueue.deleteQueue(chargeVersionsJob.jobName)
   await request.messageQueue.publish(chargeVersionsJob.createMessage())
 
   return h.response().code(204)
