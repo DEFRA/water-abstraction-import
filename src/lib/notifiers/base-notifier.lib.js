@@ -17,7 +17,7 @@ const { airbrake: AirbrakeConfig } = require('../../../config.js')
  * Errbit via {@link https://github.com/airbrake/airbrake-js|airbrake-js} available in the service.
  *
  * Most functionality is maintained in this `BaseNotifierLib` with the expectation that classes will extend it for their
- * particular scenario, for example, the `RequestNotifierLib` handles including the request ID in its output.
+ * particular scenario, for example, the `RequestNotifierLib` adds the request ID to the log data and Airbrake session.
  *
  * > ***So, `omg()` and `omfg()`. What's that all about!?***
  * >
@@ -41,16 +41,19 @@ class BaseNotifierLib {
    * The message will be added as an `INFO` level log message.
    *
    * @param {string} message Message to add to the log (INFO)
-   * @param {Object} data Any params or values, for example, a bill run ID to be included with the log message
+   * @param {Object} [data={}] An object containing any values to be logged, for example, a bill run ID to be included with
+   *  the log message. Defaults to an empty object
    */
   omg (message, data = {}) {
-    this._logger.info(this._formatLogPacket(message, data))
+    this._logger.info(this._formatLogPacket(data), message)
   }
 
   /**
    * Use to add an 'error' message to the log and send a notification to Errbit
    *
-   * Intended to be used when we want to record an error both in the logs and in Errbit.
+   * Intended to be used when we want to record an error both in the logs and in Errbit. You don't have to provide
+   * an error (you may just want to log an event in Errbit). But to help with grouping in Errbit and to keep things
+   * consistent it will generate a new Error using the provided message.
    *
    * ## Notifications to Errbit
    *
@@ -72,22 +75,36 @@ class BaseNotifierLib {
    * ```
    *
    * @param {string} message Message to add to the log (ERROR)
-   * @param {Object} data Any params or values, for example, a bill run ID to be included with the log message and sent
-   * with the notification to Errbit
+   * @param {Object} [data={}] An object containing any values to be logged and sent in the notification to Errbit, for
+   *  example, a bill run ID. Defaults to an empty object
+   * @param {Error} [error=null] An instance of the error to be logged and sent to Errbit. If no error is provided one
+   *  will be created using `message` as the error message
    */
-  omfg (message, data = {}) {
-    this._logger.error(this._formatLogPacket(message, data))
+  omfg (message, data = {}, error = null) {
+    // This deals with anyone calling omfg() with `omfg('It broke', null, error)` which would cause things to break
+    if (!data) {
+      data = {}
+    }
 
-    this._notifier.notify(this._formatNotifyPacket(message, data))
-      .then(notice => {
+    // To keep logging consistent and to help grouping in Errbit we always work with an error. If one is not provided
+    // (which is fine!) we create one using the message as the error message
+    if (!(error instanceof Error)) {
+      error = new Error(message)
+    }
+
+    this._logger.error(this._formatLogPacket(data, error), message)
+
+    this._notifier.notify(this._formatNotifyPacket(data, error, message))
+      // This section is a 'just in case' anything goes wrong when trying to send the notification to Errbit. It will
+      // either fail (cannot connect) or blow up entirely. If it does we log the error directly (no calls to the
+      // formatter)
+      .then((notice) => {
         if (!notice.id) {
-          this._logger.error(
-            this._formatLogPacket(`${this.constructor.name} - Airbrake failed`, { error: notice.error })
-          )
+          this._logger.error(notice.error, `${this.constructor.name} - Airbrake failed`)
         }
       })
       .catch(err => {
-        this._logger.error(this._formatLogPacket(`${this.constructor.name} - Airbrake errored`, { error: err }))
+        this._logger.error(err, `${this.constructor.name} - Airbrake errored`)
       })
   }
 
@@ -107,21 +124,51 @@ class BaseNotifierLib {
   }
 
   /**
-   * Used to format the 'packet' of information sent to the log
+   * Used to format the 'mergingObject' passed to pino to be included in the log
    *
-   * **Must be overridden by extending class**
+   * This is a default implementation which can be overridden by notifiers which need to inject additional information.
+   *
+   * If no error is specified then it simply returns a copy of the data object passed in. If one is specified we add
+   * the error to copied data object as `err:`. This mimics what pino does if an error is provided as the
+   * `mergingObject` param to any log method. It wraps it in an object containing a property `err:`. They reason it
+   * provides a "unified error handling flow."
+   *
+   * By doing it this way we can _still_ pass a `data` arg to `omfg()` and include those values in our log entry along
+   * with the error.
    */
-  _formatLogPacket (_message, _data) {
-    throw new Error("Extending class must implement '_formatLogPacket()'")
+  _formatLogPacket (data, error) {
+    const packet = {
+      ...data
+    }
+
+    if (error instanceof Error) {
+      packet.err = error
+    }
+
+    return packet
   }
 
   /**
    * Used to format the 'packet' of information sent to Errbit
    *
-   * **Must be overridden by extending class**
+   * This is a default implementation which can be overridden by notifiers which need to inject additional values.
+   *
+   * Errbit works best by recording and grouping error signatures. It also ensures that any custom errors will be
+   * handled by Errbit correctly. Passing the error in the `session:` property can cause Errbit to fail when rendering
+   * errors notified in that way. This is why we must set the `error:` property.
+   *
+   * But this means Airbrake's `message:` property becomes ignored. Errbit will set the issue title using the error's
+   * `message` instead. In order to see our message when a 'proper' error is passed in we include our `message` as a
+   * property of `session:`.
    */
-  _formatNotifyPacket (_message, _data) {
-    throw new Error("Extending class must implement '_formatNotifyPacket()'")
+  _formatNotifyPacket (data, error, message) {
+    return {
+      error,
+      session: {
+        ...data,
+        message
+      }
+    }
   }
 
   /**

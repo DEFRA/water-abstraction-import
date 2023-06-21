@@ -43,38 +43,4 @@ experiment('GlobalNotifierLib class', () => {
       })
     })
   })
-
-  experiment('when a log entry is made', () => {
-    const id = '1234567890'
-    const message = 'say what test'
-
-    test('formats it as expected', () => {
-      const expectedArgs = {
-        message,
-        id
-      }
-      const testNotifier = new GlobalNotifierLib(pinoFake, airbrakeFake)
-      testNotifier.omg(message, { id })
-
-      expect(pinoFake.info.calledOnceWith(expectedArgs)).to.be.true()
-    })
-  })
-
-  experiment('when an airbrake notification is sent', () => {
-    const message = 'hell no test'
-    const data = { offTheChart: true }
-
-    test('formats it as expected', () => {
-      const expectedArgs = {
-        message,
-        session: {
-          ...data
-        }
-      }
-      const testNotifier = new GlobalNotifierLib(pinoFake, airbrakeFake)
-      testNotifier.omfg(message, data)
-
-      expect(airbrakeFake.notify.calledOnceWith(expectedArgs)).to.be.true()
-    })
-  })
 })
