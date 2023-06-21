@@ -23,20 +23,6 @@ class GlobalNotifierLib extends BaseNotifierLib {
 
     super(logger, notifier)
   }
-
-  _formatLogPacket (message, data) {
-    return {
-      message,
-      ...data
-    }
-  }
-
-  _formatNotifyPacket (message, data) {
-    return {
-      message,
-      session: data
-    }
-  }
 }
 
 module.exports = GlobalNotifierLib
