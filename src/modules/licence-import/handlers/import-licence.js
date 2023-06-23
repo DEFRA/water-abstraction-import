@@ -4,6 +4,8 @@ const extract = require('../extract')
 const load = require('../load')
 const transform = require('../transform')
 
+const config = require('../../../../config.js')
+
 module.exports = async (job) => {
   try {
     // Extract data
@@ -14,6 +16,10 @@ module.exports = async (job) => {
 
     // Load licence to DB
     await load.licence.loadLicence(mapped)
+
+    if (config.log.level === 'debug') {
+      global.GlobalNotifier.omg(`import.licence: ${job.data.licenceNumber}`)
+    }
   } catch (error) {
     global.GlobalNotifier.omfg('import.licence: errored', error)
     throw error
