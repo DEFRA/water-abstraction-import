@@ -10,7 +10,6 @@ const { expect } = Code
 
 // Things we need to stub
 const applicationStateService = require('../../../../src/lib/services/application-state-service.js')
-const config = require('../../../../config')
 const extractService = require('../../../../src/modules/nald-import/services/extract-service.js')
 const s3Service = require('../../../../src/modules/nald-import/services/s3-service.js')
 
@@ -25,7 +24,6 @@ experiment('modules/nald-import/jobs/s3-download', () => {
     Sinon.stub(applicationStateService, 'get')
     Sinon.stub(applicationStateService, 'save')
     Sinon.stub(s3Service, 'getEtag').resolves('test-etag')
-    Sinon.stub(config.import.nald, 'isEtagCheckEnabled').value(true)
 
     // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
     // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
@@ -47,6 +45,9 @@ experiment('modules/nald-import/jobs/s3-download', () => {
         options: {
           expireIn: '1 hours',
           singletonKey: 'nald-import.s3-download'
+        },
+        data: {
+          checkEtag: true
         }
       })
     })
@@ -54,14 +55,13 @@ experiment('modules/nald-import/jobs/s3-download', () => {
 
   experiment('.handler', () => {
     let result
-
-    const job = {
-      name: 'nald-import.s3-download'
-    }
+    let job
 
     experiment('when there is no import state stored', () => {
       beforeEach(async () => {
         applicationStateService.get.resolves({})
+
+        job = s3Download.createMessage()
         result = await s3Download.handler(job)
       })
 
@@ -97,6 +97,8 @@ experiment('modules/nald-import/jobs/s3-download', () => {
           etag: 'test-etag',
           isDownloaded: false
         })
+
+        job = s3Download.createMessage()
         result = await s3Download.handler(job)
       })
 
@@ -132,6 +134,8 @@ experiment('modules/nald-import/jobs/s3-download', () => {
           etag: 'some-old-etag',
           isDownloaded: true
         })
+
+        job = s3Download.createMessage()
         result = await s3Download.handler(job)
       })
 
@@ -167,6 +171,8 @@ experiment('modules/nald-import/jobs/s3-download', () => {
           etag: 'test-etag',
           isDownloaded: true
         })
+
+        job = s3Download.createMessage()
         result = await s3Download.handler(job)
       })
 
@@ -187,13 +193,14 @@ experiment('modules/nald-import/jobs/s3-download', () => {
       })
     })
 
-    experiment('when the config disables etag check and the etag has not changed', () => {
+    experiment('when the job overrides the etag check and the etag has not changed', () => {
       beforeEach(async () => {
-        Sinon.stub(config.import.nald, 'isEtagCheckEnabled').value(false)
         applicationStateService.get.resolves({
           etag: 'test-etag',
           isDownloaded: true
         })
+
+        job = s3Download.createMessage(false)
         result = await s3Download.handler(job)
       })
 
@@ -211,6 +218,8 @@ experiment('modules/nald-import/jobs/s3-download', () => {
 
       beforeEach(async () => {
         s3Service.getEtag.throws(err)
+
+        job = s3Download.createMessage()
       })
 
       test('logs an error message', async () => {
