@@ -81,7 +81,6 @@ module.exports = {
 
   import: {
     nald: {
-      isEtagCheckEnabled: (process.env.ENABLE_NALD_ETAG_CHECK === 'true') || true,
       zipPassword: process.env.NALD_ZIP_PASSWORD,
       path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release',
       overwriteReturns: false, // Set to false as this is highly disruptive

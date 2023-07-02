@@ -5,38 +5,36 @@ const constants = require('../lib/constants')
 const extractService = require('../services/extract-service')
 const s3Service = require('../services/s3-service')
 
-const config = require('../../../../config')
-
 const JOB_NAME = 'nald-import.s3-download'
 
-const createMessage = () => ({
+const createMessage = (checkEtag = true) => ({
   name: JOB_NAME,
   options: {
     expireIn: '1 hours',
     singletonKey: JOB_NAME
+  },
+  data: {
+    checkEtag
   }
 })
 
-/**
- * Checks whether the file etag has changed
- * If the check is disabled via the config file (in order to force import) this always returns true
- * @param {String} etag
- * @param {Object} state
- * @return {Boolean}
- */
-const isNewEtag = (etag, state) => {
-  const isEtagCheckEnabled = config?.import?.nald?.isEtagCheckEnabled ?? true
-  if (isEtagCheckEnabled) {
-    return etag !== state.etag
+function _isRequired (etag, state, checkEtag) {
+  if (!state.isDownloaded) {
+    return true
   }
-  return true
+
+  if (!checkEtag) {
+    return true
+  }
+
+  return etag !== state.etag
 }
 
 /**
  * Gets status of file in S3 bucket and current application state
  * @return {Promise<Object>}
  */
-const getStatus = async () => {
+const getStatus = async (checkEtag) => {
   const etag = await s3Service.getEtag()
   let state
 
@@ -49,15 +47,15 @@ const getStatus = async () => {
   return {
     etag,
     state,
-    isRequired: !state.isDownloaded || isNewEtag(etag, state)
+    isRequired: _isRequired(etag, state, checkEtag)
   }
 }
 
-const handler = async () => {
+const handler = async (job) => {
   try {
     global.GlobalNotifier.omg('nald-import.s3-download: started')
 
-    const status = await getStatus()
+    const status = await getStatus(job.data.checkEtag)
 
     if (status.isRequired) {
       await applicationStateService.save(constants.APPLICATION_STATE_KEY, { etag: status.etag, isDownloaded: false })
