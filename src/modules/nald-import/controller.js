@@ -119,7 +119,7 @@ const postImportLicences = async (request, h) => {
   const message = s3DownloadJob.createMessage(false)
 
   try {
-    await request.server.messageQueue.deleteQueue(s3DownloadJob.jobName)
+    await request.server.messageQueue.deleteQueue(s3DownloadJob.name)
     await request.server.messageQueue.publish(message)
 
     return h.response().code(202)
