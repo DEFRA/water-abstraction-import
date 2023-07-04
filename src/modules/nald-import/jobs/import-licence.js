@@ -1,6 +1,5 @@
 'use strict'
 
-const assertImportTablesExist = require('../lib/assert-import-tables-exist')
 const licenceLoader = require('../load')
 
 const JOB_NAME = 'nald-import.import-licence'
@@ -58,8 +57,6 @@ const handler = async (job) => {
     if (job.data.jobNumber === 1) {
       global.GlobalNotifier.omg('nald-import.import-licence: started', { numberOfLicences: job.data.numberOfLicences })
     }
-
-    await assertImportTablesExist.assertImportTablesExist()
 
     // Import the licence
     await licenceLoader.load(job.data.licenceNumber)

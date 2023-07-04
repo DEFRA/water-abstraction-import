@@ -10,7 +10,6 @@ const { expect } = Code
 
 // Things we need to stub
 const licenceLoader = require('../../../../src/modules/nald-import/load')
-const assertImportTablesExist = require('../../../../src/modules/nald-import/lib/assert-import-tables-exist')
 
 // Thing under test
 const importLicence = require('../../../../src/modules/nald-import/jobs/import-licence')
@@ -20,7 +19,6 @@ experiment('modules/nald-import/jobs/import-licence', () => {
 
   beforeEach(async () => {
     Sinon.stub(licenceLoader, 'load')
-    Sinon.stub(assertImportTablesExist, 'assertImportTablesExist')
 
     // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
     // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
@@ -79,12 +77,6 @@ experiment('modules/nald-import/jobs/import-licence', () => {
           expect(notifierStub.omg.called).to.be.true()
         })
 
-        test('asserts that the import tables exist', async () => {
-          await importLicence.handler(job)
-
-          expect(assertImportTablesExist.assertImportTablesExist.called).to.be.true()
-        })
-
         test('loads the requested licence', async () => {
           await importLicence.handler(job)
 
@@ -103,12 +95,6 @@ experiment('modules/nald-import/jobs/import-licence', () => {
           await importLicence.handler(job)
 
           expect(notifierStub.omg.called).to.be.false()
-        })
-
-        test('asserts that the import tables exist', async () => {
-          await importLicence.handler(job)
-
-          expect(assertImportTablesExist.assertImportTablesExist.called).to.be.true()
         })
 
         test('loads the requested licence', async () => {
@@ -134,12 +120,6 @@ experiment('modules/nald-import/jobs/import-licence', () => {
           expect(notifierStub.omg.called).to.be.true()
         })
 
-        test('asserts that the import tables exist', async () => {
-          await importLicence.handler(job)
-
-          expect(assertImportTablesExist.assertImportTablesExist.called).to.be.true()
-        })
-
         test('loads the requested licence', async () => {
           await importLicence.handler(job)
 
@@ -157,7 +137,8 @@ experiment('modules/nald-import/jobs/import-licence', () => {
       }
 
       beforeEach(async () => {
-        assertImportTablesExist.assertImportTablesExist.throws(err)
+        licenceLoader.load.throws(err)
+        // assertImportTablesExist.assertImportTablesExist.throws(err)
       })
 
       test('logs an error message', async () => {
