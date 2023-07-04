@@ -46,11 +46,12 @@ experiment('modules/nald-import/jobs/import-licence', () => {
 
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const job = importLicence.createMessage('test-licence-number')
+      const data = { licenceNumber: 'test-licence-number', jobNumber: 1, numberOfLicences: 1 }
+      const job = importLicence.createMessage(data)
 
       expect(job).to.equal({
         data: {
-          licenceNumber: 'test-licence-number'
+          ...data
         },
         name: 'nald-import.import-licence',
         options: { singletonKey: 'test-licence-number' }
@@ -60,27 +61,90 @@ experiment('modules/nald-import/jobs/import-licence', () => {
 
   experiment('.handler', () => {
     experiment('when the licence import was successful', () => {
-      const job = {
-        name: 'nald-import.import-licence',
-        data: {
-          licenceNumber: 'test-licence-number'
-        }
-      }
+      let job
 
-      beforeEach(async () => {
-        await importLicence.handler(job)
+      experiment('and this is the first licence to be imported', () => {
+        beforeEach(async () => {
+          job = {
+            data: { licenceNumber: 'test-licence-number', jobNumber: 1, numberOfLicences: 10 }
+          }
+        })
+
+        test("a 'started' message is logged", async () => {
+          await importLicence.handler(job)
+
+          const [message] = notifierStub.omg.lastCall.args
+          expect(message).to.equal('nald-import.import-licence: started')
+
+          expect(notifierStub.omg.called).to.be.true()
+        })
+
+        test('asserts that the import tables exist', async () => {
+          await importLicence.handler(job)
+
+          expect(assertImportTablesExist.assertImportTablesExist.called).to.be.true()
+        })
+
+        test('loads the requested licence', async () => {
+          await importLicence.handler(job)
+
+          expect(licenceLoader.load.calledWith('test-licence-number')).to.be.true()
+        })
       })
 
-      test('a message is NOT logged', async () => {
-        expect(notifierStub.omg.called).to.be.false()
+      experiment('and this is one of a number of licences to be imported', () => {
+        beforeEach(async () => {
+          job = {
+            data: { licenceNumber: 'test-licence-number', jobNumber: 2, numberOfLicences: 10 }
+          }
+        })
+
+        test('a message is NOT logged', async () => {
+          await importLicence.handler(job)
+
+          expect(notifierStub.omg.called).to.be.false()
+        })
+
+        test('asserts that the import tables exist', async () => {
+          await importLicence.handler(job)
+
+          expect(assertImportTablesExist.assertImportTablesExist.called).to.be.true()
+        })
+
+        test('loads the requested licence', async () => {
+          await importLicence.handler(job)
+
+          expect(licenceLoader.load.calledWith('test-licence-number')).to.be.true()
+        })
       })
 
-      test('asserts that the import tables exist', async () => {
-        expect(assertImportTablesExist.assertImportTablesExist.called).to.be.true()
-      })
+      experiment('and this is the last licence to be imported', () => {
+        beforeEach(async () => {
+          job = {
+            data: { licenceNumber: 'test-licence-number', jobNumber: 10, numberOfLicences: 10 }
+          }
+        })
 
-      test('loads the requested licence', async () => {
-        expect(licenceLoader.load.calledWith('test-licence-number')).to.be.true()
+        test("a 'finished' message is logged", async () => {
+          await importLicence.handler(job)
+
+          const [message] = notifierStub.omg.lastCall.args
+          expect(message).to.equal('nald-import.import-licence: finished')
+
+          expect(notifierStub.omg.called).to.be.true()
+        })
+
+        test('asserts that the import tables exist', async () => {
+          await importLicence.handler(job)
+
+          expect(assertImportTablesExist.assertImportTablesExist.called).to.be.true()
+        })
+
+        test('loads the requested licence', async () => {
+          await importLicence.handler(job)
+
+          expect(licenceLoader.load.calledWith('test-licence-number')).to.be.true()
+        })
       })
     })
 
@@ -89,9 +153,7 @@ experiment('modules/nald-import/jobs/import-licence', () => {
 
       const job = {
         name: 'nald-import.import-licence',
-        data: {
-          licenceNumber: 'test-licence-number'
-        }
+        data: { licenceNumber: 'test-licence-number', jobNumber: 2, numberOfLicences: 10 }
       }
 
       beforeEach(async () => {
@@ -103,6 +165,7 @@ experiment('modules/nald-import/jobs/import-licence', () => {
         await expect(func()).to.reject()
         expect(notifierStub.omfg.calledWith(
           'nald-import.import-licence: errored',
+          job.data,
           err
         )).to.be.true()
       })

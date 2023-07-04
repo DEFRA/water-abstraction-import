@@ -93,11 +93,16 @@ const getReturnsLogLines = async (request, h) => {
 
 const postImportLicence = async (request, h) => {
   const { licenceNumber } = request.payload
-  const message = importLicenceJob.createMessage(licenceNumber)
+  const data = {
+    licenceNumber,
+    jobNumber: 1,
+    numberOfLicences: 1
+  }
+  const message = importLicenceJob.createMessage(data)
 
   try {
     await request.server.messageQueue.publish(message)
-    return h.response(message).code(202)
+    return h.response().code(202)
   } catch (err) {
     throw Boom.boomify(err)
   }
