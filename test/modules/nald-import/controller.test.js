@@ -52,16 +52,7 @@ experiment('modules/nald-import/controller', () => {
         const [message] = request.server.messageQueue.publish.lastCall.args
         expect(message).to.equal({
           name: 'nald-import.import-licence',
-          data: { licenceNumber: 'test-licence' },
-          options: { singletonKey: 'test-licence' }
-        })
-      })
-
-      test('the message is returned in the response', async () => {
-        const [message] = h.response.lastCall.args
-        expect(message).to.equal({
-          name: 'nald-import.import-licence',
-          data: { licenceNumber: 'test-licence' },
+          data: { licenceNumber: 'test-licence', jobNumber: 1, numberOfLicences: 1 },
           options: { singletonKey: 'test-licence' }
         })
       })

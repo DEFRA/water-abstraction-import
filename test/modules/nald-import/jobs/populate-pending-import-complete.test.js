@@ -62,12 +62,12 @@ experiment('modules/nald-import/jobs/populate-pending-import-complete', () => {
 
       test('a job is published to import the first licence', async () => {
         const [job] = messageQueue.publish.firstCall.args
-        expect(job.data).to.equal({ licenceNumber: 'licence-1' })
+        expect(job.data).to.equal({ licenceNumber: 'licence-1', jobNumber: 1, numberOfLicences: 2 })
       })
 
       test('a job is published to import the second licence', async () => {
         const [job] = messageQueue.publish.lastCall.args
-        expect(job.data).to.equal({ licenceNumber: 'licence-2' })
+        expect(job.data).to.equal({ licenceNumber: 'licence-2', jobNumber: 2, numberOfLicences: 2 })
       })
     })
 
