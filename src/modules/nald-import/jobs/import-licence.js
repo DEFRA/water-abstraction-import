@@ -26,22 +26,25 @@ const options = {
  *
  * @returns {Object} the message object used by the handler to process the job
  */
-const createMessage = (data) => ({
-  name: JOB_NAME,
-  data,
-  options: {
-    // Using the licence number as the singleton ensures PGBoss only adds one import licence job for this licence to the
-    // queue. If anything else tries to add a job with the same licence number PGBoss will ignore it
-    singletonKey: data.licenceNumber
+function createMessage (data) {
+  return {
+    name: JOB_NAME,
+    data,
+    options: {
+      // Using the licence number as the singleton ensures PGBoss only adds one import licence job for this licence to the
+      // queue. If anything else tries to add a job with the same licence number PGBoss will ignore it
+      singletonKey: data.licenceNumber
+    }
   }
-})
+}
 
 /**
  * Imports a single licence
+ *
  * @param {Object} job
  * @param {String} job.data.licenceNumber
  */
-const handler = async (job) => {
+async function handler (job) {
   try {
     // Most 'jobs' are single operation things in the NALD import process, for example, deal with the NALD zip file or
     // delete any removed documents. However, there are typically 71K instances of this job queued up as part of the
@@ -73,6 +76,6 @@ const handler = async (job) => {
 module.exports = {
   createMessage,
   handler,
-  jobName: JOB_NAME,
+  name: JOB_NAME,
   options
 }

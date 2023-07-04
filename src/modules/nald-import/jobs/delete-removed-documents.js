@@ -1,17 +1,21 @@
 'use strict'
 
-const JOB_NAME = 'nald-import.delete-removed-documents'
 const importService = require('../../../lib/services/import')
+const populatePendingImportJob = require('./populate-pending-import')
 
-const createMessage = () => ({
-  name: JOB_NAME,
-  options: {
-    expireIn: '1 hours',
-    singletonKey: JOB_NAME
+const JOB_NAME = 'nald-import.delete-removed-documents'
+
+function createMessage () {
+  return {
+    name: JOB_NAME,
+    options: {
+      expireIn: '1 hours',
+      singletonKey: JOB_NAME
+    }
   }
-})
+}
 
-const handler = async () => {
+async function handler () {
   try {
     global.GlobalNotifier.omg('nald-import.delete-removed-documents: started')
 
@@ -22,8 +26,18 @@ const handler = async () => {
   }
 }
 
+async function onComplete (messageQueue, job) {
+  // Publish a new job to populate pending import table but only if delete removed documents was successful
+  if (!job.failed) {
+    await messageQueue.publish(populatePendingImportJob.createMessage())
+  }
+
+  global.GlobalNotifier.omg('nald-import.delete-removed-documents: finished')
+}
+
 module.exports = {
   createMessage,
   handler,
-  jobName: JOB_NAME
+  onComplete,
+  name: JOB_NAME
 }
