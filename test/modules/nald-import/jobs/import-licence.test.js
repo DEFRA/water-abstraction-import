@@ -138,7 +138,6 @@ experiment('modules/nald-import/jobs/import-licence', () => {
 
       beforeEach(async () => {
         licenceLoader.load.throws(err)
-        // assertImportTablesExist.assertImportTablesExist.throws(err)
       })
 
       test('logs an error message', async () => {
