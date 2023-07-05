@@ -34,8 +34,9 @@ experiment('modules/nald-import/jobs/delete-removed-documents', () => {
 
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const job = DeleteRemovedDocumentsJob.createMessage()
-      expect(job).to.equal({
+      const message = DeleteRemovedDocumentsJob.createMessage()
+
+      expect(message).to.equal({
         name: 'nald-import.delete-removed-documents',
         options: {
           expireIn: '1 hours',
@@ -47,20 +48,17 @@ experiment('modules/nald-import/jobs/delete-removed-documents', () => {
 
   experiment('.handler', () => {
     experiment('when the job is successful', () => {
-      const job = {
-        name: 'nald-import.delete-removed-documents'
-      }
-
-      beforeEach(async () => {
-        await DeleteRemovedDocumentsJob.handler(job)
-      })
-
       test('a message is logged', async () => {
+        await DeleteRemovedDocumentsJob.handler()
+
         const [message] = notifierStub.omg.lastCall.args
+
         expect(message).to.equal('nald-import.delete-removed-documents: started')
       })
 
       test('deletes the removed documents', async () => {
+        await DeleteRemovedDocumentsJob.handler()
+
         expect(importService.deleteRemovedDocuments.called).to.equal(true)
       })
     })
@@ -68,26 +66,84 @@ experiment('modules/nald-import/jobs/delete-removed-documents', () => {
     experiment('when the job fails', () => {
       const err = new Error('Oops!')
 
-      const job = {
-        name: 'nald-import.delete-removed-documents'
-      }
-
       beforeEach(async () => {
         importService.deleteRemovedDocuments.throws(err)
       })
 
       test('logs an error message', async () => {
-        const func = () => DeleteRemovedDocumentsJob.handler(job)
+        const func = () => DeleteRemovedDocumentsJob.handler()
         await expect(func()).to.reject()
+
         expect(notifierStub.omfg.calledWith(
           'nald-import.delete-removed-documents: errored', err
         )).to.equal(true)
       })
 
       test('rethrows the error', async () => {
-        const func = () => DeleteRemovedDocumentsJob.handler(job)
+        const func = () => DeleteRemovedDocumentsJob.handler()
         const err = await expect(func()).to.reject()
+
         expect(err.message).to.equal('Oops!')
+      })
+    })
+  })
+
+  experiment('.onComplete', () => {
+    let job
+    let messageQueue
+
+    beforeEach(async () => {
+      messageQueue = {
+        publish: Sinon.stub()
+      }
+    })
+
+    experiment('when the job succeeds', () => {
+      beforeEach(async () => {
+        job = { failed: false }
+      })
+
+      test('a message is logged', async () => {
+        await DeleteRemovedDocumentsJob.onComplete(messageQueue, job)
+
+        const [message] = notifierStub.omg.lastCall.args
+
+        expect(message).to.equal('nald-import.delete-removed-documents: finished')
+      })
+
+      test('the populate pending imports job is published to the queue', async () => {
+        await DeleteRemovedDocumentsJob.onComplete(messageQueue, job)
+
+        const jobMessage = messageQueue.publish.lastCall.args[0]
+
+        expect(jobMessage.name).to.equal('nald-import.populate-pending-import')
+      })
+
+      experiment('but an error is thrown', () => {
+        const err = new Error('oops')
+
+        beforeEach(async () => {
+          messageQueue.publish.rejects(err)
+        })
+
+        test('rethrows the error', async () => {
+          const func = () => DeleteRemovedDocumentsJob.onComplete(messageQueue, job)
+          const error = await expect(func()).to.reject()
+
+          expect(error).to.equal(error)
+        })
+      })
+    })
+
+    experiment('when the job fails', () => {
+      beforeEach(async () => {
+        job = { failed: true }
+      })
+
+      test('no further jobs are published', async () => {
+        await DeleteRemovedDocumentsJob.onComplete(messageQueue, job)
+
+        expect(messageQueue.publish.called).to.be.false()
       })
     })
   })
