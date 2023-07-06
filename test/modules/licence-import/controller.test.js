@@ -8,122 +8,148 @@ const Sinon = require('sinon')
 const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
 const { expect } = Code
 
-// Test helpers
-const jobs = require('../../../src/modules/licence-import/jobs')
-
 // Thing under test
 const controller = require('../../../src/modules/licence-import/controller.js')
 
-const createRequest = () => ({
-  query: {},
-  messageQueue: {
-    publish: Sinon.stub().resolves()
-  }
-})
-
 experiment('modules/licence-import/controller.js', () => {
+  let code
   let h
+  let request
 
-  experiment('.postImport', () => {
-    let request, response
-
-    beforeEach(async () => {
-      h = {
-        response: Sinon.stub().returnsThis(),
-        code: Sinon.stub()
-      }
-    })
-
-    afterEach(async () => {
-      Sinon.restore()
-    })
-
-    experiment('when there are no errors', () => {
-      beforeEach(async () => {
-        request = createRequest()
-        response = await controller.postImport(request, h)
+  beforeEach(() => {
+    code = Sinon.spy()
+    h = {
+      response: Sinon.stub().returns({
+        code
       })
+    }
 
-      test('an "import delete documents" job is published', async () => {
-        expect(request.messageQueue.publish.callCount).to.equal(1)
-        const [job] = request.messageQueue.publish.lastCall.args
-        expect(job.name).to.equal(jobs.DELETE_DOCUMENTS_JOB)
-      })
-
-      test('a success response is returned', async () => {
-        expect(h.response.calledWith({ error: null })).to.be.true()
-      })
-
-      test('a 202 http status code is returned', async () => {
-        expect(h.code.calledWith(202)).to.be.true()
-      })
-    })
-
-    experiment('when there is an error', () => {
-      beforeEach(async () => {
-        request = createRequest()
-        request.messageQueue.publish.rejects()
-        response = await controller.postImport(request, h)
-      })
-
-      test('a Boom 500 error is returned', async () => {
-        expect(response.isBoom).to.equal(true)
-        expect(response.output.statusCode).to.equal(500)
-      })
-    })
+    request = {
+      server: {
+        messageQueue: {
+          deleteQueue: Sinon.stub().resolves(),
+          publish: Sinon.stub().resolves()
+        }
+      },
+      query: {}
+    }
   })
 
-  experiment('.postImportLicence', () => {
-    let request
-    let h
-    let response
-    let code
+  afterEach(async () => {
+    Sinon.restore()
+  })
 
-    beforeEach(async () => {
-      code = Sinon.spy()
+  experiment('.postImport', () => {
+    experiment('when the request succeeds', () => {
+      test('the existing queue is deleted', async () => {
+        await controller.postImport(request, h)
 
-      h = {
-        response: Sinon.stub().returns({ code })
-      }
-    })
+        const [jobName] = request.server.messageQueue.deleteQueue.firstCall.args
 
-    afterEach(async () => {
-      Sinon.restore()
-    })
-
-    experiment('when there are no errors', () => {
-      beforeEach(async () => {
-        request = createRequest()
-        request.query.licenceNumber = 'test-lic'
-        await controller.postImportLicence(request, h)
+        expect(jobName).to.equal('import.delete-documents')
       })
 
-      test('an "import licence" job is published', async () => {
-        expect(request.messageQueue.publish.callCount).to.equal(1)
-        const [job] = request.messageQueue.publish.lastCall.args
-        expect(job.name).to.equal(jobs.IMPORT_LICENCE_JOB)
+      test('the Delete Documents job is published', async () => {
+        await controller.postImport(request, h)
+
+        const [message] = request.server.messageQueue.publish.firstCall.args
+
+        expect(message).to.equal({
+          name: 'import.delete-documents',
+          options: { singletonKey: 'import.delete-documents', expireIn: '1 hours' }
+        })
       })
 
-      test('a success response is returned', async () => {
-        const [data] = h.response.lastCall.args
-        const [statusCode] = code.lastCall.args
+      test('a 202 response code is returned', async () => {
+        await controller.postImport(request, h)
 
-        expect(data).to.equal({ error: null })
+        const [statusCode] = code.firstCall.args
+
         expect(statusCode).to.equal(202)
       })
     })
 
     experiment('when there is an error', () => {
-      beforeEach(async () => {
-        request = createRequest()
-        request.query.licenceNumber = 'test-lic'
-        request.messageQueue.publish.rejects()
-        response = await controller.postImportLicence(request, h)
+      beforeEach(() => {
+        request.server.messageQueue.deleteQueue.rejects()
       })
 
-      test('a Boom 500 error is returned', async () => {
-        expect(response.isBoom).to.equal(true)
-        expect(response.output.statusCode).to.equal(500)
+      test(' a Boom error is thrown', async () => {
+        const error = await expect(controller.postImport(request, h)).to.reject()
+
+        expect(error.output.payload.statusCode).to.equal(500)
+      })
+    })
+  })
+
+  experiment('.postImportCompany', () => {
+    beforeEach(() => {
+      request.query = { regionCode: 1, partyId: 37760 }
+    })
+
+    experiment('when the request succeeds', () => {
+      test('the existing queue is deleted', async () => {
+        await controller.postImportCompany(request, h)
+
+        const [jobName] = request.server.messageQueue.deleteQueue.firstCall.args
+
+        expect(jobName).to.equal('import.company')
+      })
+
+      test('the Import Company job is published', async () => {
+        await controller.postImportCompany(request, h)
+
+        const [message] = request.server.messageQueue.publish.firstCall.args
+
+        expect(message).to.equal({
+          name: 'import.company',
+          data: { regionCode: 1, partyId: 37760 },
+          options: { singletonKey: 'import.company.1.37760', expireIn: '1 hours' }
+        })
+      })
+
+      test('a 202 response code is returned', async () => {
+        await controller.postImportCompany(request, h)
+
+        const [statusCode] = code.firstCall.args
+
+        expect(statusCode).to.equal(202)
+      })
+    })
+  })
+
+  experiment('.postImportLicence', () => {
+    beforeEach(() => {
+      request.query = { licenceNumber: '01/123' }
+    })
+
+    experiment('when the request succeeds', () => {
+      test('the existing queue is deleted', async () => {
+        await controller.postImportLicence(request, h)
+
+        const [jobName] = request.server.messageQueue.deleteQueue.firstCall.args
+
+        expect(jobName).to.equal('import.licence')
+      })
+
+      test('the Import Licence job is published', async () => {
+        await controller.postImportLicence(request, h)
+
+        const [message] = request.server.messageQueue.publish.firstCall.args
+
+        expect(message).to.equal({
+          name: 'import.licence',
+          data: { licenceNumber: '01/123' },
+          options: { singletonKey: 'import.licence.01/123' }
+        })
+      })
+
+      test('a 202 response code is returned', async () => {
+        await controller.postImportLicence(request, h)
+
+        const [statusCode] = code.firstCall.args
+
+        expect(statusCode).to.equal(202)
       })
     })
   })

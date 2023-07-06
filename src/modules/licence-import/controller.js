@@ -1,52 +1,52 @@
 'use strict'
 
-/**
- * @module request handlers to import all companies/licences, or selected licence or company.
- * Not used by the system (these jobs are kicked off by cron), these are used for test only.
- */
+const DeleteDocumentsJob = require('./jobs/delete-documents.js')
+const ImportCompanyJob = require('./jobs/import-company.js')
+const ImportLicenceJob = require('./jobs/import-licence.js')
 
-const jobs = require('./jobs')
 const Boom = require('@hapi/boom')
 
-const postImportHandler = async (request, h, jobCreator, errorMessage) => {
+const postImport = async (request, h) => {
+  const message = DeleteDocumentsJob.createMessage()
+
   try {
-    await request.messageQueue.publish(jobCreator(request))
-    return h.response({ error: null }).code(202)
-  } catch (err) {
-    return Boom.badImplementation(errorMessage)
-  };
+    await request.server.messageQueue.deleteQueue(DeleteDocumentsJob.name)
+    await request.server.messageQueue.publish(message)
+
+    return h.response().code(202)
+  } catch (error) {
+    throw Boom.boomify(error)
+  }
 }
 
-const createImportJob = () => jobs.deleteDocuments()
-const createImportCompanyJob = request => jobs.importCompany(request.query.regionCode, request.query.partyId)
-const createImportLicenceJob = request => jobs.importLicence(request.query.licenceNumber)
+const postImportCompany = async (request, h) => {
+  const message = ImportCompanyJob.createMessage(request.query.regionCode, request.query.partyId)
 
-/**
- * Import all companies/licences
- */
-const postImport = (request, h) => {
-  return postImportHandler(request, h, createImportJob, 'Error importing companies')
+  try {
+    await request.server.messageQueue.deleteQueue(ImportCompanyJob.name)
+    await request.server.messageQueue.publish(message)
+
+    return h.response().code(202)
+  } catch (error) {
+    throw Boom.boomify(error)
+  }
 }
 
-/**
- * Import single licence
- * @param {String} request.query.licenceNumber
- */
-const postImportLicence = (request, h) => {
-  return postImportHandler(request, h, createImportLicenceJob, 'Error importing licence')
-}
+const postImportLicence = async (request, h) => {
+  const message = ImportLicenceJob.createMessage(request.query.licenceNumber)
 
-/**
- * Import single company
- * @param {Number} request.query.regionCode
- * @param {Number} request.query.partyId
- */
-const postImportCompany = (request, h) => {
-  return postImportHandler(request, h, createImportCompanyJob, 'Error importing company')
+  try {
+    await request.server.messageQueue.deleteQueue(ImportLicenceJob.name)
+    await request.server.messageQueue.publish(message)
+
+    return h.response().code(202)
+  } catch (error) {
+    throw Boom.boomify(error)
+  }
 }
 
 module.exports = {
   postImport,
-  postImportLicence,
-  postImportCompany
+  postImportCompany,
+  postImportLicence
 }
