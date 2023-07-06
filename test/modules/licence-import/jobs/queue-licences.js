@@ -12,9 +12,9 @@ const { expect } = Code
 const extract = require('../../../../src/modules/licence-import/extract/index.js')
 
 // Thing under test
-const ImportLicencesJob = require('../../../../src/modules/licence-import/jobs/import-licences.js')
+const QueueLicencesJob = require('../../../../src/modules/licence-import/jobs/queue-licences.js')
 
-experiment('modules/licence-import/jobs/import-licences', () => {
+experiment('Licence Import: Queue Licences job', () => {
   let notifierStub
 
   beforeEach(async () => {
@@ -37,12 +37,12 @@ experiment('modules/licence-import/jobs/import-licences', () => {
 
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const message = ImportLicencesJob.createMessage()
+      const message = QueueLicencesJob.createMessage()
 
       expect(message).to.equal({
-        name: 'import.licences',
+        name: 'licence-import.queue-licences',
         options: {
-          singletonKey: 'import.licences',
+          singletonKey: 'licence-import.queue-licences',
           expireIn: '1 hours'
         }
       })
@@ -52,21 +52,21 @@ experiment('modules/licence-import/jobs/import-licences', () => {
   experiment('.handler', () => {
     experiment('when the job is successful', () => {
       test('a message is logged', async () => {
-        await ImportLicencesJob.handler()
+        await QueueLicencesJob.handler()
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('import.licences: started')
+        expect(message).to.equal('licence-import.queue-licences: started')
       })
 
       test('retrieves the licences to import', async () => {
-        await ImportLicencesJob.handler()
+        await QueueLicencesJob.handler()
 
         expect(extract.getAllLicenceNumbers.called).to.equal(true)
       })
 
       test('resolves with an array of licences to import', async () => {
-        const result = await ImportLicencesJob.handler()
+        const result = await QueueLicencesJob.handler()
 
         expect(result).to.equal([
           { LIC_NO: '01/123' },
@@ -83,15 +83,15 @@ experiment('modules/licence-import/jobs/import-licences', () => {
       })
 
       test('logs an error message', async () => {
-        await expect(ImportLicencesJob.handler()).to.reject()
+        await expect(QueueLicencesJob.handler()).to.reject()
 
         expect(notifierStub.omfg.calledWith(
-          'import.licences: errored', err
+          'licence-import.queue-licences: errored', err
         )).to.equal(true)
       })
 
       test('rethrows the error', async () => {
-        const err = await expect(ImportLicencesJob.handler()).to.reject()
+        const err = await expect(QueueLicencesJob.handler()).to.reject()
 
         expect(err.message).to.equal('Oops!')
       })
@@ -124,15 +124,15 @@ experiment('modules/licence-import/jobs/import-licences', () => {
       })
 
       test('a message is logged', async () => {
-        await ImportLicencesJob.onComplete(messageQueue, job)
+        await QueueLicencesJob.onComplete(messageQueue, job)
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('import.licences: finished')
+        expect(message).to.equal('licence-import.queue-licences: finished')
       })
 
       test('the import licence job is published to the queue for the first licence', async () => {
-        await ImportLicencesJob.onComplete(messageQueue, job)
+        await QueueLicencesJob.onComplete(messageQueue, job)
 
         const jobMessage = messageQueue.publish.firstCall.args[0]
 
@@ -140,7 +140,7 @@ experiment('modules/licence-import/jobs/import-licences', () => {
       })
 
       test('the import licence job is published to the queue for the second licence', async () => {
-        await ImportLicencesJob.onComplete(messageQueue, job)
+        await QueueLicencesJob.onComplete(messageQueue, job)
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
@@ -155,7 +155,7 @@ experiment('modules/licence-import/jobs/import-licences', () => {
         })
 
         test('rethrows the error', async () => {
-          const error = await expect(ImportLicencesJob.onComplete(messageQueue, job)).to.reject()
+          const error = await expect(QueueLicencesJob.onComplete(messageQueue, job)).to.reject()
 
           expect(error).to.equal(error)
         })
@@ -168,7 +168,7 @@ experiment('modules/licence-import/jobs/import-licences', () => {
       })
 
       test('no further jobs are published', async () => {
-        await ImportLicencesJob.onComplete(messageQueue, job)
+        await QueueLicencesJob.onComplete(messageQueue, job)
 
         expect(messageQueue.publish.called).to.be.false()
       })

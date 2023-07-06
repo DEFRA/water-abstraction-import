@@ -17,7 +17,7 @@ const transform = require('../../../../src/modules/licence-import/transform/inde
 // Thing under test
 const ImportCompanyJob = require('../../../../src/modules/licence-import/jobs/import-company.js')
 
-experiment('modules/licence-import/jobs/import-company', () => {
+experiment('Licence Import: Import Company job', () => {
   const regionCode = 1
   const partyId = 37760
 
@@ -46,13 +46,13 @@ experiment('modules/licence-import/jobs/import-company', () => {
       const message = ImportCompanyJob.createMessage(regionCode, partyId)
 
       expect(message).to.equal({
-        name: 'import.company',
+        name: 'licence-import.import-company',
         data: {
           regionCode: 1,
           partyId: 37760
         },
         options: {
-          singletonKey: 'import.company.1.37760',
+          singletonKey: 'licence-import.import-company.1.37760',
           expireIn: '1 hours'
         }
       })
@@ -99,7 +99,7 @@ experiment('modules/licence-import/jobs/import-company', () => {
         await expect(ImportCompanyJob.handler(job)).to.reject()
 
         expect(notifierStub.omfg.calledWith(
-          'import.company: errored', err
+          'licence-import.import-company: errored', err
         )).to.equal(true)
       })
 
@@ -131,7 +131,7 @@ experiment('modules/licence-import/jobs/import-company', () => {
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('import.company: finished')
+        expect(message).to.equal('licence-import.import-company: finished')
       })
 
       test("the import 'state completed' queue is deleted", async () => {
@@ -139,7 +139,7 @@ experiment('modules/licence-import/jobs/import-company', () => {
 
         const queueName = messageQueue.deleteQueue.lastCall.args[0]
 
-        expect(queueName).to.equal('__state__completed__import.company')
+        expect(queueName).to.equal('__state__completed__licence-import.import-company')
       })
 
       test('the import licences job is published to the queue', async () => {
@@ -147,7 +147,7 @@ experiment('modules/licence-import/jobs/import-company', () => {
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
-        expect(jobMessage.name).to.equal('import.licences')
+        expect(jobMessage.name).to.equal('licence-import.queue-licences')
       })
     })
 

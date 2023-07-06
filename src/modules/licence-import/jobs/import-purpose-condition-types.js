@@ -1,9 +1,9 @@
 'use strict'
 
-const ImportCompaniesJob = require('./import-companies.js')
+const QueueCompaniesJob = require('./queue-companies.js')
 const purposeConditionsConnector = require('../connectors/purpose-conditions-types')
 
-const JOB_NAME = 'import.purpose-condition-types'
+const JOB_NAME = 'licence-import.import-purpose-condition-types'
 
 function createMessage () {
   return {
@@ -17,21 +17,21 @@ function createMessage () {
 
 async function handler () {
   try {
-    global.GlobalNotifier.omg('import.purpose-condition-types: started')
+    global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
     return purposeConditionsConnector.createPurposeConditionTypes()
   } catch (error) {
-    global.GlobalNotifier.omfg('import.purpose-condition-types: errored', error)
+    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
 }
 
 async function onComplete (messageQueue, job) {
   if (!job.failed) {
-    await messageQueue.publish(ImportCompaniesJob.createMessage())
+    await messageQueue.publish(QueueCompaniesJob.createMessage())
   }
 
-  global.GlobalNotifier.omg('import.purpose-condition-types: finished')
+  global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
 }
 
 module.exports = {

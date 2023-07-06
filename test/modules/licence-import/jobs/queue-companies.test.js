@@ -12,9 +12,9 @@ const { expect } = Code
 const importCompanies = require('../../../../src/modules/licence-import/connectors/import-companies.js')
 
 // Thing under test
-const ImportCompaniesJob = require('../../../../src/modules/licence-import/jobs/import-companies.js')
+const QueueCompaniesJob = require('../../../../src/modules/licence-import/jobs/queue-companies.js')
 
-experiment('modules/licence-import/jobs/import-companies', () => {
+experiment('Licence Import: Queue Companies job', () => {
   let notifierStub
 
   beforeEach(async () => {
@@ -38,12 +38,12 @@ experiment('modules/licence-import/jobs/import-companies', () => {
 
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const message = ImportCompaniesJob.createMessage()
+      const message = QueueCompaniesJob.createMessage()
 
       expect(message).to.equal({
-        name: 'import.companies',
+        name: 'licence-import.queue-companies',
         options: {
-          singletonKey: 'import.companies',
+          singletonKey: 'licence-import.queue-companies',
           expireIn: '1 hours'
         }
       })
@@ -53,27 +53,27 @@ experiment('modules/licence-import/jobs/import-companies', () => {
   experiment('.handler', () => {
     experiment('when the job is successful', () => {
       test('a message is logged', async () => {
-        await ImportCompaniesJob.handler()
+        await QueueCompaniesJob.handler()
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('import.companies: started')
+        expect(message).to.equal('licence-import.queue-companies: started')
       })
 
       test('clears the water_import.import_companies table', async () => {
-        await ImportCompaniesJob.handler()
+        await QueueCompaniesJob.handler()
 
         expect(importCompanies.clear.called).to.equal(true)
       })
 
       test('retrieves the companies to import', async () => {
-        await ImportCompaniesJob.handler()
+        await QueueCompaniesJob.handler()
 
         expect(importCompanies.initialise.called).to.equal(true)
       })
 
       test('resolves with an array of companies to import', async () => {
-        const result = await ImportCompaniesJob.handler()
+        const result = await QueueCompaniesJob.handler()
 
         expect(result).to.equal([
           { regionCode: 1, partyId: 37760 },
@@ -90,15 +90,15 @@ experiment('modules/licence-import/jobs/import-companies', () => {
       })
 
       test('logs an error message', async () => {
-        await expect(ImportCompaniesJob.handler()).to.reject()
+        await expect(QueueCompaniesJob.handler()).to.reject()
 
         expect(notifierStub.omfg.calledWith(
-          'import.companies: errored', err
+          'licence-import.queue-companies: errored', err
         )).to.equal(true)
       })
 
       test('rethrows the error', async () => {
-        const err = await expect(ImportCompaniesJob.handler()).to.reject()
+        const err = await expect(QueueCompaniesJob.handler()).to.reject()
 
         expect(err.message).to.equal('Oops!')
       })
@@ -131,15 +131,15 @@ experiment('modules/licence-import/jobs/import-companies', () => {
       })
 
       test('a message is logged', async () => {
-        await ImportCompaniesJob.onComplete(messageQueue, job)
+        await QueueCompaniesJob.onComplete(messageQueue, job)
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('import.companies: finished')
+        expect(message).to.equal('licence-import.queue-companies: finished')
       })
 
       test('the import company job is published to the queue for the first company', async () => {
-        await ImportCompaniesJob.onComplete(messageQueue, job)
+        await QueueCompaniesJob.onComplete(messageQueue, job)
 
         const jobMessage = messageQueue.publish.firstCall.args[0]
 
@@ -147,7 +147,7 @@ experiment('modules/licence-import/jobs/import-companies', () => {
       })
 
       test('the import company job is published to the queue for the second company', async () => {
-        await ImportCompaniesJob.onComplete(messageQueue, job)
+        await QueueCompaniesJob.onComplete(messageQueue, job)
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
@@ -162,7 +162,7 @@ experiment('modules/licence-import/jobs/import-companies', () => {
         })
 
         test('rethrows the error', async () => {
-          const error = await expect(ImportCompaniesJob.onComplete(messageQueue, job)).to.reject()
+          const error = await expect(QueueCompaniesJob.onComplete(messageQueue, job)).to.reject()
 
           expect(error).to.equal(error)
         })
@@ -175,7 +175,7 @@ experiment('modules/licence-import/jobs/import-companies', () => {
       })
 
       test('no further jobs are published', async () => {
-        await ImportCompaniesJob.onComplete(messageQueue, job)
+        await QueueCompaniesJob.onComplete(messageQueue, job)
 
         expect(messageQueue.publish.called).to.be.false()
       })

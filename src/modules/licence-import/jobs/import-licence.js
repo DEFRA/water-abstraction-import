@@ -4,7 +4,7 @@ const extract = require('../extract')
 const load = require('../load')
 const transform = require('../transform')
 
-const JOB_NAME = 'import.licence'
+const JOB_NAME = 'licence-import.import-licence'
 
 const options = {
   teamSize: 75,
@@ -34,7 +34,7 @@ async function handler (job) {
     // Load licence to DB
     await load.licence.loadLicence(mapped)
   } catch (error) {
-    global.GlobalNotifier.omfg('import.licence: errored', error)
+    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
 }

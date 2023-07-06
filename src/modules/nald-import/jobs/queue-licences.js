@@ -1,10 +1,10 @@
 'use strict'
 
 const assertImportTablesExist = require('../lib/assert-import-tables-exist')
-const importLicenceJob = require('./import-licence')
+const ImportLicenceJob = require('./import-licence')
 const importService = require('../../../lib/services/import')
 
-const JOB_NAME = 'nald-import.populate-pending-import'
+const JOB_NAME = 'nald-import.queue-licences'
 
 function createMessage () {
   return {
@@ -18,14 +18,14 @@ function createMessage () {
 
 async function handler () {
   try {
-    global.GlobalNotifier.omg('nald-import.populate-pending-import: started')
+    global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
     await assertImportTablesExist.assertImportTablesExist()
     const licenceNumbers = await importService.getLicenceNumbers()
 
     return { licenceNumbers }
   } catch (error) {
-    global.GlobalNotifier.omfg('nald-import.populate-pending-import: errored', error)
+    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
 }
@@ -43,11 +43,11 @@ async function onComplete (messageQueue, job) {
         jobNumber: index + 1,
         numberOfLicences
       }
-      await messageQueue.publish(importLicenceJob.createMessage(data))
+      await messageQueue.publish(ImportLicenceJob.createMessage(data))
     }
   }
 
-  global.GlobalNotifier.omg('nald-import.populate-pending-import: finished')
+  global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
 }
 
 module.exports = {

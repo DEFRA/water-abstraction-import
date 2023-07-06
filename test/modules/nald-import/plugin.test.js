@@ -8,16 +8,18 @@ const Sinon = require('sinon')
 const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
 const { expect } = Code
 
-// Things we need to stub
+// Test helpers
 const config = require('../../../config')
-const cron = require('node-cron')
 const DeleteRemovedDocumentsJob = require('../../../src/modules/nald-import/jobs/delete-removed-documents.js')
 const ImportLicenceJob = require('../../../src/modules/nald-import/jobs/import-licence.js')
-const PopulatePendingImportJob = require('../../../src/modules/nald-import/jobs/populate-pending-import.js')
+const QueueLicencesJob = require('../../../src/modules/nald-import/jobs/queue-licences.js')
 const S3DownloadJob = require('../../../src/modules/nald-import/jobs/s3-download.js')
 
+// Things we need to stub
+const cron = require('node-cron')
+
 // Thing under test
-const { plugin: NaldImportPlugin } = require('../../../src/modules/nald-import/plugin.js')
+const NaldImportPlugin = require('../../../src/modules/nald-import/plugin.js')
 
 experiment('modules/nald-import/plugin', () => {
   let server
@@ -31,93 +33,97 @@ experiment('modules/nald-import/plugin', () => {
       }
     }
     Sinon.stub(cron, 'schedule')
-
-    Sinon.stub(S3DownloadJob, 'onComplete')
-    Sinon.stub(DeleteRemovedDocumentsJob, 'onComplete')
-    Sinon.stub(PopulatePendingImportJob, 'onComplete')
   })
 
   afterEach(async () => {
     Sinon.restore()
   })
 
-  test('plugin has a name', async () => {
-    expect(NaldImportPlugin.name).to.equal('importNaldData')
+  test('has a plugin name', async () => {
+    expect(NaldImportPlugin.plugin.name).to.equal('importNaldData')
   })
 
-  experiment('when the plugin is registered', async () => {
-    beforeEach(async () => {
-      Sinon.stub(config, 'isProduction').value(false)
+  test('requires pgBoss plugin', async () => {
+    expect(NaldImportPlugin.plugin.dependencies).to.equal(['pgBoss'])
+  })
 
-      await NaldImportPlugin.register(server)
+  experiment('register', () => {
+    experiment('for S3 Download', () => {
+      test('subscribes its handler to the job queue', async () => {
+        await NaldImportPlugin.plugin.register(server)
+
+        const subscribeArgs = server.messageQueue.subscribe.getCall(0).args
+
+        expect(subscribeArgs[0]).to.equal(S3DownloadJob.name)
+        expect(subscribeArgs[1]).to.equal(S3DownloadJob.handler)
+      })
+
+      test('registers its onComplete for the job', async () => {
+        await NaldImportPlugin.plugin.register(server)
+
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(0).args
+
+        expect(onCompleteArgs[0]).to.equal(S3DownloadJob.name)
+        expect(onCompleteArgs[1]).to.be.a.function()
+      })
+
+      test('schedules the job to be published', async () => {
+        await NaldImportPlugin.plugin.register(server)
+
+        expect(cron.schedule.calledWith(config.import.nald.schedule)).to.be.true()
+      })
     })
 
-    test('registers s3Download job', async () => {
-      const [jobName, handler] = server.messageQueue.subscribe.getCall(0).args
+    experiment('for Delete Removed Documents', () => {
+      test('subscribes its handler to the job queue', async () => {
+        await NaldImportPlugin.plugin.register(server)
 
-      expect(jobName).to.equal(S3DownloadJob.name)
-      expect(handler).to.equal(S3DownloadJob.handler)
+        const subscribeArgs = server.messageQueue.subscribe.getCall(1).args
+
+        expect(subscribeArgs[0]).to.equal(DeleteRemovedDocumentsJob.name)
+        expect(subscribeArgs[1]).to.equal(DeleteRemovedDocumentsJob.handler)
+      })
+
+      test('registers its onComplete for the job', async () => {
+        await NaldImportPlugin.plugin.register(server)
+
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(1).args
+
+        expect(onCompleteArgs[0]).to.equal(DeleteRemovedDocumentsJob.name)
+        expect(onCompleteArgs[1]).to.be.a.function()
+      })
     })
 
-    test('registers s3Download job onComplete', async () => {
-      const completedJob = { id: 'testing' }
+    experiment('for Queue Licences', () => {
+      test('subscribes its handler to the job queue', async () => {
+        await NaldImportPlugin.plugin.register(server)
 
-      const [jobName, func] = server.messageQueue.onComplete.getCall(0).args
-      func(completedJob)
+        const subscribeArgs = server.messageQueue.subscribe.getCall(2).args
 
-      expect(jobName).to.equal(S3DownloadJob.name)
-      expect(S3DownloadJob.onComplete.calledWith(
-        server.messageQueue,
-        completedJob
-      )).to.equal(true)
+        expect(subscribeArgs[0]).to.equal(QueueLicencesJob.name)
+        expect(subscribeArgs[1]).to.equal(QueueLicencesJob.handler)
+      })
+
+      test('registers its onComplete for the job', async () => {
+        await NaldImportPlugin.plugin.register(server)
+
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(2).args
+
+        expect(onCompleteArgs[0]).to.equal(QueueLicencesJob.name)
+        expect(onCompleteArgs[1]).to.be.a.function()
+      })
     })
 
-    test('registers deleteRemovedDocuments job', async () => {
-      const [jobName, handler] = server.messageQueue.subscribe.getCall(1).args
+    experiment('for Import Licence', () => {
+      test('subscribes its handler to the job queue', async () => {
+        await NaldImportPlugin.plugin.register(server)
 
-      expect(jobName).to.equal(DeleteRemovedDocumentsJob.name)
-      expect(handler).to.equal(DeleteRemovedDocumentsJob.handler)
-    })
+        const subscribeArgs = server.messageQueue.subscribe.getCall(3).args
 
-    test('registers deleteRemovedDocuments job onComplete', async () => {
-      const completedJob = { id: 'testing', failed: true }
-
-      const [jobName, func] = server.messageQueue.onComplete.getCall(1).args
-      func(completedJob)
-
-      expect(jobName).to.equal(DeleteRemovedDocumentsJob.name)
-      expect(DeleteRemovedDocumentsJob.onComplete.calledWith(
-        server.messageQueue,
-        completedJob
-      )).to.equal(true)
-    })
-
-    test('registers populatePendingImport job', async () => {
-      const [jobName, handler] = server.messageQueue.subscribe.getCall(2).args
-
-      expect(jobName).to.equal(PopulatePendingImportJob.name)
-      expect(handler).to.equal(PopulatePendingImportJob.handler)
-    })
-
-    test('registers populatePendingImport job onComplete', async () => {
-      const completedJob = { id: 'testing' }
-
-      const [jobName, func] = server.messageQueue.onComplete.getCall(2).args
-      func(completedJob)
-
-      expect(jobName).to.equal(PopulatePendingImportJob.name)
-      expect(PopulatePendingImportJob.onComplete.calledWith(
-        server.messageQueue,
-        completedJob
-      )).to.equal(true)
-    })
-
-    test('registers importLicence job', async () => {
-      const [jobName, options, handler] = server.messageQueue.subscribe.getCall(3).args
-
-      expect(jobName).to.equal(ImportLicenceJob.name)
-      expect(options).to.equal(ImportLicenceJob.options)
-      expect(handler).to.equal(ImportLicenceJob.handler)
+        expect(subscribeArgs[0]).to.equal(ImportLicenceJob.name)
+        expect(subscribeArgs[1]).to.equal(ImportLicenceJob.options)
+        expect(subscribeArgs[2]).to.equal(ImportLicenceJob.handler)
+      })
     })
   })
 })

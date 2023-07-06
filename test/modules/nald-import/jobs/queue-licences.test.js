@@ -13,9 +13,9 @@ const importService = require('../../../../src/lib/services/import')
 const assertImportTablesExist = require('../../../../src/modules/nald-import/lib/assert-import-tables-exist')
 
 // Thing under test
-const PopulatePendingImportJob = require('../../../../src/modules/nald-import/jobs/populate-pending-import')
+const QueueLicencesJob = require('../../../../src/modules/nald-import/jobs/queue-licences.js')
 
-experiment('modules/nald-import/jobs/populate-pending-import', () => {
+experiment('NALD Import: Queue Licences job', () => {
   let notifierStub
 
   beforeEach(async () => {
@@ -39,13 +39,13 @@ experiment('modules/nald-import/jobs/populate-pending-import', () => {
 
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const message = PopulatePendingImportJob.createMessage()
+      const message = QueueLicencesJob.createMessage()
 
       expect(message).to.equal({
-        name: 'nald-import.populate-pending-import',
+        name: 'nald-import.queue-licences',
         options: {
           expireIn: '1 hours',
-          singletonKey: 'nald-import.populate-pending-import'
+          singletonKey: 'nald-import.queue-licences'
         }
       })
     })
@@ -54,27 +54,27 @@ experiment('modules/nald-import/jobs/populate-pending-import', () => {
   experiment('.handler', () => {
     experiment('when the job is successful', () => {
       test('a message is logged', async () => {
-        await PopulatePendingImportJob.handler()
+        await QueueLicencesJob.handler()
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('nald-import.populate-pending-import: started')
+        expect(message).to.equal('nald-import.queue-licences: started')
       })
 
       test('asserts that the import tables exist', async () => {
-        await PopulatePendingImportJob.handler()
+        await QueueLicencesJob.handler()
 
         expect(assertImportTablesExist.assertImportTablesExist.called).to.be.true()
       })
 
       test('retrieves the licence numbers', async () => {
-        await PopulatePendingImportJob.handler()
+        await QueueLicencesJob.handler()
 
         expect(importService.getLicenceNumbers.called).to.be.true()
       })
 
       test('resolves with an array of licence numbers to import', async () => {
-        const result = await PopulatePendingImportJob.handler()
+        const result = await QueueLicencesJob.handler()
 
         expect(result).to.equal({
           licenceNumbers: [
@@ -93,18 +93,15 @@ experiment('modules/nald-import/jobs/populate-pending-import', () => {
       })
 
       test('logs an error message', async () => {
-        const func = () => PopulatePendingImportJob.handler()
-
-        await expect(func()).to.reject()
+        await expect(QueueLicencesJob.handler()).to.reject()
         expect(notifierStub.omfg.calledWith(
-          'nald-import.populate-pending-import: errored', err
+          'nald-import.queue-licences: errored', err
         )).to.be.true()
       })
 
       test('rethrows the error', async () => {
-        const func = () => PopulatePendingImportJob.handler()
+        const err = await expect(QueueLicencesJob.handler()).to.reject()
 
-        const err = await expect(func()).to.reject()
         expect(err.message).to.equal('Oops!')
       })
     })
@@ -136,14 +133,14 @@ experiment('modules/nald-import/jobs/populate-pending-import', () => {
       })
 
       test('a message is logged', async () => {
-        await PopulatePendingImportJob.onComplete(messageQueue, job)
+        await QueueLicencesJob.onComplete(messageQueue, job)
 
         const [message] = notifierStub.omg.lastCall.args
-        expect(message).to.equal('nald-import.populate-pending-import: finished')
+        expect(message).to.equal('nald-import.queue-licences: finished')
       })
 
       test('the import licence job is published to the queue for the first licence', async () => {
-        await PopulatePendingImportJob.onComplete(messageQueue, job)
+        await QueueLicencesJob.onComplete(messageQueue, job)
 
         const jobMessage = messageQueue.publish.firstCall.args[0]
 
@@ -151,7 +148,7 @@ experiment('modules/nald-import/jobs/populate-pending-import', () => {
       })
 
       test('the import licence job is published to the queue for the second licence', async () => {
-        await PopulatePendingImportJob.onComplete(messageQueue, job)
+        await QueueLicencesJob.onComplete(messageQueue, job)
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
@@ -166,9 +163,7 @@ experiment('modules/nald-import/jobs/populate-pending-import', () => {
         })
 
         test('an error message is thrown', async () => {
-          const func = () => PopulatePendingImportJob.onComplete(messageQueue, job)
-
-          const error = await expect(func()).to.reject()
+          const error = await expect(QueueLicencesJob.onComplete(messageQueue, job)).to.reject()
 
           expect(error).to.equal(err)
         })
@@ -191,15 +186,15 @@ experiment('modules/nald-import/jobs/populate-pending-import', () => {
       })
 
       test('a message is logged', async () => {
-        await PopulatePendingImportJob.onComplete(messageQueue, job)
+        await QueueLicencesJob.onComplete(messageQueue, job)
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('nald-import.populate-pending-import: finished')
+        expect(message).to.equal('nald-import.queue-licences: finished')
       })
 
       test('no further jobs are published', async () => {
-        await PopulatePendingImportJob.onComplete(messageQueue, job)
+        await QueueLicencesJob.onComplete(messageQueue, job)
 
         expect(messageQueue.publish.called).to.be.false()
       })

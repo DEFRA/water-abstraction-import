@@ -2,11 +2,11 @@
 
 const extract = require('../extract')
 const importCompanies = require('../connectors/import-companies')
-const ImportLicencesJob = require('./import-licences.js')
+const QueueLicencesJob = require('./queue-licences.js')
 const load = require('../load')
 const transform = require('../transform')
 
-const JOB_NAME = 'import.company'
+const JOB_NAME = 'licence-import.import-company'
 
 const options = {
   teamSize: 75,
@@ -50,7 +50,7 @@ async function handler (job) {
 
     await importCompanies.setImportedStatus(regionCode, partyId)
   } catch (error) {
-    global.GlobalNotifier.omfg('import.company: errored', error)
+    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
 }
@@ -59,10 +59,10 @@ async function onComplete (messageQueue) {
   const count = await importCompanies.getPendingCount()
 
   if (count === 0) {
-    await messageQueue.deleteQueue('__state__completed__import.company')
-    await messageQueue.publish(ImportLicencesJob.createMessage())
+    await messageQueue.deleteQueue('__state__completed__licence-import.import-company')
+    await messageQueue.publish(QueueLicencesJob.createMessage())
 
-    global.GlobalNotifier.omg('import.company: finished')
+    global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   }
 }
 

@@ -14,7 +14,7 @@ const purposeConditionsConnector = require('../../../../src/modules/licence-impo
 // Thing under test
 const ImportPurposeConditionTypesJob = require('../../../../src/modules/licence-import/jobs/import-purpose-condition-types.js')
 
-experiment('modules/licence-import/jobs/import-purpose-condition-types', () => {
+experiment('Licence Import: Import Purpose Condition Types job', () => {
   let notifierStub
 
   beforeEach(async () => {
@@ -37,9 +37,9 @@ experiment('modules/licence-import/jobs/import-purpose-condition-types', () => {
       const message = ImportPurposeConditionTypesJob.createMessage()
 
       expect(message).to.equal({
-        name: 'import.purpose-condition-types',
+        name: 'licence-import.import-purpose-condition-types',
         options: {
-          singletonKey: 'import.purpose-condition-types',
+          singletonKey: 'licence-import.import-purpose-condition-types',
           expireIn: '1 hours'
         }
       })
@@ -53,7 +53,7 @@ experiment('modules/licence-import/jobs/import-purpose-condition-types', () => {
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('import.purpose-condition-types: started')
+        expect(message).to.equal('licence-import.import-purpose-condition-types: started')
       })
 
       test('creates the purpose condition types', async () => {
@@ -74,7 +74,7 @@ experiment('modules/licence-import/jobs/import-purpose-condition-types', () => {
         await expect(ImportPurposeConditionTypesJob.handler()).to.reject()
 
         expect(notifierStub.omfg.calledWith(
-          'import.purpose-condition-types: errored', err
+          'licence-import.import-purpose-condition-types: errored', err
         )).to.equal(true)
       })
 
@@ -106,7 +106,7 @@ experiment('modules/licence-import/jobs/import-purpose-condition-types', () => {
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('import.purpose-condition-types: finished')
+        expect(message).to.equal('licence-import.import-purpose-condition-types: finished')
       })
 
       test('the import companies job is published to the queue', async () => {
@@ -114,7 +114,7 @@ experiment('modules/licence-import/jobs/import-purpose-condition-types', () => {
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
-        expect(jobMessage.name).to.equal('import.companies')
+        expect(jobMessage.name).to.equal('licence-import.queue-companies')
       })
 
       experiment('but an error is thrown', () => {
