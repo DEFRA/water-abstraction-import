@@ -4,7 +4,26 @@ const extract = require('../extract')
 const load = require('../load')
 const transform = require('../transform')
 
-module.exports = async (job) => {
+const JOB_NAME = 'import.licence'
+
+const options = {
+  teamSize: 75,
+  teamConcurrency: 1
+}
+
+function createMessage (licenceNumber) {
+  return {
+    name: JOB_NAME,
+    data: {
+      licenceNumber
+    },
+    options: {
+      singletonKey: `${JOB_NAME}.${licenceNumber}`
+    }
+  }
+}
+
+async function handler (job) {
   try {
     // Extract data
     const data = await extract.getLicenceData(job.data.licenceNumber)
@@ -18,4 +37,11 @@ module.exports = async (job) => {
     global.GlobalNotifier.omfg('import.licence: errored', error)
     throw error
   }
+}
+
+module.exports = {
+  createMessage,
+  handler,
+  name: JOB_NAME,
+  options
 }
