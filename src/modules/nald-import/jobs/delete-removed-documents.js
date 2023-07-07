@@ -1,7 +1,7 @@
 'use strict'
 
 const importService = require('../../../lib/services/import')
-const populatePendingImportJob = require('./populate-pending-import')
+const QueueLicencesJob = require('./queue-licences')
 
 const JOB_NAME = 'nald-import.delete-removed-documents'
 
@@ -17,11 +17,11 @@ function createMessage () {
 
 async function handler () {
   try {
-    global.GlobalNotifier.omg('nald-import.delete-removed-documents: started')
+    global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
     return importService.deleteRemovedDocuments()
   } catch (error) {
-    global.GlobalNotifier.omfg('nald-import.delete-removed-documents: errored', error)
+    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
 }
@@ -29,10 +29,10 @@ async function handler () {
 async function onComplete (messageQueue, job) {
   // Publish a new job to populate pending import table but only if delete removed documents was successful
   if (!job.failed) {
-    await messageQueue.publish(populatePendingImportJob.createMessage())
+    await messageQueue.publish(QueueLicencesJob.createMessage())
   }
 
-  global.GlobalNotifier.omg('nald-import.delete-removed-documents: finished')
+  global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
 }
 
 module.exports = {

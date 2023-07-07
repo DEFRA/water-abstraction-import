@@ -12,9 +12,9 @@ const { expect } = Code
 const documentsConnector = require('../../../../src/modules/licence-import/connectors/documents.js')
 
 // Thing under test
-const DeleteDocumentsJob = require('../../../../src/modules/licence-import/jobs/delete-documents.js')
+const DeleteRemovedDocumentsJob = require('../../../../src/modules/licence-import/jobs/delete-removed-documents.js')
 
-experiment('modules/licence-import/jobs/delete-removed-documents', () => {
+experiment('Licence Import: Delete Removed Documents', () => {
   let notifierStub
 
   beforeEach(async () => {
@@ -34,12 +34,12 @@ experiment('modules/licence-import/jobs/delete-removed-documents', () => {
 
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const message = DeleteDocumentsJob.createMessage()
+      const message = DeleteRemovedDocumentsJob.createMessage()
 
       expect(message).to.equal({
-        name: 'import.delete-documents',
+        name: 'licence-import.delete-removed-documents',
         options: {
-          singletonKey: 'import.delete-documents',
+          singletonKey: 'licence-import.delete-removed-documents',
           expireIn: '1 hours'
         }
       })
@@ -49,15 +49,15 @@ experiment('modules/licence-import/jobs/delete-removed-documents', () => {
   experiment('.handler', () => {
     experiment('when the job is successful', () => {
       test('a message is logged', async () => {
-        await DeleteDocumentsJob.handler()
+        await DeleteRemovedDocumentsJob.handler()
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('import.delete-documents: started')
+        expect(message).to.equal('licence-import.delete-removed-documents: started')
       })
 
       test('deletes the removed documents', async () => {
-        await DeleteDocumentsJob.handler()
+        await DeleteRemovedDocumentsJob.handler()
 
         expect(documentsConnector.deleteRemovedDocuments.called).to.equal(true)
       })
@@ -71,15 +71,15 @@ experiment('modules/licence-import/jobs/delete-removed-documents', () => {
       })
 
       test('logs an error message', async () => {
-        await expect(DeleteDocumentsJob.handler()).to.reject()
+        await expect(DeleteRemovedDocumentsJob.handler()).to.reject()
 
         expect(notifierStub.omfg.calledWith(
-          'import.delete-documents: errored', err
+          'licence-import.delete-removed-documents: errored', err
         )).to.equal(true)
       })
 
       test('rethrows the error', async () => {
-        const err = await expect(DeleteDocumentsJob.handler()).to.reject()
+        const err = await expect(DeleteRemovedDocumentsJob.handler()).to.reject()
 
         expect(err.message).to.equal('Oops!')
       })
@@ -102,19 +102,19 @@ experiment('modules/licence-import/jobs/delete-removed-documents', () => {
       })
 
       test('a message is logged', async () => {
-        await DeleteDocumentsJob.onComplete(messageQueue, job)
+        await DeleteRemovedDocumentsJob.onComplete(messageQueue, job)
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('import.delete-documents: finished')
+        expect(message).to.equal('licence-import.delete-removed-documents: finished')
       })
 
       test('the import purpose condition types job is published to the queue', async () => {
-        await DeleteDocumentsJob.onComplete(messageQueue, job)
+        await DeleteRemovedDocumentsJob.onComplete(messageQueue, job)
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
-        expect(jobMessage.name).to.equal('import.purpose-condition-types')
+        expect(jobMessage.name).to.equal('licence-import.import-purpose-condition-types')
       })
 
       experiment('but an error is thrown', () => {
@@ -125,7 +125,7 @@ experiment('modules/licence-import/jobs/delete-removed-documents', () => {
         })
 
         test('rethrows the error', async () => {
-          const error = await expect(DeleteDocumentsJob.onComplete(messageQueue, job)).to.reject()
+          const error = await expect(DeleteRemovedDocumentsJob.onComplete(messageQueue, job)).to.reject()
 
           expect(error).to.equal(error)
         })
@@ -138,7 +138,7 @@ experiment('modules/licence-import/jobs/delete-removed-documents', () => {
       })
 
       test('no further jobs are published', async () => {
-        await DeleteDocumentsJob.onComplete(messageQueue, job)
+        await DeleteRemovedDocumentsJob.onComplete(messageQueue, job)
 
         expect(messageQueue.publish.called).to.be.false()
       })

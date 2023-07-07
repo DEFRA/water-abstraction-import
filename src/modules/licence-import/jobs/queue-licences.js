@@ -3,7 +3,7 @@
 const extract = require('../extract')
 const ImportLicenceJob = require('./import-licence.js')
 
-const JOB_NAME = 'import.licences'
+const JOB_NAME = 'licence-import.queue-licences'
 
 function createMessage () {
   return {
@@ -17,13 +17,13 @@ function createMessage () {
 
 async function handler () {
   try {
-    global.GlobalNotifier.omg('import.licences: started')
+    global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
     const rows = await extract.getAllLicenceNumbers()
 
     return rows
   } catch (error) {
-    global.GlobalNotifier.omfg('import.licences: errored', error)
+    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
 }
@@ -37,7 +37,7 @@ async function onComplete (messageQueue, job) {
     }
   }
 
-  global.GlobalNotifier.omg('import.licences: finished')
+  global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
 }
 
 module.exports = {

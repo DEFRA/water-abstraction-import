@@ -3,7 +3,7 @@
 const documentsConnector = require('../connectors/documents')
 const ImportPurposeConditionTypesJob = require('./import-purpose-condition-types.js')
 
-const JOB_NAME = 'import.delete-documents'
+const JOB_NAME = 'licence-import.delete-removed-documents'
 
 function createMessage () {
   return {
@@ -17,11 +17,11 @@ function createMessage () {
 
 async function handler () {
   try {
-    global.GlobalNotifier.omg('import.delete-documents: started')
+    global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
     return documentsConnector.deleteRemovedDocuments()
   } catch (error) {
-    global.GlobalNotifier.omfg('import.delete-documents: errored', error)
+    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
 }
@@ -31,7 +31,7 @@ async function onComplete (messageQueue, job) {
     await messageQueue.publish(ImportPurposeConditionTypesJob.createMessage())
   }
 
-  global.GlobalNotifier.omg('import.delete-documents: finished')
+  global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
 }
 
 module.exports = {

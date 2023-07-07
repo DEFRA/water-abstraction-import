@@ -16,7 +16,7 @@ const s3Service = require('../../../../src/modules/nald-import/services/s3-servi
 // Thing under test
 const S3DownloadJob = require('../../../../src/modules/nald-import/jobs/s3-download')
 
-experiment('modules/nald-import/jobs/s3-download', () => {
+experiment('NALD Import: S3 Download job', () => {
   let notifierStub
 
   beforeEach(async () => {
@@ -259,16 +259,14 @@ experiment('modules/nald-import/jobs/s3-download', () => {
       })
 
       test('logs an error message', async () => {
-        const func = () => S3DownloadJob.handler(job)
-        await expect(func()).to.reject()
+        await expect(S3DownloadJob.handler(job)).to.reject()
         expect(notifierStub.omfg.calledWith(
           'nald-import.s3-download: errored', err
         )).to.be.true()
       })
 
       test('rethrows the error', async () => {
-        const func = () => S3DownloadJob.handler(job)
-        const err = await expect(func()).to.reject()
+        const err = await expect(S3DownloadJob.handler(job)).to.reject()
         expect(err.message).to.equal('Oops!')
       })
     })
@@ -328,7 +326,7 @@ experiment('modules/nald-import/jobs/s3-download', () => {
           await S3DownloadJob.onComplete(messageQueue, job)
 
           expect(messageQueue.deleteQueue.calledWith('nald-import.import-licence')).to.be.true()
-          expect(messageQueue.deleteQueue.calledWith('nald-import.populate-pending-import')).to.be.true()
+          expect(messageQueue.deleteQueue.calledWith('nald-import.queue-licences')).to.be.true()
           expect(messageQueue.deleteQueue.calledWith('nald-import.delete-removed-documents')).to.be.true()
         })
 

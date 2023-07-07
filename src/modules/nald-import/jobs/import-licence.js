@@ -58,17 +58,17 @@ async function handler (job) {
     // likewise the finished message a few before the end. But it's good enough to give an indication that the 'jobs'
     // did start and finish.
     if (job.data.jobNumber === 1) {
-      global.GlobalNotifier.omg('nald-import.import-licence: started', { numberOfLicences: job.data.numberOfLicences })
+      global.GlobalNotifier.omg(`${JOB_NAME}: started`, { numberOfLicences: job.data.numberOfLicences })
     }
 
     // Import the licence
     await licenceLoader.load(job.data.licenceNumber)
 
     if (job.data.jobNumber === job.data.numberOfLicences) {
-      global.GlobalNotifier.omg('nald-import.import-licence: finished', { numberOfLicences: job.data.numberOfLicences })
+      global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { numberOfLicences: job.data.numberOfLicences })
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('nald-import.import-licence: errored', job.data, error)
+    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, job.data, error)
     throw error
   }
 }

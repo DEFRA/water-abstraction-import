@@ -46,7 +46,7 @@ experiment('modules/licence-import/controller.js', () => {
 
         const [jobName] = request.server.messageQueue.deleteQueue.firstCall.args
 
-        expect(jobName).to.equal('import.delete-documents')
+        expect(jobName).to.equal('licence-import.delete-removed-documents')
       })
 
       test('the Delete Documents job is published', async () => {
@@ -55,8 +55,8 @@ experiment('modules/licence-import/controller.js', () => {
         const [message] = request.server.messageQueue.publish.firstCall.args
 
         expect(message).to.equal({
-          name: 'import.delete-documents',
-          options: { singletonKey: 'import.delete-documents', expireIn: '1 hours' }
+          name: 'licence-import.delete-removed-documents',
+          options: { singletonKey: 'licence-import.delete-removed-documents', expireIn: '1 hours' }
         })
       })
 
@@ -93,7 +93,7 @@ experiment('modules/licence-import/controller.js', () => {
 
         const [jobName] = request.server.messageQueue.deleteQueue.firstCall.args
 
-        expect(jobName).to.equal('import.company')
+        expect(jobName).to.equal('licence-import.import-company')
       })
 
       test('the Import Company job is published', async () => {
@@ -102,9 +102,9 @@ experiment('modules/licence-import/controller.js', () => {
         const [message] = request.server.messageQueue.publish.firstCall.args
 
         expect(message).to.equal({
-          name: 'import.company',
+          name: 'licence-import.import-company',
           data: { regionCode: 1, partyId: 37760 },
-          options: { singletonKey: 'import.company.1.37760', expireIn: '1 hours' }
+          options: { singletonKey: 'licence-import.import-company.1.37760', expireIn: '1 hours' }
         })
       })
 
@@ -129,7 +129,7 @@ experiment('modules/licence-import/controller.js', () => {
 
         const [jobName] = request.server.messageQueue.deleteQueue.firstCall.args
 
-        expect(jobName).to.equal('import.licence')
+        expect(jobName).to.equal('licence-import.import-licence')
       })
 
       test('the Import Licence job is published', async () => {
@@ -138,9 +138,9 @@ experiment('modules/licence-import/controller.js', () => {
         const [message] = request.server.messageQueue.publish.firstCall.args
 
         expect(message).to.equal({
-          name: 'import.licence',
+          name: 'licence-import.import-licence',
           data: { licenceNumber: '01/123' },
-          options: { singletonKey: 'import.licence.01/123' }
+          options: { singletonKey: 'licence-import.import-licence.01/123' }
         })
       })
 

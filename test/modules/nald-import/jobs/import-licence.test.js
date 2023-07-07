@@ -12,9 +12,9 @@ const { expect } = Code
 const licenceLoader = require('../../../../src/modules/nald-import/load')
 
 // Thing under test
-const importLicence = require('../../../../src/modules/nald-import/jobs/import-licence')
+const ImportLicenceJob = require('../../../../src/modules/nald-import/jobs/import-licence')
 
-experiment('modules/nald-import/jobs/import-licence', () => {
+experiment('NALD Import: Import Licence job', () => {
   let notifierStub
 
   beforeEach(async () => {
@@ -34,18 +34,18 @@ experiment('modules/nald-import/jobs/import-licence', () => {
 
   experiment('.options', () => {
     test('has teamSize set to 75', async () => {
-      expect(importLicence.options.teamSize).to.equal(75)
+      expect(ImportLicenceJob.options.teamSize).to.equal(75)
     })
 
     test('has teamConcurrency set to 1', async () => {
-      expect(importLicence.options.teamConcurrency).to.equal(1)
+      expect(ImportLicenceJob.options.teamConcurrency).to.equal(1)
     })
   })
 
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
       const data = { licenceNumber: 'test-licence-number', jobNumber: 1, numberOfLicences: 1 }
-      const job = importLicence.createMessage(data)
+      const job = ImportLicenceJob.createMessage(data)
 
       expect(job).to.equal({
         data: {
@@ -69,16 +69,16 @@ experiment('modules/nald-import/jobs/import-licence', () => {
         })
 
         test("a 'started' message is logged", async () => {
-          await importLicence.handler(job)
+          await ImportLicenceJob.handler(job)
 
           const [message] = notifierStub.omg.lastCall.args
-          expect(message).to.equal('nald-import.import-licence: started')
 
+          expect(message).to.equal('nald-import.import-licence: started')
           expect(notifierStub.omg.called).to.be.true()
         })
 
         test('loads the requested licence', async () => {
-          await importLicence.handler(job)
+          await ImportLicenceJob.handler(job)
 
           expect(licenceLoader.load.calledWith('test-licence-number')).to.be.true()
         })
@@ -92,13 +92,13 @@ experiment('modules/nald-import/jobs/import-licence', () => {
         })
 
         test('a message is NOT logged', async () => {
-          await importLicence.handler(job)
+          await ImportLicenceJob.handler(job)
 
           expect(notifierStub.omg.called).to.be.false()
         })
 
         test('loads the requested licence', async () => {
-          await importLicence.handler(job)
+          await ImportLicenceJob.handler(job)
 
           expect(licenceLoader.load.calledWith('test-licence-number')).to.be.true()
         })
@@ -112,7 +112,7 @@ experiment('modules/nald-import/jobs/import-licence', () => {
         })
 
         test("a 'finished' message is logged", async () => {
-          await importLicence.handler(job)
+          await ImportLicenceJob.handler(job)
 
           const [message] = notifierStub.omg.lastCall.args
           expect(message).to.equal('nald-import.import-licence: finished')
@@ -121,7 +121,7 @@ experiment('modules/nald-import/jobs/import-licence', () => {
         })
 
         test('loads the requested licence', async () => {
-          await importLicence.handler(job)
+          await ImportLicenceJob.handler(job)
 
           expect(licenceLoader.load.calledWith('test-licence-number')).to.be.true()
         })
@@ -141,8 +141,8 @@ experiment('modules/nald-import/jobs/import-licence', () => {
       })
 
       test('logs an error message', async () => {
-        const func = () => importLicence.handler(job)
-        await expect(func()).to.reject()
+        await expect(ImportLicenceJob.handler(job)).to.reject()
+
         expect(notifierStub.omfg.calledWith(
           'nald-import.import-licence: errored',
           job.data,
@@ -151,8 +151,7 @@ experiment('modules/nald-import/jobs/import-licence', () => {
       })
 
       test('rethrows the error', async () => {
-        const func = () => importLicence.handler(job)
-        const err = await expect(func()).to.reject()
+        const err = await expect(ImportLicenceJob.handler(job)).to.reject()
         expect(err.message).to.equal('Oops!')
       })
     })

@@ -10,12 +10,12 @@ const { expect } = Code
 
 // Test helpers
 const config = require('../../../config.js')
-const DeleteDocumentsJob = require('../../../src/modules/licence-import/jobs/delete-documents.js')
-const ImportCompaniesJob = require('../../../src/modules/licence-import/jobs/import-companies.js')
+const DeleteRemovedDocumentsJob = require('../../../src/modules/licence-import/jobs/delete-removed-documents.js')
 const ImportCompanyJob = require('../../../src/modules/licence-import/jobs/import-company.js')
-const ImportLicencesJob = require('../../../src/modules/licence-import/jobs/import-licences.js')
 const ImportLicenceJob = require('../../../src/modules/licence-import/jobs/import-licence.js')
 const ImportPurposeConditionTypesJob = require('../../../src/modules/licence-import/jobs/import-purpose-condition-types.js')
+const QueueCompaniesJob = require('../../../src/modules/licence-import/jobs/queue-companies.js')
+const QueueLicencesJob = require('../../../src/modules/licence-import/jobs/queue-licences.js')
 
 // Things we need to stub
 const cron = require('node-cron')
@@ -50,14 +50,14 @@ experiment('modules/licence-import/plugin.js', () => {
   })
 
   experiment('register', () => {
-    experiment('for Delete Documents', () => {
+    experiment('for Delete Removed Documents', () => {
       test('subscribes its handler to the job queue', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
         const subscribeArgs = server.messageQueue.subscribe.getCall(0).args
 
-        expect(subscribeArgs[0]).to.equal(DeleteDocumentsJob.name)
-        expect(subscribeArgs[1]).to.equal(DeleteDocumentsJob.handler)
+        expect(subscribeArgs[0]).to.equal(DeleteRemovedDocumentsJob.name)
+        expect(subscribeArgs[1]).to.equal(DeleteRemovedDocumentsJob.handler)
       })
 
       test('registers its onComplete for the job', async () => {
@@ -65,7 +65,7 @@ experiment('modules/licence-import/plugin.js', () => {
 
         const onCompleteArgs = server.messageQueue.onComplete.getCall(0).args
 
-        expect(onCompleteArgs[0]).to.equal(DeleteDocumentsJob.name)
+        expect(onCompleteArgs[0]).to.equal(DeleteRemovedDocumentsJob.name)
         expect(onCompleteArgs[1]).to.be.a.function()
       })
 
@@ -96,14 +96,14 @@ experiment('modules/licence-import/plugin.js', () => {
       })
     })
 
-    experiment('for Import Companies', () => {
+    experiment('for Queue Companies', () => {
       test('subscribes its handler to the job queue', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
         const subscribeArgs = server.messageQueue.subscribe.getCall(2).args
 
-        expect(subscribeArgs[0]).to.equal(ImportCompaniesJob.name)
-        expect(subscribeArgs[1]).to.equal(ImportCompaniesJob.handler)
+        expect(subscribeArgs[0]).to.equal(QueueCompaniesJob.name)
+        expect(subscribeArgs[1]).to.equal(QueueCompaniesJob.handler)
       })
 
       test('registers its onComplete for the job', async () => {
@@ -111,7 +111,7 @@ experiment('modules/licence-import/plugin.js', () => {
 
         const onCompleteArgs = server.messageQueue.onComplete.getCall(2).args
 
-        expect(onCompleteArgs[0]).to.equal(ImportCompaniesJob.name)
+        expect(onCompleteArgs[0]).to.equal(QueueCompaniesJob.name)
         expect(onCompleteArgs[1]).to.be.a.function()
       })
     })
@@ -137,14 +137,14 @@ experiment('modules/licence-import/plugin.js', () => {
       })
     })
 
-    experiment('for Import Licences', () => {
+    experiment('for Queue Licences', () => {
       test('subscribes its handler to the job queue', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
         const subscribeArgs = server.messageQueue.subscribe.getCall(4).args
 
-        expect(subscribeArgs[0]).to.equal(ImportLicencesJob.name)
-        expect(subscribeArgs[1]).to.equal(ImportLicencesJob.handler)
+        expect(subscribeArgs[0]).to.equal(QueueLicencesJob.name)
+        expect(subscribeArgs[1]).to.equal(QueueLicencesJob.handler)
       })
 
       test('registers its onComplete for the job', async () => {
@@ -152,7 +152,7 @@ experiment('modules/licence-import/plugin.js', () => {
 
         const onCompleteArgs = server.messageQueue.onComplete.getCall(4).args
 
-        expect(onCompleteArgs[0]).to.equal(ImportLicencesJob.name)
+        expect(onCompleteArgs[0]).to.equal(QueueLicencesJob.name)
         expect(onCompleteArgs[1]).to.be.a.function()
       })
     })

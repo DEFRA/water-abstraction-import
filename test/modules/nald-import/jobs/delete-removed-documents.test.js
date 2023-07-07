@@ -14,7 +14,7 @@ const importService = require('../../../../src/lib/services/import')
 // Thing under test
 const DeleteRemovedDocumentsJob = require('../../../../src/modules/nald-import/jobs/delete-removed-documents')
 
-experiment('modules/nald-import/jobs/delete-removed-documents', () => {
+experiment('NALD Import: Delete Removed Documents job', () => {
   let notifierStub
 
   beforeEach(async () => {
@@ -71,8 +71,7 @@ experiment('modules/nald-import/jobs/delete-removed-documents', () => {
       })
 
       test('logs an error message', async () => {
-        const func = () => DeleteRemovedDocumentsJob.handler()
-        await expect(func()).to.reject()
+        await expect(DeleteRemovedDocumentsJob.handler()).to.reject()
 
         expect(notifierStub.omfg.calledWith(
           'nald-import.delete-removed-documents: errored', err
@@ -80,8 +79,7 @@ experiment('modules/nald-import/jobs/delete-removed-documents', () => {
       })
 
       test('rethrows the error', async () => {
-        const func = () => DeleteRemovedDocumentsJob.handler()
-        const err = await expect(func()).to.reject()
+        const err = await expect(DeleteRemovedDocumentsJob.handler()).to.reject()
 
         expect(err.message).to.equal('Oops!')
       })
@@ -116,7 +114,7 @@ experiment('modules/nald-import/jobs/delete-removed-documents', () => {
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
-        expect(jobMessage.name).to.equal('nald-import.populate-pending-import')
+        expect(jobMessage.name).to.equal('nald-import.queue-licences')
       })
 
       experiment('but an error is thrown', () => {
@@ -127,8 +125,7 @@ experiment('modules/nald-import/jobs/delete-removed-documents', () => {
         })
 
         test('rethrows the error', async () => {
-          const func = () => DeleteRemovedDocumentsJob.onComplete(messageQueue, job)
-          const error = await expect(func()).to.reject()
+          const error = await expect(DeleteRemovedDocumentsJob.onComplete(messageQueue, job)).to.reject()
 
           expect(error).to.equal(error)
         })

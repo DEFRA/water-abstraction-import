@@ -16,7 +16,7 @@ const transform = require('../../../../src/modules/licence-import/transform/inde
 // Thing under test
 const ImportLicenceJob = require('../../../../src/modules/licence-import/jobs/import-licence.js')
 
-experiment('modules/licence-import/jobs/import-licence', () => {
+experiment('Licence Import: Import Licence job', () => {
   const licenceNumber = '01/123'
 
   let notifierStub
@@ -43,12 +43,12 @@ experiment('modules/licence-import/jobs/import-licence', () => {
       const message = ImportLicenceJob.createMessage(licenceNumber)
 
       expect(message).to.equal({
-        name: 'import.licence',
+        name: 'licence-import.import-licence',
         data: {
           licenceNumber: '01/123'
         },
         options: {
-          singletonKey: 'import.licence.01/123'
+          singletonKey: 'licence-import.import-licence.01/123'
         }
       })
     })
@@ -88,7 +88,7 @@ experiment('modules/licence-import/jobs/import-licence', () => {
         await expect(ImportLicenceJob.handler(job)).to.reject()
 
         expect(notifierStub.omfg.calledWith(
-          'import.licence: errored', err
+          'licence-import.import-licence: errored', err
         )).to.equal(true)
       })
 

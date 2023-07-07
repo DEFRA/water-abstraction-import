@@ -3,7 +3,7 @@
 const importCompanies = require('../connectors/import-companies')
 const ImportCompanyJob = require('./import-company.js')
 
-const JOB_NAME = 'import.companies'
+const JOB_NAME = 'licence-import.queue-companies'
 
 function createMessage () {
   return {
@@ -17,7 +17,7 @@ function createMessage () {
 
 async function handler () {
   try {
-    global.GlobalNotifier.omg('import.companies: started')
+    global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
     await importCompanies.clear()
     const data = await importCompanies.initialise()
@@ -29,7 +29,7 @@ async function handler () {
       }
     })
   } catch (error) {
-    global.GlobalNotifier.omfg('import.companies: errored', error)
+    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
 }
@@ -43,7 +43,7 @@ async function onComplete (messageQueue, job) {
     }
   }
 
-  global.GlobalNotifier.omg('import.companies: finished')
+  global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
 }
 
 module.exports = {

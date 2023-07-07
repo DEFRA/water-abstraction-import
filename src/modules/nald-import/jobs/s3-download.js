@@ -1,11 +1,11 @@
 'use strict'
 
-const applicationStateService = require('../../../lib/services/application-state-service')
-const deleteRemovedDocumentsJob = require('./delete-removed-documents')
-const extractService = require('../services/extract-service')
-const importLicenceJob = require('./import-licence')
-const populatePendingImportJob = require('./populate-pending-import')
-const s3Service = require('../services/s3-service')
+const applicationStateService = require('../../../lib/services/application-state-service.js')
+const DeleteRemovedDocumentsJob = require('./delete-removed-documents.js')
+const extractService = require('../services/extract-service.js')
+const ImportLicenceJob = require('./import-licence.js')
+const QueueLicences = require('./queue-licences')
+const s3Service = require('../services/s3-service.js')
 
 const JOB_NAME = 'nald-import.s3-download'
 
@@ -24,7 +24,7 @@ function createMessage (checkEtag = true) {
 
 async function handler (job) {
   try {
-    global.GlobalNotifier.omg('nald-import.s3-download: started')
+    global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
     const status = await _naldFileStatus(job.data.checkEtag)
 
@@ -36,7 +36,7 @@ async function handler (job) {
 
     return status
   } catch (error) {
-    global.GlobalNotifier.omfg('nald-import.s3-download: errored', error)
+    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
 }
@@ -48,17 +48,17 @@ async function onComplete (messageQueue, job) {
     if (isRequired) {
       // Delete existing PG boss import queues
       await Promise.all([
-        messageQueue.deleteQueue(importLicenceJob.name),
-        messageQueue.deleteQueue(deleteRemovedDocumentsJob.name),
-        messageQueue.deleteQueue(populatePendingImportJob.name)
+        messageQueue.deleteQueue(ImportLicenceJob.name),
+        messageQueue.deleteQueue(DeleteRemovedDocumentsJob.name),
+        messageQueue.deleteQueue(QueueLicences.name)
       ])
 
       // Publish a new job to delete any removed documents
-      await messageQueue.publish(deleteRemovedDocumentsJob.createMessage())
+      await messageQueue.publish(DeleteRemovedDocumentsJob.createMessage())
     }
   }
 
-  global.GlobalNotifier.omg('nald-import.s3-download: finished', job.data.response)
+  global.GlobalNotifier.omg(`${JOB_NAME}: finished`, job.data.response)
 }
 
 function _isRequired (etag, state, checkEtag) {
