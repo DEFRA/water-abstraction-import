@@ -136,7 +136,7 @@ experiment('Licence Import: Queue Licences job', () => {
 
         const jobMessage = messageQueue.publish.firstCall.args[0]
 
-        expect(jobMessage.data).to.equal({ licenceNumber: '01/123' })
+        expect(jobMessage.data).to.equal({ licenceNumber: '01/123', jobNumber: 1, numberOfJobs: 2 })
       })
 
       test('the import licence job is published to the queue for the second licence', async () => {
@@ -144,7 +144,7 @@ experiment('Licence Import: Queue Licences job', () => {
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
-        expect(jobMessage.data).to.equal({ licenceNumber: '01/124' })
+        expect(jobMessage.data).to.equal({ licenceNumber: '01/124', jobNumber: 2, numberOfJobs: 2 })
       })
 
       experiment('but an error is thrown', () => {

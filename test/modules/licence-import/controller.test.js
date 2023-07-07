@@ -103,7 +103,7 @@ experiment('modules/licence-import/controller.js', () => {
 
         expect(message).to.equal({
           name: 'licence-import.import-company',
-          data: { regionCode: 1, partyId: 37760 },
+          data: { regionCode: 1, partyId: 37760, jobNumber: 1, numberOfJobs: 1 },
           options: { singletonKey: 'licence-import.import-company.1.37760', expireIn: '1 hours' }
         })
       })
@@ -139,7 +139,7 @@ experiment('modules/licence-import/controller.js', () => {
 
         expect(message).to.equal({
           name: 'licence-import.import-licence',
-          data: { licenceNumber: '01/123' },
+          data: { licenceNumber: '01/123', jobNumber: 1, numberOfJobs: 1 },
           options: { singletonKey: 'licence-import.import-licence.01/123' }
         })
       })

@@ -33,7 +33,7 @@ async function handler () {
 async function onComplete (messageQueue, job) {
   if (!job.failed) {
     const { licenceNumbers } = job.data.response
-    const numberOfLicences = licenceNumbers.length
+    const numberOfJobs = licenceNumbers.length
 
     for (const [index, licenceNumber] of licenceNumbers.entries()) {
       // This information is to help us log when the import licence jobs start and finish. See
@@ -41,7 +41,7 @@ async function onComplete (messageQueue, job) {
       const data = {
         licenceNumber,
         jobNumber: index + 1,
-        numberOfLicences
+        numberOfJobs
       }
       await messageQueue.publish(ImportLicenceJob.createMessage(data))
     }

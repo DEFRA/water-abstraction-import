@@ -20,7 +20,14 @@ const postImport = async (request, h) => {
 }
 
 const postImportCompany = async (request, h) => {
-  const message = ImportCompanyJob.createMessage(request.query.regionCode, request.query.partyId)
+  const { regionCode, partyId } = request.query
+  const data = {
+    regionCode,
+    partyId,
+    jobNumber: 1,
+    numberOfJobs: 1
+  }
+  const message = ImportCompanyJob.createMessage(data)
 
   try {
     await request.server.messageQueue.deleteQueue(ImportCompanyJob.name)
@@ -33,7 +40,13 @@ const postImportCompany = async (request, h) => {
 }
 
 const postImportLicence = async (request, h) => {
-  const message = ImportLicenceJob.createMessage(request.query.licenceNumber)
+  const { licenceNumber } = request.query
+  const data = {
+    licenceNumber,
+    jobNumber: 1,
+    numberOfJobs: 1
+  }
+  const message = ImportLicenceJob.createMessage(data)
 
   try {
     await request.server.messageQueue.deleteQueue(ImportLicenceJob.name)

@@ -41,15 +41,25 @@ experiment('Licence Import: Import Company job', () => {
     delete global.GlobalNotifier
   })
 
+  experiment('.options', () => {
+    test('has teamSize set to 75', async () => {
+      expect(ImportCompanyJob.options.teamSize).to.equal(75)
+    })
+
+    test('has teamConcurrency set to 1', async () => {
+      expect(ImportCompanyJob.options.teamConcurrency).to.equal(1)
+    })
+  })
+
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const message = ImportCompanyJob.createMessage(regionCode, partyId)
+      const data = { regionCode, partyId, jobNumber: 1, numberOfJobs: 1 }
+      const message = ImportCompanyJob.createMessage(data)
 
       expect(message).to.equal({
         name: 'licence-import.import-company',
         data: {
-          regionCode: 1,
-          partyId: 37760
+          ...data
         },
         options: {
           singletonKey: 'licence-import.import-company.1.37760',
@@ -62,29 +72,60 @@ experiment('Licence Import: Import Company job', () => {
   experiment('.handler', () => {
     let job
 
-    beforeEach(() => {
-      job = { data: { regionCode: '1', partyId: '101' } }
-    })
-
     experiment('when the job is successful', () => {
-      test('a message is NOT logged', async () => {
-        await ImportCompanyJob.handler(job)
+      experiment('and this is the first licence to be imported', () => {
+        beforeEach(() => {
+          job = { data: { regionCode: '1', partyId: '101', jobNumber: 1, numberOfJobs: 10 } }
+        })
 
-        expect(notifierStub.omg.called).to.be.false()
+        test("a 'started' message is logged", async () => {
+          await ImportCompanyJob.handler(job)
+
+          const [message] = notifierStub.omg.lastCall.args
+
+          expect(message).to.equal('licence-import.import-company: started')
+          expect(notifierStub.omg.called).to.be.true()
+        })
+
+        test('extracts the company data, transforms it then loads it into the CRM DB', async () => {
+          await ImportCompanyJob.handler(job)
+
+          expect(extract.getCompanyData.called).to.equal(true)
+          expect(transform.company.transformCompany.called).to.equal(true)
+          expect(load.company.loadCompany.called).to.equal(true)
+        })
+
+        test('sets the import status of the water.import_company record', async () => {
+          await ImportCompanyJob.handler(job)
+
+          expect(importCompaniesConnector.setImportedStatus.called).to.equal(true)
+        })
       })
 
-      test('extracts the company data, transforms it then loads it into the CRM DB', async () => {
-        await ImportCompanyJob.handler(job)
+      experiment('and this is one of a number of licences to be imported', () => {
+        beforeEach(() => {
+          job = { data: { regionCode: '1', partyId: '101', jobNumber: 2, numberOfJobs: 10 } }
+        })
 
-        expect(extract.getCompanyData.called).to.equal(true)
-        expect(transform.company.transformCompany.called).to.equal(true)
-        expect(load.company.loadCompany.called).to.equal(true)
-      })
+        test('a message is NOT logged', async () => {
+          await ImportCompanyJob.handler(job)
 
-      test('sets the import status of the water.import_company record', async () => {
-        await ImportCompanyJob.handler(job)
+          expect(notifierStub.omg.called).to.be.false()
+        })
 
-        expect(importCompaniesConnector.setImportedStatus.called).to.equal(true)
+        test('extracts the company data, transforms it then loads it into the CRM DB', async () => {
+          await ImportCompanyJob.handler(job)
+
+          expect(extract.getCompanyData.called).to.equal(true)
+          expect(transform.company.transformCompany.called).to.equal(true)
+          expect(load.company.loadCompany.called).to.equal(true)
+        })
+
+        test('sets the import status of the water.import_company record', async () => {
+          await ImportCompanyJob.handler(job)
+
+          expect(importCompaniesConnector.setImportedStatus.called).to.equal(true)
+        })
       })
     })
 

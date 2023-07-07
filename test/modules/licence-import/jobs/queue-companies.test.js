@@ -143,7 +143,7 @@ experiment('Licence Import: Queue Companies job', () => {
 
         const jobMessage = messageQueue.publish.firstCall.args[0]
 
-        expect(jobMessage.data).to.equal({ regionCode: 1, partyId: 37760 })
+        expect(jobMessage.data).to.equal({ regionCode: 1, partyId: 37760, jobNumber: 1, numberOfJobs: 2 })
       })
 
       test('the import company job is published to the queue for the second company', async () => {
@@ -151,7 +151,7 @@ experiment('Licence Import: Queue Companies job', () => {
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
-        expect(jobMessage.data).to.equal({ regionCode: 1, partyId: 37761 })
+        expect(jobMessage.data).to.equal({ regionCode: 1, partyId: 37761, jobNumber: 2, numberOfJobs: 2 })
       })
 
       experiment('but an error is thrown', () => {

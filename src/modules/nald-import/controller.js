@@ -96,7 +96,7 @@ const postImportLicence = async (request, h) => {
   const data = {
     licenceNumber,
     jobNumber: 1,
-    numberOfLicences: 1
+    numberOfJobs: 1
   }
   const message = importLicenceJob.createMessage(data)
 
