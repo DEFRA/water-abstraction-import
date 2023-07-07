@@ -44,7 +44,7 @@ experiment('NALD Import: Import Licence job', () => {
 
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const data = { licenceNumber: 'test-licence-number', jobNumber: 1, numberOfLicences: 1 }
+      const data = { licenceNumber: 'test-licence-number', jobNumber: 1, numberOfJobs: 1 }
       const job = ImportLicenceJob.createMessage(data)
 
       expect(job).to.equal({
@@ -64,7 +64,7 @@ experiment('NALD Import: Import Licence job', () => {
       experiment('and this is the first licence to be imported', () => {
         beforeEach(async () => {
           job = {
-            data: { licenceNumber: 'test-licence-number', jobNumber: 1, numberOfLicences: 10 }
+            data: { licenceNumber: 'test-licence-number', jobNumber: 1, numberOfJobs: 10 }
           }
         })
 
@@ -87,7 +87,7 @@ experiment('NALD Import: Import Licence job', () => {
       experiment('and this is one of a number of licences to be imported', () => {
         beforeEach(async () => {
           job = {
-            data: { licenceNumber: 'test-licence-number', jobNumber: 2, numberOfLicences: 10 }
+            data: { licenceNumber: 'test-licence-number', jobNumber: 2, numberOfJobs: 10 }
           }
         })
 
@@ -107,7 +107,7 @@ experiment('NALD Import: Import Licence job', () => {
       experiment('and this is the last licence to be imported', () => {
         beforeEach(async () => {
           job = {
-            data: { licenceNumber: 'test-licence-number', jobNumber: 10, numberOfLicences: 10 }
+            data: { licenceNumber: 'test-licence-number', jobNumber: 10, numberOfJobs: 10 }
           }
         })
 
@@ -133,7 +133,7 @@ experiment('NALD Import: Import Licence job', () => {
 
       const job = {
         name: 'nald-import.import-licence',
-        data: { licenceNumber: 'test-licence-number', jobNumber: 2, numberOfLicences: 10 }
+        data: { licenceNumber: 'test-licence-number', jobNumber: 2, numberOfJobs: 10 }
       }
 
       beforeEach(async () => {

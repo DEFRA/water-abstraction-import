@@ -38,14 +38,25 @@ experiment('Licence Import: Import Licence job', () => {
     delete global.GlobalNotifier
   })
 
+  experiment('.options', () => {
+    test('has teamSize set to 75', async () => {
+      expect(ImportLicenceJob.options.teamSize).to.equal(75)
+    })
+
+    test('has teamConcurrency set to 1', async () => {
+      expect(ImportLicenceJob.options.teamConcurrency).to.equal(1)
+    })
+  })
+
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const message = ImportLicenceJob.createMessage(licenceNumber)
+      const data = { licenceNumber, jobNumber: 1, numberOfJobs: 1 }
+      const message = ImportLicenceJob.createMessage(data)
 
       expect(message).to.equal({
         name: 'licence-import.import-licence',
         data: {
-          licenceNumber: '01/123'
+          ...data
         },
         options: {
           singletonKey: 'licence-import.import-licence.01/123'
@@ -57,23 +68,77 @@ experiment('Licence Import: Import Licence job', () => {
   experiment('.handler', () => {
     let job
 
-    beforeEach(() => {
-      job = { data: { licenceNumber: '01/123' } }
-    })
-
     experiment('when the job is successful', () => {
-      test('a message is NOT logged', async () => {
-        await ImportLicenceJob.handler(job)
+      experiment('and this is the first licence to be imported', () => {
+        beforeEach(() => {
+          job = {
+            data: { licenceNumber: '01/123', jobNumber: 1, numberOfJobs: 10 }
+          }
+        })
 
-        expect(notifierStub.omg.called).to.be.false()
+        test("a 'started' message is logged", async () => {
+          await ImportLicenceJob.handler(job)
+
+          const [message] = notifierStub.omg.lastCall.args
+
+          expect(message).to.equal('licence-import.import-licence: started')
+          expect(notifierStub.omg.called).to.be.true()
+        })
+
+        test('extracts the licence data, transforms it then loads it into the DB', async () => {
+          await ImportLicenceJob.handler(job)
+
+          expect(extract.getLicenceData.called).to.equal(true)
+          expect(transform.licence.transformLicence.called).to.equal(true)
+          expect(load.licence.loadLicence.called).to.equal(true)
+        })
       })
 
-      test('extracts the licence data, transforms it then loads it into the DB', async () => {
-        await ImportLicenceJob.handler(job)
+      experiment('and this is one of a number of licences to be imported', () => {
+        beforeEach(() => {
+          job = {
+            data: { licenceNumber: '01/123', jobNumber: 2, numberOfJobs: 10 }
+          }
+        })
 
-        expect(extract.getLicenceData.called).to.equal(true)
-        expect(transform.licence.transformLicence.called).to.equal(true)
-        expect(load.licence.loadLicence.called).to.equal(true)
+        test('a message is NOT logged', async () => {
+          await ImportLicenceJob.handler(job)
+
+          expect(notifierStub.omg.called).to.be.false()
+        })
+
+        test('extracts the licence data, transforms it then loads it into the DB', async () => {
+          await ImportLicenceJob.handler(job)
+
+          expect(extract.getLicenceData.called).to.equal(true)
+          expect(transform.licence.transformLicence.called).to.equal(true)
+          expect(load.licence.loadLicence.called).to.equal(true)
+        })
+      })
+
+      experiment('and this is the last licence to be imported', () => {
+        beforeEach(() => {
+          job = {
+            data: { licenceNumber: '01/123', jobNumber: 10, numberOfJobs: 10 }
+          }
+        })
+
+        test("a 'finished' message is logged", async () => {
+          await ImportLicenceJob.handler(job)
+
+          const [message] = notifierStub.omg.lastCall.args
+          expect(message).to.equal('licence-import.import-licence: finished')
+
+          expect(notifierStub.omg.called).to.be.true()
+        })
+
+        test('extracts the licence data, transforms it then loads it into the DB', async () => {
+          await ImportLicenceJob.handler(job)
+
+          expect(extract.getLicenceData.called).to.equal(true)
+          expect(transform.licence.transformLicence.called).to.equal(true)
+          expect(load.licence.loadLicence.called).to.equal(true)
+        })
       })
     })
 

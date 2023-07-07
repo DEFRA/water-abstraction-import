@@ -37,9 +37,18 @@ async function handler () {
 async function onComplete (messageQueue, job) {
   if (!job.failed) {
     const { value: parties } = job.data.response
+    const numberOfJobs = parties.length
 
-    for (const party of parties) {
-      await messageQueue.publish(ImportCompanyJob.createMessage(party.regionCode, party.partyId))
+    for (const [index, party] of parties.entries()) {
+      // This information is to help us log when the import company jobs start and finish. See
+      // src/modules/licence-import/jobs/import-company.js for more details
+      const data = {
+        regionCode: party.regionCode,
+        partyId: party.partyId,
+        jobNumber: index + 1,
+        numberOfJobs
+      }
+      await messageQueue.publish(ImportCompanyJob.createMessage(data))
     }
   }
 

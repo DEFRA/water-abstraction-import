@@ -52,7 +52,7 @@ experiment('modules/nald-import/controller', () => {
         const [message] = request.server.messageQueue.publish.lastCall.args
         expect(message).to.equal({
           name: 'nald-import.import-licence',
-          data: { licenceNumber: 'test-licence', jobNumber: 1, numberOfLicences: 1 },
+          data: { licenceNumber: 'test-licence', jobNumber: 1, numberOfJobs: 1 },
           options: { singletonKey: 'test-licence' }
         })
       })
