@@ -1,6 +1,6 @@
 {
   "name": "water-abstraction-import",
-  "version": "2.27.0",
+  "version": "2.28.0",
   "description": "App that manages import jobs for the Water Resource Licencing Service",
   "homepage": "https://github.com/DEFRA/water-abstraction-team",
   "main": "index.js",
