@@ -81,6 +81,19 @@ module.exports = {
     'Symbol(undici.globalDispatcher.1)',
     // GlobalNotifier is added by us a global in a server plugin. It's how we make logging available anywhere in the app
     // whilst avoiding having to pass it around
-    'GlobalNotifier'
+    'GlobalNotifier',
+    // These were reported once we updated our environments to run Node v20
+    'File',
+    'PerformanceEntry',
+    'PerformanceMark',
+    'PerformanceMeasure',
+    'PerformanceObserver',
+    'PerformanceObserverEntryList',
+    'PerformanceResourceTiming',
+    'crypto',
+    'Crypto',
+    'CryptoKey',
+    'SubtleCrypto',
+    'CustomEvent'
   ].join(',')
 };
