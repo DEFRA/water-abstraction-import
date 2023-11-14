@@ -6,7 +6,7 @@
  */
 
 /**
- * We use Airbrake to capture errors thrown within the service and send them tovan instance of Errbit we maintain in
+ * We use Airbrake to capture errors thrown within the service and send them to an instance of Errbit we maintain in
  * Defra.
  *
  * {@link https://hapi.dev/api/?v=20.0.0#-request-event}
@@ -19,23 +19,17 @@
  */
 
 const { Notifier } = require('@airbrake/node')
+const Request = require('request')
 
 const { airbrake: AirbrakeConfig } = require('../../config.js')
+const { proxy } = require('../../config.js')
 
 const AirbrakePlugin = {
   name: 'airbrake',
   register: (server, _options) => {
     // We add an instance of the Airbrake Notifier so we can send notifications via Airbrake to Errbit manually if
     // needed. It's main use is when passed in as a param to RequestNotifierLib in the RequestNotifierPlugin
-    server.app.airbrake = new Notifier({
-      host: AirbrakeConfig.host,
-      projectId: AirbrakeConfig.projectId,
-      projectKey: AirbrakeConfig.projectKey,
-      environment: AirbrakeConfig.environment,
-      errorNotifications: true,
-      performanceStats: false,
-      remoteConfig: false
-    })
+    server.app.airbrake = new Notifier(_notifierArgs())
 
     // When Hapi emits a request event with an error we capture the details and use Airbrake to send a request to our
     // Errbit instance
@@ -59,6 +53,24 @@ const AirbrakePlugin = {
         })
     })
   }
+}
+
+function _notifierArgs () {
+  const args = {
+    host: AirbrakeConfig.host,
+    projectId: AirbrakeConfig.projectId,
+    projectKey: AirbrakeConfig.projectKey,
+    environment: AirbrakeConfig.environment,
+    errorNotifications: true,
+    performanceStats: false,
+    remoteConfig: false
+  }
+
+  if (proxy) {
+    args.request = Request.defaults({ proxy })
+  }
+
+  return args
 }
 
 module.exports = AirbrakePlugin
