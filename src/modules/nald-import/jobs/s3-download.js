@@ -55,7 +55,7 @@ async function onComplete (messageQueue, job) {
       ])
 
       // Publish a new job to delete any removed documents
-      await messageQueue.publish(DeleteRemovedDocumentsJob.createMessage())
+      await messageQueue.publish(DeleteRemovedDocumentsJob.createMessage(job.data.replicateReturns))
     }
   }
 

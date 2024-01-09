@@ -5,12 +5,15 @@ const QueueLicencesJob = require('./queue-licences')
 
 const JOB_NAME = 'nald-import.delete-removed-documents'
 
-function createMessage () {
+function createMessage (replicateReturns) {
   return {
     name: JOB_NAME,
     options: {
       expireIn: '1 hours',
       singletonKey: JOB_NAME
+    },
+    data: {
+      replicateReturns
     }
   }
 }
