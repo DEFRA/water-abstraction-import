@@ -45,6 +45,7 @@ async function handler (job) {
 async function onComplete (messageQueue, job) {
   if (!job.failed) {
     const { isRequired } = job.data.response
+    const { replicateReturns } = job.data.request.data
 
     if (isRequired) {
       // Delete existing PG boss import queues
@@ -55,7 +56,7 @@ async function onComplete (messageQueue, job) {
       ])
 
       // Publish a new job to delete any removed documents
-      await messageQueue.publish(DeleteRemovedDocumentsJob.createMessage(job.data.replicateReturns))
+      await messageQueue.publish(DeleteRemovedDocumentsJob.createMessage(replicateReturns))
     }
   }
 

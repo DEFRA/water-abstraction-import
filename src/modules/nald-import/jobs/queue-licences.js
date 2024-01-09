@@ -35,6 +35,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.failed) {
+    const { replicateReturns } = job.data.request.data
     const { licenceNumbers } = job.data.response
     const numberOfJobs = licenceNumbers.length
 
@@ -45,7 +46,7 @@ async function onComplete (messageQueue, job) {
         licenceNumber,
         jobNumber: index + 1,
         numberOfJobs,
-        replicateReturns: job.data.replicateReturns
+        replicateReturns
       }
       await messageQueue.publish(ImportLicenceJob.createMessage(data))
     }
