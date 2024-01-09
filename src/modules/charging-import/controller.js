@@ -7,7 +7,7 @@ const chargeVersionsJob = require('./jobs/charge-versions')
  * water service tables from NALD import tables
  * @return {Promise}
  */
-const postImportChargingData = async (request, h) => {
+const postImportChargeVersions = async (request, h) => {
   await request.messageQueue.deleteQueue(chargeVersionsJob.jobName)
   await request.messageQueue.publish(chargeVersionsJob.createMessage())
 
@@ -15,5 +15,5 @@ const postImportChargingData = async (request, h) => {
 }
 
 module.exports = {
-  postImportChargingData
+  postImportChargeVersions
 }

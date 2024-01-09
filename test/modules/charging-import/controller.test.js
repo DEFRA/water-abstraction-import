@@ -31,7 +31,7 @@ experiment('modules/charging-import/controller.js', () => {
     Sinon.restore()
   })
 
-  experiment('postImportChargingData', () => {
+  experiment('postImportChargeVersions', () => {
     let request
 
     beforeEach(async () => {
@@ -42,7 +42,7 @@ experiment('modules/charging-import/controller.js', () => {
         }
       }
 
-      await controller.postImportChargingData(request, h)
+      await controller.postImportChargeVersions(request, h)
     })
 
     test('clears the message queue of existing jobs', async () => {
