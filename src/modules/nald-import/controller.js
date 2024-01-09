@@ -116,7 +116,7 @@ const postImportLicence = async (request, h) => {
  * is always present in the queue. So, our manual trigger wouldn't work without first removing what's already there.
  */
 const postImportLicences = async (request, h) => {
-  const message = s3DownloadJob.createMessage(false)
+  const message = s3DownloadJob.createMessage(false, true)
 
   try {
     await request.server.messageQueue.deleteQueue(s3DownloadJob.name)

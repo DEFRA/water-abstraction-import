@@ -9,7 +9,7 @@ const s3Service = require('../services/s3-service.js')
 
 const JOB_NAME = 'nald-import.s3-download'
 
-function createMessage (checkEtag = true) {
+function createMessage (checkEtag = true, replicateReturns = false) {
   return {
     name: JOB_NAME,
     options: {
@@ -17,7 +17,8 @@ function createMessage (checkEtag = true) {
       singletonKey: JOB_NAME
     },
     data: {
-      checkEtag
+      checkEtag,
+      replicateReturns
     }
   }
 }
