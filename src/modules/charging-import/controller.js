@@ -1,6 +1,7 @@
 'use strict'
 
 const chargeVersionsJob = require('./jobs/charge-versions')
+const chargingDataJob = require('./jobs/charging-data.js')
 
 /**
  * Run SQL queries to import charge versions / elements into
@@ -14,6 +15,14 @@ const postImportChargeVersions = async (request, h) => {
   return h.response().code(204)
 }
 
+const postImportChargingData = async (request, h) => {
+  await request.messageQueue.deleteQueue(chargingDataJob.jobName)
+  await request.messageQueue.publish(chargingDataJob.createMessage())
+
+  return h.response().code(204)
+}
+
 module.exports = {
-  postImportChargeVersions
+  postImportChargeVersions,
+  postImportChargingData
 }
