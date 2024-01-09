@@ -45,7 +45,7 @@ const getUpdateRow = (row) => {
  * @param {Object} row
  * @return {Promise} resolves when row is created/updated
  */
-const createOrUpdateReturn = async row => {
+const createOrUpdateReturn = async (row, replicateReturns) => {
   const { return_id: returnId } = row
 
   const exists = await returnExists(returnId)
@@ -58,7 +58,7 @@ const createOrUpdateReturn = async row => {
     const thisReturn = await returns.create(row)
 
     /* For non-production environments, we allow the system to import the returns data so we can test billing */
-    if (!config.isProduction && config.import.nald.overwriteReturns) {
+    if (!config.isProduction && replicateReturns) {
       await replicateReturnsDataFromNaldForNonProductionEnvironments(row)
     }
     return thisReturn
@@ -68,14 +68,15 @@ const createOrUpdateReturn = async row => {
 /**
  * Persists list of returns to API
  * @param {Array} returns
+ * @param {Boolean} replicateReturns
  * @return {Promise} resolves when all processed
  */
-const persistReturns = async (returns) => {
+const persistReturns = async (returns, replicateReturns) => {
   for (const ret of returns) {
-    if (!config.isProduction && config.import.nald.overwriteReturns) {
+    if (!config.isProduction && replicateReturns) {
       await returnsApi.deleteAllReturnsData(ret.return_id)
     }
-    await createOrUpdateReturn(ret)
+    await createOrUpdateReturn(ret, replicateReturns)
   }
 }
 
