@@ -6,12 +6,15 @@ const importService = require('../../../lib/services/import')
 
 const JOB_NAME = 'nald-import.queue-licences'
 
-function createMessage () {
+function createMessage (replicateReturns) {
   return {
     name: JOB_NAME,
     options: {
       expireIn: '1 hours',
       singletonKey: JOB_NAME
+    },
+    data: {
+      replicateReturns
     }
   }
 }

@@ -32,7 +32,7 @@ async function handler () {
 async function onComplete (messageQueue, job) {
   // Publish a new job to populate pending import table but only if delete removed documents was successful
   if (!job.failed) {
-    await messageQueue.publish(QueueLicencesJob.createMessage())
+    await messageQueue.publish(QueueLicencesJob.createMessage(job.data.replicateReturns))
   }
 
   global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
