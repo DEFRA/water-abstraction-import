@@ -44,7 +44,8 @@ async function onComplete (messageQueue, job) {
       const data = {
         licenceNumber,
         jobNumber: index + 1,
-        numberOfJobs
+        numberOfJobs,
+        replicateReturns: job.data.replicateReturns
       }
       await messageQueue.publish(ImportLicenceJob.createMessage(data))
     }
