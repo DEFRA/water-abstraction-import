@@ -9,7 +9,7 @@ const s3Service = require('../services/s3-service.js')
 
 const JOB_NAME = 'nald-import.s3-download'
 
-function createMessage (checkEtag = true) {
+function createMessage (checkEtag = true, replicateReturns = false) {
   return {
     name: JOB_NAME,
     options: {
@@ -17,7 +17,8 @@ function createMessage (checkEtag = true) {
       singletonKey: JOB_NAME
     },
     data: {
-      checkEtag
+      checkEtag,
+      replicateReturns
     }
   }
 }
@@ -44,6 +45,7 @@ async function handler (job) {
 async function onComplete (messageQueue, job) {
   if (!job.failed) {
     const { isRequired } = job.data.response
+    const { replicateReturns } = job.data.request.data
 
     if (isRequired) {
       // Delete existing PG boss import queues
@@ -54,7 +56,7 @@ async function onComplete (messageQueue, job) {
       ])
 
       // Publish a new job to delete any removed documents
-      await messageQueue.publish(DeleteRemovedDocumentsJob.createMessage())
+      await messageQueue.publish(DeleteRemovedDocumentsJob.createMessage(replicateReturns))
     }
   }
 

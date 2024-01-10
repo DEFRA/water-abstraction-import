@@ -31,12 +31,12 @@ const loadPermitAndDocumentHeader = async (licenceNumber, licenceData) => {
  * Calculates and imports a list of return cycles for the given licence
  * based on NALD formats and form logs
  * @param {String} licenceNumber
- * @param {Object} licenceData - extracted from NALD import tables
+ * @param {Boolean} replicateReturns
  * @return {Promise} resolves when returns imported
  */
-const loadReturns = async (licenceNumber) => {
+const loadReturns = async (licenceNumber, replicateReturns) => {
   const { returns } = await buildReturnsPacket(licenceNumber)
-  await persistReturns(returns)
+  await persistReturns(returns, replicateReturns)
 
   // Clean up invalid cycles
   const returnIds = returns.map(row => row.return_id)
@@ -46,14 +46,15 @@ const loadReturns = async (licenceNumber) => {
 /**
  * Imports the whole licence
  * @param {String} licenceNumber
+ * @param {Boolean} replicateReturns
  * @return {Promise} resolves when complete
  */
-const load = async (licenceNumber) => {
+const load = async (licenceNumber, replicateReturns) => {
   const licenceData = await getLicenceJson(licenceNumber)
 
   if (licenceData.data.versions.length > 0) {
     await loadPermitAndDocumentHeader(licenceNumber, licenceData)
-    await loadReturns(licenceNumber)
+    await loadReturns(licenceNumber, replicateReturns)
   }
 }
 

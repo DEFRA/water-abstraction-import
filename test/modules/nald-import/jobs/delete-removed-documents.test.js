@@ -15,6 +15,8 @@ const importService = require('../../../../src/lib/services/import')
 const DeleteRemovedDocumentsJob = require('../../../../src/modules/nald-import/jobs/delete-removed-documents')
 
 experiment('NALD Import: Delete Removed Documents job', () => {
+  const replicateReturns = false
+
   let notifierStub
 
   beforeEach(async () => {
@@ -34,13 +36,16 @@ experiment('NALD Import: Delete Removed Documents job', () => {
 
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const message = DeleteRemovedDocumentsJob.createMessage()
+      const message = DeleteRemovedDocumentsJob.createMessage(replicateReturns)
 
       expect(message).to.equal({
         name: 'nald-import.delete-removed-documents',
         options: {
           expireIn: '1 hours',
           singletonKey: 'nald-import.delete-removed-documents'
+        },
+        data: {
+          replicateReturns: false
         }
       })
     })
@@ -98,7 +103,10 @@ experiment('NALD Import: Delete Removed Documents job', () => {
 
     experiment('when the job succeeds', () => {
       beforeEach(async () => {
-        job = { failed: false }
+        job = {
+          failed: false,
+          data: { request: { data: { replicateReturns: false } } }
+        }
       })
 
       test('a message is logged', async () => {

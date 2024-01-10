@@ -5,12 +5,15 @@ const QueueLicencesJob = require('./queue-licences')
 
 const JOB_NAME = 'nald-import.delete-removed-documents'
 
-function createMessage () {
+function createMessage (replicateReturns) {
   return {
     name: JOB_NAME,
     options: {
       expireIn: '1 hours',
       singletonKey: JOB_NAME
+    },
+    data: {
+      replicateReturns
     }
   }
 }
@@ -29,7 +32,9 @@ async function handler () {
 async function onComplete (messageQueue, job) {
   // Publish a new job to populate pending import table but only if delete removed documents was successful
   if (!job.failed) {
-    await messageQueue.publish(QueueLicencesJob.createMessage())
+    const { replicateReturns } = job.data.request.data
+
+    await messageQueue.publish(QueueLicencesJob.createMessage(replicateReturns))
   }
 
   global.GlobalNotifier.omg(`${JOB_NAME}: finished`)

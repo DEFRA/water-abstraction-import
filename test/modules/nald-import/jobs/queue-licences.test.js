@@ -16,6 +16,8 @@ const assertImportTablesExist = require('../../../../src/modules/nald-import/lib
 const QueueLicencesJob = require('../../../../src/modules/nald-import/jobs/queue-licences.js')
 
 experiment('NALD Import: Queue Licences job', () => {
+  const replicateReturns = false
+
   let notifierStub
 
   beforeEach(async () => {
@@ -39,13 +41,16 @@ experiment('NALD Import: Queue Licences job', () => {
 
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const message = QueueLicencesJob.createMessage()
+      const message = QueueLicencesJob.createMessage(replicateReturns)
 
       expect(message).to.equal({
         name: 'nald-import.queue-licences',
         options: {
           expireIn: '1 hours',
           singletonKey: 'nald-import.queue-licences'
+        },
+        data: {
+          replicateReturns: false
         }
       })
     })
@@ -122,6 +127,7 @@ experiment('NALD Import: Queue Licences job', () => {
         job = {
           failed: false,
           data: {
+            request: { data: { replicateReturns: false } },
             response: {
               licenceNumbers: [
                 'licence-1',
@@ -144,7 +150,9 @@ experiment('NALD Import: Queue Licences job', () => {
 
         const jobMessage = messageQueue.publish.firstCall.args[0]
 
-        expect(jobMessage.data).to.equal({ licenceNumber: 'licence-1', jobNumber: 1, numberOfJobs: 2 })
+        expect(jobMessage.data).to.equal({
+          licenceNumber: 'licence-1', jobNumber: 1, numberOfJobs: 2, replicateReturns: false
+        })
       })
 
       test('the import licence job is published to the queue for the second licence', async () => {
@@ -152,7 +160,9 @@ experiment('NALD Import: Queue Licences job', () => {
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
-        expect(jobMessage.data).to.equal({ licenceNumber: 'licence-2', jobNumber: 2, numberOfJobs: 2 })
+        expect(jobMessage.data).to.equal({
+          licenceNumber: 'licence-2', jobNumber: 2, numberOfJobs: 2, replicateReturns: false
+        })
       })
 
       experiment('but an error is thrown', () => {

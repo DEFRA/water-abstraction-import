@@ -55,7 +55,7 @@ async function handler (job) {
     }
 
     // Import the licence
-    await licenceLoader.load(job.data.licenceNumber)
+    await licenceLoader.load(job.data.licenceNumber, job.data.replicateReturns)
 
     if (job.data.jobNumber === job.data.numberOfJobs) {
       global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { numberOfJobs: job.data.numberOfJobs })
