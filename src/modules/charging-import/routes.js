@@ -5,7 +5,12 @@ const controller = require('./controller')
 module.exports = [
   {
     method: 'post',
+    handler: controller.postImportChargeVersions,
+    path: '/import/charge-versions'
+  },
+  {
+    method: 'post',
     handler: controller.postImportChargingData,
-    path: '/import/1.0/charging'
+    path: '/import/charging-data'
   }
 ]
