@@ -33,6 +33,9 @@ const createLicence = (expiryDate = null) => ({
       timeLimitedStartDate: null,
       timeLimitedEndDate: null,
       notes: 'testing',
+      instantQuantity: 1,
+      hourlyQuantity: 10,
+      dailyQuantity: 20,
       annualQuantity: 100,
       conditions: [{
         code: 'AGG',
@@ -62,6 +65,9 @@ const createLicence = (expiryDate = null) => ({
       timeLimitedStartDate: null,
       timeLimitedEndDate: null,
       notes: 'testing',
+      instantQuantity: 1,
+      hourlyQuantity: 10,
+      dailyQuantity: 20,
       annualQuantity: 100,
       conditions: []
     }]
@@ -219,6 +225,9 @@ experiment('modules/licence-import/load/licence', () => {
       expect(purpose.timeLimitedStartDate).to.equal(null)
       expect(purpose.timeLimitedEndDate).to.equal(null)
       expect(purpose.notes).to.equal('testing')
+      expect(purpose.instantQuantity).to.equal(1)
+      expect(purpose.hourlyQuantity).to.equal(10)
+      expect(purpose.dailyQuantity).to.equal(20)
       expect(purpose.annualQuantity).to.equal(100)
     })
 
