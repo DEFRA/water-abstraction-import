@@ -108,6 +108,9 @@ const createLicenceVersionPurpose = async (purpose, licenceVersionId) => {
     purpose.timeLimitedStartDate,
     purpose.timeLimitedEndDate,
     purpose.notes,
+    purpose.instantQuantity,
+    purpose.hourlyQuantity,
+    purpose.dailyQuantity,
     purpose.annualQuantity,
     purpose.externalId
   ]

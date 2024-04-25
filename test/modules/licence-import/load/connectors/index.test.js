@@ -473,6 +473,9 @@ experiment('modules/licence-import/load/connectors', () => {
         timeLimitedStartDate: null,
         timeLimitedEndDate: null,
         notes: 'notes',
+        instantQuantity: 10,
+        hourlyQuantity: 10,
+        dailyQuantity: 100,
         annualQuantity: 1000,
         externalId: '1:111222'
       }
@@ -500,6 +503,9 @@ experiment('modules/licence-import/load/connectors', () => {
         purpose.timeLimitedStartDate,
         purpose.timeLimitedEndDate,
         purpose.notes,
+        purpose.instantQuantity,
+        purpose.hourlyQuantity,
+        purpose.dailyQuantity,
         purpose.annualQuantity,
         purpose.externalId
       ])

@@ -36,6 +36,9 @@ experiment('modules/licence-import/transform/mappers/licence-purpose', () => {
         PERIOD_ST_MONTH: '10',
         PERIOD_END_DAY: '21',
         PERIOD_END_MONTH: '11',
+        INST_QTY: '1',
+        HOURLY_QTY: '10',
+        DAILY_QTY: '100',
         ANNUAL_QTY: '1000',
         TIMELTD_ST_DATE: 'null',
         TIMELTD_END_DATE: 'null',
@@ -112,11 +115,41 @@ experiment('modules/licence-import/transform/mappers/licence-purpose', () => {
       expect(mapped.notes).to.equal(null)
     })
 
+    test('maps the instant quantity', async () => {
+      expect(mapped.instantQuantity).to.equal(1)
+    })
+
+    test('maps the instant quantity to null when string null', async () => {
+      purpose.INST_QTY = 'null'
+      mapped = mapLicencePurpose(purpose)
+      expect(mapped.instantQuantity).to.equal(null)
+    })
+
+    test('maps the hourly quantity', async () => {
+      expect(mapped.hourlyQuantity).to.equal(10)
+    })
+
+    test('maps the hourly quantity to null when string null', async () => {
+      purpose.HOURLY_QTY = 'null'
+      mapped = mapLicencePurpose(purpose)
+      expect(mapped.hourlyQuantity).to.equal(null)
+    })
+
+    test('maps the annual quantity', async () => {
+      expect(mapped.dailyQuantity).to.equal(100)
+    })
+
+    test('maps the annual quantity to null when string null', async () => {
+      purpose.DAILY_QTY = 'null'
+      mapped = mapLicencePurpose(purpose)
+      expect(mapped.dailyQuantity).to.equal(null)
+    })
+
     test('maps the annual quantity', async () => {
       expect(mapped.annualQuantity).to.equal(1000)
     })
 
-    test('maps the notes to null when string null', async () => {
+    test('maps the annual quantity to null when string null', async () => {
       purpose.ANNUAL_QTY = 'null'
       mapped = mapLicencePurpose(purpose)
       expect(mapped.annualQuantity).to.equal(null)

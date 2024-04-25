@@ -17,6 +17,15 @@ const mapLicencePurpose = data => {
     timeLimitedStartDate: dateMapper.mapNaldDate(data.TIMELTD_ST_DATE),
     timeLimitedEndDate: dateMapper.mapNaldDate(data.TIMELTD_END_DATE),
     notes: nald.stringNullToNull(data.NOTES),
+    instantQuantity: nald.stringNullToNull(data.INST_QTY) === null
+      ? null
+      : +data.INST_QTY,
+    hourlyQuantity: nald.stringNullToNull(data.HOURLY_QTY) === null
+      ? null
+      : +data.HOURLY_QTY,
+    dailyQuantity: nald.stringNullToNull(data.DAILY_QTY) === null
+      ? null
+      : +data.DAILY_QTY,
     annualQuantity: nald.stringNullToNull(data.ANNUAL_QTY) === null
       ? null
       : +data.ANNUAL_QTY,
