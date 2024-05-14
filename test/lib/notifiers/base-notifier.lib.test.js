@@ -103,7 +103,7 @@ experiment('BaseNotifierLib class', () => {
       experiment('and a message and some data is to be logged', () => {
         test("logs a correctly formatted 'error' level entry", () => {
           const testNotifier = new BaseNotifierLib()
-          testNotifier.omfg(message, { id })
+          testNotifier.omfg(message, null, { id })
 
           const logPacketArgs = pinoFake.error.args[0]
 
@@ -115,7 +115,7 @@ experiment('BaseNotifierLib class', () => {
 
         test("sends the expected notification to 'Errbit'", () => {
           const testNotifier = new BaseNotifierLib()
-          testNotifier.omfg(message, { id })
+          testNotifier.omfg(message, null, { id })
 
           const { error, session } = airbrakeFake.notify.args[0][0]
 
@@ -128,7 +128,7 @@ experiment('BaseNotifierLib class', () => {
       experiment('and a message, some data and an error is to be logged', () => {
         test("logs a correctly formatted 'error' level entry", () => {
           const testNotifier = new BaseNotifierLib()
-          testNotifier.omfg(message, { id }, testError)
+          testNotifier.omfg(message, testError, { id })
 
           const logPacketArgs = pinoFake.error.args[0]
 
@@ -140,7 +140,7 @@ experiment('BaseNotifierLib class', () => {
 
         test("sends the expected notification to 'Errbit'", () => {
           const testNotifier = new BaseNotifierLib()
-          testNotifier.omfg(message, { id }, testError)
+          testNotifier.omfg(message, testError, { id })
 
           const { error, session } = airbrakeFake.notify.args[0][0]
 
@@ -153,7 +153,7 @@ experiment('BaseNotifierLib class', () => {
       experiment('and a message, no data but an error is to be logged', () => {
         test("logs a correctly formatted 'error' level entry", () => {
           const testNotifier = new BaseNotifierLib()
-          testNotifier.omfg(message, null, testError)
+          testNotifier.omfg(message, testError, null)
 
           const logPacketArgs = pinoFake.error.args[0]
 
@@ -164,7 +164,7 @@ experiment('BaseNotifierLib class', () => {
 
         test("sends the expected notification to 'Errbit'", () => {
           const testNotifier = new BaseNotifierLib()
-          testNotifier.omfg(message, null, testError)
+          testNotifier.omfg(message, testError, null)
 
           const { error, session } = airbrakeFake.notify.args[0][0]
 

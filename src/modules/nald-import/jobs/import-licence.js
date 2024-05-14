@@ -61,7 +61,7 @@ async function handler (job) {
       global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { numberOfJobs: job.data.numberOfJobs })
     }
   } catch (error) {
-    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, job.data, error)
+    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error, job.data)
     throw error
   }
 }

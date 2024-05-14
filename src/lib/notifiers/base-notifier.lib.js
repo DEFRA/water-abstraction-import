@@ -75,12 +75,12 @@ class BaseNotifierLib {
    * ```
    *
    * @param {string} message Message to add to the log (ERROR)
-   * @param {Object} [data={}] An object containing any values to be logged and sent in the notification to Errbit, for
-   *  example, a bill run ID. Defaults to an empty object
    * @param {Error} [error=null] An instance of the error to be logged and sent to Errbit. If no error is provided one
    *  will be created using `message` as the error message
+   * @param {Object} [data={}] An object containing any values to be logged and sent in the notification to Errbit, for
+   *  example, a bill run ID. Defaults to an empty object
    */
-  omfg (message, data = {}, error = null) {
+  omfg (message, error = null, data = {}) {
     // This deals with anyone calling omfg() with `omfg('It broke', null, error)` which would cause things to break
     if (!data) {
       data = {}

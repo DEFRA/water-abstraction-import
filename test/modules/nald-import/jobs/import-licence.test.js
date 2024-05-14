@@ -145,8 +145,8 @@ experiment('NALD Import: Import Licence job', () => {
 
         expect(notifierStub.omfg.calledWith(
           'nald-import.import-licence: errored',
-          job.data,
-          err
+          err,
+          job.data
         )).to.be.true()
       })
 
