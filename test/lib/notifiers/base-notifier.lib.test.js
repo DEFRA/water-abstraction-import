@@ -11,7 +11,7 @@ const { expect } = Code
 // Thing under test
 const BaseNotifierLib = require('../../../src/lib/notifiers/base-notifier.lib.js')
 
-experiment.only('BaseNotifierLib class', () => {
+experiment('BaseNotifierLib class', () => {
   const id = '1234567890'
   const message = 'say what test'
 
