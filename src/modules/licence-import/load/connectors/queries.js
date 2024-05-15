@@ -170,6 +170,9 @@ const createLicenceVersionPurpose = `insert into water.licence_version_purposes 
     time_limited_start_date,
     time_limited_end_date,
     notes,
+    instant_quantity,
+    hourly_quantity,
+    daily_quantity,
     annual_quantity,
     external_id,
     date_created,
@@ -188,6 +191,9 @@ const createLicenceVersionPurpose = `insert into water.licence_version_purposes 
     $11,
     $12,
     $13,
+    $14,
+    $15,
+    $16,
     now(),
     now()
   ) on conflict (external_id) do update set
@@ -201,6 +207,9 @@ const createLicenceVersionPurpose = `insert into water.licence_version_purposes 
     time_limited_start_date = excluded.time_limited_start_date,
     time_limited_end_date = excluded.time_limited_end_date,
     notes = excluded.notes,
+    instant_quantity = excluded.instant_quantity,
+    hourly_quantity = excluded.hourly_quantity,
+    daily_quantity = excluded.daily_quantity,
     annual_quantity = excluded.annual_quantity,
     date_updated = now()
     returning licence_version_purpose_id;`
