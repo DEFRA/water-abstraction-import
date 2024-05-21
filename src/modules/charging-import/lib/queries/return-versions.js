@@ -62,7 +62,7 @@ const importReturnRequirements = `insert into water.return_requirements  ( retur
     when 'Q' then 'quarter'
     when 'A' then 'year'
     end
-  )::water.collection_frequency as collection_frequency,
+  ) as collection_frequency,
   now() as date_created,
   now() as date_updated from import."NALD_RET_FORMATS" nrf join water.return_versions rv on concat_ws(':', nrf."FGAC_REGION_CODE", nrf."ARVN_AABL_ID", nrf."ARVN_VERS_NO")=rv.external_id on conflict(external_id) do update  set
   abstraction_period_start_day=excluded.abstraction_period_start_day,
@@ -100,8 +100,18 @@ join water.purposes_uses u on nrp."APUR_APUS_CODE"=u.legacy_id
 join water.return_requirements r on r.external_id = concat_ws(':', nrp."FGAC_REGION_CODE", nrp."ARTY_ID") on conflict(external_id) do update set  purpose_alias=excluded.purpose_alias, date_updated=excluded.date_updated;
 `
 
+const importReturnVersionsMultipleUpload = `update water.return_versions
+set multiple_upload = distinctReturnRequirements.is_upload
+from (
+  select distinct on (rr.return_version_id) rr.return_version_id, rr.is_upload
+  from water.return_requirements rr
+) as distinctReturnRequirements
+where water.return_versions.return_version_id = distinctReturnRequirements.return_version_id
+`
+
 module.exports = {
   importReturnVersions,
   importReturnRequirements,
-  importReturnRequirementPurposes
+  importReturnRequirementPurposes,
+  importReturnVersionsMultipleUpload
 }
