@@ -1,8 +1,8 @@
 'use strict'
 
-const importReturnVersions = `insert into water.return_versions (licence_id, version_number, start_date, end_date, status, external_id, date_created, date_updated) select 
-      l.licence_id, 
-      nrv."VERS_NO"::integer as version_number, 
+const importReturnVersions = `insert into water.return_versions (licence_id, version_number, start_date, end_date, status, external_id, date_created, date_updated) select
+      l.licence_id,
+      nrv."VERS_NO"::integer as version_number,
       to_date(nrv."EFF_ST_DATE", 'DD/MM/YYYY') as start_date,
       case nrv."EFF_END_DATE"
         when 'null' then null
@@ -31,9 +31,10 @@ const importReturnRequirements = `insert into water.return_requirements  ( retur
   is_upload,
   external_id,
   returns_frequency,
+  collection_frequency,
   date_created,
   date_updated
-  ) select  rv.return_version_id, 
+  ) select  rv.return_version_id,
   nrf."ID"::integer as legacy_id,
   nullif(nrf."ABS_PERIOD_ST_DAY", 'null')::smallint as abstraction_period_start_day,
   nullif(nrf."ABS_PERIOD_ST_MONTH", 'null')::smallint as abstraction_period_start_month,
@@ -44,7 +45,7 @@ const importReturnRequirements = `insert into water.return_requirements  ( retur
   nrf."FORM_PRODN_MONTH" in ('65', '45', '80') as is_summer,
   nrf."FORM_PRODN_MONTH" in ('65', '66') as is_upload,
   concat_ws(':', nrf."FGAC_REGION_CODE", nrf."ID") as external_id,
-  (case nrf."ARTC_REC_FREQ_CODE"
+  (case nrf."ARTC_RET_FREQ_CODE"
     when 'D' then 'day'
     when 'W' then 'week'
     when 'F' then 'fortnight'
@@ -53,6 +54,15 @@ const importReturnRequirements = `insert into water.return_requirements  ( retur
     when 'A' then 'year'
     end
   )::water.returns_frequency as returns_frequency,
+  (case nrf."ARTC_REC_FREQ_CODE"
+    when 'D' then 'day'
+    when 'W' then 'week'
+    when 'F' then 'fortnight'
+    when 'M' then 'month'
+    when 'Q' then 'quarter'
+    when 'A' then 'year'
+    end
+  )::water.collection_frequency as collection_frequency,
   now() as date_created,
   now() as date_updated from import."NALD_RET_FORMATS" nrf join water.return_versions rv on concat_ws(':', nrf."FGAC_REGION_CODE", nrf."ARVN_AABL_ID", nrf."ARVN_VERS_NO")=rv.external_id on conflict(external_id) do update  set
   abstraction_period_start_day=excluded.abstraction_period_start_day,
@@ -64,6 +74,7 @@ const importReturnRequirements = `insert into water.return_requirements  ( retur
   is_summer=excluded.is_summer,
   is_upload=excluded.is_upload,
   returns_frequency=excluded.returns_frequency,
+  collection_frequency=excluded.collection_frequency,
   date_updated=excluded.date_updated;`
 
 const importReturnRequirementPurposes = `insert into water.return_requirement_purposes (
@@ -76,8 +87,8 @@ const importReturnRequirementPurposes = `insert into water.return_requirement_pu
   date_created,
   date_updated
 ) select  r.return_requirement_id,
-p.purpose_primary_id, 
-s.purpose_secondary_id, 
+p.purpose_primary_id,
+s.purpose_secondary_id,
 u.purpose_use_id,
 concat_ws(':', nrp."FGAC_REGION_CODE", nrp."ARTY_ID", nrp."APUR_APPR_CODE", nrp."APUR_APSE_CODE", nrp."APUR_APUS_CODE") as external_id,
 nullif(nrp."PURP_ALIAS", 'null') as purpose_alias,
