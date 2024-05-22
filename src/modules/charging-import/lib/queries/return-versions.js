@@ -109,9 +109,18 @@ from (
 where water.return_versions.return_version_id = distinctReturnRequirements.return_version_id
 `
 
+const importReturnVersionsCreateNotesFromDescriptions = `update water.return_versions rv
+set notes = (
+select string_agg(nrf."DESCR", ', ')
+from import."NALD_RET_FORMATS" nrf
+where nrf."ARVN_AABL_ID" = split_part(rv.external_id, ':',2)
+)
+`
+
 module.exports = {
   importReturnVersions,
   importReturnRequirements,
   importReturnRequirementPurposes,
+  importReturnVersionsCreateNotesFromDescriptions,
   importReturnVersionsMultipleUpload
 }

@@ -27,7 +27,8 @@ const handler = async () => {
       returnVersionQueries.importReturnVersions,
       returnVersionQueries.importReturnRequirements,
       returnVersionQueries.importReturnRequirementPurposes,
-      returnVersionQueries.importReturnVersionsMultipleUpload
+      returnVersionQueries.importReturnVersionsMultipleUpload,
+      returnVersionQueries.importReturnVersionsCreateNotesFromDescriptions
     ])
 
     global.GlobalNotifier.omg('import.charging-data: finished')
