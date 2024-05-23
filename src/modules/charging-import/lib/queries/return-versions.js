@@ -32,6 +32,7 @@ const importReturnRequirements = `insert into water.return_requirements  ( retur
   external_id,
   returns_frequency,
   collection_frequency,
+  two_part_tariff,
   date_created,
   date_updated
   ) select  rv.return_version_id,
@@ -63,6 +64,10 @@ const importReturnRequirements = `insert into water.return_requirements  ( retur
     when 'A' then 'year'
     end
   ) as collection_frequency,
+  (case
+    when nrf."TPT_FLAG" = 'Y' then TRUE
+    else FALSE
+    end) as two_part_tariff,
   now() as date_created,
   now() as date_updated from import."NALD_RET_FORMATS" nrf join water.return_versions rv on concat_ws(':', nrf."FGAC_REGION_CODE", nrf."ARVN_AABL_ID", nrf."ARVN_VERS_NO")=rv.external_id on conflict(external_id) do update  set
   abstraction_period_start_day=excluded.abstraction_period_start_day,
@@ -75,6 +80,7 @@ const importReturnRequirements = `insert into water.return_requirements  ( retur
   is_upload=excluded.is_upload,
   returns_frequency=excluded.returns_frequency,
   collection_frequency=excluded.collection_frequency,
+  two_part_tariff=excluded.two_part_tariff,
   date_updated=excluded.date_updated;`
 
 const importReturnRequirementPurposes = `insert into water.return_requirement_purposes (
