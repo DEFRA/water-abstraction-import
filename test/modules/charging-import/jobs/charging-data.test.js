@@ -57,6 +57,7 @@ experiment('modules/charging-import/jobs/charging-data.js', () => {
             purposesQueries.importValidPurposeCombinations,
             returnVersionQueries.importReturnVersions,
             returnVersionQueries.importReturnRequirements,
+            returnVersionQueries.importReturnRequirementPoints,
             returnVersionQueries.importReturnRequirementPurposes,
             returnVersionQueries.importReturnVersionsMultipleUpload,
             returnVersionQueries.importReturnVersionsCreateNotesFromDescriptions

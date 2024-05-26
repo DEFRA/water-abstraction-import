@@ -106,6 +106,34 @@ join water.purposes_uses u on nrp."APUR_APUS_CODE"=u.legacy_id
 join water.return_requirements r on r.external_id = concat_ws(':', nrp."FGAC_REGION_CODE", nrp."ARTY_ID") on conflict(external_id) do update set  purpose_alias=excluded.purpose_alias, date_updated=excluded.date_updated;
 `
 
+const importReturnRequirementPoints = `insert into water.return_requirement_points (
+  return_requirement_id,
+  description,
+  ngr_1,
+  ngr_2,
+  ngr_3,
+  ngr_4,
+  external_id
+  )
+  select
+  rr.return_requirement_id,
+  np."LOCAL_NAME" as description,
+  concat_ws(' ', np."NGR1_SHEET", np."NGR1_EAST", np."NGR1_NORTH") AS ngr_1,
+  case np."NGR2_SHEET" when 'null' then null else concat_ws(' ', np."NGR2_SHEET", np."NGR2_EAST", np."NGR2_NORTH") end AS ngr_2,
+  case np."NGR3_SHEET" when 'null' then null else concat_ws(' ', np."NGR3_SHEET", np."NGR3_EAST", np."NGR3_NORTH") end AS ngr_3,
+  case np."NGR4_SHEET" when 'null' then null else concat_ws(' ', np."NGR4_SHEET", np."NGR4_EAST", np."NGR4_NORTH") end AS ngr_4,
+  concat_ws(':', nrfp."FGAC_REGION_CODE", nrfp."ARTY_ID", nrfp."AAIP_ID") as external_id
+  from import."NALD_RET_FMT_POINTS" nrfp
+  join water.return_requirements rr on nrfp."FGAC_REGION_CODE"=split_part(rr.external_id, ':',1) and nrfp."ARTY_ID"=split_part(rr.external_id, ':',2)
+  join import."NALD_POINTS" np on np."ID"=nrfp."AAIP_ID" and np."FGAC_REGION_CODE"=nrfp."FGAC_REGION_CODE"
+  on conflict(external_id) do update set
+  description=excluded.description,
+  ngr_1=excluded.ngr_1,
+  ngr_2=excluded.ngr_2,
+  ngr_3=excluded.ngr_3,
+  ngr_4=excluded.ngr_4;
+`
+
 const importReturnVersionsMultipleUpload = `update water.return_versions
 set multiple_upload = distinctReturnRequirements.is_upload
 from (
@@ -126,6 +154,7 @@ where nrf."ARVN_AABL_ID" = split_part(rv.external_id, ':',2)
 module.exports = {
   importReturnVersions,
   importReturnRequirements,
+  importReturnRequirementPoints,
   importReturnRequirementPurposes,
   importReturnVersionsCreateNotesFromDescriptions,
   importReturnVersionsMultipleUpload
