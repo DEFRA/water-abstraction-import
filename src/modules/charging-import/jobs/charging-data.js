@@ -26,6 +26,7 @@ const handler = async () => {
       purposesQueries.importValidPurposeCombinations,
       returnVersionQueries.importReturnVersions,
       returnVersionQueries.importReturnRequirements,
+      returnVersionQueries.importReturnRequirementPoints,
       returnVersionQueries.importReturnRequirementPurposes,
       returnVersionQueries.importReturnVersionsMultipleUpload,
       returnVersionQueries.importReturnVersionsCreateNotesFromDescriptions
