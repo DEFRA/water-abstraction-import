@@ -113,7 +113,8 @@ const importReturnRequirementPoints = `insert into water.return_requirement_poin
   ngr_2,
   ngr_3,
   ngr_4,
-  external_id
+  external_id,
+  nald_point_id
   )
   select
   rr.return_requirement_id,
@@ -122,7 +123,8 @@ const importReturnRequirementPoints = `insert into water.return_requirement_poin
   case np."NGR2_SHEET" when 'null' then null else concat_ws(' ', np."NGR2_SHEET", np."NGR2_EAST", np."NGR2_NORTH") end AS ngr_2,
   case np."NGR3_SHEET" when 'null' then null else concat_ws(' ', np."NGR3_SHEET", np."NGR3_EAST", np."NGR3_NORTH") end AS ngr_3,
   case np."NGR4_SHEET" when 'null' then null else concat_ws(' ', np."NGR4_SHEET", np."NGR4_EAST", np."NGR4_NORTH") end AS ngr_4,
-  concat_ws(':', nrfp."FGAC_REGION_CODE", nrfp."ARTY_ID", nrfp."AAIP_ID") as external_id
+  concat_ws(':', nrfp."FGAC_REGION_CODE", nrfp."ARTY_ID", nrfp."AAIP_ID") as external_id,
+  nrfp."AAIP_ID"::integer as nald_point_id
   from import."NALD_RET_FMT_POINTS" nrfp
   join water.return_requirements rr on nrfp."FGAC_REGION_CODE"=split_part(rr.external_id, ':',1) and nrfp."ARTY_ID"=split_part(rr.external_id, ':',2)
   join import."NALD_POINTS" np on np."ID"=nrfp."AAIP_ID" and np."FGAC_REGION_CODE"=nrfp."FGAC_REGION_CODE"
