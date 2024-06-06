@@ -142,15 +142,15 @@ from (
   select distinct on (rr.return_version_id) rr.return_version_id, rr.is_upload
   from water.return_requirements rr
 ) as distinctReturnRequirements
-where water.return_versions.return_version_id = distinctReturnRequirements.return_version_id
+where water.return_versions.return_version_id = distinctReturnRequirements.return_version_id;
 `
 
-const importReturnVersionsCreateNotesFromDescriptions = `update water.return_versions rv
-set notes = (
-select string_agg(nrf."DESCR", ', ')
-from import."NALD_RET_FORMATS" nrf
-where nrf."ARVN_AABL_ID" = split_part(rv.external_id, ':',2)
-)
+const importReturnVersionsCreateNotesFromDescriptions = `UPDATE water.return_versions rv
+SET notes = (
+SELECT string_agg(nrf."DESCR", ', ')
+FROM import."NALD_RET_FORMATS" nrf
+WHERE nrf."ARVN_AABL_ID" = split_part(rv.external_id, ':',2) AND nrf."DESCR" <> 'null'
+);
 `
 
 module.exports = {
