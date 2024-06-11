@@ -31,6 +31,7 @@ const importReturnRequirements = `insert into water.return_requirements  ( retur
   is_upload,
   external_id,
   returns_frequency,
+  reporting_frequency,
   collection_frequency,
   two_part_tariff,
   date_created,
@@ -63,6 +64,15 @@ const importReturnRequirements = `insert into water.return_requirements  ( retur
     when 'Q' then 'quarter'
     when 'A' then 'year'
     end
+  ) as reporting_frequency,
+  (case nrf."ARTC_CODE"
+    when 'D' then 'day'
+    when 'W' then 'week'
+    when 'F' then 'fortnight'
+    when 'M' then 'month'
+    when 'Q' then 'quarter'
+    when 'A' then 'year'
+    end
   ) as collection_frequency,
   (case
     when nrf."TPT_FLAG" = 'Y' then TRUE
@@ -79,6 +89,7 @@ const importReturnRequirements = `insert into water.return_requirements  ( retur
   is_summer=excluded.is_summer,
   is_upload=excluded.is_upload,
   returns_frequency=excluded.returns_frequency,
+  reporting_frequency=excluded.reporting_frequency,
   collection_frequency=excluded.collection_frequency,
   two_part_tariff=excluded.two_part_tariff,
   date_updated=excluded.date_updated;`
