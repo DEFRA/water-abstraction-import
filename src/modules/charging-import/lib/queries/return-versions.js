@@ -177,6 +177,18 @@ INNER JOIN water.return_versions rv2
 WHERE rv.end_date IS NOT NULL);
 `
 
+const importReturnVersionsSetToDraftMissingReturnRequirements = `UPDATE water.return_versions
+SET status = 'draft'
+WHERE status = 'current'
+AND (
+  reason IS NULL
+  OR reason NOT IN ('abstraction-below-100-cubic-metres-per-day', 'returns-exception', 'transfer-licence')
+)
+AND return_version_id NOT IN (
+  SELECT DISTINCT return_version_id FROM water.return_requirements
+);
+`
+
 module.exports = {
   importReturnVersions,
   importReturnRequirements,
@@ -184,5 +196,6 @@ module.exports = {
   importReturnRequirementPurposes,
   importReturnVersionsCreateNotesFromDescriptions,
   importReturnVersionsMultipleUpload,
-  importReturnVersionsCorrectStatusForWrls
+  importReturnVersionsCorrectStatusForWrls,
+  importReturnVersionsSetToDraftMissingReturnRequirements
 }
