@@ -164,11 +164,25 @@ WHERE nrf."ARVN_AABL_ID" = split_part(rv.external_id, ':',2) AND nrf."DESCR" <> 
 );
 `
 
+const importReturnVersionsCorrectStatusForWrls = `UPDATE water.return_versions
+SET status = 'current'
+WHERE status = 'superseded'
+AND return_version_id NOT IN (SELECT rv.return_version_id
+FROM water.return_versions rv
+INNER JOIN water.return_versions rv2
+  ON rv.licence_id = rv2.licence_id
+    AND rv.start_date = rv2.start_date
+    AND rv.return_version_id != rv2.return_version_id
+    AND rv.version_number < rv2.version_number
+WHERE rv.end_date IS NOT NULL);
+`
+
 module.exports = {
   importReturnVersions,
   importReturnRequirements,
   importReturnRequirementPoints,
   importReturnRequirementPurposes,
   importReturnVersionsCreateNotesFromDescriptions,
-  importReturnVersionsMultipleUpload
+  importReturnVersionsMultipleUpload,
+  importReturnVersionsCorrectStatusForWrls
 }
