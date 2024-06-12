@@ -62,7 +62,8 @@ experiment('modules/charging-import/jobs/charging-data.js', () => {
             returnVersionQueries.importReturnVersionsMultipleUpload,
             returnVersionQueries.importReturnVersionsCreateNotesFromDescriptions,
             returnVersionQueries.importReturnVersionsCorrectStatusForWrls,
-            returnVersionQueries.importReturnVersionsSetToDraftMissingReturnRequirements
+            returnVersionQueries.importReturnVersionsSetToDraftMissingReturnRequirements,
+            returnVersionQueries.importReturnVersionsAddMissingReturnVersionEndDates
           ]
         )).to.be.true()
       })
