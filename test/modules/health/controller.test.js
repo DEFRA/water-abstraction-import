@@ -8,9 +8,6 @@ const Sinon = require('sinon')
 const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
 const { expect } = Code
 
-// Test helpers
-const pkg = require('../../../package.json')
-
 // Thing under test
 const controller = require('../../../src/modules/health/controller')
 
