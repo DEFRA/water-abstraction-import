@@ -4,8 +4,6 @@
 const util = require('util')
 const exec = util.promisify(require('child_process').exec)
 
-// const pkg = require('../../../package.json')
-
 async function getAirbrake (request, _h) {
   // First section tests connecting to Airbrake through a manual notification
   request.server.app.airbrake.notify({
