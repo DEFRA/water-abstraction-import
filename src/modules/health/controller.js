@@ -4,8 +4,6 @@
 const util = require('util')
 const exec = util.promisify(require('child_process').exec)
 
-const pkg = require('../../../package.json')
-
 async function getAirbrake (request, _h) {
   // First section tests connecting to Airbrake through a manual notification
   request.server.app.airbrake.notify({
@@ -24,11 +22,21 @@ async function getAirbrake (request, _h) {
 
 async function getInfo (_request, h) {
   const result = {
-    version: pkg.version,
+    version: await _tagReference(),
     commit: await _commitHash()
   }
 
   return h.response(result).code(200)
+}
+
+async function _tagReference () {
+  try {
+    const { stdout, stderr } = await exec('git describe --always --tags')
+
+    return stderr ? `ERROR: ${stderr}` : stdout.replace('\n', '')
+  } catch (error) {
+    return `ERROR: ${error.message}`
+  }
 }
 
 async function _commitHash () {
