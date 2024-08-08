@@ -188,7 +188,7 @@ experiment('Licence Import: Import Company job', () => {
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
-        expect(jobMessage.name).to.equal('licence-import.queue-licences')
+        expect(jobMessage.name).to.equal('licence-import.queue-licences-system')
       })
     })
 

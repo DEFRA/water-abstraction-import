@@ -5,9 +5,11 @@ const cron = require('node-cron')
 const DeleteRemovedDocumentsJob = require('./jobs/delete-removed-documents.js')
 const ImportCompanyJob = require('./jobs/import-company.js')
 const ImportLicenceJob = require('./jobs/import-licence.js')
+const ImportLicenceSystemJob = require('./jobs/import-licence-system.js')
 const ImportPurposeConditionTypesJob = require('./jobs/import-purpose-condition-types.js')
 const QueueCompaniesJob = require('./jobs/queue-companies.js')
 const QueueLicencesJob = require('./jobs/queue-licences.js')
+const QueueLicencesSystemJob = require('./jobs/queue-licences-system.js')
 
 const config = require('../../../config')
 
@@ -34,6 +36,16 @@ async function register (server, _options) {
   await server.messageQueue.subscribe(ImportCompanyJob.name, ImportCompanyJob.options, ImportCompanyJob.handler)
   await server.messageQueue.onComplete(ImportCompanyJob.name, () => {
     return ImportCompanyJob.onComplete(server.messageQueue)
+  })
+
+  await server.messageQueue.subscribe(QueueLicencesSystemJob.name, QueueLicencesSystemJob.handler)
+  await server.messageQueue.onComplete(QueueLicencesSystemJob.name, (executedJob) => {
+    return QueueLicencesSystemJob.onComplete(server.messageQueue, executedJob)
+  })
+
+  await server.messageQueue.subscribe(ImportLicenceSystemJob.name, ImportLicenceSystemJob.options, ImportLicenceSystemJob.handler)
+  await server.messageQueue.onComplete(ImportLicenceSystemJob.name, (executedJob) => {
+    return ImportLicenceSystemJob.onComplete(server.messageQueue, executedJob)
   })
 
   await server.messageQueue.subscribe(QueueLicencesJob.name, QueueLicencesJob.handler)

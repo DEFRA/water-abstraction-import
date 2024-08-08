@@ -64,7 +64,8 @@ module.exports = {
   services: {
     water: process.env.WATER_URI || 'http://127.0.0.1:8001/water/1.0',
     crm: process.env.CRM_URI || 'http://127.0.0.1:8002/crm/1.0',
-    returns: process.env.RETURNS_URI || 'http://127.0.0.1:8006/returns/1.0'
+    returns: process.env.RETURNS_URI || 'http://127.0.0.1:8006/returns/1.0',
+    system: process.env.SYSTEM_URI || 'http://127.0.0.1:8013'
   },
 
   s3: {
