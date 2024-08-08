@@ -42,7 +42,6 @@ async function onComplete (messageQueue, job) {
       }
 
       await messageQueue.publish(ImportLicenceSystemJob.createMessage(data))
-
     }
   }
 

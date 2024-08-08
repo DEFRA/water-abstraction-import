@@ -53,7 +53,6 @@ async function onComplete (messageQueue, job) {
     if (data.jobNumber === 1) {
       await messageQueue.publish(QueueLicencesJob.createMessage())
     }
-
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
