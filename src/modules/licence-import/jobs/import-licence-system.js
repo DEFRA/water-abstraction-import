@@ -46,12 +46,8 @@ async function onComplete (messageQueue, job) {
     const { data } = job.data.request
 
     if (data.jobNumber === data.numberOfJobs) {
-      global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { numberOfJobs: job.data.request.data.numberOfJobs })
-    }
-
-    // when the first job run is done queue the legacy licence import queue
-    if (data.jobNumber === 1) {
       await messageQueue.publish(QueueLicencesJob.createMessage())
+      global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { numberOfJobs: job.data.request.data.numberOfJobs })
     }
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
