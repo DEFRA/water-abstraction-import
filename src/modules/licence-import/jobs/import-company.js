@@ -1,8 +1,8 @@
 'use strict'
 
+const QueueLicencesSystemJob = require('./queue-licences-system')
 const extract = require('../extract')
 const importCompanies = require('../connectors/import-companies')
-const QueueLicencesJob = require('./queue-licences.js')
 const load = require('../load')
 const transform = require('../transform')
 
@@ -81,7 +81,7 @@ async function onComplete (messageQueue) {
 
   if (count === 0) {
     await messageQueue.deleteQueue('__state__completed__licence-import.import-company')
-    await messageQueue.publish(QueueLicencesJob.createMessage())
+    await messageQueue.publish(QueueLicencesSystemJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   }

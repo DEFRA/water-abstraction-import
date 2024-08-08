@@ -13,9 +13,11 @@ const config = require('../../../config.js')
 const DeleteRemovedDocumentsJob = require('../../../src/modules/licence-import/jobs/delete-removed-documents.js')
 const ImportCompanyJob = require('../../../src/modules/licence-import/jobs/import-company.js')
 const ImportLicenceJob = require('../../../src/modules/licence-import/jobs/import-licence.js')
+const ImportLicenceSystemJob = require('../../../src/modules/licence-import/jobs/import-licence-system.js')
 const ImportPurposeConditionTypesJob = require('../../../src/modules/licence-import/jobs/import-purpose-condition-types.js')
 const QueueCompaniesJob = require('../../../src/modules/licence-import/jobs/queue-companies.js')
 const QueueLicencesJob = require('../../../src/modules/licence-import/jobs/queue-licences.js')
+const QueueLicencesSystemJob = require('../../../src/modules/licence-import/jobs/queue-licences-system.js')
 
 // Things we need to stub
 const cron = require('node-cron')
@@ -137,11 +139,52 @@ experiment('modules/licence-import/plugin.js', () => {
       })
     })
 
-    experiment('for Queue Licences', () => {
+    experiment('for Queue Licences System', () => {
       test('subscribes its handler to the job queue', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
         const subscribeArgs = server.messageQueue.subscribe.getCall(4).args
+
+        expect(subscribeArgs[0]).to.equal(QueueLicencesSystemJob.name)
+        expect(subscribeArgs[1]).to.equal(QueueLicencesSystemJob.handler)
+      })
+
+      test('registers its onComplete for the job', async () => {
+        await LicenceImportPlugin.plugin.register(server)
+
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(4).args
+
+        expect(onCompleteArgs[0]).to.equal(QueueLicencesSystemJob.name)
+        expect(onCompleteArgs[1]).to.be.a.function()
+      })
+    })
+
+    experiment('for Import Licence System', () => {
+      test('subscribes its handler and options to the job queue', async () => {
+        await LicenceImportPlugin.plugin.register(server)
+
+        const subscribeArgs = server.messageQueue.subscribe.getCall(5).args
+
+        expect(subscribeArgs[0]).to.equal(ImportLicenceSystemJob.name)
+        expect(subscribeArgs[1]).to.equal(ImportLicenceSystemJob.options)
+        expect(subscribeArgs[2]).to.equal(ImportLicenceSystemJob.handler)
+      })
+
+      test('registers its onComplete for the job', async () => {
+        await LicenceImportPlugin.plugin.register(server)
+
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(5).args
+
+        expect(onCompleteArgs[0]).to.equal(ImportLicenceSystemJob.name)
+        expect(onCompleteArgs[1]).to.be.a.function()
+      })
+    })
+
+    experiment('for Queue Licences', () => {
+      test('subscribes its handler to the job queue', async () => {
+        await LicenceImportPlugin.plugin.register(server)
+
+        const subscribeArgs = server.messageQueue.subscribe.getCall(6).args
 
         expect(subscribeArgs[0]).to.equal(QueueLicencesJob.name)
         expect(subscribeArgs[1]).to.equal(QueueLicencesJob.handler)
@@ -150,7 +193,7 @@ experiment('modules/licence-import/plugin.js', () => {
       test('registers its onComplete for the job', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
-        const onCompleteArgs = server.messageQueue.onComplete.getCall(4).args
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(6).args
 
         expect(onCompleteArgs[0]).to.equal(QueueLicencesJob.name)
         expect(onCompleteArgs[1]).to.be.a.function()
@@ -161,7 +204,7 @@ experiment('modules/licence-import/plugin.js', () => {
       test('subscribes its handler and options to the job queue', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
-        const subscribeArgs = server.messageQueue.subscribe.getCall(5).args
+        const subscribeArgs = server.messageQueue.subscribe.getCall(7).args
 
         expect(subscribeArgs[0]).to.equal(ImportLicenceJob.name)
         expect(subscribeArgs[1]).to.equal(ImportLicenceJob.options)
