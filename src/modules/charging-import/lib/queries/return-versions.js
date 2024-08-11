@@ -226,7 +226,7 @@ const importReturnVersionsModLogs = `
           'code', nmr."CODE",
           'description', nmr."DESCR",
           'note', (CASE nml."TEXT" WHEN 'null' THEN NULL ELSE nml."TEXT" END),
-          'createdAt', (CASE nml."CREATE_DATE" WHEN 'null' THEN NULL ELSE nml."CREATE_DATE" END),
+          'createdAt', (CASE nml."CREATE_DATE" WHEN 'null' THEN NULL ELSE to_date(nml."CREATE_DATE", 'DD/MM/YYYY') END),
           'createdBy', (CASE nml."USER_ID" WHEN 'null' THEN NULL ELSE nml."USER_ID" END)
         )
       )::jsonb AS mod_log
