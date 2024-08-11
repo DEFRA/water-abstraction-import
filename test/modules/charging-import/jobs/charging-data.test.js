@@ -63,7 +63,8 @@ experiment('modules/charging-import/jobs/charging-data.js', () => {
             returnVersionQueries.importReturnVersionsCreateNotesFromDescriptions,
             returnVersionQueries.importReturnVersionsCorrectStatusForWrls,
             returnVersionQueries.importReturnVersionsSetToDraftMissingReturnRequirements,
-            returnVersionQueries.importReturnVersionsAddMissingReturnVersionEndDates
+            returnVersionQueries.importReturnVersionsAddMissingReturnVersionEndDates,
+            returnVersionQueries.importReturnVersionsModLogs
           ]
         )).to.be.true()
       })
