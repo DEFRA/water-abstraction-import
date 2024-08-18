@@ -212,33 +212,6 @@ ON rv.return_version_id = madness.return_version_id) AS bq
 WHERE rv.return_version_id = bq.return_version_id;
 `
 
-// NOTE: At the time of this note there were 66K return versions imported from NALD. 30K matched to a mod log with a
-// reason against it. A further 13K matched (so we have USER_ID and CREATE_DATE) but there is no reason). The remaining
-// 23K have no matches. Our brief analysis suggests it's the early records that are affected by this.
-const importReturnVersionsModLogs = `
-  UPDATE water.return_versions AS tgt
-  SET mod_log=src.mod_log
-  FROM (
-    SELECT
-      (concat_ws(':', nml."FGAC_REGION_CODE", nml."ARVN_AABL_ID", nml."ARVN_VERS_NO")) AS mod_log_id,
-      (
-        json_build_object(
-          'code', nmr."CODE",
-          'description', nmr."DESCR",
-          'note', (CASE nml."TEXT" WHEN 'null' THEN NULL ELSE nml."TEXT" END),
-          'createdAt', (CASE nml."CREATE_DATE" WHEN 'null' THEN NULL ELSE to_date(nml."CREATE_DATE", 'DD/MM/YYYY') END),
-          'createdBy', (CASE nml."USER_ID" WHEN 'null' THEN NULL ELSE nml."USER_ID" END)
-        )
-      )::jsonb AS mod_log
-    FROM "import"."NALD_MOD_LOGS" nml
-    LEFT JOIN "import"."NALD_MOD_REASONS" nmr ON nmr."AMRE_TYPE" = nml."AMRE_AMRE_TYPE" AND nmr."CODE" = nml."AMRE_CODE"
-    WHERE nml."EVENT" = 'DRFVER'
-  )
-  AS src
-  WHERE tgt.external_id=src.mod_log_id
-  AND tgt.mod_log = '{}'::jsonb;
-`
-
 module.exports = {
   importReturnVersions,
   importReturnRequirements,
@@ -248,6 +221,5 @@ module.exports = {
   importReturnVersionsMultipleUpload,
   importReturnVersionsCorrectStatusForWrls,
   importReturnVersionsSetToDraftMissingReturnRequirements,
-  importReturnVersionsAddMissingReturnVersionEndDates,
-  importReturnVersionsModLogs
+  importReturnVersionsAddMissingReturnVersionEndDates
 }
