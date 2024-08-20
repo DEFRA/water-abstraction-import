@@ -100,8 +100,11 @@ const linkReturnVersionsToModLogs = `
 // a table we then JOIN to in the update rather than a sub-query. CTEs are temporary tables that exist just within the
 // scope of the query.
 //
-// This was a massive performance boost (> 10 mins to < 5 secs) for the first run. AFter that the timing comes down to
+// This was a massive performance boost (> 10 mins to < 5 secs) for the first run. After that the timing comes down to
 // milliseconds.
+//
+// For the eagle eye, yes, our CASE statement covers more reasons than we include in the `WHERE IN` clause. We felt this
+// would serve as a handy reference what the agreed mappings were for _all_ NALD reason codes.
 const updateReturnVersionReasons = `
   WITH selected_reasons AS (
     SELECT
