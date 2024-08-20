@@ -93,10 +93,59 @@ const linkReturnVersionsToModLogs = `
   AND ml.return_version_id IS NULL;
 `
 
+// NOTE: Initial attempts to create this query were too slow. The issue is that a return version can be linked to
+// multiple mod log records. We were using a sub-query with a limit and these 2 approaches were the root cause.
+// Thankfully, we find only the originating entry seems to have a reason code when there are multiple mod logs. That was
+// the primary reason for using a sub-query. Chat-GPT suggested we tried using a common table expression (CTE) to create
+// a table we then JOIN to in the update rather than a sub-query. CTEs are temporary tables that exist just within the
+// scope of the query.
+//
+// This was a massive performance boost (> 10 mins to < 5 secs) for the first run. AFter that the timing comes down to
+// milliseconds.
+const updateReturnVersionReasons = `
+  WITH selected_reasons AS (
+    SELECT
+      ml.return_version_id,
+      CASE
+        WHEN ml.reason_code = 'AMND' THEN NULL
+        WHEN ml.reason_code = 'MIGR' THEN NULL
+        WHEN ml.reason_code = 'NAME' THEN 'name-or-address-change'
+        WHEN ml.reason_code = 'NEWL' THEN 'new-licence'
+        WHEN ml.reason_code = 'NEWP' THEN 'new-licence-in-part-succession-or-licence-apportionment'
+        WHEN ml.reason_code = 'REDS' THEN NULL
+        WHEN ml.reason_code = 'SPAC' THEN 'change-to-special-agreement'
+        WHEN ml.reason_code = 'SPAN' THEN 'new-special-agreement'
+        WHEN ml.reason_code = 'SREM' THEN 'succession-to-remainder-licence-or-licence-apportionment'
+        WHEN ml.reason_code = 'SUCC' THEN 'succession-or-transfer-of-licence'
+        WHEN ml.reason_code = 'VARF' THEN 'major-change'
+        WHEN ml.reason_code = 'VARM' THEN 'minor-change'
+        WHEN ml.reason_code = 'XCORR' THEN 'error-correction'
+        WHEN ml.reason_code = 'XRET' THEN 'change-to-return-requirements'
+        WHEN ml.reason_code = 'XRETM' THEN 'change-to-return-requirements'
+        ELSE NULL
+      END AS mapped_reason
+    FROM
+      water.mod_logs ml
+    JOIN
+      water.return_versions rv ON rv.return_version_id = ml.return_version_id
+    WHERE
+      ml.reason_code IN ('NAME', 'NEWL', 'NEWP', 'SPAC', 'SPAN', 'SREM', 'SUCC', 'VARF', 'VARM', 'XCORR', 'XRET', 'XRETM')
+      AND rv.reason IS NULL
+    ORDER BY
+      ml.external_id ASC
+  )
+  UPDATE water.return_versions rv
+  SET reason = sr.mapped_reason
+  FROM selected_reasons sr
+  WHERE rv.return_version_id = sr.return_version_id
+  AND rv.reason IS NULL;
+`
+
 module.exports = {
   importModLogs,
   linkLicencesToModLogs,
   linkChargeVersionsToModLogs,
   linkLicenceVersionsToModLogs,
-  linkReturnVersionsToModLogs
+  linkReturnVersionsToModLogs,
+  updateReturnVersionReasons
 }

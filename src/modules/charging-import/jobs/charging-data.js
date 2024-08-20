@@ -38,7 +38,8 @@ const handler = async () => {
       modLogQueries.linkLicencesToModLogs,
       modLogQueries.linkChargeVersionsToModLogs,
       modLogQueries.linkLicenceVersionsToModLogs,
-      modLogQueries.linkReturnVersionsToModLogs
+      modLogQueries.linkReturnVersionsToModLogs,
+      modLogQueries.updateReturnVersionReasons
     ])
 
     global.GlobalNotifier.omg('import.charging-data: finished')
