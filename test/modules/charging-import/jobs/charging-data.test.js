@@ -69,7 +69,8 @@ experiment('modules/charging-import/jobs/charging-data.js', () => {
             modLogQueries.linkLicencesToModLogs,
             modLogQueries.linkChargeVersionsToModLogs,
             modLogQueries.linkLicenceVersionsToModLogs,
-            modLogQueries.linkReturnVersionsToModLogs
+            modLogQueries.linkReturnVersionsToModLogs,
+            modLogQueries.updateReturnVersionReasons
           ]
         )).to.be.true()
       })
