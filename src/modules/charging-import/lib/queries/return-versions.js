@@ -157,9 +157,9 @@ where water.return_versions.return_version_id = distinctReturnRequirements.retur
 `
 
 // NOTE: Our first version of this query was flawed when shipped so has updated notes incorrectly. So, the first thing
-// we hae to do in this query is blank what is there.
+// we have to do in this query is blank what is already there.
 //
-// > We can remove the set all notes to NULL part once this has been fixed and run at least once!
+// > We can remove the set all notes to NULL part once this has been fixed and run at least once.
 //
 // Our next version used a sub-query to generate the note but was too slow. So, we've used a solution we also applied
 // to a mod logs query: a common table expression (CTE).
