@@ -156,12 +156,37 @@ from (
 where water.return_versions.return_version_id = distinctReturnRequirements.return_version_id;
 `
 
-const importReturnVersionsCreateNotesFromDescriptions = `UPDATE water.return_versions rv
-SET notes = (
-SELECT string_agg(nrf."DESCR", ', ')
-FROM import."NALD_RET_FORMATS" nrf
-WHERE nrf."ARVN_AABL_ID" = split_part(rv.external_id, ':',2) AND nrf."DESCR" <> 'null'
-);
+// NOTE: Our first version of this query was flawed when shipped so has updated notes incorrectly. So, the first thing
+// we have to do in this query is blank what is already there.
+//
+// > We can remove the set all notes to NULL part once this has been fixed and run at least once.
+//
+// Our next version used a sub-query to generate the note but was too slow. So, we've used a solution we also applied
+// to a mod logs query: a common table expression (CTE).
+//
+// The sub-query version locally took more than 5 minutes. Even with the set all notes to NULL part, this version with
+// the CTE took 2 seconds!
+const importReturnVersionsCreateNotesFromDescriptions = `
+  UPDATE water.return_versions rv SET notes = NULL WHERE rv.notes IS NOT NULL;
+  WITH aggregated_notes AS (
+    SELECT
+      rr.return_version_id,
+      string_agg(rr.description, ', ') AS notes
+    FROM
+      water.return_requirements rr
+    WHERE
+      rr.description IS NOT NULL
+    GROUP BY
+      rr.return_version_id
+  )
+  UPDATE
+    water.return_versions rv
+  SET
+    notes = an.notes
+  FROM
+    aggregated_notes an
+  WHERE
+    rv.return_version_id = an.return_version_id;
 `
 
 const importReturnVersionsCorrectStatusForWrls = `UPDATE water.return_versions
