@@ -6,6 +6,7 @@ const DeleteRemovedDocumentsJob = require('./jobs/delete-removed-documents.js')
 const ImportCompanyJob = require('./jobs/import-company.js')
 const ImportLicenceJob = require('./jobs/import-licence.js')
 const ImportLicenceSystemJob = require('./jobs/import-licence-system.js')
+const ImportPointsJob = require('./jobs/import-points.js')
 const ImportPurposeConditionTypesJob = require('./jobs/import-purpose-condition-types.js')
 const QueueCompaniesJob = require('./jobs/queue-companies.js')
 const QueueLicencesJob = require('./jobs/queue-licences.js')
@@ -54,6 +55,14 @@ async function register (server, _options) {
   })
 
   await server.messageQueue.subscribe(ImportLicenceJob.name, ImportLicenceJob.options, ImportLicenceJob.handler)
+  await server.messageQueue.onComplete(ImportLicenceJob.name, (executedJob) => {
+    return ImportLicenceJob.onComplete(server.messageQueue, executedJob)
+  })
+
+  await server.messageQueue.subscribe(ImportPointsJob.name, ImportPointsJob.options, ImportPointsJob.handler)
+  await server.messageQueue.onComplete(ImportPointsJob.name, () => {
+    return ImportPointsJob.onComplete()
+  })
 
   cron.schedule(config.import.licences.schedule, async () => {
     await server.messageQueue.publish(DeleteRemovedDocumentsJob.createMessage())

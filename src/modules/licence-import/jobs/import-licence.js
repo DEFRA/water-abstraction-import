@@ -2,6 +2,7 @@
 
 const extract = require('../extract')
 const load = require('../load')
+const ImportPointsJob = require('./import-points.js')
 const transform = require('../transform')
 
 const JOB_NAME = 'licence-import.import-licence'
@@ -62,9 +63,19 @@ async function handler (job) {
 
     // Load licence to DB
     await load.licence.loadLicence(mapped)
+  } catch (error) {
+    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
+    throw error
+  }
+}
 
-    if (job.data.jobNumber === job.data.numberOfJobs) {
-      global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { numberOfJobs: job.data.numberOfJobs })
+async function onComplete (messageQueue, job) {
+  try {
+    const { data } = job.data.request
+
+    if (data.jobNumber === data.numberOfJobs) {
+      await messageQueue.publish(ImportPointsJob.createMessage())
+      global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { numberOfJobs: job.data.request.data.numberOfJobs })
     }
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
@@ -76,5 +87,6 @@ module.exports = {
   createMessage,
   handler,
   name: JOB_NAME,
+  onComplete,
   options
 }
