@@ -123,13 +123,10 @@ experiment('Licence Import: Import Licence job', () => {
           }
         })
 
-        test("a 'finished' message is logged", async () => {
+        test('a message is NOT logged', async () => {
           await ImportLicenceJob.handler(job)
 
-          const [message] = notifierStub.omg.lastCall.args
-          expect(message).to.equal('licence-import.import-licence: finished')
-
-          expect(notifierStub.omg.called).to.be.true()
+          expect(notifierStub.omg.called).to.be.false()
         })
 
         test('extracts the licence data, transforms it then loads it into the DB', async () => {
@@ -161,6 +158,91 @@ experiment('Licence Import: Import Licence job', () => {
         const err = await expect(ImportLicenceJob.handler(job)).to.reject()
 
         expect(err.message).to.equal('Oops!')
+      })
+    })
+  })
+
+  experiment('.onComplete', () => {
+    let job
+    let messageQueue
+
+    beforeEach(async () => {
+      messageQueue = {
+        publish: Sinon.stub()
+      }
+    })
+
+    experiment('and this is the first licence to be imported', () => {
+      beforeEach(() => {
+        job = {
+          failed: false,
+          data: {
+            request: { data: { licenceNumber: '01/123', jobNumber: 1, numberOfJobs: 10 } }
+          }
+        }
+      })
+
+      test('a "finished" message is NOT logged', async () => {
+        await ImportLicenceJob.onComplete(messageQueue, job)
+
+        expect(notifierStub.omg.called).to.be.false()
+      })
+
+      test('the "import-points" job is NOT published to the queue', async () => {
+        await ImportLicenceJob.onComplete(messageQueue, job)
+
+        expect(messageQueue.publish.called).to.be.false()
+      })
+    })
+
+    experiment('and this is one of a number of licences to be imported', () => {
+      beforeEach(() => {
+        job = {
+          failed: false,
+          data: {
+            request: { data: { licenceNumber: '01/123', jobNumber: 2, numberOfJobs: 10 } }
+          }
+        }
+      })
+
+      test('a message is NOT logged', async () => {
+        await ImportLicenceJob.onComplete(messageQueue, job)
+
+        expect(notifierStub.omg.called).to.be.false()
+      })
+
+      test('the "import-points" job is NOT published to the queue', async () => {
+        await ImportLicenceJob.onComplete(messageQueue, job)
+
+        expect(messageQueue.publish.called).to.be.false()
+      })
+    })
+
+    experiment('and this is the last licence to be imported', () => {
+      beforeEach(() => {
+        job = {
+          failed: false,
+          data: {
+            request: { data: { licenceNumber: '01/123', jobNumber: 10, numberOfJobs: 10 } }
+          }
+        }
+      })
+
+      test('a "finished" message is logged', async () => {
+        await ImportLicenceJob.onComplete(messageQueue, job)
+
+        const [message] = notifierStub.omg.lastCall.args
+        expect(message).to.equal('licence-import.import-licence: finished')
+
+        expect(notifierStub.omg.called).to.be.true()
+      })
+
+      test('the "import-points" job is published to the queue', async () => {
+        await ImportLicenceJob.onComplete(messageQueue, job)
+
+        const jobMessage = messageQueue.publish.lastCall.args[0]
+
+        expect(jobMessage.name).to.equal('licence-import.import-points')
       })
     })
   })
