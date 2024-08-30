@@ -16,10 +16,7 @@ const importReturnVersions = `insert into water.return_versions (licence_id, ver
       )::water.return_version_status as status,
       concat_ws(':', nrv."FGAC_REGION_CODE", nrv."AABL_ID", nrv."VERS_NO")  AS external_id,
       NOW() as date_created,
-      NOW() as date_updated from import."NALD_RET_VERSIONS" nrv join import."NALD_ABS_LICENCES" nl on nrv."AABL_ID"=nl."ID" AND nrv."FGAC_REGION_CODE"=nl."FGAC_REGION_CODE" join water.licences l on l.licence_ref=nl."LIC_NO"  on conflict (external_id) do update set  start_date=excluded.start_date,
-      end_date=excluded.end_date,
-      status=excluded.status,
-      date_updated=excluded.date_updated;
+      NOW() as date_updated from import."NALD_RET_VERSIONS" nrv join import."NALD_ABS_LICENCES" nl on nrv."AABL_ID"=nl."ID" AND nrv."FGAC_REGION_CODE"=nl."FGAC_REGION_CODE" join water.licences l on l.licence_ref=nl."LIC_NO" on conflict (external_id) do nothing;
 `
 
 const importReturnRequirements = `insert into water.return_requirements  ( return_version_id, legacy_id,  abstraction_period_start_day, abstraction_period_start_month,
