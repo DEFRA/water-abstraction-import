@@ -207,7 +207,7 @@ SET status = 'draft'
 WHERE status = 'current'
 AND (
   reason IS NULL
-  OR reason NOT IN ('abstraction-below-100-cubic-metres-per-day', 'returns-exception', 'transfer-licence')
+  OR reason NOT IN ('abstraction-below-100-cubic-metres-per-day', 'licence-conditions-do-not-require-returns', 'returns-exception', 'temporary-trade')
 )
 AND return_version_id NOT IN (
   SELECT DISTINCT return_version_id FROM water.return_requirements
