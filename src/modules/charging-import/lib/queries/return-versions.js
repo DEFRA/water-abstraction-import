@@ -223,7 +223,7 @@ INNER JOIN (SELECT no_end.return_version_id, rv1.licence_id, min(rv1.version_num
       GROUP BY licence_id) AS lv
     ON rv2.licence_id = lv.licence_id
     AND rv2.version_number != lv.max_version
-    WHERE rv2.end_date IS NULL AND rv2.status <> 'draft') AS no_end
+    WHERE rv2.end_date IS NULL AND rv2.status <> 'draft' AND rv2.external_id IS NOT NULL) AS no_end
   ON rv1.licence_id = no_end.licence_id
   AND rv1.version_number > no_end.version_number
   GROUP BY rv1.licence_id, no_end.return_version_id) AS madness
