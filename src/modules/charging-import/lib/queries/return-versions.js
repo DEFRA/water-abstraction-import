@@ -219,7 +219,7 @@ INNER JOIN (SELECT no_end.return_version_id, rv1.licence_id, min(rv1.version_num
     FROM water.return_versions rv2
     INNER JOIN (SELECT licence_id, max(version_number) AS max_version
       FROM water.return_versions
-      WHERE status != 'draft'
+      WHERE status != 'draft' AND external_id IS NOT NULL
       GROUP BY licence_id) AS lv
     ON rv2.licence_id = lv.licence_id
     AND rv2.version_number != lv.max_version
