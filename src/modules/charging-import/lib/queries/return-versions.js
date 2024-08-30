@@ -211,7 +211,7 @@ AND return_version_id NOT IN (
 const importReturnVersionsAddMissingReturnVersionEndDates = `UPDATE water.return_versions rv
 SET end_date = bq.new_end_date
 FROM (SELECT rv.return_version_id,
-(SELECT rv3.start_date - 1 FROM water.return_versions rv3 WHERE rv3.licence_id = madness.licence_id AND rv3.version_number = madness.min_version) AS new_end_date
+(SELECT rv3.start_date - 1 FROM water.return_versions rv3 WHERE rv3.licence_id = madness.licence_id AND rv3.version_number = madness.min_version AND rv3.status != 'draft' AND rv3.external_id IS NOT NULL) AS new_end_date
 FROM water.return_versions rv
 INNER JOIN (SELECT no_end.return_version_id, rv1.licence_id, min(rv1.version_number) AS min_version
   FROM water.return_versions rv1
