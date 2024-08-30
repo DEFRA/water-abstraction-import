@@ -156,18 +156,11 @@ from (
 where water.return_versions.return_version_id = distinctReturnRequirements.return_version_id;
 `
 
-// NOTE: Our first version of this query was flawed when shipped so has updated notes incorrectly. So, the first thing
-// we have to do in this query is blank what is already there.
+// NOTE: Our first attempt used a sub-query to generate the note but was too slow. So, we've used a solution we also
+// applied to a mod logs query: a common table expression (CTE).
 //
-// > We can remove the set all notes to NULL part once this has been fixed and run at least once.
-//
-// Our next version used a sub-query to generate the note but was too slow. So, we've used a solution we also applied
-// to a mod logs query: a common table expression (CTE).
-//
-// The sub-query version locally took more than 5 minutes. Even with the set all notes to NULL part, this version with
-// the CTE took 2 seconds!
+// The sub-query version locally took more than 5 minutes. This version with the CTE took 2 seconds!
 const importReturnVersionsCreateNotesFromDescriptions = `
-  UPDATE water.return_versions rv SET notes = NULL WHERE rv.notes IS NOT NULL;
   WITH aggregated_notes AS (
     SELECT
       rr.return_version_id,
@@ -186,7 +179,8 @@ const importReturnVersionsCreateNotesFromDescriptions = `
   FROM
     aggregated_notes an
   WHERE
-    rv.return_version_id = an.return_version_id;
+    rv.return_version_id = an.return_version_id
+    AND rv.notes IS NULL;
 `
 
 const importReturnVersionsCorrectStatusForWrls = `UPDATE water.return_versions
