@@ -179,7 +179,8 @@ const importReturnVersionsCreateNotesFromDescriptions = `
   FROM
     aggregated_notes an
   WHERE
-    rv.return_version_id = an.return_version_id;
+    rv.return_version_id = an.return_version_id
+    AND rv.notes IS NULL;
 `
 
 const importReturnVersionsCorrectStatusForWrls = `UPDATE water.return_versions
