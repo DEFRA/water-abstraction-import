@@ -16,10 +16,7 @@ const importReturnVersions = `insert into water.return_versions (licence_id, ver
       )::water.return_version_status as status,
       concat_ws(':', nrv."FGAC_REGION_CODE", nrv."AABL_ID", nrv."VERS_NO")  AS external_id,
       NOW() as date_created,
-      NOW() as date_updated from import."NALD_RET_VERSIONS" nrv join import."NALD_ABS_LICENCES" nl on nrv."AABL_ID"=nl."ID" AND nrv."FGAC_REGION_CODE"=nl."FGAC_REGION_CODE" join water.licences l on l.licence_ref=nl."LIC_NO"  on conflict (external_id) do update set  start_date=excluded.start_date,
-      end_date=excluded.end_date,
-      status=excluded.status,
-      date_updated=excluded.date_updated;
+      NOW() as date_updated from import."NALD_RET_VERSIONS" nrv join import."NALD_ABS_LICENCES" nl on nrv."AABL_ID"=nl."ID" AND nrv."FGAC_REGION_CODE"=nl."FGAC_REGION_CODE" join water.licences l on l.licence_ref=nl."LIC_NO" on conflict (external_id) do nothing;
 `
 
 const importReturnRequirements = `insert into water.return_requirements  ( return_version_id, legacy_id,  abstraction_period_start_day, abstraction_period_start_month,
@@ -208,27 +205,72 @@ AND return_version_id NOT IN (
 );
 `
 
-const importReturnVersionsAddMissingReturnVersionEndDates = `UPDATE water.return_versions rv
-SET end_date = bq.new_end_date
-FROM (SELECT rv.return_version_id,
-(SELECT rv3.start_date - 1 FROM water.return_versions rv3 WHERE rv3.licence_id = madness.licence_id AND rv3.version_number = madness.min_version) AS new_end_date
-FROM water.return_versions rv
-INNER JOIN (SELECT no_end.return_version_id, rv1.licence_id, min(rv1.version_number) AS min_version
-  FROM water.return_versions rv1
-  INNER JOIN (SELECT rv2.return_version_id, rv2.licence_id, rv2.version_number
-    FROM water.return_versions rv2
-    INNER JOIN (SELECT licence_id, max(version_number) AS max_version
-      FROM water.return_versions
-      WHERE status != 'draft'
-      GROUP BY licence_id) AS lv
-    ON rv2.licence_id = lv.licence_id
-    AND rv2.version_number != lv.max_version
-    WHERE rv2.end_date IS NULL) AS no_end
-  ON rv1.licence_id = no_end.licence_id
-  AND rv1.version_number > no_end.version_number
-  GROUP BY rv1.licence_id, no_end.return_version_id) AS madness
-ON rv.return_version_id = madness.return_version_id) AS bq
-WHERE rv.return_version_id = bq.return_version_id;
+const importReturnVersionsAddMissingReturnVersionEndDates = `
+  UPDATE
+    water.return_versions rv
+  SET
+    end_date = bq.new_end_date
+  FROM
+    (
+      SELECT
+        rv.return_version_id,
+        (
+          SELECT
+            rv3.start_date - 1
+          FROM
+            water.return_versions rv3
+          WHERE
+            rv3.licence_id = madness.licence_id
+            AND rv3.version_number = madness.min_version
+        ) AS new_end_date
+      FROM
+        water.return_versions rv
+      INNER JOIN (
+          SELECT
+            no_end.return_version_id,
+            rv1.licence_id,
+            min(rv1.version_number) AS min_version
+          FROM
+            water.return_versions rv1
+          INNER JOIN (
+              SELECT
+                rv2.return_version_id,
+                rv2.licence_id,
+                rv2.version_number
+              FROM
+                water.return_versions rv2
+              INNER JOIN (
+                  SELECT
+                    licence_id,
+                    max(version_number) AS max_version
+                  FROM
+                    water.return_versions
+                  WHERE
+                    status != 'draft'
+                    AND external_id IS NOT NULL
+                  GROUP BY
+                    licence_id
+                ) AS lv
+              ON
+                rv2.licence_id = lv.licence_id
+                AND rv2.version_number != lv.max_version
+              WHERE
+                rv2.end_date IS NULL
+                AND rv2.status <> 'draft'
+                AND rv2.external_id IS NOT NULL
+            ) AS no_end
+          ON
+            rv1.licence_id = no_end.licence_id
+            AND rv1.version_number > no_end.version_number
+          GROUP BY
+            rv1.licence_id,
+            no_end.return_version_id
+        ) AS madness
+      ON
+        rv.return_version_id = madness.return_version_id
+    ) AS bq
+  WHERE
+    rv.return_version_id = bq.return_version_idd;
 `
 
 module.exports = {
