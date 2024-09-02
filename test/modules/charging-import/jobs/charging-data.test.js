@@ -11,7 +11,6 @@ const { expect } = Code
 // Test helpers
 const modLogQueries = require('../../../../src/modules/charging-import/lib/queries/mod-logs.js')
 const purposesQueries = require('../../../../src/modules/charging-import/lib/queries/purposes')
-const returnVersionQueries = require('../../../../src/modules/charging-import/lib/queries/return-versions')
 const financialAgreementTypeQueries = require('../../../../src/modules/charging-import/lib/queries/financial-agreement-types')
 
 // Things we need to stub
@@ -56,15 +55,6 @@ experiment('modules/charging-import/jobs/charging-data.js', () => {
             purposesQueries.importSecondaryPurposes,
             purposesQueries.importUses,
             purposesQueries.importValidPurposeCombinations,
-            returnVersionQueries.importReturnVersions,
-            returnVersionQueries.importReturnRequirements,
-            returnVersionQueries.importReturnRequirementPoints,
-            returnVersionQueries.importReturnRequirementPurposes,
-            returnVersionQueries.importReturnVersionsMultipleUpload,
-            returnVersionQueries.importReturnVersionsCreateNotesFromDescriptions,
-            returnVersionQueries.importReturnVersionsCorrectStatusForWrls,
-            returnVersionQueries.importReturnVersionsSetToDraftMissingReturnRequirements,
-            returnVersionQueries.importReturnVersionsAddMissingReturnVersionEndDates,
             modLogQueries.importModLogs,
             modLogQueries.linkLicencesToModLogs,
             modLogQueries.linkChargeVersionsToModLogs,

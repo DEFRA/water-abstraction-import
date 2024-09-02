@@ -106,6 +106,9 @@ module.exports = {
     charging: {
       schedule: process.env.WRLS_CRON_CHARGING || '0 1 * * 1,2,3,4,5'
     },
+    returnVersions: {
+      schedule: process.env.WRLS_CRON_RETURN_VERSIONS || '0 6 * * 1,2,3,4,5'
+    },
     tracker: {
       schedule: process.env.WRLS_CRON_TRACKER || '0 10 * * 1,2,3,4,5'
     }
