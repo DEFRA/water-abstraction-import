@@ -103,9 +103,6 @@ module.exports = {
       // was calculated from NALD data
       isBillingDocumentRoleImportEnabled: false
     },
-    charging: {
-      schedule: process.env.WRLS_CRON_CHARGING || '0 1 * * 1,2,3,4,5'
-    },
     modLogs: {
       schedule: process.env.WRLS_CRON_MOD_LOGS || '0 7 * * 1,2,3,4,5'
     },
