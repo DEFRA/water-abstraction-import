@@ -6,7 +6,6 @@
 
 const job = require('../lib/job')
 const queryLoader = require('../lib/query-loader')
-const modLogQueries = require('../lib/queries/mod-logs.js')
 const purposesQueries = require('../lib/queries/purposes')
 const financialAgreementTypeQueries = require('../lib/queries/financial-agreement-types')
 
@@ -23,13 +22,7 @@ const handler = async () => {
       purposesQueries.importPrimaryPurposes,
       purposesQueries.importSecondaryPurposes,
       purposesQueries.importUses,
-      purposesQueries.importValidPurposeCombinations,
-      modLogQueries.importModLogs,
-      modLogQueries.linkLicencesToModLogs,
-      modLogQueries.linkChargeVersionsToModLogs,
-      modLogQueries.linkLicenceVersionsToModLogs,
-      modLogQueries.linkReturnVersionsToModLogs,
-      modLogQueries.updateReturnVersionReasons
+      purposesQueries.importValidPurposeCombinations
     ])
 
     global.GlobalNotifier.omg('import.charging-data: finished')

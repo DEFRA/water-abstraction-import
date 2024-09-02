@@ -9,7 +9,6 @@ const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
 const { expect } = Code
 
 // Test helpers
-const modLogQueries = require('../../../../src/modules/charging-import/lib/queries/mod-logs.js')
 const purposesQueries = require('../../../../src/modules/charging-import/lib/queries/purposes')
 const financialAgreementTypeQueries = require('../../../../src/modules/charging-import/lib/queries/financial-agreement-types')
 
@@ -54,13 +53,7 @@ experiment('modules/charging-import/jobs/charging-data.js', () => {
             purposesQueries.importPrimaryPurposes,
             purposesQueries.importSecondaryPurposes,
             purposesQueries.importUses,
-            purposesQueries.importValidPurposeCombinations,
-            modLogQueries.importModLogs,
-            modLogQueries.linkLicencesToModLogs,
-            modLogQueries.linkChargeVersionsToModLogs,
-            modLogQueries.linkLicenceVersionsToModLogs,
-            modLogQueries.linkReturnVersionsToModLogs,
-            modLogQueries.updateReturnVersionReasons
+            purposesQueries.importValidPurposeCombinations
           ]
         )).to.be.true()
       })
