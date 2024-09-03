@@ -1,7 +1,7 @@
 'use strict'
 
 const { pool } = require('../../../lib/connectors/db.js')
-const Queries = require('../lib/queries.js')
+const Queries = require('../lib/import-queries.js')
 
 const JOB_NAME = 'return-versions.import'
 

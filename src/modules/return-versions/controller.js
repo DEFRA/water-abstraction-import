@@ -1,10 +1,10 @@
 'use strict'
 
-const ImportJob = require('./jobs/import.js')
+const CleanJob = require('./jobs/clean.js')
 
 async function importReturnVersions (request, h) {
-  await request.messageQueue.deleteQueue(ImportJob.JOB_NAME)
-  await request.messageQueue.publish(ImportJob.createMessage())
+  await request.messageQueue.deleteQueue(CleanJob.JOB_NAME)
+  await request.messageQueue.publish(CleanJob.createMessage())
 
   return h.response().code(204)
 }
