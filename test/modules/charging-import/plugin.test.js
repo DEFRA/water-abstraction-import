@@ -2,9 +2,6 @@
 
 const { test, experiment, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
 const sandbox = require('sinon').createSandbox()
-const cron = require('node-cron')
-
-const config = require('../../../config')
 
 const { plugin } = require('../../../src/modules/charging-import/plugin')
 
@@ -23,7 +20,6 @@ experiment('modules/charging-import/plugin.js', () => {
         onComplete: sandbox.stub().resolves()
       }
     }
-    sandbox.stub(cron, 'schedule')
   })
 
   afterEach(async () => {
@@ -41,7 +37,6 @@ experiment('modules/charging-import/plugin.js', () => {
   experiment('register', () => {
     experiment('on target environments', () => {
       beforeEach(async () => {
-        sandbox.stub(config.import.charging, 'schedule').value('0 14 * * 1,2,3,4,5')
         await plugin.register(server)
       })
 
@@ -56,14 +51,6 @@ experiment('modules/charging-import/plugin.js', () => {
           chargingDataJob.jobName, chargingDataJob.handler
         )).to.be.true()
       })
-
-      test('schedules a cron job at 2pm on weekdays on non-prod environments to run the charging import', async () => {
-        const [schedule, func] = cron.schedule.firstCall.args
-        expect(schedule).to.equal('0 14 * * 1,2,3,4,5')
-        func()
-        const [{ name }] = server.messageQueue.publish.lastCall.args
-        expect(name).to.equal('import.charging-data')
-      })
     })
 
     experiment('on production', () => {
@@ -73,10 +60,6 @@ experiment('modules/charging-import/plugin.js', () => {
 
       test('2 subscribers are bound', async () => {
         expect(server.messageQueue.subscribe.callCount).to.equal(2)
-      })
-
-      test('1 cron job is scheduled', async () => {
-        expect(cron.schedule.callCount).to.equal(1)
       })
     })
   })

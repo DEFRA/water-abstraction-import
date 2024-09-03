@@ -5,6 +5,8 @@ const jobSummaryRoutes = require('./modules/jobs/routes')
 const licenceImportRoutes = require('./modules/licence-import/routes')
 const naldImportRoutes = require('./modules/nald-import/routes')
 const returnsRoutes = require('./modules/returns/routes')
+const returnVersionsRoutes = require('./modules/return-versions/routes.js')
+const modLogsRoutes = require('./modules/mod-logs/routes.js')
 
 module.exports = [
   ...chargingImportRoutes,
@@ -13,5 +15,7 @@ module.exports = [
   ...jobSummaryRoutes,
   ...licenceImportRoutes,
   ...naldImportRoutes,
-  ...returnsRoutes
+  ...returnsRoutes,
+  ...returnVersionsRoutes,
+  ...modLogsRoutes
 ]
