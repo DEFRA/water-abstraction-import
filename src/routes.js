@@ -8,6 +8,9 @@ const returnsRoutes = require('./modules/returns/routes')
 const returnVersionsRoutes = require('./modules/return-versions/routes.js')
 const modLogsRoutes = require('./modules/mod-logs/routes.js')
 
+const NaldDataRoutes = require('./modules/nald-data/routes.js')
+const CleanRoutes = require('./modules/clean/routes.js')
+
 module.exports = [
   ...chargingImportRoutes,
   ...coreRoutes,
@@ -17,5 +20,7 @@ module.exports = [
   ...naldImportRoutes,
   ...returnsRoutes,
   ...returnVersionsRoutes,
-  ...modLogsRoutes
+  ...modLogsRoutes,
+  ...NaldDataRoutes,
+  ...CleanRoutes
 ]
