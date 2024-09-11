@@ -27,17 +27,27 @@ async function go () {
 }
 
 async function _import (licenceReferences, count) {
+  const batchSize = 10
+
   let progress = PROGRESS_TICK
 
-  for (let i = 0; i < licenceReferences.length; i++) {
+  for (let i = 0; i < count; i += batchSize) {
     if (i === progress) {
       progress = progress + PROGRESS_TICK
       global.GlobalNotifier.omg(`permit-import.import progress (${i} of ${count})`)
     }
 
-    const reference = licenceReferences[i].LIC_NO
+    // const reference = licenceReferences[i].LIC_NO
 
-    await Loader.load(reference)
+    // await Loader.load(reference)
+
+    const referenceToProcess = licenceReferences.slice(i, i + batchSize)
+
+    const processes = referenceToProcess.map((referenceToProcess) => {
+      return Loader.load(referenceToProcess.LIC_NO)
+    })
+
+    await Promise.all(processes)
   }
 }
 
