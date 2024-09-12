@@ -12,6 +12,7 @@ const NaldDataRoutes = require('./modules/nald-data/routes.js')
 const CleanRoutes = require('./modules/clean/routes.js')
 const PermitImportRoutes = require('./modules/permit-import/routes.js')
 const CompaniesImportRoutes = require('./modules/companies-import/routes.js')
+const NightlyImportRoutes = require('./modules/nightly-import/routes.js')
 
 module.exports = [
   ...chargingImportRoutes,
@@ -26,5 +27,6 @@ module.exports = [
   ...NaldDataRoutes,
   ...CleanRoutes,
   ...PermitImportRoutes,
-  ...CompaniesImportRoutes
+  ...CompaniesImportRoutes,
+  ...NightlyImportRoutes
 ]
