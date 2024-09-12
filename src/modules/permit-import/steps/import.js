@@ -37,10 +37,6 @@ async function _import (licenceReferences, count) {
       global.GlobalNotifier.omg(`permit-import.import progress (${i} of ${count})`)
     }
 
-    // const reference = licenceReferences[i].LIC_NO
-
-    // await Loader.load(reference)
-
     const referenceToProcess = licenceReferences.slice(i, i + batchSize)
 
     const processes = referenceToProcess.map((referenceToProcess) => {

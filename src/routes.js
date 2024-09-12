@@ -11,6 +11,7 @@ const modLogsRoutes = require('./modules/mod-logs/routes.js')
 const NaldDataRoutes = require('./modules/nald-data/routes.js')
 const CleanRoutes = require('./modules/clean/routes.js')
 const PermitImportRoutes = require('./modules/permit-import/routes.js')
+const CompaniesImportRoutes = require('./modules/companies-import/routes.js')
 
 module.exports = [
   ...chargingImportRoutes,
@@ -24,5 +25,6 @@ module.exports = [
   ...modLogsRoutes,
   ...NaldDataRoutes,
   ...CleanRoutes,
-  ...PermitImportRoutes
+  ...PermitImportRoutes,
+  ...CompaniesImportRoutes
 ]
