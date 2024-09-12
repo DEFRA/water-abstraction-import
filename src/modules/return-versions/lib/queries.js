@@ -147,7 +147,7 @@ const importReturnRequirementPoints = `insert into water.return_requirement_poin
   ngr_4=excluded.ngr_4;
 `
 
-const importReturnVersionsMultipleUpload = `update water.return_versions
+const setMultipleUploadFlag = `update water.return_versions
 set multiple_upload = distinctReturnRequirements.is_upload
 from (
   select distinct on (rr.return_version_id) rr.return_version_id, rr.is_upload
@@ -160,7 +160,7 @@ where water.return_versions.return_version_id = distinctReturnRequirements.retur
 // applied to a mod logs query: a common table expression (CTE).
 //
 // The sub-query version locally took more than 5 minutes. This version with the CTE took 2 seconds!
-const importReturnVersionsCreateNotesFromDescriptions = `
+const createNotesFromDescriptions = `
   WITH aggregated_notes AS (
     SELECT
       rr.return_version_id,
@@ -183,7 +183,7 @@ const importReturnVersionsCreateNotesFromDescriptions = `
     AND rv.notes IS NULL;
 `
 
-const importReturnVersionsCorrectStatusForWrls = `UPDATE water.return_versions
+const correctStatusForWrls = `UPDATE water.return_versions
 SET status = 'current'
 WHERE status = 'superseded'
 AND return_version_id NOT IN (SELECT rv.return_version_id
@@ -196,7 +196,7 @@ INNER JOIN water.return_versions rv2
 WHERE rv.end_date IS NOT NULL);
 `
 
-const importReturnVersionsSetToDraftMissingReturnRequirements = `UPDATE water.return_versions
+const setToDraftMissingReturnRequirements = `UPDATE water.return_versions
 SET status = 'draft'
 WHERE status = 'current'
 AND (
@@ -208,7 +208,7 @@ AND return_version_id NOT IN (
 );
 `
 
-const importReturnVersionsAddMissingReturnVersionEndDates = `UPDATE water.return_versions rv
+const addMissingReturnVersionEndDates = `UPDATE water.return_versions rv
 SET end_date = bq.new_end_date
 FROM (SELECT rv.return_version_id,
 (SELECT rv3.start_date - 1 FROM water.return_versions rv3 WHERE rv3.licence_id = madness.licence_id AND rv3.version_number = madness.min_version) AS new_end_date
@@ -232,13 +232,13 @@ WHERE rv.return_version_id = bq.return_version_id;
 `
 
 module.exports = {
-  importReturnVersions,
-  importReturnRequirements,
+  addMissingReturnVersionEndDates,
+  correctStatusForWrls,
+  createNotesFromDescriptions,
   importReturnRequirementPoints,
   importReturnRequirementPurposes,
-  importReturnVersionsCreateNotesFromDescriptions,
-  importReturnVersionsMultipleUpload,
-  importReturnVersionsCorrectStatusForWrls,
-  importReturnVersionsSetToDraftMissingReturnRequirements,
-  importReturnVersionsAddMissingReturnVersionEndDates
+  importReturnRequirements,
+  importReturnVersions,
+  setMultipleUploadFlag,
+  setToDraftMissingReturnRequirements
 }

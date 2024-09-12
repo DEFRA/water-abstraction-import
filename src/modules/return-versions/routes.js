@@ -1,12 +1,12 @@
 'use strict'
 
-const controller = require('./controller')
+const controllers = require('./controllers')
 
 const routes = [
   {
     method: 'post',
-    handler: controller.importReturnVersions,
-    path: '/import/return-versions'
+    handler: controllers.returnVersions,
+    path: '/return-versions'
   }
 ]
 
