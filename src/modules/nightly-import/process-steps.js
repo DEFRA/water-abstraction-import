@@ -2,6 +2,7 @@
 
 const CleanProcessSteps = require('../clean/process-steps.js')
 const CrmProcessSteps = require('../crm/process-steps.js')
+const ModLogsProcessSteps = require('../mod-logs/process-steps.js')
 const NaldDataProcessSteps = require('../nald-data/process-steps.js')
 const PermitProcessSteps = require('../permit/process-steps.js')
 const ReturnVersionsProcessSteps = require('../return-versions/process-steps.js')
@@ -21,6 +22,7 @@ async function go () {
     await PermitProcessSteps.go()
     await CrmProcessSteps.go()
     await ReturnVersionsProcessSteps.go()
+    await ModLogsProcessSteps.go()
 
     processComplete = true
 
