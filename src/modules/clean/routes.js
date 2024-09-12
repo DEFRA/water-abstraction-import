@@ -1,11 +1,11 @@
 'use strict'
 
-const controller = require('./controllers.js')
+const controllers = require('./controllers.js')
 
 const routes = [
   {
     method: 'post',
-    handler: controller.clean,
+    handler: controllers.clean,
     path: '/clean'
   }
 ]
