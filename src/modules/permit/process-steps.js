@@ -8,7 +8,7 @@ async function go () {
   let processComplete = false
 
   try {
-    global.GlobalNotifier.omg('permit-import started')
+    global.GlobalNotifier.omg('permit started')
 
     const startTime = currentTimeInNanoseconds()
 
@@ -16,9 +16,9 @@ async function go () {
 
     processComplete = true
 
-    calculateAndLogTimeTaken(startTime, 'permit-import complete')
+    calculateAndLogTimeTaken(startTime, 'permit complete')
   } catch (error) {
-    global.GlobalNotifier.oops('permit-import failed')
+    global.GlobalNotifier.oops('permit failed')
   }
 
   return processComplete

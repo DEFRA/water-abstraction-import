@@ -10,7 +10,7 @@ async function go () {
   let count = 0
 
   try {
-    global.GlobalNotifier.omg('permit-import.import started')
+    global.GlobalNotifier.omg('permit.import started')
 
     const startTime = currentTimeInNanoseconds()
 
@@ -19,9 +19,9 @@ async function go () {
 
     await _import(licenceReferences, count)
 
-    calculateAndLogTimeTaken(startTime, 'permit-import.import complete', { count })
+    calculateAndLogTimeTaken(startTime, 'permit.import complete', { count })
   } catch (error) {
-    global.GlobalNotifier.omfg('permit-import.import errored', error, { count })
+    global.GlobalNotifier.omfg('permit.import errored', error, { count })
     throw error
   }
 }
@@ -34,7 +34,7 @@ async function _import (licenceReferences, count) {
   for (let i = 0; i < count; i += batchSize) {
     if (i === progress) {
       progress = progress + PROGRESS_TICK
-      global.GlobalNotifier.omg(`permit-import.import progress (${i} of ${count})`)
+      global.GlobalNotifier.omg(`permit.import progress (${i} of ${count})`)
     }
 
     const referenceToProcess = licenceReferences.slice(i, i + batchSize)
