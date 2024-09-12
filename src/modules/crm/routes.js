@@ -5,8 +5,8 @@ const controllers = require('./controllers.js')
 const routes = [
   {
     method: 'post',
-    handler: controllers.companiesImport,
-    path: '/companies-import'
+    handler: controllers.crm,
+    path: '/crm'
   }
 ]
 

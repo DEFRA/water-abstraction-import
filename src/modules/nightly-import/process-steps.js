@@ -1,7 +1,7 @@
 'use strict'
 
 const CleanProcessSteps = require('../clean/process-steps.js')
-const CompaniesImportProcessSteps = require('../companies-import/process-steps.js')
+const CrmProcessSteps = require('../crm/process-steps.js')
 const NaldDataProcessSteps = require('../nald-data/process-steps.js')
 const PermitImportProcessSteps = require('../permit-import/process-steps.js')
 const ReturnVersionsProcessSteps = require('../return-versions/process-steps.js')
@@ -19,7 +19,7 @@ async function go () {
     await NaldDataProcessSteps.go()
     await CleanProcessSteps.go()
     await PermitImportProcessSteps.go()
-    await CompaniesImportProcessSteps.go()
+    await CrmProcessSteps.go()
     await ReturnVersionsProcessSteps.go()
 
     processComplete = true

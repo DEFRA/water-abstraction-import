@@ -8,7 +8,7 @@ async function go () {
   let processComplete = false
 
   try {
-    global.GlobalNotifier.omg('companies-import started')
+    global.GlobalNotifier.omg('crm started')
 
     const startTime = currentTimeInNanoseconds()
 
@@ -16,9 +16,9 @@ async function go () {
 
     processComplete = true
 
-    calculateAndLogTimeTaken(startTime, 'companies-import complete')
+    calculateAndLogTimeTaken(startTime, 'crm complete')
   } catch (error) {
-    global.GlobalNotifier.oops('companies-import failed')
+    global.GlobalNotifier.oops('crm failed')
   }
 
   return processComplete
