@@ -2,7 +2,7 @@
 
 const ProcessSteps = require('./process-steps.js')
 
-async function returnVersions (request, h) {
+async function returnVersions (_request, h) {
   ProcessSteps.go()
 
   return h.response().code(204)
