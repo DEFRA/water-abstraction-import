@@ -11,6 +11,7 @@ const ReturnVersionsRoutes = require('./modules/return-versions/routes.js')
 const ModLogsRoutes = require('./modules/mod-logs/routes.js')
 const ReferenceRoutes = require('./modules/reference/routes.js')
 const ChargeVersionsRoutes = require('./modules/charge-versions/routes.js')
+const BillRunsRoutes = require('./modules/bill-runs/routes.js')
 const NightlyImportRoutes = require('./modules/nightly-import/routes.js')
 
 module.exports = [
@@ -26,5 +27,6 @@ module.exports = [
   ...ModLogsRoutes,
   ...ReferenceRoutes,
   ...ChargeVersionsRoutes,
+  ...BillRunsRoutes,
   ...NightlyImportRoutes
 ]

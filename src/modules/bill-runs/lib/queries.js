@@ -8,7 +8,7 @@ insert into water.billing_batches (
   invoice_value, credit_note_value
 )
 select r.region_id,
-(case 
+(case
 when nbr."BILL_RUN_TYPE"='A' then 'annual'
 when nbr."BILL_RUN_TYPE"='S' then 'supplementary'
 when nbr."BILL_RUN_TYPE"='R' then 'two_part_tariff'
@@ -21,8 +21,8 @@ nbr."FIN_YEAR"::integer as to_financial_year_ending,
 nullif(nbr."NO_OF_INVS", 'null')::integer as invoice_count,
 nullif(nbr."NO_OF_CRNS", 'null')::integer as credit_note_count,
 (
-(nullif(nbr."VALUE_OF_INVS", 'null')::numeric * 100) + 
-(nullif(nbr."VALUE_OF_CRNS", 'null')::numeric * 100) 
+(nullif(nbr."VALUE_OF_INVS", 'null')::numeric * 100) +
+(nullif(nbr."VALUE_OF_CRNS", 'null')::numeric * 100)
 )::bigint as net_total,
 nbr."BILL_RUN_NO"::integer as bill_run_number,
 concat_ws(':', nbr."FGAC_REGION_CODE", nbr."BILL_RUN_NO") in (
@@ -90,7 +90,7 @@ nullif(nbr."VALUE_OF_INVS", 'null')::numeric * 100 as invoice_value,
 nullif(nbr."VALUE_OF_CRNS", 'null')::numeric * 100 as credit_note_value
 from import."NALD_BILL_RUNS" nbr
 join water.regions r on nbr."FGAC_REGION_CODE"::integer=r.nald_region_id
-where 
+where
 nbr."BILL_RUN_TYPE" in ('A', 'S', 'R')
 and nbr."IAS_XFER_DATE"<>'null'
 and nbr."FIN_YEAR"::integer>=2015
@@ -103,7 +103,7 @@ insert into water.billing_invoices (
   is_credit, date_created, date_updated, billing_batch_id, financial_year_ending,
   legacy_id, metadata, invoice_number, rebilling_state
 )
-select 
+select
 ia.invoice_account_id,
 '{}'::jsonb as address,
 nbh."IAS_CUST_REF" as invoice_account_number,
@@ -127,35 +127,35 @@ const importInvoiceLicences = `
 insert into water.billing_invoice_licences (
   billing_invoice_id, licence_ref, date_created, date_updated, licence_id
 )
-select 
-i.billing_invoice_id, 
-nl."LIC_NO" as licence_ref, 
-i.date_created, 
-i.date_updated, 
+select
+i.billing_invoice_id,
+nl."LIC_NO" as licence_ref,
+i.date_created,
+i.date_updated,
 l.licence_id
 from import."NALD_BILL_HEADERS" nbh
 join water.billing_invoices i on concat_ws(':', nbh."FGAC_REGION_CODE", nbh."ID")=i.legacy_id
-left join import."NALD_BILL_TRANS" nbt on nbh."FGAC_REGION_CODE"=nbt."FGAC_REGION_CODE" and nbh."ID"=nbt."ABHD_ID" 
+left join import."NALD_BILL_TRANS" nbt on nbh."FGAC_REGION_CODE"=nbt."FGAC_REGION_CODE" and nbh."ID"=nbt."ABHD_ID"
 join import."NALD_ABS_LICENCES" nl on nbt."FGAC_REGION_CODE"=nl."FGAC_REGION_CODE" and nbt."LIC_ID"=nl."ID"
 left join water.licences l on nl."LIC_NO"=l.licence_ref
 on conflict (billing_invoice_id, licence_id) do nothing;
 `
 
 const resetIsSecondPartChargeFlag = `
-update water.billing_transactions 
+update water.billing_transactions
 set is_two_part_second_part_charge = false;
 `
 const setIsSecondPartChargeFlag = `
-update water.billing_transactions 
+update water.billing_transactions
 set is_two_part_second_part_charge = true
 where description ilike 'second%';
 `
 
 const importTransactions = `
-insert into water.billing_transactions ( 
-  billing_invoice_licence_id, 
-  charge_element_id, 
-  start_date, 
+insert into water.billing_transactions (
+  billing_invoice_licence_id,
+  charge_element_id,
+  start_date,
   end_date,
   abstraction_period,
   source,
@@ -190,7 +190,7 @@ insert into water.billing_transactions (
   calc_eiuc_factor,
   calc_eiuc_source_factor
 )
-select 
+select
 il.billing_invoice_licence_id,
 ce.charge_element_id,
 to_date(nbt."BILL_ST_DATE", 'DD/MM/YYYY') as start_date,
@@ -215,7 +215,7 @@ i.date_updated,
 nbt."BILLABLE_ANN_QTY"::numeric as volume,
 null as section_126_factor,
 nbt."ELEMENT_AGRMNTS"='S127' as section_127_agreement,
-case 
+case
   when left(nbt."LH_ACC_AGRMNTS", 4)='S130' then nbt."LH_ACC_AGRMNTS"
   else null
 end as section_130_agreement,
@@ -241,24 +241,24 @@ join water.billing_invoices i on concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ABH
 join (
   -- Get billing invoice licences with NALD licence ID
   select il.billing_invoice_licence_id, il.billing_invoice_id, nl."ID"
-  from water.billing_invoice_licences il 
+  from water.billing_invoice_licences il
   join import."NALD_ABS_LICENCES" nl on il.licence_ref=nl."LIC_NO"
 ) il on i.billing_invoice_id=il.billing_invoice_id and nbt."LIC_ID"=il."ID"
 left join water.charge_elements ce on concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ACEL_ID")=ce.external_id
 left join(
   -- Gets standard charges
-  select 
-  nbt."ID", 
-  nbt."FGAC_REGION_CODE", 
+  select
+  nbt."ID",
+  nbt."FGAC_REGION_CODE",
   'standard'::water.charge_type as charge_type,
   nbt."FINAL_A1_BILLABLE_AMOUNT"::numeric*100 as net_amount,
   concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ID", 'S') as legacy_id,
   concat(
     -- Two-part tariff charge prefix
-    case 
-      when nbt2.is_two_part_tariff and nbt2.is_two_part_second_part_charge 
+    case
+      when nbt2.is_two_part_tariff and nbt2.is_two_part_second_part_charge
         then concat('Second part ', nbt2.purpose_use_descr, ' charge')
-      when nbt2.is_two_part_tariff and not nbt2.is_two_part_second_part_charge 
+      when nbt2.is_two_part_tariff and not nbt2.is_two_part_second_part_charge
         then concat('First part ', nbt2.purpose_use_descr, ' charge')
       end,
     -- At {charge element description} suffix for all 2PT charges
@@ -267,7 +267,7 @@ left join(
         then concat(' at ', nbt2.charge_element_descr)
       end,
     -- Non 2PT - charge element description defaulting to purpose use description
-    case 
+    case
       when not nbt2.is_two_part_tariff
         then coalesce(nbt2.charge_element_descr, nbt2.purpose_use_descr)
       end
@@ -279,7 +279,7 @@ left join(
     case when nbt."ELEMENT_AGRMNTS" LIKE '%127' THEN REPLACE(nbt."ELEMENT_AGRMNT_VALS", 'x ', '')::numeric ELSE null END as s127
   from import."NALD_BILL_TRANS" nbt
   join (
-    select 
+    select
     nbt."FGAC_REGION_CODE",
     nbt."ID",
     nbr."BILL_RUN_TYPE"='R' as is_two_part_second_part_charge,
@@ -292,9 +292,9 @@ left join(
     join import."NALD_PURP_USES" npu on nce."APUR_APUS_CODE"=npu."CODE"
   ) nbt2 on nbt."FGAC_REGION_CODE"=nbt2."FGAC_REGION_CODE" and nbt."ID"=nbt2."ID"
   -- Gets compensation charges
-  union select  
-  nbt."ID", 
-  nbt."FGAC_REGION_CODE", 
+  union select
+  nbt."ID",
+  nbt."FGAC_REGION_CODE",
   'compensation'::water.charge_type as charge_type,
   nbt."FINAL_A2_BILLABLE_AMOUNT"::numeric*100 as net_amount,
   concat_ws(':', nbt."FGAC_REGION_CODE", nbt."ID", 'C') as legacy_id,
@@ -307,14 +307,14 @@ left join(
   from import."NALD_BILL_TRANS" nbt
   join (
     -- Non-TPT bill runs
-    select nbr."FGAC_REGION_CODE", nbr."BILL_RUN_NO" 
-    from import."NALD_BILL_RUNS" nbr 
+    select nbr."FGAC_REGION_CODE", nbr."BILL_RUN_NO"
+    from import."NALD_BILL_RUNS" nbr
     where nbr."BILL_RUN_TYPE" in ('A', 'S')
   ) nbr on nbt."FGAC_REGION_CODE"=nbr."FGAC_REGION_CODE" and nbt."ABRN_BILL_RUN_NO"=nbr."BILL_RUN_NO"
   left join (
     -- Get flag for water undertaker licences
     select nl."FGAC_REGION_CODE", nl."ID", right(nl."AREP_EIUC_CODE", 3)='SWC' as is_water_undertaker
-    from import."NALD_ABS_LICENCES" nl 
+    from import."NALD_ABS_LICENCES" nl
   ) nl on nbt."FGAC_REGION_CODE"=nl."FGAC_REGION_CODE" and nbt."LIC_ID"=nl."ID"
   where not (nbt."FINAL_A2_BILLABLE_AMOUNT"::numeric=0 and nl.is_water_undertaker=true)
 ) nbt2 on nbt2."FGAC_REGION_CODE"=nbt."FGAC_REGION_CODE" and nbt2."ID"=nbt."ID"
@@ -328,8 +328,8 @@ insert into water.billing_volumes (
   two_part_tariff_review, is_approved, billing_batch_id,
   volume, errored_on
 )
-select 
-t.charge_element_id, 
+select
+t.charge_element_id,
 i.financial_year_ending as financial_year,
 ntr.is_summer,
 null as calculated_volume,
@@ -340,15 +340,15 @@ true as is_approved,
 b.billing_batch_id,
 t.volume,
 null as errored_on
-from water.billing_batches b 
+from water.billing_batches b
 join water.billing_invoices i on b.billing_batch_id=i.billing_batch_id
 join water.billing_invoice_licences il on il.billing_invoice_id=i.billing_invoice_id
-join water.billing_transactions t on il.billing_invoice_licence_id=t.billing_invoice_licence_id 
+join water.billing_transactions t on il.billing_invoice_licence_id=t.billing_invoice_licence_id
 join water.charge_elements ce on t.charge_element_id=ce.charge_element_id
 join (
-  -- Get the TPT season for each charge element/financial year combination 
+  -- Get the TPT season for each charge element/financial year combination
   select *,
-  case 
+  case
     -- for Thames/Southern, summer range is 29 April to 28 November
     when ntr."FGAC_REGION_CODE" in ('6', '7') then
       daterange(
@@ -365,9 +365,9 @@ join (
       )
   end @> ntr.latest_return_date as is_summer
   from (
-    select 
-      ntr."FGAC_REGION_CODE", 
-      concat_ws(':', ntr."FGAC_REGION_CODE", ntr."ACEL_ID") as external_id, 
+    select
+      ntr."FGAC_REGION_CODE",
+      concat_ws(':', ntr."FGAC_REGION_CODE", ntr."ACEL_ID") as external_id,
       ntr."FIN_YEAR"::integer,
       to_date(ntr."LATEST_RET_DATE", 'DD/MM/YYYY') as latest_return_date
     from import."NALD_TPT_RETURNS" ntr
@@ -379,7 +379,7 @@ where b.source='nald' and b.batch_type='two_part_tariff';
 const importBillingBatchChargeVersionYears = `
 insert into water.billing_batch_charge_version_years (
   billing_batch_id, charge_version_id, financial_year_ending,
-  date_created, date_updated, status, 
+  date_created, date_updated, status,
   transaction_type, is_summer
 )
 select distinct
@@ -389,7 +389,7 @@ i.financial_year_ending,
 b.date_created,
 b.date_updated,
 b.status,
-case 
+case
   when t.is_two_part_second_part_charge then 'two_part_tariff'
   else 'annual'
 end::water.charge_version_years_transaction_type as transaction_type,
@@ -398,31 +398,31 @@ from water.billing_batches b
 join water.billing_invoices i on b.billing_batch_id=i.billing_batch_id
 join water.billing_invoice_licences il on i.billing_invoice_id=il.billing_invoice_id
 join water.billing_transactions t on il.billing_invoice_licence_id=t.billing_invoice_licence_id
-join water.charge_elements ce on t.charge_element_id=ce.charge_element_id 
+join water.charge_elements ce on t.charge_element_id=ce.charge_element_id
 where b.source='nald'
 on conflict do nothing;
 `
 
 const removeConstraints = `
-alter table water.billing_invoices 
+alter table water.billing_invoices
 drop constraint fk_original_billing_invoice_id;
 
 alter table water.billing_transactions
 drop constraint billing_transactions_billing_invoice_licence_id_fkey,
 drop constraint billing_transactions_billing_transactions_fk_source_transaction_id;`
 
-const addConstraints = `               
-alter table water.billing_invoices 
-add constraint fk_original_billing_invoice_id 
-foreign key (original_billing_invoice_id) 
+const addConstraints = `
+alter table water.billing_invoices
+add constraint fk_original_billing_invoice_id
+foreign key (original_billing_invoice_id)
 references water.billing_invoices (billing_invoice_id);
 
 alter table water.billing_transactions
-ADD constraint billing_transactions_billing_invoice_licence_id_fkey 
+ADD constraint billing_transactions_billing_invoice_licence_id_fkey
   foreign key (billing_invoice_licence_id)
   references water.billing_invoice_licences (billing_invoice_licence_id),
 ADD constraint billing_transactions_billing_transactions_fk_source_transaction_id
-  foreign key (source_transaction_id) 
+  foreign key (source_transaction_id)
   references water.billing_transactions (billing_transaction_id);`
 
 module.exports = {
