@@ -1,16 +1,16 @@
 const dates = require('@envage/water-abstraction-helpers').nald.dates
 
-const licenceQueries = require('./lib/nald-queries/licences')
-const partyQueries = require('./lib/nald-queries/parties')
-const addressQueries = require('./lib/nald-queries/addresses')
-const rolesQueries = require('./lib/nald-queries/roles')
-const purposesQueries = require('./lib/nald-queries/purposes')
+const licenceQueries = require('./nald-queries/licences')
+const partyQueries = require('./nald-queries/parties')
+const addressQueries = require('./nald-queries/addresses')
+const rolesQueries = require('./nald-queries/roles')
+const purposesQueries = require('./nald-queries/purposes')
 
-const cams = require('./lib/nald-queries/cams')
+const cams = require('./nald-queries/cams')
 
-const { getEndDate } = require('./lib/end-date')
+const { getEndDate } = require('./end-date')
 
-const { getFormatPoints, getFormatPurposes } = require('./lib/nald-queries/returns')
+const { getFormatPoints, getFormatPurposes } = require('./nald-queries/returns')
 
 /**
  * Gets the purposes together with their points, agreements and conditions

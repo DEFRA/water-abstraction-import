@@ -22,7 +22,7 @@ const chargeVersionMetadataImportService = require('../services/charge-version-m
 const importService = require('../../../lib/services/import.js')
 const job = require('../lib/job')
 const queryLoader = require('../lib/query-loader')
-const transformPermit = require('../../nald-import/transform-permit.js')
+const transformPermit = require('../lib/transform-permit/transform-permit.js')
 
 const jobName = 'import.charge-versions'
 

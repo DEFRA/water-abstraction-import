@@ -1,4 +1,4 @@
-const { pool } = require('../../../lib/connectors/db')
+const { pool } = require('../../../../lib/connectors/db.js')
 
 /**
  * Perform a database query by getting a client from the connection pool and releasing

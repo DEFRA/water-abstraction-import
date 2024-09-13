@@ -1,6 +1,6 @@
 'use strict'
 
-const server = require('../../../../../server')
+const server = require('../../../../../../server.js')
 const db = require('../db')
 const sql = require('./sql/purposes')
 const cache = require('./cache')
