@@ -7,7 +7,6 @@ const ImportCompanyJob = require('./jobs/import-company.js')
 const ImportLicenceJob = require('./jobs/import-licence.js')
 const ImportLicenceSystemJob = require('./jobs/import-licence-system.js')
 const ImportPointsJob = require('./jobs/import-points.js')
-const ImportPurposeConditionTypesJob = require('./jobs/import-purpose-condition-types.js')
 const QueueCompaniesJob = require('./jobs/queue-companies.js')
 const QueueLicencesJob = require('./jobs/queue-licences.js')
 const QueueLicencesSystemJob = require('./jobs/queue-licences-system.js')
@@ -19,13 +18,6 @@ async function register (server, _options) {
   await server.messageQueue.subscribe(DeleteRemovedDocumentsJob.name, DeleteRemovedDocumentsJob.handler)
   await server.messageQueue.onComplete(DeleteRemovedDocumentsJob.name, (executedJob) => {
     return DeleteRemovedDocumentsJob.onComplete(server.messageQueue, executedJob)
-  })
-
-  // When the documents have been marked as deleted import a list of all companies into the
-  // water_import.company_import table
-  await server.messageQueue.subscribe(ImportPurposeConditionTypesJob.name, ImportPurposeConditionTypesJob.handler)
-  await server.messageQueue.onComplete(ImportPurposeConditionTypesJob.name, (executedJob) => {
-    return ImportPurposeConditionTypesJob.onComplete(server.messageQueue, executedJob)
   })
 
   // When the water_import.company_import table is ready, jobs are scheduled to import each company

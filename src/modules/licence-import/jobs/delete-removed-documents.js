@@ -1,7 +1,7 @@
 'use strict'
 
 const documentsConnector = require('../connectors/documents')
-const ImportPurposeConditionTypesJob = require('./import-purpose-condition-types.js')
+const QueueCompaniesJob = require('../jobs/queue-companies.js')
 
 const JOB_NAME = 'licence-import.delete-removed-documents'
 
@@ -28,7 +28,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.failed) {
-    await messageQueue.publish(ImportPurposeConditionTypesJob.createMessage())
+    await messageQueue.publish(QueueCompaniesJob.createMessage())
   }
 
   global.GlobalNotifier.omg(`${JOB_NAME}: finished`)

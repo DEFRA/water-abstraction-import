@@ -11,6 +11,7 @@ const PermitRoutes = require('./modules/permit/routes.js')
 const CrmRoutes = require('./modules/crm/routes.js')
 const ReturnVersionsRoutes = require('./modules/return-versions/routes.js')
 const ModLogsRoutes = require('./modules/mod-logs/routes.js')
+const ReferenceRoutes = require('./modules/reference/routes.js')
 const NightlyImportRoutes = require('./modules/nightly-import/routes.js')
 
 module.exports = [
@@ -26,5 +27,6 @@ module.exports = [
   ...CrmRoutes,
   ...ReturnVersionsRoutes,
   ...ModLogsRoutes,
+  ...ReferenceRoutes,
   ...NightlyImportRoutes
 ]

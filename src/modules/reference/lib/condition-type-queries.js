@@ -1,12 +1,14 @@
-const createPurposeConditionTypes = `
+'use strict'
+
+const purposeConditionTypes = `
 INSERT INTO water.licence_version_purpose_condition_types (
   code,
   subcode,
   description,
   subcode_description
-  ) 
-  SELECT "CODE", "SUBCODE", "DESCR", "SUBCODE_DESC" FROM import."NALD_LIC_COND_TYPES" 
-  WHERE "AFFECTS_ABS" = 'Y' 
+  )
+  SELECT "CODE", "SUBCODE", "DESCR", "SUBCODE_DESC" FROM import."NALD_LIC_COND_TYPES"
+  WHERE "AFFECTS_ABS" = 'Y'
   ON CONFLICT (code, subcode)
   DO UPDATE SET
     description = excluded.description,
@@ -15,5 +17,5 @@ INSERT INTO water.licence_version_purpose_condition_types (
 `
 
 module.exports = {
-  createPurposeConditionTypes
+  purposeConditionTypes
 }

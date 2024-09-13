@@ -1,4 +1,6 @@
-const importFinancialAgreementTypes = `
+'use strict'
+
+const financialAgreementTypes = `
 INSERT INTO water.financial_agreement_types (financial_agreement_code, description, disabled, date_created, date_updated)
 SELECT a."CODE", a."DESCR", a."DISABLED"::boolean, now(), now()
 FROM import."NALD_FIN_AGRMNT_TYPES" a
@@ -12,5 +14,5 @@ DO
 `
 
 module.exports = {
-  importFinancialAgreementTypes
+  financialAgreementTypes
 }
