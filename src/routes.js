@@ -1,4 +1,3 @@
-const chargingImportRoutes = require('./modules/charging-import/routes')
 const coreRoutes = require('./modules/core/routes')
 const healthRoutes = require('./modules/health/routes')
 const jobSummaryRoutes = require('./modules/jobs/routes')
@@ -12,10 +11,10 @@ const CrmRoutes = require('./modules/crm/routes.js')
 const ReturnVersionsRoutes = require('./modules/return-versions/routes.js')
 const ModLogsRoutes = require('./modules/mod-logs/routes.js')
 const ReferenceRoutes = require('./modules/reference/routes.js')
+const ChargeVersionsRoutes = require('./modules/charge-versions/routes.js')
 const NightlyImportRoutes = require('./modules/nightly-import/routes.js')
 
 module.exports = [
-  ...chargingImportRoutes,
   ...coreRoutes,
   ...healthRoutes,
   ...jobSummaryRoutes,
@@ -28,5 +27,6 @@ module.exports = [
   ...ReturnVersionsRoutes,
   ...ModLogsRoutes,
   ...ReferenceRoutes,
+  ...ChargeVersionsRoutes,
   ...NightlyImportRoutes
 ]
