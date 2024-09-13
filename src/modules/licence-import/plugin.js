@@ -1,36 +1,12 @@
 'use strict'
 
-const cron = require('node-cron')
-
-const DeleteRemovedDocumentsJob = require('./jobs/delete-removed-documents.js')
-const ImportCompanyJob = require('./jobs/import-company.js')
 const ImportLicenceJob = require('./jobs/import-licence.js')
 const ImportLicenceSystemJob = require('./jobs/import-licence-system.js')
 const ImportPointsJob = require('./jobs/import-points.js')
-const QueueCompaniesJob = require('./jobs/queue-companies.js')
 const QueueLicencesJob = require('./jobs/queue-licences.js')
 const QueueLicencesSystemJob = require('./jobs/queue-licences-system.js')
 
-const config = require('../../../config')
-
 async function register (server, _options) {
-  // First step is to remove any documents that no longer exist in NALD
-  await server.messageQueue.subscribe(DeleteRemovedDocumentsJob.name, DeleteRemovedDocumentsJob.handler)
-  await server.messageQueue.onComplete(DeleteRemovedDocumentsJob.name, (executedJob) => {
-    return DeleteRemovedDocumentsJob.onComplete(server.messageQueue, executedJob)
-  })
-
-  // When the water_import.company_import table is ready, jobs are scheduled to import each company
-  await server.messageQueue.subscribe(QueueCompaniesJob.name, QueueCompaniesJob.handler)
-  await server.messageQueue.onComplete(QueueCompaniesJob.name, (executedJob) => {
-    return QueueCompaniesJob.onComplete(server.messageQueue, executedJob)
-  })
-
-  await server.messageQueue.subscribe(ImportCompanyJob.name, ImportCompanyJob.options, ImportCompanyJob.handler)
-  await server.messageQueue.onComplete(ImportCompanyJob.name, () => {
-    return ImportCompanyJob.onComplete(server.messageQueue)
-  })
-
   await server.messageQueue.subscribe(QueueLicencesSystemJob.name, QueueLicencesSystemJob.handler)
   await server.messageQueue.onComplete(QueueLicencesSystemJob.name, (executedJob) => {
     return QueueLicencesSystemJob.onComplete(server.messageQueue, executedJob)
@@ -54,10 +30,6 @@ async function register (server, _options) {
   await server.messageQueue.subscribe(ImportPointsJob.name, ImportPointsJob.options, ImportPointsJob.handler)
   await server.messageQueue.onComplete(ImportPointsJob.name, () => {
     return ImportPointsJob.onComplete()
-  })
-
-  cron.schedule(config.import.licences.schedule, async () => {
-    await server.messageQueue.publish(DeleteRemovedDocumentsJob.createMessage())
   })
 }
 

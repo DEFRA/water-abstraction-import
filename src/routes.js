@@ -1,7 +1,6 @@
 const coreRoutes = require('./modules/core/routes')
 const healthRoutes = require('./modules/health/routes')
 const jobSummaryRoutes = require('./modules/jobs/routes')
-const licenceImportRoutes = require('./modules/licence-import/routes')
 const returnsRoutes = require('./modules/returns/routes')
 
 const NaldDataRoutes = require('./modules/nald-data/routes.js')
@@ -18,7 +17,6 @@ module.exports = [
   ...coreRoutes,
   ...healthRoutes,
   ...jobSummaryRoutes,
-  ...licenceImportRoutes,
   ...returnsRoutes,
   ...NaldDataRoutes,
   ...CleanRoutes,
