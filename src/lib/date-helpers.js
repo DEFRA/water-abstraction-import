@@ -2,35 +2,80 @@
 
 const moment = require('moment')
 
+const DATE_FORMAT = 'YYYY-MM-DD'
+const NALD_FORMAT = 'DD/MM/YYYY'
+const NALD_TRANSFER_FORMAT = 'DD/MM/YYYY HH:mm:ss'
+
 /**
- * Given an array of dates which can be parsed by Moment,
- * filters out falsey values and returns a list of moment objects
- * sorted in ascending date order
- * @param {Array<String>} arr
- * @return {Array<Object>}
+ * Gets the end date for a company address from licence version data
+ * @param {Object} row - from NALD licence/licence version data
+ * @param {String,Null} currentEnd - the current value of the end date in the accumulator
  */
-const getSortedDates = arr => {
-  const filteredArray = arr.filter(value => value)
-  const mappedArray = filteredArray.map(value => moment(value))
-  mappedArray.sort(function (startDate1, startDate2) {
-    if ((startDate1.unix > startDate2.unix)) {
-      return -1
-    } else {
-      return 1
-    }
-  })
-  return mappedArray
+function getEndDate (row, currentEnd) {
+  // Get all end dates for this row
+  const endDates = [row.EFF_END_DATE, row.EXPIRY_DATE, row.REV_DATE, row.LAPSED_DATE]
+    .map(mapNaldDate)
+    .filter(value => value)
+
+  const arr = [getMinDate(endDates), currentEnd]
+
+  return arr.includes(null) ? null : getMaxDate(arr)
 }
 
-const getMinDate = arr => {
-  return getSortedDates(arr)[0]
+function getMaxDate (values) {
+  const sorted = _sortDates(values)
+
+  return sorted.length === 0 ? null : sorted[sorted.length - 1].format(DATE_FORMAT)
 }
-const getMaxDate = arr => {
-  const sorted = getSortedDates(arr)
-  return sorted[sorted.length - 1]
+
+function getMinDate (values) {
+  const sorted = _sortDates(values)
+
+  return sorted.length === 0 ? null : sorted[0].format(DATE_FORMAT)
+}
+
+function getPreviousDay (value) {
+  return moment(value, DATE_FORMAT).subtract(1, 'day').format(DATE_FORMAT)
+}
+
+function mapIsoDateToNald (value) {
+  if (value === null) {
+    return 'null'
+  }
+
+  return moment(value, DATE_FORMAT).format(NALD_FORMAT)
+}
+
+function mapNaldDate (value) {
+  if (value === 'null') {
+    return null
+  }
+
+  return moment(value, NALD_FORMAT).format(DATE_FORMAT)
+}
+
+function mapTransferDate (value) {
+  return moment(value, NALD_TRANSFER_FORMAT).format(DATE_FORMAT)
+}
+
+function _sortDates (arr) {
+  const moments = arr
+    .map(value => moment(value, DATE_FORMAT))
+    .filter(m => m.isValid())
+
+  const sorted = moments.sort(function (startDate1, startDate2) {
+    return startDate1 - startDate2
+  })
+
+  return sorted
 }
 
 module.exports = {
+  getEndDate,
   getMinDate,
-  getMaxDate
+  getMaxDate,
+  getPreviousDay,
+  mapIsoDateToNald,
+  mapNaldDate,
+  mapTransferDate
 }

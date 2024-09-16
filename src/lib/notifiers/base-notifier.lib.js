@@ -109,6 +109,19 @@ class BaseNotifierLib {
   }
 
   /**
+   * Use to add an error message to the log but not send an Airbrake notification
+   *
+   * The message will be added as an `ERROR` level log message.
+   *
+   * @param {string} message Message to add to the log (ERROR)
+   * @param {Object} [data={}] An object containing any values to be logged, for example, a bill run ID to be included with
+   *  the log message. Defaults to an empty object
+   */
+  oops (message, data = {}) {
+    this._logger.error(this._formatLogPacket(data), message)
+  }
+
+  /**
    * Flush any outstanding Airbrake notifications
    *
    * It's not immediately obvious but Airbrake notifications are actually queued and sent in the background. This is

@@ -5,8 +5,8 @@ const controllers = require('./controllers')
 const routes = [
   {
     method: 'post',
-    handler: controllers.returnVersions,
-    path: '/return-versions'
+    handler: controllers.reference,
+    path: '/reference'
   }
 ]
 

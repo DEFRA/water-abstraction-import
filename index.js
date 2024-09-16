@@ -24,15 +24,7 @@ const plugins = [
     plugin: Blipp,
     options: config.blipp
   },
-  HapiAuthJwt2,
-  require('./src/plugins/pg-boss.plugin'),
-  require('./src/modules/licence-import/plugin'),
-  require('./src/modules/charging-import/plugin'),
-  require('./src/modules/mod-logs/plugin'),
-  require('./src/modules/return-versions/plugin.js'),
-  require('./src/modules/nald-import/plugin'),
-  require('./src/modules/bill-runs-import/plugin'),
-  require('./src/modules/core/plugin')
+  HapiAuthJwt2
 ]
 
 const configureServerAuthStrategy = (server) => {
@@ -83,7 +75,6 @@ process
     // If there are no in-flight requests Hapi will immediately stop. If there are they get 25 seconds to finish
     // before Hapi terminates them
     await server.stop(options)
-    await server.messageQueue.stop()
 
     // Log we're shut down using the same log format as the rest of our log output
     server.logger.info("That's all folks!")
