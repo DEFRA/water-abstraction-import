@@ -10,7 +10,7 @@ async function go () {
   let count = 0
 
   try {
-    global.GlobalNotifier.omg('crm.import started')
+    global.GlobalNotifier.omg('company-details.import started')
 
     const startTime = currentTimeInNanoseconds()
 
@@ -20,9 +20,9 @@ async function go () {
 
     await _import(parties, count)
 
-    calculateAndLogTimeTaken(startTime, 'crm.import complete', { count })
+    calculateAndLogTimeTaken(startTime, 'company-details.import complete', { count })
   } catch (error) {
-    global.GlobalNotifier.omfg('crm.import errored', error, { count })
+    global.GlobalNotifier.omfg('company-details.import errored', error, { count })
     throw error
   }
 }
@@ -35,7 +35,7 @@ async function _import (parties, count) {
   for (let i = 0; i < count; i += batchSize) {
     if (i === progress) {
       progress = progress + PROGRESS_TICK
-      global.GlobalNotifier.omg(`crm.import progress (${i} of ${count})`)
+      global.GlobalNotifier.omg(`company-details.import progress (${i} of ${count})`)
     }
 
     const partiesToProcess = parties.slice(i, i + batchSize)
