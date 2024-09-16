@@ -148,8 +148,13 @@ async function _licenceVersions (regionCode, id) {
       AND "AABL_ID"=$2
       AND "STATUS"<>'DRAFT';
   `
+  const results = await db.query(query, [regionCode, id])
 
-  return db.query(query, [regionCode, id])
+  if (results.length === 0) {
+    throw new Error('Licence has no matching licence versions')
+  }
+
+  return results
 }
 
 async function _licenceVersionPurposes (regionCode, id) {
@@ -184,10 +189,17 @@ async function _licenceVersionPurposes (regionCode, id) {
       AND versions."FGAC_REGION_CODE" = purposes."FGAC_REGION_CODE"
     WHERE
       versions."FGAC_REGION_CODE" = $1
-      AND versions."AABL_ID" = $2;
+      AND versions."AABL_ID" = $2
+      AND versions."STATUS"<>'DRAFT';
   `
 
-  return db.query(query, [regionCode, id])
+  const results = await db.query(query, [regionCode, id])
+
+  if (results.length === 0) {
+    throw new Error('Licence has no matching licence version purposes')
+  }
+
+  return results
 }
 
 async function _licenceVersionPurposeConditions (regionCode, id) {
@@ -217,7 +229,8 @@ async function _licenceVersionPurposeConditions (regionCode, id) {
       AND purposes."ID" = conditions."AABP_ID"
     WHERE
       versions."FGAC_REGION_CODE" = $1
-      AND versions."AABL_ID" = $2;
+      AND versions."AABL_ID" = $2
+      AND versions."STATUS"<>'DRAFT';
   `
 
   return db.query(query, [regionCode, id])

@@ -8,6 +8,7 @@ const PROGRESS_TICK = 1000
 
 async function go () {
   let count = 0
+  let rejected = 0
 
   try {
     global.GlobalNotifier.omg('water.import started')
@@ -18,19 +19,22 @@ async function go () {
 
     count = licences.length
 
-    await _import(licences, count)
+    rejected = await _import(licences, count)
 
-    calculateAndLogTimeTaken(startTime, 'water.import complete', { count })
+    calculateAndLogTimeTaken(startTime, 'water.import complete', { count, rejected })
   } catch (error) {
-    global.GlobalNotifier.omfg('water.import errored', error, { count })
+    global.GlobalNotifier.omfg('water.import errored', error, { count, rejected })
     throw error
   }
+
+  return { count, rejected }
 }
 
 async function _import (licences, count) {
   const batchSize = 10
 
   let progress = PROGRESS_TICK
+  let rejected = 0
 
   // for (let i = 0; i < count; i++) {
   //   if (i === progress) {
@@ -40,7 +44,11 @@ async function _import (licences, count) {
 
   //   const licenceToProcess = licences[i]
 
-  //   await Loader.go(licenceToProcess.LIC_NO)
+  //   try {
+  //     await Loader.go(licenceToProcess.LIC_NO)
+  //   } catch (error) {
+  //     rejected += 1
+  //   }
   // }
 
   for (let i = 0; i < count; i += batchSize) {
@@ -55,12 +63,23 @@ async function _import (licences, count) {
       return Loader.go(licenceToProcess.LIC_NO)
     })
 
-    await Promise.all(processes)
+    const results = await Promise.allSettled(processes)
+    const rejectedResults = results.filter((result) => {
+      return result.status === 'rejected'
+    })
+
+    if (rejectedResults.length === batchSize) {
+      throw new Error('Whole batch rejected')
+    }
+
+    rejected += rejectedResults.length
   }
+
+  return rejected
 }
 
 async function _licences () {
-  return db.query('SELECT l."LIC_NO" FROM "import"."NALD_ABS_LICENCES" l;')
+  return db.query('SELECT "LIC_NO" FROM "import"."NALD_ABS_LICENCES";')
 }
 
 module.exports = {

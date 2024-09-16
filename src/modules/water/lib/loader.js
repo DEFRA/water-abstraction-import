@@ -5,42 +5,47 @@ const Fetcher = require('./fetcher.js')
 const Transformer = require('./transformer.js')
 
 async function go (licenceRef) {
-  const {
-    licencePriorToImport,
-    naldAddresses,
-    naldLicence,
-    naldLicenceRoles,
-    naldLicenceVersions,
-    naldLicenceVersionPurposes,
-    naldLicenceVersionPurposeConditions,
-    naldParties
-  } = await Fetcher.go(licenceRef)
+  try {
+    const {
+      licencePriorToImport,
+      naldAddresses,
+      naldLicence,
+      naldLicenceRoles,
+      naldLicenceVersions,
+      naldLicenceVersionPurposes,
+      naldLicenceVersionPurposeConditions,
+      naldParties
+    } = await Fetcher.go(licenceRef)
 
-  const transformedLicenceData = Transformer.go(
-    naldAddresses,
-    naldLicence,
-    naldLicenceRoles,
-    naldLicenceVersions,
-    naldLicenceVersionPurposes,
-    naldLicenceVersionPurposeConditions,
-    naldParties
-  )
+    const transformedLicenceData = Transformer.go(
+      naldAddresses,
+      naldLicence,
+      naldLicenceRoles,
+      naldLicenceVersions,
+      naldLicenceVersionPurposes,
+      naldLicenceVersionPurposeConditions,
+      naldParties
+    )
 
-  let results = await _persistDocument(transformedLicenceData.document)
-  await _persistDocumentRoles(transformedLicenceData.documentRoles, results[0].document_id)
+    let results = await _persistDocument(transformedLicenceData.document)
+    await _persistDocumentRoles(transformedLicenceData.documentRoles, results[0].document_id)
 
-  results = await _persistLicence(transformedLicenceData.licence)
-  await _flagForSupplementary(licencePriorToImport, transformedLicenceData.licence, results[0].licence_id)
+    results = await _persistLicence(transformedLicenceData.licence)
+    await _flagForSupplementary(licencePriorToImport, transformedLicenceData.licence, results[0].licence_id)
 
-  await _persistLicenceVersions(transformedLicenceData.licenceVersions, results[0].licence_id)
-  await _persistLicenceVersionPurposes(
-    transformedLicenceData.licenceVersionPurposes,
-    transformedLicenceData.licenceVersions
-  )
-  await _persistLicenceVersionPurposeConditions(
-    transformedLicenceData.licenceVersionPurposeConditions,
-    transformedLicenceData.licenceVersionPurposes
-  )
+    await _persistLicenceVersions(transformedLicenceData.licenceVersions, results[0].licence_id)
+    await _persistLicenceVersionPurposes(
+      transformedLicenceData.licenceVersionPurposes,
+      transformedLicenceData.licenceVersions
+    )
+    await _persistLicenceVersionPurposeConditions(
+      transformedLicenceData.licenceVersionPurposeConditions,
+      transformedLicenceData.licenceVersionPurposes
+    )
+  } catch (error) {
+    global.GlobalNotifier.omfg('water.import errored', error, { licenceRef })
+    throw error
+  }
 }
 
 async function _persistLicenceVersionPurposeCondition (licenceVersionPurposeCondition, licenceVersionPurposeId) {
@@ -100,6 +105,11 @@ async function _persistLicenceVersionPurposeConditions (licenceVersionPurposeCon
     const matchingLicenceVersionPurpose = licenceVersionPurposes.find((licenceVersionPurpose) => {
       return licenceVersionPurpose.externalId === licenceVersionPurposeCondition.purposeExternalId
     })
+
+    if (!matchingLicenceVersionPurpose) {
+      throw new Error('Cannot match licence version purpose condition to licence version purpose')
+    }
+
     const { licenceVersionPurposeId } = matchingLicenceVersionPurpose
     await _persistLicenceVersionPurposeCondition(licenceVersionPurposeCondition, licenceVersionPurposeId)
   }
@@ -217,6 +227,10 @@ async function _persistLicenceVersionPurposes (licenceVersionPurposes, licenceVe
 
       return licenceVersionPurpose.issue === issue && licenceVersionPurpose.increment === increment
     })
+
+    if (!matchingLicenceVersion) {
+      throw new Error('Cannot match licence version purpose to licence version')
+    }
 
     const { licenceVersionId } = matchingLicenceVersion
     const results = await _persistLicenceVersionPurpose(licenceVersionPurpose, licenceVersionId)

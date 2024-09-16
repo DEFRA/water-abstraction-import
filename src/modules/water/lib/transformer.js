@@ -217,7 +217,7 @@ function _startDate (naldLicence, naldLicenceVersions) {
   const sortedLicenceVersionStartDates = licenceVersionStartDates.sort()
 
   // Return the earliest
-  return sortedLicenceVersionStartDates[0]
+  return DateHelpers.mapNaldDate(sortedLicenceVersionStartDates[0])
 }
 
 function _licence (naldLicence, naldLicenceVersions) {
