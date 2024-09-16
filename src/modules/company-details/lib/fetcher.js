@@ -3,7 +3,6 @@
 const db = require('../../../lib/connectors/db.js')
 
 async function go (regionCode, partyId) {
-  const party = await _party(regionCode, partyId)
   const licenceVersions = await _licenceVersions(regionCode, partyId)
   const licenceRoles = await _licenceRoles(regionCode, partyId)
 
@@ -11,7 +10,7 @@ async function go (regionCode, partyId) {
 
   const addresses = await _addresses(regionCode, addressIds)
 
-  return { addresses, licenceVersions, licenceRoles, party }
+  return { addresses, licenceVersions, licenceRoles }
 }
 
 function _addressIds (licenceVersions, licenceRoles) {
@@ -96,28 +95,6 @@ async function _licenceVersions (regionCode, partyId) {
   `
 
   return db.query(query, [regionCode, partyId])
-}
-
-async function _party (regionCode, partyId) {
-  const query = `
-    SELECT
-      "ID",
-      "APAR_TYPE",
-      "NAME",
-      "FORENAME",
-      "INITIALS",
-      "SALUTATION",
-      "FGAC_REGION_CODE"
-    FROM
-      "import"."NALD_PARTIES"
-    WHERE
-      "FGAC_REGION_CODE"=$1
-      AND "ID" = $2;
-  `
-
-  const results = await db.query(query, [regionCode, partyId])
-
-  return results[0]
 }
 
 module.exports = {

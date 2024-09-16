@@ -49,7 +49,18 @@ async function _import (parties, count) {
 }
 
 async function _parties () {
-  return db.query('SELECT "ID", "FGAC_REGION_CODE" FROM "import"."NALD_PARTIES";')
+  return db.query(`
+    SELECT
+      "ID",
+      "APAR_TYPE",
+      "NAME",
+      "FORENAME",
+      "INITIALS",
+      "SALUTATION",
+      "FGAC_REGION_CODE"
+    FROM
+      "import"."NALD_PARTIES";
+  `)
 }
 
 module.exports = {

@@ -4,8 +4,10 @@ const db = require('../../../lib/connectors/db.js')
 const Fetcher = require('./fetcher.js')
 const Transformer = require('./transformer.js')
 
-async function go (regionCode, partyId) {
-  const { addresses, party, licenceRoles, licenceVersions } = await Fetcher.go(regionCode, partyId)
+async function go (party) {
+  const { FGAC_REGION_CODE: regionCode, ID: partyId } = party
+
+  const { addresses, licenceRoles, licenceVersions } = await Fetcher.go(regionCode, partyId)
 
   const transformedPartyData = Transformer.go(party, licenceVersions, licenceRoles, addresses)
 
