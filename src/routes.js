@@ -1,6 +1,5 @@
 const coreRoutes = require('./modules/core/routes')
 const healthRoutes = require('./modules/health/routes')
-const jobSummaryRoutes = require('./modules/jobs/routes')
 const returnsRoutes = require('./modules/returns/routes')
 
 const NaldDataRoutes = require('./modules/nald-data/routes.js')
@@ -18,7 +17,6 @@ const NightlyImportRoutes = require('./modules/nightly-import/routes.js')
 module.exports = [
   ...coreRoutes,
   ...healthRoutes,
-  ...jobSummaryRoutes,
   ...returnsRoutes,
   ...NaldDataRoutes,
   ...CleanRoutes,

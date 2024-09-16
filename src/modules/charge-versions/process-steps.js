@@ -1,10 +1,9 @@
 'use strict'
 
-const { calculateAndLogTimeTaken, currentTimeInNanoseconds } = require('../../lib/general.js')
-
+const db = require('../../lib/connectors/db.js')
 const chargingQueries = require('./lib/queries/charging')
 const chargeVersionMetadataImportService = require('./services/charge-version-metadata-import.js')
-const importService = require('../../lib/services/import.js')
+const { calculateAndLogTimeTaken, currentTimeInNanoseconds } = require('../../lib/general.js')
 const queryLoader = require('./lib/query-loader')
 const transformPermit = require('./lib/transform-permit/transform-permit.js')
 
@@ -16,7 +15,7 @@ async function go () {
 
     const startTime = currentTimeInNanoseconds()
 
-    const licenceNumbers = await importService.getLicenceNumbers()
+    const licenceNumbers = await _licenceNumbers()
 
     for (const licenceNumber of licenceNumbers) {
       const licenceData = await transformPermit.getLicenceJson(licenceNumber)
@@ -39,6 +38,12 @@ async function go () {
   }
 
   return processComplete
+}
+
+async function _licenceNumbers () {
+  const query = 'SELECT "LIC_NO" FROM "import"."NALD_ABS_LICENCES";'
+
+  return db.query(query)
 }
 
 module.exports = {
