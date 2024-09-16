@@ -6,6 +6,7 @@ const ModLogsProcessSteps = require('../mod-logs/process-steps.js')
 const NaldDataProcessSteps = require('../nald-data/process-steps.js')
 const PermitProcessSteps = require('../permit/process-steps.js')
 const ReturnVersionsProcessSteps = require('../return-versions/process-steps.js')
+const WaterProcessSteps = require('../water/process-steps.js')
 
 const { calculateAndLogTimeTaken, currentTimeInNanoseconds } = require('../../lib/general.js')
 
@@ -21,6 +22,8 @@ async function go () {
     await CleanProcessSteps.go()
     await PermitProcessSteps.go()
     await CrmProcessSteps.go()
+    await WaterProcessSteps.go()
+    await ModLogsProcessSteps.go()
     await ReturnVersionsProcessSteps.go()
     await ModLogsProcessSteps.go()
 
