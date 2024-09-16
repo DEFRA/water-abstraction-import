@@ -6,13 +6,14 @@ const { calculateAndLogTimeTaken, currentTimeInNanoseconds } = require('../../li
 
 async function go () {
   let processComplete = false
+  let counts = {}
 
   try {
     global.GlobalNotifier.omg('company-details started')
 
     const startTime = currentTimeInNanoseconds()
 
-    await ImportStep.go()
+    counts = await ImportStep.go()
 
     processComplete = true
 
@@ -21,7 +22,7 @@ async function go () {
     global.GlobalNotifier.oops('company-details failed')
   }
 
-  return processComplete
+  return { processComplete, counts }
 }
 
 module.exports = {

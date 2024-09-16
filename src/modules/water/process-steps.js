@@ -7,14 +7,14 @@ const { calculateAndLogTimeTaken, currentTimeInNanoseconds } = require('../../li
 
 async function go () {
   let processComplete = false
-  let licenceImportCounts = {}
+  let counts = {}
 
   try {
     global.GlobalNotifier.omg('water started')
 
     const startTime = currentTimeInNanoseconds()
 
-    licenceImportCounts = await LicenceImportStep.go()
+    counts = await LicenceImportStep.go()
     await PointsImportStep.go()
 
     processComplete = true
@@ -24,7 +24,7 @@ async function go () {
     global.GlobalNotifier.oops('water failed')
   }
 
-  return { processComplete, licenceImportCounts }
+  return { processComplete, counts }
 }
 
 module.exports = {

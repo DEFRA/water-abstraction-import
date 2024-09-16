@@ -7,15 +7,20 @@ const Transformer = require('./transformer.js')
 async function go (party) {
   const { FGAC_REGION_CODE: regionCode, ID: partyId } = party
 
-  const { addresses, licenceRoles, licenceVersions } = await Fetcher.go(regionCode, partyId)
+  try {
+    const { addresses, licenceRoles, licenceVersions } = await Fetcher.go(regionCode, partyId)
 
-  const transformedPartyData = Transformer.go(party, licenceVersions, licenceRoles, addresses)
+    const transformedPartyData = Transformer.go(party, licenceVersions, licenceRoles, addresses)
 
-  await _persistCompany(transformedPartyData)
-  await _persistAddresses(transformedPartyData)
-  await _persistLicenceHolderContact(transformedPartyData.licenceHolderContact)
-  await _persistCompanyContact(transformedPartyData)
-  await _persistCompanyAddresses(transformedPartyData)
+    await _persistCompany(transformedPartyData)
+    await _persistAddresses(transformedPartyData)
+    await _persistLicenceHolderContact(transformedPartyData.licenceHolderContact)
+    await _persistCompanyContact(transformedPartyData)
+    await _persistCompanyAddresses(transformedPartyData)
+  } catch (error) {
+    global.GlobalNotifier.omfg('company-details.import errored', error, { partyId, regionCode })
+    throw error
+  }
 }
 
 async function _persistAddresses (transformedPartyData) {
