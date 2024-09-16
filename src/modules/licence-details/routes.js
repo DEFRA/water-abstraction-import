@@ -5,8 +5,8 @@ const controllers = require('./controllers')
 const routes = [
   {
     method: 'post',
-    handler: controllers.water,
-    path: '/water'
+    handler: controllers.licenceDetails,
+    path: '/licence-details'
   }
 ]
 

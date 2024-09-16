@@ -12,7 +12,7 @@ const ModLogsRoutes = require('./modules/mod-logs/routes.js')
 const ReferenceRoutes = require('./modules/reference/routes.js')
 const ChargeVersionsRoutes = require('./modules/charge-versions/routes.js')
 const BillRunsRoutes = require('./modules/bill-runs/routes.js')
-const WaterRoutes = require('./modules/water/routes.js')
+const LicenceDetailsRoutes = require('./modules/licence-details/routes.js')
 const NightlyImportRoutes = require('./modules/nightly-import/routes.js')
 
 module.exports = [
@@ -29,6 +29,6 @@ module.exports = [
   ...ReferenceRoutes,
   ...ChargeVersionsRoutes,
   ...BillRunsRoutes,
-  ...WaterRoutes,
+  ...LicenceDetailsRoutes,
   ...NightlyImportRoutes
 ]

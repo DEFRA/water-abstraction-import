@@ -10,7 +10,7 @@ async function go () {
   let counts = {}
 
   try {
-    global.GlobalNotifier.omg('water started')
+    global.GlobalNotifier.omg('licence-details started')
 
     const startTime = currentTimeInNanoseconds()
 
@@ -19,9 +19,9 @@ async function go () {
 
     processComplete = true
 
-    calculateAndLogTimeTaken(startTime, 'water complete')
+    calculateAndLogTimeTaken(startTime, 'licence-details complete')
   } catch (error) {
-    global.GlobalNotifier.oops('water failed')
+    global.GlobalNotifier.oops('licence-details failed')
   }
 
   return { processComplete, counts }

@@ -44,7 +44,7 @@ async function go (naldLicence) {
       transformedLicenceData.licenceVersionPurposes
     )
   } catch (error) {
-    global.GlobalNotifier.omfg('water.import errored', error, { licenceRef })
+    global.GlobalNotifier.omfg('licence-details.import errored', error, { licenceRef })
     throw error
   }
 }

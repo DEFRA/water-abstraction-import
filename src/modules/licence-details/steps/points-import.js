@@ -5,15 +5,15 @@ const { calculateAndLogTimeTaken, currentTimeInNanoseconds } = require('../../..
 
 async function go () {
   try {
-    global.GlobalNotifier.omg('water.points-import started')
+    global.GlobalNotifier.omg('licence-details.points-import started')
 
     const startTime = currentTimeInNanoseconds()
 
     await db.query(_query())
 
-    calculateAndLogTimeTaken(startTime, 'water.points-import complete')
+    calculateAndLogTimeTaken(startTime, 'licence-details.points-import complete')
   } catch (error) {
-    global.GlobalNotifier.omfg('water.points-import errored', error)
+    global.GlobalNotifier.omfg('licence-details.points-import errored', error)
     throw error
   }
 }
