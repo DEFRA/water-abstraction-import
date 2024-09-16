@@ -8,6 +8,7 @@ const PROGRESS_TICK = 1000
 
 async function go () {
   let count = 0
+  let rejected = 0
 
   try {
     global.GlobalNotifier.omg('permit.import started')
@@ -17,19 +18,22 @@ async function go () {
     const licenceReferences = await _licenceReferences()
     count = licenceReferences.length
 
-    await _import(licenceReferences, count)
+    rejected = await _import(licenceReferences, count)
 
-    calculateAndLogTimeTaken(startTime, 'permit.import complete', { count })
+    calculateAndLogTimeTaken(startTime, 'permit.import complete', { count, rejected })
   } catch (error) {
-    global.GlobalNotifier.omfg('permit.import errored', error, { count })
+    global.GlobalNotifier.omfg('permit.import errored', error, { count, rejected })
     throw error
   }
+
+  return { count, rejected }
 }
 
 async function _import (licenceReferences, count) {
   const batchSize = 10
 
   let progress = PROGRESS_TICK
+  let rejected = 0
 
   for (let i = 0; i < count; i += batchSize) {
     if (i === progress) {
@@ -43,8 +47,19 @@ async function _import (licenceReferences, count) {
       return Loader.load(referenceToProcess.LIC_NO)
     })
 
-    await Promise.all(processes)
+    const results = await Promise.allSettled(processes)
+    const rejectedResults = results.filter((result) => {
+      return result.status === 'rejected'
+    })
+
+    if (rejectedResults.length === batchSize) {
+      throw new Error('Whole batch rejected')
+    }
+
+    rejected += rejectedResults.length
   }
+
+  return rejected
 }
 
 async function _licenceReferences () {

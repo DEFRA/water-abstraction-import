@@ -6,15 +6,20 @@ const { buildCRMPacket } = require('./transform-crm')
 const { getLicenceJson, buildPermitRepoPacket } = require('./transform-permit')
 
 async function load (licenceNumber) {
-  const licenceData = await getLicenceJson(licenceNumber)
+  try {
+    const licenceData = await getLicenceJson(licenceNumber)
 
-  if (licenceData.data.versions.length === 0) {
-    return null
+    if (licenceData.data.versions.length === 0) {
+      return null
+    }
+
+    const permitRepoId = await _loadPermit(licenceNumber, licenceData)
+
+    return _loadDocumentHeader(licenceNumber, licenceData, permitRepoId)
+  } catch (error) {
+    global.GlobalNotifier.omfg('permit.import errored', error, { licenceNumber })
+    throw error
   }
-
-  const permitRepoId = await _loadPermit(licenceNumber, licenceData)
-
-  return _loadDocumentHeader(licenceNumber, licenceData, permitRepoId)
 }
 
 async function _loadDocumentHeader (licenceNumber, licenceData, permitRepoId) {
