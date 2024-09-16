@@ -5,8 +5,6 @@ require('dotenv').config()
 const environment = process.env.ENVIRONMENT
 const isProduction = environment === 'prd'
 
-const isTlsConnection = (process.env.REDIS_HOST || '').includes('aws')
-
 module.exports = {
 
   blipp: {
@@ -48,12 +46,6 @@ module.exports = {
     max: 20
   },
 
-  pgBoss: {
-    schema: 'water_import',
-    application_name: process.env.SERVICE_NAME,
-    newJobCheckIntervalSeconds: 10
-  },
-
   server: {
     port: 8007,
     router: {
@@ -83,11 +75,9 @@ module.exports = {
   import: {
     nald: {
       zipPassword: process.env.NALD_ZIP_PASSWORD,
-      path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release',
-      schedule: process.env.WRLS_CRON_NALD || '0 1 * * *'
+      path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release'
     },
     licences: {
-      schedule: process.env.WRLS_CRON_LICENCES || '0 4 * * 1,2,3,4,5',
       // Note: these 2 flags need to be set to false for charging go-live
       // to suspend the import of invoice accounts and licence agreements
       // Update: I've changed those values to false ahead of the v2.0 charging
@@ -102,24 +92,7 @@ module.exports = {
       // This will supersede the implementation here where the billing contact history
       // was calculated from NALD data
       isBillingDocumentRoleImportEnabled: false
-    },
-    modLogs: {
-      schedule: process.env.WRLS_CRON_MOD_LOGS || '0 7 * * 1,2,3,4,5'
-    },
-    returnVersions: {
-      schedule: process.env.WRLS_CRON_RETURN_VERSIONS || '0 6 * * 1,2,3,4,5'
-    },
-    tracker: {
-      schedule: process.env.WRLS_CRON_TRACKER || '0 10 * * 1,2,3,4,5'
     }
-  },
-
-  redis: {
-    host: process.env.REDIS_HOST || '127.0.0.1',
-    port: process.env.REDIS_PORT || 6379,
-    password: process.env.REDIS_PASSWORD || '',
-    ...(isTlsConnection) && { tls: {} },
-    db: 0
   },
   notify: {
     templates: {
