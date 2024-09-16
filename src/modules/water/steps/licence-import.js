@@ -11,7 +11,7 @@ async function go () {
   let rejected = 0
 
   try {
-    global.GlobalNotifier.omg('water.import started')
+    global.GlobalNotifier.omg('water.licence-import started')
 
     const startTime = currentTimeInNanoseconds()
 
@@ -21,9 +21,9 @@ async function go () {
 
     rejected = await _import(licences, count)
 
-    calculateAndLogTimeTaken(startTime, 'water.import complete', { count, rejected })
+    calculateAndLogTimeTaken(startTime, 'water.licence-import complete', { count, rejected })
   } catch (error) {
-    global.GlobalNotifier.omfg('water.import errored', error, { count, rejected })
+    global.GlobalNotifier.omfg('water.licence-import errored', error, { count, rejected })
     throw error
   }
 
@@ -39,13 +39,12 @@ async function _import (licences, count) {
   for (let i = 0; i < count; i += batchSize) {
     if (i === progress) {
       progress = progress + PROGRESS_TICK
-      global.GlobalNotifier.omg(`water.import progress (${i} of ${count})`)
+      global.GlobalNotifier.omg(`water.licence-import progress (${i} of ${count})`)
     }
 
     const licencesToProcess = licences.slice(i, i + batchSize)
 
     const processes = licencesToProcess.map((licenceToProcess) => {
-      // return Loader.go(licenceToProcess.LIC_NO)
       return Loader.go(licenceToProcess)
     })
 

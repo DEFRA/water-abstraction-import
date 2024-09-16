@@ -1,18 +1,21 @@
 'use strict'
 
-const ImportStep = require('./steps/import.js')
+const LicenceImportStep = require('./steps/licence-import.js')
+const PointsImportStep = require('./steps/points-import.js')
 
 const { calculateAndLogTimeTaken, currentTimeInNanoseconds } = require('../../lib/general.js')
 
 async function go () {
   let processComplete = false
+  let licenceImportCounts = {}
 
   try {
     global.GlobalNotifier.omg('water started')
 
     const startTime = currentTimeInNanoseconds()
 
-    await ImportStep.go()
+    licenceImportCounts = await LicenceImportStep.go()
+    await PointsImportStep.go()
 
     processComplete = true
 
@@ -21,7 +24,7 @@ async function go () {
     global.GlobalNotifier.oops('water failed')
   }
 
-  return processComplete
+  return { processComplete, licenceImportCounts }
 }
 
 module.exports = {
