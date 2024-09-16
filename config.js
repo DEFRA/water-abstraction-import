@@ -95,8 +95,7 @@ module.exports = {
     }
   },
   notify: {
-    templates: {
-      service_status_alert: 'c34d1b16-694b-4364-8e7e-83e9dbd34a62'
-    }
+    mailbox: process.env.WATER_SERVICE_MAILBOX,
+    templateId: 'c34d1b16-694b-4364-8e7e-83e9dbd34a62'
   }
 }
