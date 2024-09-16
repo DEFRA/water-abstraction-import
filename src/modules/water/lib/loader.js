@@ -4,18 +4,19 @@ const db = require('../../../lib/connectors/db.js')
 const Fetcher = require('./fetcher.js')
 const Transformer = require('./transformer.js')
 
-async function go (licenceRef) {
+async function go (naldLicence) {
+  const { LIC_NO: licenceRef } = naldLicence
+
   try {
     const {
       licencePriorToImport,
       naldAddresses,
-      naldLicence,
       naldLicenceRoles,
       naldLicenceVersions,
       naldLicenceVersionPurposes,
       naldLicenceVersionPurposeConditions,
       naldParties
-    } = await Fetcher.go(licenceRef)
+    } = await Fetcher.go(naldLicence)
 
     const transformedLicenceData = Transformer.go(
       naldAddresses,

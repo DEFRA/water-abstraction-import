@@ -36,21 +36,6 @@ async function _import (licences, count) {
   let progress = PROGRESS_TICK
   let rejected = 0
 
-  // for (let i = 0; i < count; i++) {
-  //   if (i === progress) {
-  //     progress = progress + PROGRESS_TICK
-  //     global.GlobalNotifier.omg(`water.import progress (${i} of ${count})`)
-  //   }
-
-  //   const licenceToProcess = licences[i]
-
-  //   try {
-  //     await Loader.go(licenceToProcess.LIC_NO)
-  //   } catch (error) {
-  //     rejected += 1
-  //   }
-  // }
-
   for (let i = 0; i < count; i += batchSize) {
     if (i === progress) {
       progress = progress + PROGRESS_TICK
@@ -60,7 +45,8 @@ async function _import (licences, count) {
     const licencesToProcess = licences.slice(i, i + batchSize)
 
     const processes = licencesToProcess.map((licenceToProcess) => {
-      return Loader.go(licenceToProcess.LIC_NO)
+      // return Loader.go(licenceToProcess.LIC_NO)
+      return Loader.go(licenceToProcess)
     })
 
     const results = await Promise.allSettled(processes)
@@ -79,7 +65,24 @@ async function _import (licences, count) {
 }
 
 async function _licences () {
-  return db.query('SELECT "LIC_NO" FROM "import"."NALD_ABS_LICENCES";')
+  const query = `
+    SELECT
+      "ID",
+      "LIC_NO",
+      "FGAC_REGION_CODE",
+      "ORIG_EFF_DATE",
+      "EXPIRY_DATE",
+      "LAPSED_DATE",
+      "REV_DATE",
+      "AREP_EIUC_CODE",
+      "AREP_AREA_CODE",
+      "AREP_SUC_CODE",
+      "AREP_LEAP_CODE"
+    FROM
+      "import"."NALD_ABS_LICENCES";
+  `
+
+  return db.query(query)
 }
 
 module.exports = {

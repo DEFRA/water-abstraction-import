@@ -2,9 +2,8 @@
 
 const db = require('../../../lib/connectors/db.js')
 
-async function go (licenceRef) {
-  const naldLicence = await _licence(licenceRef)
-  const { ID: id, FGAC_REGION_CODE: regionCode } = naldLicence
+async function go (naldLicence) {
+  const { ID: id, FGAC_REGION_CODE: regionCode, LIC_NO: licenceRef } = naldLicence
 
   const naldLicenceVersions = await _licenceVersions(regionCode, id)
   const naldLicenceVersionPurposes = await _licenceVersionPurposes(regionCode, id)
@@ -63,30 +62,6 @@ function _addressAndPartyIds (licenceVersions, licenceRoles) {
   const partyIds = [...new Set(allPartyIds)]
 
   return { addressIds, partyIds }
-}
-
-async function _licence (licenceRef) {
-  const query = `
-    SELECT
-      "ID",
-      "LIC_NO",
-      "FGAC_REGION_CODE",
-      "ORIG_EFF_DATE",
-      "EXPIRY_DATE",
-      "LAPSED_DATE",
-      "REV_DATE",
-      "AREP_EIUC_CODE",
-      "AREP_AREA_CODE",
-      "AREP_SUC_CODE",
-      "AREP_LEAP_CODE"
-    FROM
-      "import"."NALD_ABS_LICENCES"
-    WHERE "LIC_NO"=$1;
-  `
-
-  const results = await db.query(query, [licenceRef])
-
-  return results[0]
 }
 
 async function _licencePriorToImport (licenceRef) {
