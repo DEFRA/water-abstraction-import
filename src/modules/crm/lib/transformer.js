@@ -1,6 +1,6 @@
 'use strict'
 
-const DateHelper = require('./date-helper.js')
+const DateHelpers = require('../../../lib/date-helpers.js')
 
 function go (party, licenceVersions, licenceRoles, naldAddresses) {
   const company = _company(party)
@@ -65,8 +65,8 @@ function _contact (party) {
 function _licenceHolderAddresses (licenceVersions, addresses) {
   // Sort licence versions by start date
   const sortedLicenceVersions = licenceVersions.sort((licenceVersion1, licenceVersion2) => {
-    const formattedStartDate1 = DateHelper.mapNaldDate(licenceVersion1.EFF_ST_DATE)
-    const formattedStartDate2 = DateHelper.mapNaldDate(licenceVersion2.EFF_ST_DATE)
+    const formattedStartDate1 = DateHelpers.mapNaldDate(licenceVersion1.EFF_ST_DATE)
+    const formattedStartDate2 = DateHelpers.mapNaldDate(licenceVersion2.EFF_ST_DATE)
 
     if ((licenceVersion1, formattedStartDate1) > (licenceVersion2, formattedStartDate2)) {
       return 1
@@ -82,15 +82,15 @@ function _licenceHolderAddresses (licenceVersions, addresses) {
     const id = licenceVersion.ACON_AADD_ID
     const currentStart = mapped[id]?.startDate
     const currentEnd = mapped[id]?.endDate
-    const transformedStartDate = DateHelper.mapNaldDate(licenceVersion.EFF_ST_DATE)
+    const transformedStartDate = DateHelpers.mapNaldDate(licenceVersion.EFF_ST_DATE)
     const address = addresses.find((address) => {
       return address.externalId === `${licenceVersion.FGAC_REGION_CODE}:${id}`
     })
 
     mapped[id] = {
       role: 'licenceHolder',
-      startDate: DateHelper.getMinDate([transformedStartDate, currentStart]),
-      endDate: DateHelper.getEndDate(licenceVersion, currentEnd),
+      startDate: DateHelpers.getMinDate([transformedStartDate, currentStart]),
+      endDate: DateHelpers.getEndDate(licenceVersion, currentEnd),
       address
     }
   }
@@ -104,12 +104,12 @@ function _licenceHolderContact (contact, licenceVersions) {
   }
 
   const startDates = licenceVersions.map((licenceVersion) => {
-    return DateHelper.mapNaldDate(licenceVersion.EFF_ST_DATE)
+    return DateHelpers.mapNaldDate(licenceVersion.EFF_ST_DATE)
   })
 
   return {
     role: 'licenceHolder',
-    startDate: DateHelper.getMinDate(startDates),
+    startDate: DateHelpers.getMinDate(startDates),
     endDate: null,
     contact
   }
@@ -133,11 +133,11 @@ function _licenceRoleAddresses (licenceRoles, addresses) {
   return Object.values(grouped).map((addressGroup) => {
     const { FGAC_REGION_CODE: regionCode, ACON_AADD_ID: addressId, ALRT_CODE: roleCode } = addressGroup[0]
     const startDates = addressGroup.map((row) => {
-      return DateHelper.mapNaldDate(row.EFF_ST_DATE)
+      return DateHelpers.mapNaldDate(row.EFF_ST_DATE)
     })
 
     const endDates = addressGroup.map((row) => {
-      return DateHelper.mapNaldDate(row.EFF_END_DATE)
+      return DateHelpers.mapNaldDate(row.EFF_END_DATE)
     })
 
     const address = addresses.find((address) => {
@@ -146,8 +146,8 @@ function _licenceRoleAddresses (licenceRoles, addresses) {
 
     return {
       role: roleCode === 'RT' ? 'returnsTo' : null,
-      startDate: DateHelper.getMinDate(startDates),
-      endDate: DateHelper.getMaxDate(endDates),
+      startDate: DateHelpers.getMinDate(startDates),
+      endDate: DateHelpers.getMaxDate(endDates),
       address
     }
   })
