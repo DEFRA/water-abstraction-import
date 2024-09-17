@@ -14,6 +14,8 @@ const { calculateAndLogTimeTaken, currentTimeInNanoseconds } = require('../../li
 async function go () {
   const allResults = _allResults()
 
+  let emailMessage = 'nightly-import process'
+
   try {
     global.GlobalNotifier.omg('nightly-import started')
 
@@ -29,13 +31,13 @@ async function go () {
 
     const logData = calculateAndLogTimeTaken(startTime, 'nightly-import complete')
     const timeMessage = _timeMessage(logData.timeTakenSs)
-    const emailMessage = _message(allResults, timeMessage)
-
-    await TrackerProcessSteps.go(emailMessage)
+    emailMessage = _message(allResults, timeMessage)
   } catch (error) {
-    console.log(error)
-    global.GlobalNotifier.oops('nightly-import failed')
+    global.GlobalNotifier.omfg('nightly-import errored')
+    emailMessage = `Nightly import process errored: ${error.message}`
   }
+
+  await _trackerProcess(emailMessage)
 }
 
 function _allResults () {
@@ -86,44 +88,56 @@ function _allResults () {
 }
 
 async function _cleanProcess (allResults) {
-  const { clean, naldData } = allResults
+  try {
+    const { clean, naldData } = allResults
 
-  if (!naldData.completed) {
-    return
+    if (!naldData.completed) {
+      return
+    }
+
+    clean.attempted = true
+    clean.completed = await CleanProcessSteps.go()
+  } catch (error) {
+    global.GlobalNotifier.oops('nightly-import clean-process failed')
   }
-
-  clean.attempted = true
-  clean.completed = await CleanProcessSteps.go()
 }
 
 async function _companyDetailsProcess (allResults) {
-  const { companyDetails, permit } = allResults
+  try {
+    const { companyDetails, permit } = allResults
 
-  if (!permit.completed) {
-    return
+    if (!permit.completed) {
+      return
+    }
+
+    companyDetails.attempted = true
+
+    const { counts, processComplete } = await CompanyDetailsProcessSteps.go()
+
+    companyDetails.completed = processComplete
+    companyDetails.counts = counts
+  } catch (error) {
+    global.GlobalNotifier.oops('nightly-import company-details process failed')
   }
-
-  companyDetails.attempted = true
-
-  const { counts, processComplete } = await CompanyDetailsProcessSteps.go()
-
-  companyDetails.completed = processComplete
-  companyDetails.counts = counts
 }
 
 async function _licenceDetailsProcess (allResults) {
-  const { companyDetails, licenceDetails } = allResults
+  try {
+    const { companyDetails, licenceDetails } = allResults
 
-  if (!companyDetails.completed) {
-    return
+    if (!companyDetails.completed) {
+      return
+    }
+
+    licenceDetails.attempted = true
+
+    const { counts, processComplete } = await LicenceDetailsProcessSteps.go()
+
+    licenceDetails.completed = processComplete
+    licenceDetails.counts = counts
+  } catch (error) {
+    global.GlobalNotifier.oops('nightly-import licence-details process failed')
   }
-
-  licenceDetails.attempted = true
-
-  const { counts, processComplete } = await LicenceDetailsProcessSteps.go()
-
-  licenceDetails.completed = processComplete
-  licenceDetails.counts = counts
 }
 
 function _message (allResults, timeMessage) {
@@ -146,47 +160,63 @@ function _message (allResults, timeMessage) {
 }
 
 async function _modLogsProcess (allResults) {
-  const { licenceDetails, modLogs } = allResults
+  try {
+    const { licenceDetails, modLogs } = allResults
 
-  if (!licenceDetails.completed) {
-    return
+    if (!licenceDetails.completed) {
+      return
+    }
+
+    modLogs.attempted = true
+    modLogs.completed = await ModLogsProcessSteps.go()
+  } catch (error) {
+    global.GlobalNotifier.oops('nightly-import mod-logs process failed')
   }
-
-  modLogs.attempted = true
-  modLogs.completed = await ModLogsProcessSteps.go()
 }
 
 async function _naldDataProcess (allResults) {
-  const { naldData } = allResults
+  try {
+    const { naldData } = allResults
 
-  naldData.attempted = true
-  naldData.completed = await NaldDataProcessSteps.go()
+    naldData.attempted = true
+    naldData.completed = await NaldDataProcessSteps.go()
+  } catch (error) {
+    global.GlobalNotifier.oops('nightly-import nald-data failed')
+  }
 }
 
 async function _permitProcess (allResults) {
-  const { clean, permit } = allResults
+  try {
+    const { clean, permit } = allResults
 
-  if (!clean.completed) {
-    return
+    if (!clean.completed) {
+      return
+    }
+
+    permit.attempted = true
+
+    const { counts, processComplete } = await PermitProcessSteps.go()
+
+    permit.completed = processComplete
+    permit.counts = counts
+  } catch (error) {
+    global.GlobalNotifier.oops('nightly-import permit process failed')
   }
-
-  permit.attempted = true
-
-  const { counts, processComplete } = await PermitProcessSteps.go()
-
-  permit.completed = processComplete
-  permit.counts = counts
 }
 
 async function _returnVersionsProcess (allResults) {
-  const { modLogs, returnVersions } = allResults
+  try {
+    const { modLogs, returnVersions } = allResults
 
-  if (!modLogs.completed) {
-    return
+    if (!modLogs.completed) {
+      return
+    }
+
+    returnVersions.attempted = true
+    returnVersions.completed = await ReturnVersionsProcessSteps.go()
+  } catch (error) {
+    global.GlobalNotifier.oops('nightly-import return-versions process failed')
   }
-
-  returnVersions.attempted = true
-  returnVersions.completed = await ReturnVersionsProcessSteps.go()
 }
 
 function _timeMessage (secondsAsBigInt) {
@@ -196,6 +226,14 @@ function _timeMessage (secondsAsBigInt) {
   const remainingSeconds = seconds % 60
 
   return `Time taken: ${hours} hours, ${minutes} minutes, and ${remainingSeconds} seconds`
+}
+
+async function _trackerProcess (emailMessage) {
+  try {
+    await TrackerProcessSteps.go(emailMessage)
+  } catch (error) {
+    global.GlobalNotifier.oops('nightly-import tracker process failed')
+  }
 }
 
 module.exports = {
