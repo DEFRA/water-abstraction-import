@@ -23,6 +23,8 @@ const { randomUUID } = require('crypto')
  * @param {bigint} startTime - the time the process started in nanoseconds
  * @param {string} message - the message to log
  * @param {object} [data] - additional data to include with the log output
+ *
+ * @returns {object} the log data generated and logged
  */
 function calculateAndLogTimeTaken (startTime, message, data = {}) {
   const endTime = currentTimeInNanoseconds()
@@ -37,6 +39,8 @@ function calculateAndLogTimeTaken (startTime, message, data = {}) {
   }
 
   global.GlobalNotifier.omg(message, logData)
+
+  return logData
 }
 
 /**
