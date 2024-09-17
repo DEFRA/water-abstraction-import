@@ -54,12 +54,6 @@ function _allResults () {
       attempted: false,
       completed: false
     },
-    permit: {
-      title: 'Permit process',
-      description: 'Imports NALD data as the old versions of the licence: permit.licence and crm.document_header.',
-      attempted: false,
-      completed: false
-    },
     companyDetails: {
       title: 'Company details process',
       description: "Imports NALD 'party' data as companies, contacts and addresses into crm_v2.",
@@ -81,6 +75,12 @@ function _allResults () {
     returnVersions: {
       title: 'Return versions process',
       description: 'Imports NALD return version data, then corrects known issues with it, ready for use in WRLS.',
+      attempted: false,
+      completed: false
+    },
+    permit: {
+      title: 'Permit process',
+      description: 'Imports NALD data as the old versions of the licence: permit.licence and crm.document_header.',
       attempted: false,
       completed: false
     }
