@@ -23,11 +23,11 @@ async function go () {
 
     await _naldDataProcess(allResults)
     await _cleanProcess(allResults)
-    await _permitProcess(allResults)
     await _companyDetailsProcess(allResults)
     await _licenceDetailsProcess(allResults)
     await _modLogsProcess(allResults)
     await _returnVersionsProcess(allResults)
+    await _permitProcess(allResults)
 
     const logData = calculateAndLogTimeTaken(startTime, 'nightly-import complete')
     const timeMessage = _timeMessage(logData.timeTakenSs)
@@ -104,9 +104,9 @@ async function _cleanProcess (allResults) {
 
 async function _companyDetailsProcess (allResults) {
   try {
-    const { companyDetails, permit } = allResults
+    const { clean, companyDetails } = allResults
 
-    if (!permit.completed) {
+    if (!clean.completed) {
       return
     }
 
@@ -187,9 +187,9 @@ async function _naldDataProcess (allResults) {
 
 async function _permitProcess (allResults) {
   try {
-    const { clean, permit } = allResults
+    const { permit, returnVersions } = allResults
 
-    if (!clean.completed) {
+    if (!returnVersions.completed) {
       return
     }
 
