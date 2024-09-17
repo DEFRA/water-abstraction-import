@@ -183,12 +183,12 @@ experiment('Licence Import: Import Company job', () => {
         expect(queueName).to.equal('__state__completed__licence-import.import-company')
       })
 
-      test('the import licences job is published to the queue', async () => {
+      test('the queue licences job is published to the queue', async () => {
         await ImportCompanyJob.onComplete(messageQueue)
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
-        expect(jobMessage.name).to.equal('licence-import.queue-licences-system')
+        expect(jobMessage.name).to.equal('licence-import.queue-licences')
       })
     })
 
