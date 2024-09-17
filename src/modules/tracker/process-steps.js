@@ -4,7 +4,7 @@ const SendEmailStep = require('./steps/send-email.js')
 
 const { calculateAndLogTimeTaken, currentTimeInNanoseconds } = require('../../lib/general.js')
 
-async function go () {
+async function go (message) {
   let processComplete = false
 
   try {
@@ -12,7 +12,7 @@ async function go () {
 
     const startTime = currentTimeInNanoseconds()
 
-    await SendEmailStep.go()
+    await SendEmailStep.go(message)
 
     processComplete = true
 

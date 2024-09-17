@@ -5,31 +5,21 @@ const NotifyConnector = require('../../../lib/connectors/water/notify.js')
 
 const config = require('../../../../config.js')
 
-async function go (message = null) {
+async function go (message) {
   try {
     global.GlobalNotifier.omg('tracker.send-email started')
 
     const startTime = currentTimeInNanoseconds()
 
-    const content = _content(message)
+    const environment = `Sent from ${config.environment}\n\n`
 
-    _send(content)
+    _send(`${environment}${message}`)
 
     calculateAndLogTimeTaken(startTime, 'tracker.send-email complete')
   } catch (error) {
     global.GlobalNotifier.omfg('tracker.send-email errored', error)
     throw error
   }
-}
-
-function _content (message) {
-  const environment = `Sent from ${config.environment}\n\n`
-
-  if (!message) {
-    return `${environment}Someone triggered a test of the tracker email. You can ignore this message (it worked!)`
-  }
-
-  return `${environment}${message}`
 }
 
 function _send (content) {

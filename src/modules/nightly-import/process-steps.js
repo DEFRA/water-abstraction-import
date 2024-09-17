@@ -22,10 +22,10 @@ async function go () {
     await _naldDataProcess(allResults)
     await _cleanProcess(allResults)
     await _permitProcess(allResults)
-    await _companyDetailsProcess.go(allResults)
-    await _licenceDetailsProcess.go(allResults)
-    await _modLogsProcess.go(allResults)
-    await _returnVersionsProcess.go(allResults)
+    await _companyDetailsProcess(allResults)
+    await _licenceDetailsProcess(allResults)
+    await _modLogsProcess(allResults)
+    await _returnVersionsProcess(allResults)
 
     const logData = calculateAndLogTimeTaken(startTime, 'nightly-import complete')
     const timeMessage = _timeMessage(logData.timeTakenSs)
@@ -33,6 +33,7 @@ async function go () {
 
     await TrackerProcessSteps.go(emailMessage)
   } catch (error) {
+    console.log(error)
     global.GlobalNotifier.oops('nightly-import failed')
   }
 }
@@ -76,7 +77,7 @@ function _allResults () {
       completed: false
     },
     returnVersions: {
-      title: 'Mod logs process',
+      title: 'Return versions process',
       description: 'Imports NALD return version data, then corrects known issues with it, ready for use in WRLS.',
       attempted: false,
       completed: false
@@ -188,7 +189,8 @@ async function _returnVersionsProcess (allResults) {
   returnVersions.completed = await ReturnVersionsProcessSteps.go()
 }
 
-function _timeMessage (seconds) {
+function _timeMessage (secondsAsBigInt) {
+  const seconds = Number(secondsAsBigInt)
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
   const remainingSeconds = seconds % 60
