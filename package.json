@@ -36,7 +36,6 @@
     "deep-map": "^2.0.0",
     "dotenv": "^8.2.0",
     "firstline": "^2.0.2",
-    "hapi-auth-jwt2": "^8.8.1",
     "hapi-pino": "^11.0.1",
     "mkdir": "0.0.2",
     "moment": "^2.30.1",

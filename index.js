@@ -4,7 +4,6 @@ require('dotenv').config()
 // -------------- Require vendor code -----------------
 const Blipp = require('blipp')
 
-const HapiAuthJwt2 = require('hapi-auth-jwt2')
 const moment = require('moment')
 
 moment.locale('en-gb')
@@ -23,17 +22,8 @@ const plugins = [
   {
     plugin: Blipp,
     options: config.blipp
-  },
-  HapiAuthJwt2
+  }
 ]
-
-const configureServerAuthStrategy = (server) => {
-  server.auth.strategy('jwt', 'jwt', {
-    ...config.jwt,
-    validate: async (decoded) => ({ isValid: !!decoded.id })
-  })
-  server.auth.default('jwt')
-}
 
 const start = async function () {
   await server.register(plugins)
@@ -45,8 +35,6 @@ const start = async function () {
   await server.register(GlobalNotifierPlugin)
 
   server.validator(require('@hapi/joi'))
-
-  configureServerAuthStrategy(server)
 
   server.route(routes)
 

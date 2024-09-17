@@ -11,11 +11,6 @@ module.exports = {
     showAuth: true
   },
 
-  jwt: {
-    key: process.env.JWT_SECRET,
-    verifyOptions: { algorithms: ['HS256'] }
-  },
-
   // This config is specifically for hapi-pino which was added to replace the deprecated (and noisy!) hapi/good. At
   // some point all logging would go through this. But for now, it just covers requests & responses
   log: {

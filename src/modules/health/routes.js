@@ -6,18 +6,12 @@ const routes = [
   {
     method: 'GET',
     path: '/health/airbrake',
-    handler: controller.getAirbrake,
-    config: {
-      auth: false
-    }
+    handler: controller.getAirbrake
   },
   {
     method: 'GET',
     path: '/health/info',
-    handler: controller.getInfo,
-    config: {
-      auth: false
-    }
+    handler: controller.getInfo
   }
 ]
 
