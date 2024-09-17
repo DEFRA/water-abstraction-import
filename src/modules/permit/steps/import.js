@@ -4,6 +4,8 @@ const db = require('../../../lib/connectors/db.js')
 const { calculateAndLogTimeTaken, currentTimeInNanoseconds } = require('../../../lib/general.js')
 const Loader = require('../lib/loader.js')
 
+const config = require('../../../../config.js')
+
 const PROGRESS_TICK = 1000
 
 async function go () {
@@ -30,7 +32,7 @@ async function go () {
 }
 
 async function _import (licenceReferences, count) {
-  const batchSize = 10
+  const batchSize = config.processBatchSize
 
   let progress = PROGRESS_TICK
   let rejected = 0

@@ -67,6 +67,9 @@ module.exports = {
 
   proxy: process.env.PROXY,
 
+  // In processes like licence-details, configure how many 'things' to import within each batch
+  processBatchSize: parseInt(process.env.IMPORT_PROCESS_BATCH_SIZE) || 10,
+
   import: {
     nald: {
       zipPassword: process.env.NALD_ZIP_PASSWORD,
