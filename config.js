@@ -84,10 +84,10 @@ module.exports = {
     nald: {
       zipPassword: process.env.NALD_ZIP_PASSWORD,
       path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release',
-      schedule: process.env.WRLS_CRON_NALD || '0 1 * * *'
+      schedule: process.env.WRLS_CRON_NALD || '15 23 * * *'
     },
     licences: {
-      schedule: process.env.WRLS_CRON_LICENCES || '0 4 * * 1,2,3,4,5',
+      schedule: process.env.WRLS_CRON_LICENCES || '15 3 * * 1,2,3,4,',
       // Note: these 2 flags need to be set to false for charging go-live
       // to suspend the import of invoice accounts and licence agreements
       // Update: I've changed those values to false ahead of the v2.0 charging
@@ -104,10 +104,10 @@ module.exports = {
       isBillingDocumentRoleImportEnabled: false
     },
     modLogs: {
-      schedule: process.env.WRLS_CRON_MOD_LOGS || '0 7 * * 1,2,3,4,5'
+      schedule: process.env.WRLS_CRON_MOD_LOGS || '30 7 * * 1,2,3,4,5'
     },
     returnVersions: {
-      schedule: process.env.WRLS_CRON_RETURN_VERSIONS || '0 6 * * 1,2,3,4,5'
+      schedule: process.env.WRLS_CRON_RETURN_VERSIONS || '15 7 * * 1,2,3,4,5'
     },
     tracker: {
       schedule: process.env.WRLS_CRON_TRACKER || '0 10 * * 1,2,3,4,5'
