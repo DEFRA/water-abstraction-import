@@ -20,7 +20,6 @@ async function handler () {
 
     await pool.query(Queries.importReturnVersions)
     await pool.query(Queries.importReturnRequirements)
-    await pool.query(Queries.importReturnRequirementPoints)
     await pool.query(Queries.importReturnRequirementPurposes)
     await pool.query(Queries.importReturnVersionsMultipleUpload)
     await pool.query(Queries.importReturnVersionsCreateNotesFromDescriptions)
