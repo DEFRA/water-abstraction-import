@@ -23,6 +23,25 @@ const cleanPoints = `
           rl.return_requirement = rr.legacy_id::varchar
         LIMIT 1
       )
+    UNION ALL
+    SELECT
+      rr.return_requirement_id
+    FROM
+      water.return_requirements rr
+    WHERE
+      NOT EXISTS (
+        SELECT 1
+        FROM nald_return_requirements nrr
+        WHERE rr.external_id = nrr.nald_id
+      )
+      AND EXISTS (
+        SELECT 1
+        FROM "returns"."returns" rl
+        WHERE
+          rl.return_requirement = rr.legacy_id::varchar
+          AND rl.status = 'void'
+        LIMIT 1
+      )
   );
 `
 
@@ -49,6 +68,25 @@ const cleanPurposes = `
           rl.return_requirement = rr.legacy_id::varchar
         LIMIT 1
       )
+    UNION ALL
+    SELECT
+      rr.return_requirement_id
+    FROM
+      water.return_requirements rr
+    WHERE
+      NOT EXISTS (
+        SELECT 1
+        FROM nald_return_requirements nrr
+        WHERE rr.external_id = nrr.nald_id
+      )
+      AND EXISTS (
+        SELECT 1
+        FROM "returns"."returns" rl
+        WHERE
+          rl.return_requirement = rr.legacy_id::varchar
+          AND rl.status = 'void'
+        LIMIT 1
+      )
   );
 `
 
@@ -73,6 +111,25 @@ const cleanRequirements = `
         FROM "returns"."returns" rl
         WHERE
           rl.return_requirement = rr.legacy_id::varchar
+        LIMIT 1
+      )
+    UNION ALL
+    SELECT
+      rr.return_requirement_id
+    FROM
+      water.return_requirements rr
+    WHERE
+      NOT EXISTS (
+        SELECT 1
+        FROM nald_return_requirements nrr
+        WHERE rr.external_id = nrr.nald_id
+      )
+      AND EXISTS (
+        SELECT 1
+        FROM "returns"."returns" rl
+        WHERE
+          rl.return_requirement = rr.legacy_id::varchar
+          AND rl.status = 'void'
         LIMIT 1
       )
   );
