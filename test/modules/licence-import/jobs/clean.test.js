@@ -9,7 +9,7 @@ const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
 const { expect } = Code
 
 // Things we need to stub
-const documentsConnector = require('../../../../src/modules/licence-import/connectors/documents.js')
+const { pool } = require('../../../../src/lib/connectors/db.js')
 
 // Thing under test
 const CleanJob = require('../../../../src/modules/licence-import/jobs/clean.js')
@@ -18,7 +18,7 @@ experiment('Licence Import: Clean', () => {
   let notifierStub
 
   beforeEach(async () => {
-    Sinon.stub(documentsConnector, 'deleteRemovedDocuments').resolves()
+    Sinon.stub(pool, 'query').resolves()
 
     // RequestLib depends on the GlobalNotifier to have been set. This happens in app/plugins/global-notifier.plugin.js
     // when the app starts up and the plugin is registered. As we're not creating an instance of Hapi server in this
@@ -59,7 +59,7 @@ experiment('Licence Import: Clean', () => {
       test('deletes the removed documents', async () => {
         await CleanJob.handler()
 
-        expect(documentsConnector.deleteRemovedDocuments.called).to.equal(true)
+        expect(pool.query.called).to.equal(true)
       })
     })
 
@@ -67,7 +67,7 @@ experiment('Licence Import: Clean', () => {
       const err = new Error('Oops!')
 
       beforeEach(async () => {
-        documentsConnector.deleteRemovedDocuments.throws(err)
+        pool.query.throws(err)
       })
 
       test('logs an error message', async () => {

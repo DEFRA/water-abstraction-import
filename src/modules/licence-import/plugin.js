@@ -13,7 +13,7 @@ const QueueLicencesJob = require('./jobs/queue-licences.js')
 const config = require('../../../config')
 
 async function register (server, _options) {
-  // First step is to remove any documents that no longer exist in NALD
+  // First step is to remove any records that no longer exist in NALD
   await server.messageQueue.subscribe(CleanJob.name, CleanJob.handler)
   await server.messageQueue.onComplete(CleanJob.name, (executedJob) => {
     return CleanJob.onComplete(server.messageQueue, executedJob)
