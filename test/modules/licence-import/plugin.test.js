@@ -50,7 +50,7 @@ experiment('modules/licence-import/plugin.js', () => {
   })
 
   experiment('register', () => {
-    experiment('for Delete Removed Documents', () => {
+    experiment('for Clean', () => {
       test('subscribes its handler to the job queue', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
