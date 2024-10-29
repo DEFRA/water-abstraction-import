@@ -1,7 +1,7 @@
 const createDocument = `
   INSERT INTO crm_v2.documents (regime, document_type, document_ref, start_date, end_date, external_id, date_created, date_updated, date_deleted)
   VALUES ('water', 'abstraction_licence', $1, $2, $3, $4, NOW(), NOW(), null)
-  ON CONFLICT (regime, document_type, document_ref)
+  ON CONFLICT (document_ref)
   DO UPDATE SET
     start_date=EXCLUDED.start_date,
     end_date=EXCLUDED.end_date,
