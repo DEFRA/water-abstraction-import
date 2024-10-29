@@ -3,7 +3,7 @@
 const documentsConnector = require('../connectors/documents')
 const ImportPurposeConditionTypesJob = require('./import-purpose-condition-types.js')
 
-const JOB_NAME = 'licence-import.delete-removed-documents'
+const JOB_NAME = 'licence-import.clean'
 
 function createMessage () {
   return {

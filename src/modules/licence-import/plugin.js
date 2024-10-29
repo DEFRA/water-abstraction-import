@@ -2,7 +2,7 @@
 
 const cron = require('node-cron')
 
-const DeleteRemovedDocumentsJob = require('./jobs/delete-removed-documents.js')
+const CleanJob = require('./jobs/clean.js')
 const ImportCompanyJob = require('./jobs/import-company.js')
 const ImportLicenceJob = require('./jobs/import-licence.js')
 const ImportPointsJob = require('./jobs/import-points.js')
@@ -14,9 +14,9 @@ const config = require('../../../config')
 
 async function register (server, _options) {
   // First step is to remove any documents that no longer exist in NALD
-  await server.messageQueue.subscribe(DeleteRemovedDocumentsJob.name, DeleteRemovedDocumentsJob.handler)
-  await server.messageQueue.onComplete(DeleteRemovedDocumentsJob.name, (executedJob) => {
-    return DeleteRemovedDocumentsJob.onComplete(server.messageQueue, executedJob)
+  await server.messageQueue.subscribe(CleanJob.name, CleanJob.handler)
+  await server.messageQueue.onComplete(CleanJob.name, (executedJob) => {
+    return CleanJob.onComplete(server.messageQueue, executedJob)
   })
 
   // When the documents have been marked as deleted import a list of all companies into the
@@ -53,7 +53,7 @@ async function register (server, _options) {
   })
 
   cron.schedule(config.import.licences.schedule, async () => {
-    await server.messageQueue.publish(DeleteRemovedDocumentsJob.createMessage())
+    await server.messageQueue.publish(CleanJob.createMessage())
   })
 }
 

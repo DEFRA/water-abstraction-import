@@ -10,7 +10,7 @@ const { expect } = Code
 
 // Test helpers
 const config = require('../../../config.js')
-const DeleteRemovedDocumentsJob = require('../../../src/modules/licence-import/jobs/delete-removed-documents.js')
+const CleanJob = require('../../../src/modules/licence-import/jobs/clean.js')
 const ImportCompanyJob = require('../../../src/modules/licence-import/jobs/import-company.js')
 const ImportLicenceJob = require('../../../src/modules/licence-import/jobs/import-licence.js')
 const ImportPurposeConditionTypesJob = require('../../../src/modules/licence-import/jobs/import-purpose-condition-types.js')
@@ -56,8 +56,8 @@ experiment('modules/licence-import/plugin.js', () => {
 
         const subscribeArgs = server.messageQueue.subscribe.getCall(0).args
 
-        expect(subscribeArgs[0]).to.equal(DeleteRemovedDocumentsJob.name)
-        expect(subscribeArgs[1]).to.equal(DeleteRemovedDocumentsJob.handler)
+        expect(subscribeArgs[0]).to.equal(CleanJob.name)
+        expect(subscribeArgs[1]).to.equal(CleanJob.handler)
       })
 
       test('registers its onComplete for the job', async () => {
@@ -65,7 +65,7 @@ experiment('modules/licence-import/plugin.js', () => {
 
         const onCompleteArgs = server.messageQueue.onComplete.getCall(0).args
 
-        expect(onCompleteArgs[0]).to.equal(DeleteRemovedDocumentsJob.name)
+        expect(onCompleteArgs[0]).to.equal(CleanJob.name)
         expect(onCompleteArgs[1]).to.be.a.function()
       })
 
