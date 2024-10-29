@@ -1,7 +1,7 @@
 'use strict'
 
 const { pool } = require('../../../lib/connectors/db')
-const Queries = require('../connectors/queries/documents.js')
+const Queries = require('../connectors/queries/clean-queries.js')
 const ImportPurposeConditionTypesJob = require('./import-purpose-condition-types.js')
 
 const JOB_NAME = 'licence-import.clean'
