@@ -22,6 +22,9 @@ async function handler () {
 
     // Mark records in crm_v2.documents as deleted if the licence numbers no longer exist in import.NALD_ABS_LICENCES
     await pool.query(Queries.cleanCrmV2Documents)
+
+    // Delete any licence monitoring stations linked to deleted NALD licence version purpose conditions
+    await pool.query(Queries.cleanLicenceMonitoringStations)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
