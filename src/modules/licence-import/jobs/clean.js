@@ -21,7 +21,7 @@ async function handler () {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
     // Mark records in crm_v2.documents as deleted if the licence numbers no longer exist in import.NALD_ABS_LICENCES
-    await pool.query(Queries.deleteCrmV2Documents)
+    await pool.query(Queries.cleanCrmV2Documents)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error

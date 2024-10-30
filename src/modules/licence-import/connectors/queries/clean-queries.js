@@ -1,4 +1,6 @@
-const deleteCrmV2Documents = `
+'use strict'
+
+const cleanCrmV2Documents = `
   update crm_v2.documents
   set date_deleted = now()
   where document_ref not in (
@@ -11,5 +13,5 @@ const deleteCrmV2Documents = `
 `
 
 module.exports = {
-  deleteCrmV2Documents
+  cleanCrmV2Documents
 }
