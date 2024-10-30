@@ -1,9 +1,10 @@
 'use strict'
 
-const documentsConnector = require('../connectors/documents')
+const { pool } = require('../../../lib/connectors/db')
+const Queries = require('../connectors/queries/clean-queries.js')
 const ImportPurposeConditionTypesJob = require('./import-purpose-condition-types.js')
 
-const JOB_NAME = 'licence-import.delete-removed-documents'
+const JOB_NAME = 'licence-import.clean'
 
 function createMessage () {
   return {
@@ -19,7 +20,8 @@ async function handler () {
   try {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
-    return documentsConnector.deleteRemovedDocuments()
+    // Mark records in crm_v2.documents as deleted if the licence numbers no longer exist in import.NALD_ABS_LICENCES
+    await pool.query(Queries.deleteCrmV2Documents)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error

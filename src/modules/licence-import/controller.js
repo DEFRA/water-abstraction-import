@@ -1,16 +1,16 @@
 'use strict'
 
-const DeleteRemovedDocumentsJob = require('./jobs/delete-removed-documents.js')
+const CleanJob = require('./jobs/clean.js')
 const ImportCompanyJob = require('./jobs/import-company.js')
 const ImportLicenceJob = require('./jobs/import-licence.js')
 
 const Boom = require('@hapi/boom')
 
 const postImport = async (request, h) => {
-  const message = DeleteRemovedDocumentsJob.createMessage()
+  const message = CleanJob.createMessage()
 
   try {
-    await request.server.messageQueue.deleteQueue(DeleteRemovedDocumentsJob.name)
+    await request.server.messageQueue.deleteQueue(CleanJob.name)
     await request.server.messageQueue.publish(message)
 
     return h.response().code(202)

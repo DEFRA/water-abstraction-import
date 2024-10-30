@@ -46,7 +46,7 @@ experiment('modules/licence-import/controller.js', () => {
 
         const [jobName] = request.server.messageQueue.deleteQueue.firstCall.args
 
-        expect(jobName).to.equal('licence-import.delete-removed-documents')
+        expect(jobName).to.equal('licence-import.clean')
       })
 
       test('the Delete Documents job is published', async () => {
@@ -55,8 +55,8 @@ experiment('modules/licence-import/controller.js', () => {
         const [message] = request.server.messageQueue.publish.firstCall.args
 
         expect(message).to.equal({
-          name: 'licence-import.delete-removed-documents',
-          options: { singletonKey: 'licence-import.delete-removed-documents', expireIn: '1 hours' }
+          name: 'licence-import.clean',
+          options: { singletonKey: 'licence-import.clean', expireIn: '1 hours' }
         })
       })
 
