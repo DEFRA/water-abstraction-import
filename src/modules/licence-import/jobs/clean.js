@@ -29,6 +29,12 @@ async function handler () {
 
       // Delete any licence version purpose conditions linked to deleted NALD licence version purpose conditions
       await pool.query(Queries.cleanLicenceVersionPurposeConditions)
+
+      // Delete any licence version purpose points linked to deleted NALD licence version purposes
+      await pool.query(Queries.cleanLicenceVersionPurposePoints)
+
+      // Delete any licence version purposes linked to deleted NALD licence version purposes
+      await pool.query(Queries.cleanLicenceVersionPurposes)
     }
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
