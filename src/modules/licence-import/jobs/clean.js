@@ -25,6 +25,9 @@ async function handler () {
 
     // Delete any licence monitoring stations linked to deleted NALD licence version purpose conditions
     await pool.query(Queries.cleanLicenceMonitoringStations)
+
+    // Delete any licence version purpose conditions linked to deleted NALD licence version purpose conditions
+    await pool.query(Queries.cleanLicenceVersionPurposeConditions)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
