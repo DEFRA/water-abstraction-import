@@ -29,16 +29,16 @@ const cleanLicenceMonitoringStations = `
 `
 
 const cleanLicenceVersions = `
-WITH nald_licence_versions AS (
-  SELECT CONCAT_WS(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS nald_id
-  FROM "import"."NALD_ABS_LIC_VERSIONS" nalv
-)
-DELETE FROM public.licence_versions lv
-  WHERE NOT EXISTS (
-    SELECT 1
-    FROM nald_licence_versions nlv
-    WHERE lv.external_id = nlv.nald_id
-  );
+  WITH nald_licence_versions AS (
+    SELECT CONCAT_WS(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS nald_id
+    FROM "import"."NALD_ABS_LIC_VERSIONS" nalv
+  )
+  DELETE FROM public.licence_versions lv
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM nald_licence_versions nlv
+      WHERE lv.external_id = nlv.nald_id
+    );
 `
 
 const cleanLicenceVersionPurposes = `
