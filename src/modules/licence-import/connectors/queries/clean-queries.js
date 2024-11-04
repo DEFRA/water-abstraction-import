@@ -83,11 +83,28 @@ const cleanLicenceVersionPurposePoints = `
   );
 `
 
+const cleanWorkflows = `
+  WITH nald_licence_versions AS (
+    SELECT CONCAT_WS(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS nald_id
+    FROM "import"."NALD_ABS_LIC_VERSIONS" nalv
+  )
+  DELETE FROM public.workflows w
+  WHERE w.licence_version_id IN (
+    SELECT lv.id FROM public.licence_versions lv
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM nald_licence_versions nlv
+      WHERE lv.external_id = nlv.nald_id
+    )
+  );
+`
+
 module.exports = {
   cleanCrmV2Documents,
   cleanLicenceMonitoringStations,
   cleanLicenceVersions,
   cleanLicenceVersionPurposes,
   cleanLicenceVersionPurposeConditions,
-  cleanLicenceVersionPurposePoints
+  cleanLicenceVersionPurposePoints,
+  cleanWorkflows
 }
