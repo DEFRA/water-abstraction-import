@@ -89,6 +89,17 @@ const cleanLicenceDocumentRoles = `
   );
 `
 
+const cleanLicenceDocuments = `
+WITH licences_not_in_nald_or_bill_run AS (
+  SELECT l.licence_ref
+  FROM public.licences l
+  WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+  AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+)
+DELETE FROM public.licence_documents ld
+WHERE ld.licence_ref IN (SELECT lnin.licence_ref FROM licences_not_in_nald_or_bill_run lnin);
+`
+
 const cleanLicenceMonitoringStations = `
   WITH nald_licence_version_purpose_conditions AS (
     SELECT CONCAT_WS(':', nlc."ID", nlc."FGAC_REGION_CODE", nlc."AABP_ID") AS nald_id
@@ -183,6 +194,7 @@ module.exports = {
   cleanChargeVersions,
   cleanCrmV2Documents,
   cleanLicenceDocumentRoles,
+  cleanLicenceDocuments,
   cleanLicenceMonitoringStations,
   cleanLicenceVersions,
   cleanLicenceVersionPurposes,
