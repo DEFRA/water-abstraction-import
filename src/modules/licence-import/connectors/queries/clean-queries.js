@@ -74,6 +74,17 @@ const cleanCrmV2Documents = `
   and document_type = 'abstraction_licence';
 `
 
+const cleanLicenceAgreements = `
+WITH licences_not_in_nald_or_bill_run AS (
+  SELECT l.licence_ref
+  FROM public.licences l
+  WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+  AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+)
+DELETE FROM public.licence_agreements la
+WHERE la.licence_ref IN (SELECT lnin.licence_ref FROM licences_not_in_nald_or_bill_run lnin);
+`
+
 const cleanLicenceDocumentRoles = `
   WITH licences_not_in_nald_or_bill_run AS (
     SELECT l.licence_ref
@@ -193,6 +204,7 @@ module.exports = {
   cleanChargeVersionNotes,
   cleanChargeVersions,
   cleanCrmV2Documents,
+  cleanLicenceAgreements,
   cleanLicenceDocumentRoles,
   cleanLicenceDocuments,
   cleanLicenceMonitoringStations,
