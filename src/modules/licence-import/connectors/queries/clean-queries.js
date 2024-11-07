@@ -74,6 +74,21 @@ const cleanCrmV2Documents = `
   and document_type = 'abstraction_licence';
 `
 
+const cleanLicenceDocumentRoles = `
+  WITH licences_not_in_nald_or_bill_run AS (
+    SELECT l.licence_ref
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+  )
+  DELETE FROM public.licence_document_roles ldr
+  WHERE ldr.licence_document_id IN (
+    SELECT ld.id FROM public.licence_documents ld
+      INNER JOIN licences_not_in_nald_or_bill_run lnin
+        ON ld.licence_ref = lnin.licence_ref
+  );
+`
+
 const cleanLicenceMonitoringStations = `
   WITH nald_licence_version_purpose_conditions AS (
     SELECT CONCAT_WS(':', nlc."ID", nlc."FGAC_REGION_CODE", nlc."AABP_ID") AS nald_id
@@ -167,6 +182,7 @@ module.exports = {
   cleanChargeVersionNotes,
   cleanChargeVersions,
   cleanCrmV2Documents,
+  cleanLicenceDocumentRoles,
   cleanLicenceMonitoringStations,
   cleanLicenceVersions,
   cleanLicenceVersionPurposes,
