@@ -51,6 +51,17 @@ const cleanChargeVersionNotes = `
   );
 `
 
+const cleanChargeVersions = `
+  WITH licences_not_in_nald_or_bill_run AS (
+    SELECT l.id AS licence_id
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+  )
+  DELETE FROM public.charge_versions cv
+  WHERE cv.licence_id IN (SELECT lnin.licence_id FROM licences_not_in_nald_or_bill_run lnin);
+`
+
 const cleanCrmV2Documents = `
   update crm_v2.documents
   set date_deleted = now()
@@ -154,6 +165,7 @@ module.exports = {
   cleanChargeElements,
   cleanChargeReferences,
   cleanChargeVersionNotes,
+  cleanChargeVersions,
   cleanCrmV2Documents,
   cleanLicenceMonitoringStations,
   cleanLicenceVersions,
