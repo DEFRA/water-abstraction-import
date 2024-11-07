@@ -1,5 +1,24 @@
 'use strict'
 
+const cleanChargeElements = `
+  WITH licences_not_in_nald_or_bill_run AS (
+    SELECT l.id AS licence_id
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+  )
+  DELETE FROM public.charge_elements ce
+  WHERE ce.id IN (
+    SELECT ce.id FROM public.charge_elements ce
+      INNER JOIN public.charge_references cr
+        ON ce.charge_reference_id = cr.id
+      INNER JOIN public.charge_versions cv
+        ON cr.charge_version_id = cv.id
+      INNER JOIN licences_not_in_nald_or_bill_run lnin
+        ON cv.licence_id = lnin.licence_id
+  );
+`
+
 const cleanCrmV2Documents = `
   update crm_v2.documents
   set date_deleted = now()
@@ -100,6 +119,7 @@ const cleanWorkflows = `
 `
 
 module.exports = {
+  cleanChargeElements,
   cleanCrmV2Documents,
   cleanLicenceMonitoringStations,
   cleanLicenceVersions,
