@@ -75,14 +75,25 @@ const cleanCrmV2Documents = `
 `
 
 const cleanLicenceAgreements = `
-WITH licences_not_in_nald_or_bill_run AS (
-  SELECT l.licence_ref
-  FROM public.licences l
-  WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-  AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-)
-DELETE FROM public.licence_agreements la
-WHERE la.licence_ref IN (SELECT lnin.licence_ref FROM licences_not_in_nald_or_bill_run lnin);
+  WITH licences_not_in_nald_or_bill_run AS (
+    SELECT l.licence_ref
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+  )
+  DELETE FROM public.licence_agreements la
+  WHERE la.licence_ref IN (SELECT lnin.licence_ref FROM licences_not_in_nald_or_bill_run lnin);
+`
+
+const cleanLicenceDocumentHeaders = `
+  WITH licences_not_in_nald_or_bill_run AS (
+    SELECT l.licence_ref
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+  )
+  DELETE FROM public.licence_document_headers ldh
+  WHERE ldh.licence_ref IN (SELECT lnin.licence_ref FROM licences_not_in_nald_or_bill_run lnin);
 `
 
 const cleanLicenceDocumentRoles = `
@@ -101,14 +112,14 @@ const cleanLicenceDocumentRoles = `
 `
 
 const cleanLicenceDocuments = `
-WITH licences_not_in_nald_or_bill_run AS (
-  SELECT l.licence_ref
-  FROM public.licences l
-  WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-  AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-)
-DELETE FROM public.licence_documents ld
-WHERE ld.licence_ref IN (SELECT lnin.licence_ref FROM licences_not_in_nald_or_bill_run lnin);
+  WITH licences_not_in_nald_or_bill_run AS (
+    SELECT l.licence_ref
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+  )
+  DELETE FROM public.licence_documents ld
+  WHERE ld.licence_ref IN (SELECT lnin.licence_ref FROM licences_not_in_nald_or_bill_run lnin);
 `
 
 const cleanLicenceMonitoringStations = `
@@ -205,6 +216,7 @@ module.exports = {
   cleanChargeVersions,
   cleanCrmV2Documents,
   cleanLicenceAgreements,
+  cleanLicenceDocumentHeaders,
   cleanLicenceDocumentRoles,
   cleanLicenceDocuments,
   cleanLicenceMonitoringStations,
