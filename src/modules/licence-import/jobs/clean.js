@@ -44,6 +44,9 @@ async function handler () {
 
       // Delete any charge elements linked to deleted NALD licences
       await pool.query(Queries.cleanChargeElements)
+
+      // Delete any charge references linked to deleted NALD licences
+      await pool.query(Queries.cleanChargeReferences)
     }
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
