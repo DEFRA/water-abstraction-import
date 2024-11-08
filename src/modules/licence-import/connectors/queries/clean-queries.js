@@ -201,6 +201,18 @@ const cleanLicenceVersionPurposePoints = `
   );
 `
 
+const cleanPermitLicences = `
+  WITH licences_to_remove AS (
+    SELECT l.licence_ref
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+  )
+  DELETE FROM public.permit_licences pl
+  WHERE pl.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
+`
+
 const cleanWorkflows = `
   WITH nald_licence_versions AS (
     SELECT CONCAT_WS(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS nald_id
@@ -232,5 +244,6 @@ module.exports = {
   cleanLicenceVersionPurposes,
   cleanLicenceVersionPurposeConditions,
   cleanLicenceVersionPurposePoints,
+  cleanPermitLicences,
   cleanWorkflows
 }

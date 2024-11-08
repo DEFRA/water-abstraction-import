@@ -66,6 +66,9 @@ async function handler () {
 
       // Delete any licence documents linked to deleted NALD licences
       await pool.query(Queries.cleanLicenceDocuments)
+
+      // Delete any permit licences linked to deleted NALD licences
+      await pool.query(Queries.cleanPermitLicences)
     }
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
