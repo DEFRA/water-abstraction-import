@@ -217,6 +217,13 @@ const cleanWorkflows = `
   WITH nald_licence_versions AS (
     SELECT CONCAT_WS(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS nald_id
     FROM "import"."NALD_ABS_LIC_VERSIONS" nalv
+  ),
+  licences_to_remove AS (
+    SELECT l.id AS licence_id
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
   )
   DELETE FROM public.workflows w
   WHERE w.licence_version_id IN (
@@ -226,7 +233,8 @@ const cleanWorkflows = `
       FROM nald_licence_versions nlv
       WHERE lv.external_id = nlv.nald_id
     )
-  );
+  )
+  OR w.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
 `
 
 module.exports = {
