@@ -146,6 +146,13 @@ const cleanLicenceMonitoringStations = `
   );
 `
 
+const cleanLicences = `
+DELETE FROM public.licences l
+WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id);
+`
+
 const cleanLicenceVersions = `
   WITH nald_licence_versions AS (
     SELECT CONCAT_WS(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS nald_id
@@ -248,6 +255,7 @@ module.exports = {
   cleanLicenceDocumentRoles,
   cleanLicenceDocuments,
   cleanLicenceMonitoringStations,
+  cleanLicences,
   cleanLicenceVersions,
   cleanLicenceVersionPurposes,
   cleanLicenceVersionPurposeConditions,
