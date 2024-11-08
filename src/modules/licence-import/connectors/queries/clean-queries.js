@@ -1,11 +1,12 @@
 'use strict'
 
 const cleanChargeElements = `
-  WITH licences_not_in_nald_or_bill_run AS (
+  WITH licences_to_remove AS (
     SELECT l.id AS licence_id
     FROM public.licences l
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
   )
   DELETE FROM public.charge_elements ce
   WHERE ce.id IN (
@@ -14,52 +15,55 @@ const cleanChargeElements = `
         ON ce.charge_reference_id = cr.id
       INNER JOIN public.charge_versions cv
         ON cr.charge_version_id = cv.id
-      INNER JOIN licences_not_in_nald_or_bill_run lnin
-        ON cv.licence_id = lnin.licence_id
+      INNER JOIN licences_to_remove ltr
+        ON cv.licence_id = ltr.licence_id
   );
 `
 
 const cleanChargeReferences = `
-  WITH licences_not_in_nald_or_bill_run AS (
+  WITH licences_to_remove AS (
     SELECT l.id AS licence_id
     FROM public.licences l
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
   )
   DELETE FROM public.charge_references cr
   WHERE cr.id IN (
     SELECT cr.id FROM public.charge_references cr
       INNER JOIN public.charge_versions cv
         ON cr.charge_version_id = cv.id
-      INNER JOIN licences_not_in_nald_or_bill_run lnin
-        ON cv.licence_id = lnin.licence_id
+      INNER JOIN licences_to_remove ltr
+        ON cv.licence_id = ltr.licence_id
   );
 `
 
 const cleanChargeVersionNotes = `
-  WITH licences_not_in_nald_or_bill_run AS (
+  WITH licences_to_remove AS (
     SELECT l.id AS licence_id
     FROM public.licences l
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
   )
   DELETE FROM public.charge_version_notes cvn
   WHERE cvn.id IN (
     SELECT cv.note_id FROM public.charge_versions cv
-      INNER JOIN licences_not_in_nald_or_bill_run lnin
-        ON cv.licence_id = lnin.licence_id
+      INNER JOIN licences_to_remove ltr
+        ON cv.licence_id = ltr.licence_id
   );
 `
 
 const cleanChargeVersions = `
-  WITH licences_not_in_nald_or_bill_run AS (
+  WITH licences_to_remove AS (
     SELECT l.id AS licence_id
     FROM public.licences l
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
   )
   DELETE FROM public.charge_versions cv
-  WHERE cv.licence_id IN (SELECT lnin.licence_id FROM licences_not_in_nald_or_bill_run lnin);
+  WHERE cv.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
 `
 
 const cleanCrmV2Documents = `
@@ -75,51 +79,55 @@ const cleanCrmV2Documents = `
 `
 
 const cleanLicenceAgreements = `
-  WITH licences_not_in_nald_or_bill_run AS (
+  WITH licences_to_remove AS (
     SELECT l.licence_ref
     FROM public.licences l
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
   )
   DELETE FROM public.licence_agreements la
-  WHERE la.licence_ref IN (SELECT lnin.licence_ref FROM licences_not_in_nald_or_bill_run lnin);
+  WHERE la.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
 `
 
 const cleanLicenceDocumentHeaders = `
-  WITH licences_not_in_nald_or_bill_run AS (
+  WITH licences_to_remove AS (
     SELECT l.licence_ref
     FROM public.licences l
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
   )
   DELETE FROM public.licence_document_headers ldh
-  WHERE ldh.licence_ref IN (SELECT lnin.licence_ref FROM licences_not_in_nald_or_bill_run lnin);
+  WHERE ldh.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
 `
 
 const cleanLicenceDocumentRoles = `
-  WITH licences_not_in_nald_or_bill_run AS (
+  WITH licences_to_remove AS (
     SELECT l.licence_ref
     FROM public.licences l
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
   )
   DELETE FROM public.licence_document_roles ldr
   WHERE ldr.licence_document_id IN (
     SELECT ld.id FROM public.licence_documents ld
-      INNER JOIN licences_not_in_nald_or_bill_run lnin
-        ON ld.licence_ref = lnin.licence_ref
+      INNER JOIN licences_to_remove ltr
+        ON ld.licence_ref = ltr.licence_ref
   );
 `
 
 const cleanLicenceDocuments = `
-  WITH licences_not_in_nald_or_bill_run AS (
+  WITH licences_to_remove AS (
     SELECT l.licence_ref
     FROM public.licences l
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
   )
   DELETE FROM public.licence_documents ld
-  WHERE ld.licence_ref IN (SELECT lnin.licence_ref FROM licences_not_in_nald_or_bill_run lnin);
+  WHERE ld.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
 `
 
 const cleanLicenceMonitoringStations = `

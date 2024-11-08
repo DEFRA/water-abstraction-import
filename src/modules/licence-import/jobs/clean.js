@@ -42,6 +42,7 @@ async function handler () {
       // Delete any licence versions linked to deleted NALD licence versions
       await pool.query(Queries.cleanLicenceVersions)
 
+      // NOTE: Licences are removed if they no longer exist in NALD, are not in a bill run and have no return versions
       // Delete any charge elements linked to deleted NALD licences
       await pool.query(Queries.cleanChargeElements)
 
