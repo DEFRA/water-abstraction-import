@@ -24,23 +24,56 @@ async function handler () {
     await pool.query(Queries.cleanCrmV2Documents)
 
     if (process.env.CLEAN_LICENCE_IMPORTS === 'true') {
-      // Delete any licence monitoring stations linked to deleted NALD licence version purpose conditions
-      await pool.query(Queries.cleanLicenceMonitoringStations)
+      // NOTE: To improve performance these queries can all be run together as the data removed has no dependencies
+      await Promise.all([
+        // Delete any charge version notes linked to deleted NALD licences
+        pool.query(Queries.cleanChargeVersionNotes),
+
+        // Delete any licence agreements linked to deleted NALD licences
+        pool.query(Queries.cleanLicenceAgreements),
+
+        // Delete any licence document headers linked to deleted NALD licences
+        pool.query(Queries.cleanLicenceDocumentHeaders),
+
+        // Delete any licence document roles linked to deleted NALD licences
+        pool.query(Queries.cleanLicenceDocumentRoles),
+
+        // Delete any licence monitoring stations linked to deleted NALD licence version purpose conditions
+        pool.query(Queries.cleanLicenceMonitoringStations),
+
+        // Delete any licence version purpose points linked to deleted NALD licence version purposes
+        pool.query(Queries.cleanLicenceVersionPurposePoints),
+
+        // Delete any permit licences linked to deleted NALD licences
+        pool.query(Queries.cleanPermitLicences),
+
+        // Delete any Workflows linked to deleted NALD licence versions
+        pool.query(Queries.cleanWorkflows)
+      ])
 
       // Delete any licence version purpose conditions linked to deleted NALD licence version purpose conditions
       await pool.query(Queries.cleanLicenceVersionPurposeConditions)
 
-      // Delete any licence version purpose points linked to deleted NALD licence version purposes
-      await pool.query(Queries.cleanLicenceVersionPurposePoints)
-
       // Delete any licence version purposes linked to deleted NALD licence version purposes
       await pool.query(Queries.cleanLicenceVersionPurposes)
 
-      // Delete any Workflows linked to deleted NALD licence versions
-      await pool.query(Queries.cleanWorkflows)
-
       // Delete any licence versions linked to deleted NALD licence versions
       await pool.query(Queries.cleanLicenceVersions)
+
+      // Delete any charge elements linked to deleted NALD licences
+      await pool.query(Queries.cleanChargeElements)
+
+      // Delete any charge references linked to deleted NALD licences
+      await pool.query(Queries.cleanChargeReferences)
+
+      // Delete any charge versions linked to deleted NALD licences
+      await pool.query(Queries.cleanChargeVersions)
+
+      // Delete any licence documents linked to deleted NALD licences
+      await pool.query(Queries.cleanLicenceDocuments)
+
+      // Delete any licences linked to deleted NALD licences
+      await pool.query(Queries.cleanLicences)
     }
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
