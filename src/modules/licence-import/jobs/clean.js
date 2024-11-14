@@ -1,5 +1,6 @@
 'use strict'
 
+const config = require('../../../../config')
 const { pool } = require('../../../lib/connectors/db')
 const Queries = require('../connectors/queries/clean-queries.js')
 const ImportPurposeConditionTypesJob = require('./import-purpose-condition-types.js')
@@ -23,7 +24,7 @@ async function handler () {
     // Mark records in crm_v2.documents as deleted if the licence numbers no longer exist in import.NALD_ABS_LICENCES
     await pool.query(Queries.cleanCrmV2Documents)
 
-    if (process.env.CLEAN_LICENCE_IMPORTS === 'true') {
+    if (config.import.licences.isCleanLicenceImportsEnabled) {
       // NOTE: To improve performance these queries can all be run together as the data removed has no dependencies
       await Promise.all([
         // Delete any charge version notes linked to deleted NALD licences
