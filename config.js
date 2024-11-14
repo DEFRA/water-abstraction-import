@@ -88,6 +88,9 @@ module.exports = {
     },
     licences: {
       schedule: process.env.WRLS_CRON_LICENCES || '15 3 * * 1,2,3,4,',
+      // Note: If the `isCleanLicenceImportsEnabled` flag is set to `true` the licence data that no longer exists in
+      // NALD but is in the WRLS DB will be removed from the WRLS DB
+      isCleanLicenceImportsEnabled: (process.env.CLEAN_LICENCE_IMPORTS === 'true') || false,
       // Note: these 2 flags need to be set to false for charging go-live
       // to suspend the import of invoice accounts and licence agreements
       // Update: I've changed those values to false ahead of the v2.0 charging
