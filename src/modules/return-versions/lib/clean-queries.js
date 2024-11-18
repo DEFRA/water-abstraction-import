@@ -39,7 +39,7 @@ const cleanPoints = `
         FROM "returns"."returns" rl
         WHERE
           rl.return_requirement = rr.legacy_id::varchar
-          AND rl.status = 'void'
+          AND rl.status IN ('due, 'void')
         LIMIT 1
       )
   );
@@ -84,7 +84,7 @@ const cleanPurposes = `
         FROM "returns"."returns" rl
         WHERE
           rl.return_requirement = rr.legacy_id::varchar
-          AND rl.status = 'void'
+          AND rl.status IN ('due, 'void')
         LIMIT 1
       )
   );
@@ -129,7 +129,7 @@ const cleanRequirements = `
         FROM "returns"."returns" rl
         WHERE
           rl.return_requirement = rr.legacy_id::varchar
-          AND rl.status = 'void'
+          AND rl.status IN ('due, 'void')
         LIMIT 1
       )
   );
