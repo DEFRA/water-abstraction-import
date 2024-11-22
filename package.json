@@ -11,7 +11,7 @@
   "author": "WRLS service team",
   "license": "OGL-UK-3.0",
   "scripts": {
-    "test": "lab",
+    "test": "lab --leaks",
     "lint": "standard",
     "migrate": "node scripts/create-schema && node scripts/migrate",
     "migrate:down": "db-migrate down",
