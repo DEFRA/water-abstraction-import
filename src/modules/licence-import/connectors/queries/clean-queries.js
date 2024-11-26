@@ -7,6 +7,7 @@ const cleanChargeElements = `
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
     AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   )
   DELETE FROM public.charge_elements ce
   WHERE ce.id IN (
@@ -27,6 +28,7 @@ const cleanChargeReferences = `
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
     AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   )
   DELETE FROM public.charge_references cr
   WHERE cr.id IN (
@@ -45,6 +47,7 @@ const cleanChargeVersionNotes = `
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
     AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   )
   DELETE FROM public.charge_version_notes cvn
   WHERE cvn.id IN (
@@ -61,6 +64,7 @@ const cleanChargeVersions = `
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
     AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   )
   DELETE FROM public.charge_versions cv
   WHERE cv.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
@@ -85,6 +89,7 @@ const cleanLicenceAgreements = `
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
     AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   )
   DELETE FROM public.licence_agreements la
   WHERE la.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
@@ -97,6 +102,7 @@ const cleanLicenceDocumentHeaders = `
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
     AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   )
   DELETE FROM public.licence_document_headers ldh
   WHERE ldh.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
@@ -109,6 +115,7 @@ const cleanLicenceDocumentRoles = `
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
     AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   )
   DELETE FROM public.licence_document_roles ldr
   WHERE ldr.licence_document_id IN (
@@ -125,61 +132,115 @@ const cleanLicenceDocuments = `
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
     AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   )
   DELETE FROM public.licence_documents ld
   WHERE ld.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
 `
 
 const cleanLicenceMonitoringStations = `
-  WITH nald_licence_version_purpose_conditions AS (
-    SELECT CONCAT_WS(':', nlc."ID", nlc."FGAC_REGION_CODE", nlc."AABP_ID") AS nald_id
-    FROM "import"."NALD_LIC_CONDITIONS" nlc
+  WITH licences_to_remove AS (
+    SELECT l.id AS licence_id
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   )
   DELETE FROM public.licence_monitoring_stations lms
-  WHERE lms.licence_version_purpose_condition_id IN (
-    SELECT lvpc.id FROM public.licence_version_purpose_conditions lvpc
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM nald_licence_version_purpose_conditions nlvpc
-      WHERE lvpc.external_id = nlvpc.nald_id
-    )
-  );
+  WHERE lms.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
 `
 
 const cleanLicences = `
 DELETE FROM public.licences l
 WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
 AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id);
-`
-
-const cleanLicenceVersions = `
-  WITH nald_licence_versions AS (
-    SELECT CONCAT_WS(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS nald_id
-    FROM "import"."NALD_ABS_LIC_VERSIONS" nalv
-  )
-  DELETE FROM public.licence_versions lv
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM nald_licence_versions nlv
-      WHERE lv.external_id = nlv.nald_id
-    );
+AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL);
 `
 
 const cleanLicenceVersionPurposes = `
-  WITH nald_licence_version_purposes AS (
-    SELECT CONCAT(nalp."FGAC_REGION_CODE", ':', nalp."ID") AS nald_id
-    FROM "import"."NALD_ABS_LIC_PURPOSES" nalp
+  WITH licences_to_remove AS (
+    SELECT l.id AS licence_id
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   )
   DELETE FROM public.licence_version_purposes lvp
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM nald_licence_version_purposes nlvp
-      WHERE lvp.external_id = nlvp.nald_id
+    WHERE lvp.licence_version_id IN (
+      SELECT lv.id from public.licence_versions lv
+      INNER JOIN licences_to_remove ltr
+        ON ltr.licence_id = lv.licence_id
     );
 `
 
 const cleanLicenceVersionPurposeConditions = `
+  WITH licences_to_remove AS (
+    SELECT l.id AS licence_id
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+  )
+  DELETE FROM public.licence_version_purpose_conditions lvpc
+    WHERE lvpc.licence_version_purpose_id IN (
+      SELECT lvp.id FROM public.licence_version_purposes lvp
+      INNER JOIN public.licence_versions lv
+        ON lv.id = lvp.licence_version_id
+      INNER JOIN licences_to_remove ltr
+        ON ltr.licence_id = lv.licence_id
+    );
+`
+
+const cleanLicenceVersionPurposePoints = `
+  WITH licences_to_remove AS (
+    SELECT l.id AS licence_id
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+  )
+  DELETE FROM public.licence_version_purpose_points lvpp
+  WHERE lvpp.licence_version_purpose_id IN (
+    SELECT lvp.id FROM public.licence_version_purposes lvp
+    INNER JOIN public.licence_versions lv
+      ON lv.id = lvp.licence_version_id
+    INNER JOIN licences_to_remove ltr
+      ON ltr.licence_id = lv.licence_id
+  );
+`
+
+const cleanLicenceVersions = `
+  WITH licences_to_remove AS (
+    SELECT l.id AS licence_id
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+  )
+  DELETE FROM public.licence_versions lv
+    WHERE lv.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
+`
+
+const cleanLicenceWorkflows = `
+  WITH licences_to_remove AS (
+    SELECT l.id AS licence_id
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+  )
+  DELETE FROM public.workflows w
+  WHERE w.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
+`
+
+const cleanNaldLicenceVersionPurposeConditions = `
   WITH nald_licence_version_purpose_conditions AS (
     SELECT CONCAT_WS(':', nlc."ID", nlc."FGAC_REGION_CODE", nlc."AABP_ID") AS nald_id
     FROM "import"."NALD_LIC_CONDITIONS" nlc
@@ -192,7 +253,7 @@ const cleanLicenceVersionPurposeConditions = `
     );
 `
 
-const cleanLicenceVersionPurposePoints = `
+const cleanNaldLicenceVersionPurposePoints = `
   WITH nald_licence_version_purposes AS (
     SELECT CONCAT(nalp."FGAC_REGION_CODE", ':', nalp."ID") AS nald_id
     FROM "import"."NALD_ABS_LIC_PURPOSES" nalp
@@ -208,6 +269,32 @@ const cleanLicenceVersionPurposePoints = `
   );
 `
 
+const cleanNaldLicenceVersionPurposes = `
+  WITH nald_licence_version_purposes AS (
+    SELECT CONCAT(nalp."FGAC_REGION_CODE", ':', nalp."ID") AS nald_id
+    FROM "import"."NALD_ABS_LIC_PURPOSES" nalp
+  )
+  DELETE FROM public.licence_version_purposes lvp
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM nald_licence_version_purposes nlvp
+      WHERE lvp.external_id = nlvp.nald_id
+    );
+`
+
+const cleanNaldLicenceVersions = `
+  WITH nald_licence_versions AS (
+    SELECT CONCAT_WS(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS nald_id
+    FROM "import"."NALD_ABS_LIC_VERSIONS" nalv
+  )
+  DELETE FROM public.licence_versions lv
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM nald_licence_versions nlv
+      WHERE lv.external_id = nlv.nald_id
+    );
+`
+
 const cleanPermitLicences = `
   WITH licences_to_remove AS (
     SELECT l.licence_ref
@@ -215,33 +302,10 @@ const cleanPermitLicences = `
     WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
     AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
     AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   )
   DELETE FROM public.permit_licences pl
   WHERE pl.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
-`
-
-const cleanWorkflows = `
-  WITH nald_licence_versions AS (
-    SELECT CONCAT_WS(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS nald_id
-    FROM "import"."NALD_ABS_LIC_VERSIONS" nalv
-  ),
-  licences_to_remove AS (
-    SELECT l.id AS licence_id
-    FROM public.licences l
-    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-  )
-  DELETE FROM public.workflows w
-  WHERE w.licence_version_id IN (
-    SELECT lv.id FROM public.licence_versions lv
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM nald_licence_versions nlv
-      WHERE lv.external_id = nlv.nald_id
-    )
-  )
-  OR w.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
 `
 
 module.exports = {
@@ -256,10 +320,14 @@ module.exports = {
   cleanLicenceDocuments,
   cleanLicenceMonitoringStations,
   cleanLicences,
-  cleanLicenceVersions,
   cleanLicenceVersionPurposes,
   cleanLicenceVersionPurposeConditions,
   cleanLicenceVersionPurposePoints,
-  cleanPermitLicences,
-  cleanWorkflows
+  cleanLicenceVersions,
+  cleanLicenceWorkflows,
+  cleanNaldLicenceVersionPurposeConditions,
+  cleanNaldLicenceVersionPurposePoints,
+  cleanNaldLicenceVersionPurposes,
+  cleanNaldLicenceVersions,
+  cleanPermitLicences
 }
