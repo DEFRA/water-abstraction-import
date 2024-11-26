@@ -1,25 +1,48 @@
 'use strict'
 
-const importReturnVersions = `insert into water.return_versions (licence_id, version_number, start_date, end_date, status, external_id, date_created, date_updated) select
-      l.licence_id,
-      nrv."VERS_NO"::integer as version_number,
-      to_date(nrv."EFF_ST_DATE", 'DD/MM/YYYY') as start_date,
-      case nrv."EFF_END_DATE"
-        when 'null' then null
-        else to_date(nrv."EFF_END_DATE", 'DD/MM/YYYY')
-        end AS end_date,
-      (case nrv."STATUS"
-        when 'SUPER' THEN 'superseded'
-        when 'DRAFT' THEN 'draft'
-        when 'CURR' THEN 'current'
-        end
-      )::water.return_version_status as status,
-      concat_ws(':', nrv."FGAC_REGION_CODE", nrv."AABL_ID", nrv."VERS_NO")  AS external_id,
-      NOW() as date_created,
-      NOW() as date_updated from import."NALD_RET_VERSIONS" nrv join import."NALD_ABS_LICENCES" nl on nrv."AABL_ID"=nl."ID" AND nrv."FGAC_REGION_CODE"=nl."FGAC_REGION_CODE" join water.licences l on l.licence_ref=nl."LIC_NO"  on conflict (external_id) do update set  start_date=excluded.start_date,
-      end_date=excluded.end_date,
-      status=excluded.status,
-      date_updated=excluded.date_updated;
+const importReturnVersions = `
+  INSERT INTO water.return_versions (
+    licence_id,
+    version_number,
+    start_date,
+    end_date,
+    status,
+    external_id,
+    date_created,
+    date_updated
+  )
+  SELECT
+    l.licence_id,
+    nrv."VERS_NO"::integer AS version_number,
+    to_date(nrv."EFF_ST_DATE", 'DD/MM/YYYY') AS start_date,
+    CASE nrv."EFF_END_DATE"
+      WHEN 'null' THEN NULL
+      ELSE to_date(nrv."EFF_END_DATE", 'DD/MM/YYYY')
+    END AS end_date,
+    (
+      CASE nrv."STATUS"
+        WHEN 'SUPER' THEN 'superseded'
+        WHEN 'DRAFT' THEN 'draft'
+        WHEN 'CURR' THEN 'current'
+      END
+    )::water.return_version_status AS status,
+    concat_ws(':', nrv."FGAC_REGION_CODE", nrv."AABL_ID", nrv."VERS_NO") AS external_id,
+    NOW() AS date_created,
+    NOW() AS date_updated
+  FROM
+    import."NALD_RET_VERSIONS" nrv
+  JOIN import."NALD_ABS_LICENCES" nl
+    ON nrv."AABL_ID" = nl."ID"
+    AND nrv."FGAC_REGION_CODE" = nl."FGAC_REGION_CODE"
+  JOIN water.licences l
+    ON l.licence_ref = nl."LIC_NO"
+  ON CONFLICT (external_id) DO
+  UPDATE SET
+    licence_id = excluded.licence_id,
+    start_date = excluded.start_date,
+    end_date = excluded.end_date,
+    status = excluded.status,
+    date_updated = excluded.date_updated;
 `
 
 const importReturnRequirements = `insert into water.return_requirements  ( return_version_id, legacy_id,  abstraction_period_start_day, abstraction_period_start_month,
