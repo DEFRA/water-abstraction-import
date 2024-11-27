@@ -48,11 +48,11 @@ async function handler () {
         // Delete any licence version purpose points linked to deleted NALD licences
         pool.query(Queries.cleanLicenceVersionPurposePoints),
 
-        // Delete any permit licences linked to deleted NALD licences
-        pool.query(Queries.cleanPermitLicences),
-
         // Delete any workflows linked to deleted NALD licences
-        pool.query(Queries.cleanLicenceWorkflows)
+        pool.query(Queries.cleanLicenceWorkflows),
+
+        // Delete any permit licences linked to deleted NALD licences
+        pool.query(Queries.cleanPermitLicences)
       ])
 
       // Delete any licence version purpose conditions linked to deleted NALD licences
