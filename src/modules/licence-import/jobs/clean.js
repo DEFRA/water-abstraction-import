@@ -85,6 +85,9 @@ async function handler () {
       // Delete any licence version purposes linked to deleted NALD licence version purposes
       await pool.query(Queries.cleanNaldLicenceVersionPurposes)
 
+      // Delete any workflows linked to deleted NALD licence versions
+      await pool.query(Queries.cleanLicenceVersionWorkflows)
+
       // Delete any licence versions linked to deleted NALD licence versions
       await pool.query(Queries.cleanNaldLicenceVersions)
     }

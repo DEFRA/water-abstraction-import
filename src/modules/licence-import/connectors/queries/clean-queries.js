@@ -227,19 +227,6 @@ const cleanLicenceVersions = `
     WHERE lv.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
 `
 
-const cleanLicenceWorkflows = `
-  WITH licences_to_remove AS (
-    SELECT l.id AS licence_id
-    FROM public.licences l
-    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-  )
-  DELETE FROM public.workflows w
-  WHERE w.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
-`
-
 const cleanNaldLicenceVersionPurposeConditions = `
   WITH nald_licence_version_purpose_conditions AS (
     SELECT CONCAT_WS(':', nlc."ID", nlc."FGAC_REGION_CODE", nlc."AABP_ID") AS nald_id
@@ -294,6 +281,43 @@ const cleanNaldLicenceVersions = `
       WHERE lv.external_id = nlv.nald_id
     );
 `
+const cleanLicenceVersionWorkflows = `
+  WITH nald_licence_versions AS (
+    SELECT CONCAT_WS(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS nald_id
+    FROM "import"."NALD_ABS_LIC_VERSIONS" nalv
+  ),
+  licences_to_remove AS (
+    SELECT l.id AS licence_id
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+  )
+  DELETE FROM public.workflows w
+  WHERE w.licence_version_id IN (
+    SELECT lv.id FROM public.licence_versions lv
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM nald_licence_versions nlv
+      WHERE lv.external_id = nlv.nald_id
+    )
+  )
+  OR w.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
+`
+
+const cleanLicenceWorkflows = `
+  WITH licences_to_remove AS (
+    SELECT l.id AS licence_id
+    FROM public.licences l
+    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+  )
+  DELETE FROM public.workflows w
+  WHERE w.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
+`
 
 const cleanPermitLicences = `
   WITH licences_to_remove AS (
@@ -324,6 +348,7 @@ module.exports = {
   cleanLicenceVersionPurposeConditions,
   cleanLicenceVersionPurposePoints,
   cleanLicenceVersions,
+  cleanLicenceVersionWorkflows,
   cleanLicenceWorkflows,
   cleanNaldLicenceVersionPurposeConditions,
   cleanNaldLicenceVersionPurposePoints,
