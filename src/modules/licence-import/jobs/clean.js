@@ -76,6 +76,9 @@ async function handler () {
       // Delete any licences linked to deleted NALD licences
       await pool.query(Queries.cleanLicences)
 
+      // Delete any soft deleted licence monitoring stations linked to deleted NALD licence version purpose conditions
+      await pool.query(Queries.cleanLicenceMonitoringStationsPassTwo)
+
       // Delete any licence version purpose conditions linked to deleted NALD licence version purpose conditions
       await pool.query(Queries.cleanNaldLicenceVersionPurposeConditions)
 
