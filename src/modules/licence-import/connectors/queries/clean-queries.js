@@ -288,7 +288,8 @@ const cleanLicenceWorkflows = `
 
 const cleanNaldLicenceVersionPurposeConditions = `
   WITH purposes_safe_to_remove AS (
-    SELECT lvp.id AS licence_version_purpose_id FROM public.licence_version_purposes lvp
+    SELECT lvp.id AS licence_version_purpose_id
+    FROM public.licence_version_purposes lvp
     INNER JOIN public.licence_versions lv
       ON lvp.licence_version_id = lv.id
     INNER JOIN public.licences l
@@ -298,7 +299,8 @@ const cleanNaldLicenceVersionPurposeConditions = `
     AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   ),
   nald_licence_version_purpose_conditions AS (
-    SELECT CONCAT_WS(':', nlc."ID", nlc."FGAC_REGION_CODE", nlc."AABP_ID") AS nald_id FROM "import"."NALD_LIC_CONDITIONS" nlc
+    SELECT CONCAT_WS(':', nlc."ID", nlc."FGAC_REGION_CODE", nlc."AABP_ID") AS nald_id
+    FROM "import"."NALD_LIC_CONDITIONS" nlc
   )
   DELETE FROM public.licence_version_purpose_conditions lvpc
   WHERE NOT EXISTS (SELECT 1 FROM nald_licence_version_purpose_conditions nlvpc WHERE nlvpc.nald_id = lvpc.external_id)
