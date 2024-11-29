@@ -152,12 +152,12 @@ const cleanLicenceMonitoringStations = `
 `
 
 const cleanLicenceMonitoringStationsPassTwo = `
-  WITH licences_not_to_remove AS (
+  WITH licences_safe_to_remove AS (
     SELECT l.id AS licence_id
     FROM public.licences l
-    WHERE EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-    OR EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-    OR EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+    WHERE NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
   ),
   nald_licence_version_purpose_conditions AS (
     SELECT CONCAT_WS(':', nlc."ID", nlc."FGAC_REGION_CODE", nlc."AABP_ID") AS nald_id
@@ -168,7 +168,7 @@ const cleanLicenceMonitoringStationsPassTwo = `
     SELECT lvpc.id FROM public.licence_version_purpose_conditions lvpc
     WHERE NOT EXISTS (SELECT 1 FROM nald_licence_version_purpose_conditions nlvpc WHERE nlvpc.nald_id = lvpc.external_id)
   )
-  AND NOT EXISTS (SELECT 1 FROM licences_not_to_remove lntr WHERE lntr.licence_id = lms.licence_id)
+  AND lms.licence_id IN (SELECT lstr.licence_id FROM licences_safe_to_remove lstr)
   AND lms.deleted_at IS NOT NULL;
 `
 
