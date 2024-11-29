@@ -309,19 +309,31 @@ const cleanNaldLicenceVersionPurposeConditions = `
 `
 
 const cleanNaldLicenceVersionPurposePoints = `
-  WITH nald_licence_version_purposes AS (
-    SELECT CONCAT(nalp."FGAC_REGION_CODE", ':', nalp."ID") AS nald_id
-    FROM "import"."NALD_ABS_LIC_PURPOSES" nalp
-  )
-  DELETE FROM public.licence_version_purpose_points lvpp
-  WHERE lvpp.licence_version_purpose_id IN (
-    SELECT lvp.id FROM public.licence_version_purposes lvp
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM nald_licence_version_purposes nlvp
-      WHERE lvp.external_id = nlvp.nald_id
-    )
-  );
+WITH purposes_not_to_remove AS (
+  SELECT lvpc.licence_version_purpose_id
+  FROM public.licence_version_purpose_conditions lvpc
+  INNER JOIN public.licence_monitoring_stations lms
+    ON lms.licence_version_purpose_condition_id = lvpc.id
+),
+purposes_safe_to_remove AS (
+  SELECT lvp.id AS licence_version_purpose_id
+  FROM public.licence_version_purposes lvp
+  INNER JOIN public.licence_versions lv
+    ON lvp.licence_version_id = lv.id
+  INNER JOIN public.licences l
+    ON lv.licence_id = l.id
+  WHERE NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+  AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+  AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+  AND NOT EXISTS (SELECT 1 FROM purposes_not_to_remove pntr WHERE pntr.licence_version_purpose_id = lvp.id)
+),
+nald_licence_version_purpose_points AS (
+  SELECT CONCAT_WS(':', napp."FGAC_REGION_CODE", napp."AABP_ID", napp."AAIP_ID") AS nald_id
+  FROM "import"."NALD_ABS_PURP_POINTS" napp
+)
+DELETE FROM public.licence_version_purpose_points lvpp
+WHERE NOT EXISTS (SELECT 1 FROM nald_licence_version_purpose_points nlvpp WHERE lvpp.external_id = nlvpp.nald_id)
+AND lvpp.licence_version_purpose_id IN (SELECT pstr.licence_version_purpose_id FROM purposes_safe_to_remove pstr);
 `
 
 const cleanNaldLicenceVersionPurposes = `
