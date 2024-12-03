@@ -173,11 +173,11 @@ const cleanLicenceMonitoringStationsPassTwo = `
 `
 
 const cleanLicences = `
-DELETE FROM public.licences l
-WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL);
+  DELETE FROM public.licences l
+  WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+  AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+  AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+  AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL);
 `
 
 const cleanLicenceVersionPurposeConditions = `
@@ -249,20 +249,20 @@ const cleanLicenceVersions = `
 `
 
 const cleanLicenceVersionWorkflows = `
-WITH nald_licence_versions AS (
-  SELECT CONCAT_WS(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS nald_id
-  FROM "import"."NALD_ABS_LIC_VERSIONS" nalv
-)
-DELETE FROM public.workflows w
-WHERE w.licence_version_id IN (
-  SELECT lv.id FROM public.licence_versions lv
-  WHERE NOT EXISTS (
-    SELECT 1
-    FROM nald_licence_versions nlv
-    WHERE lv.external_id = nlv.nald_id
+  WITH nald_licence_versions AS (
+    SELECT CONCAT_WS(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS nald_id
+    FROM "import"."NALD_ABS_LIC_VERSIONS" nalv
   )
-  AND NOT EXISTS (SELECT 1 FROM public.licence_version_purposes lvp WHERE lvp.licence_version_id = lv.id)
-);
+  DELETE FROM public.workflows w
+  WHERE w.licence_version_id IN (
+    SELECT lv.id FROM public.licence_versions lv
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM nald_licence_versions nlv
+      WHERE lv.external_id = nlv.nald_id
+    )
+    AND NOT EXISTS (SELECT 1 FROM public.licence_version_purposes lvp WHERE lvp.licence_version_id = lv.id)
+  );
 `
 
 const cleanLicenceWorkflows = `
@@ -329,26 +329,26 @@ const cleanNaldLicenceVersionPurposePoints = `
 `
 
 const cleanNaldLicenceVersionPurposes = `
-WITH purposes_safe_to_remove AS (
-  SELECT lvp.id AS licence_version_purpose_id
-  FROM public.licence_version_purposes lvp
-  INNER JOIN public.licence_versions lv
-    ON lvp.licence_version_id = lv.id
-  INNER JOIN public.licences l
-    ON lv.licence_id = l.id
-  WHERE NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-  AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-  AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-  AND NOT EXISTS (SELECT 1 FROM public.licence_version_purpose_conditions lvpc WHERE lvpc.licence_version_purpose_id = lvp.id)
-  AND NOT EXISTS (SELECT 1 FROM public.licence_version_purpose_points lvpp WHERE lvpp.licence_version_purpose_id = lvp.id)
-),
-nald_licence_version_purposes AS (
-  SELECT CONCAT(nalp."FGAC_REGION_CODE", ':', nalp."ID") AS nald_id
-  FROM "import"."NALD_ABS_LIC_PURPOSES" nalp
-)
-DELETE FROM public.licence_version_purposes lvp
-WHERE NOT EXISTS (SELECT 1 FROM nald_licence_version_purposes nlvp WHERE lvp.external_id = nlvp.nald_id)
-AND lvp.id IN (SELECT pstr.licence_version_purpose_id FROM purposes_safe_to_remove pstr);
+  WITH purposes_safe_to_remove AS (
+    SELECT lvp.id AS licence_version_purpose_id
+    FROM public.licence_version_purposes lvp
+    INNER JOIN public.licence_versions lv
+      ON lvp.licence_version_id = lv.id
+    INNER JOIN public.licences l
+      ON lv.licence_id = l.id
+    WHERE NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_version_purpose_conditions lvpc WHERE lvpc.licence_version_purpose_id = lvp.id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_version_purpose_points lvpp WHERE lvpp.licence_version_purpose_id = lvp.id)
+  ),
+  nald_licence_version_purposes AS (
+    SELECT CONCAT(nalp."FGAC_REGION_CODE", ':', nalp."ID") AS nald_id
+    FROM "import"."NALD_ABS_LIC_PURPOSES" nalp
+  )
+  DELETE FROM public.licence_version_purposes lvp
+  WHERE NOT EXISTS (SELECT 1 FROM nald_licence_version_purposes nlvp WHERE lvp.external_id = nlvp.nald_id)
+  AND lvp.id IN (SELECT pstr.licence_version_purpose_id FROM purposes_safe_to_remove pstr);
 `
 
 const cleanNaldLicenceVersions = `
