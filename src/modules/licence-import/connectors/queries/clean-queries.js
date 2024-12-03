@@ -357,11 +357,8 @@ const cleanNaldLicenceVersions = `
     FROM "import"."NALD_ABS_LIC_VERSIONS" nalv
   )
   DELETE FROM public.licence_versions lv
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM nald_licence_versions nlv
-      WHERE lv.external_id = nlv.nald_id
-    );
+    WHERE NOT EXISTS (SELECT 1 FROM nald_licence_versions nlv WHERE lv.external_id = nlv.nald_id)
+    AND NOT EXISTS (SELECT 1 FROM public.licence_version_purposes lvp WHERE lvp.licence_version_id = lv.id);
 `
 const cleanPermitLicences = `
   WITH licences_to_remove AS (
