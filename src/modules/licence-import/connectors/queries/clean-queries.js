@@ -334,10 +334,9 @@ const cleanNaldLicenceVersionPurposes = `
       ON lvp.licence_version_id = lv.id
     INNER JOIN public.licences l
       ON lv.licence_id = l.id
-    WHERE NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    AND NOT EXISTS (SELECT 1 FROM public.licence_version_purpose_conditions lvpc WHERE lvpc.licence_version_purpose_id = lvp.id)
+    INNER JOIN "import"."NALD_ABS_LICENCES" nal
+      ON l.licence_ref = nal."LIC_NO"
+    WHERE NOT EXISTS (SELECT 1 FROM public.licence_version_purpose_conditions lvpc WHERE lvpc.licence_version_purpose_id = lvp.id)
     AND NOT EXISTS (SELECT 1 FROM public.licence_version_purpose_points lvpp WHERE lvpp.licence_version_purpose_id = lvp.id)
   ),
   nald_licence_version_purposes AS (
