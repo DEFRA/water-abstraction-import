@@ -256,11 +256,7 @@ const cleanLicenceVersionWorkflows = `
   DELETE FROM public.workflows w
   WHERE w.licence_version_id IN (
     SELECT lv.id FROM public.licence_versions lv
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM nald_licence_versions nlv
-      WHERE lv.external_id = nlv.nald_id
-    )
+    WHERE NOT EXISTS (SELECT 1 FROM nald_licence_versions nlv WHERE lv.external_id = nlv.nald_id)
     AND NOT EXISTS (SELECT 1 FROM public.licence_version_purposes lvp WHERE lvp.licence_version_id = lv.id)
   );
 `
