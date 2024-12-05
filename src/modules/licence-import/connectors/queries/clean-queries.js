@@ -155,9 +155,8 @@ const cleanLicenceMonitoringStationsPassTwo = `
   WITH licences_safe_to_remove AS (
     SELECT l.id AS licence_id
     FROM public.licences l
-    WHERE NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+    INNER JOIN "import"."NALD_ABS_LICENCES" nal
+    ON l.licence_ref = nal."LIC_NO"
   ),
   nald_licence_version_purpose_conditions AS (
     SELECT CONCAT_WS(':', nlc."ID", nlc."FGAC_REGION_CODE", nlc."AABP_ID") AS nald_id
