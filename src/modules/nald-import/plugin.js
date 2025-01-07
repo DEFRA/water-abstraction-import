@@ -6,6 +6,7 @@ const DeleteRemovedDocumentsJob = require('./jobs/delete-removed-documents.js')
 const ImportLicenceJob = require('./jobs/import-licence.js')
 const QueueLicencesJob = require('./jobs/queue-licences.js')
 const S3DownloadJob = require('./jobs/s3-download.js')
+const TriggerEndDateCheckJob = require('./jobs/trigger-end-date-check.js')
 
 const config = require('../../../config')
 
@@ -19,7 +20,13 @@ async function register (server) {
     return S3DownloadJob.onComplete(server.messageQueue, executedJob)
   })
 
-  // Next step is to delete documents that have been removed from NALD
+  // Next step is to trigger the licence end dates check in water-abstraction-system
+  await server.messageQueue.subscribe(TriggerEndDateCheckJob.name, TriggerEndDateCheckJob.handler)
+  await server.messageQueue.onComplete(TriggerEndDateCheckJob.name, (executedJob) => {
+    return TriggerEndDateCheckJob.onComplete(server.messageQueue, executedJob)
+  })
+
+  // Then we delete documents that have been removed from NALD
   await server.messageQueue.subscribe(DeleteRemovedDocumentsJob.name, DeleteRemovedDocumentsJob.handler)
   await server.messageQueue.onComplete(DeleteRemovedDocumentsJob.name, (executedJob) => {
     return DeleteRemovedDocumentsJob.onComplete(server.messageQueue, executedJob)
