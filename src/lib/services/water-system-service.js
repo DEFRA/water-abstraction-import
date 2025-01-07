@@ -4,15 +4,12 @@ const { serviceRequest } = require('@envage/water-abstraction-helpers')
 
 const config = require('../../../config')
 
-const postImportLicence = async (data) => {
-  const url = new URL(`${config.services.system}/import/licence/legacy`)
+const postLicencesEndDatesCheck = async () => {
+  const url = new URL(`${config.services.system}/licences/end-dates/check`)
 
-  return serviceRequest.post(url.href, {
-    body: data,
-    resolveWithFullResponse: true
-  })
+  return serviceRequest.post(url.href)
 }
 
 module.exports = {
-  postImportLicence
+  postLicencesEndDatesCheck
 }
