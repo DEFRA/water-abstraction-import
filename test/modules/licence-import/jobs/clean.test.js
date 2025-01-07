@@ -109,12 +109,12 @@ experiment('Licence Import: Clean', () => {
         expect(message).to.equal('licence-import.clean: finished')
       })
 
-      test('the import purpose condition types job is published to the queue', async () => {
+      test('the trigger end date process job is published to the queue', async () => {
         await CleanJob.onComplete(messageQueue, job)
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
-        expect(jobMessage.name).to.equal('licence-import.import-purpose-condition-types')
+        expect(jobMessage.name).to.equal('licence-import.trigger-end-date-process')
       })
 
       experiment('but an error is thrown', () => {
