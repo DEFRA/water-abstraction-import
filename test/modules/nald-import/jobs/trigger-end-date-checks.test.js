@@ -61,7 +61,7 @@ experiment('NALD Import: Trigger End Date Check job', () => {
         expect(message).to.equal('nald-import.trigger-end-date-check: started')
       })
 
-      test('deletes the removed documents', async () => {
+      test('triggers the end date checks', async () => {
         await TriggerEndDateCheckJob.handler()
 
         expect(WaterSystemService.postLicencesEndDatesCheck.called).to.equal(true)
