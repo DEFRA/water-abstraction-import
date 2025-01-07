@@ -325,17 +325,18 @@ experiment('NALD Import: S3 Download job', () => {
         test('the existing job queues are deleted', async () => {
           await S3DownloadJob.onComplete(messageQueue, job)
 
-          expect(messageQueue.deleteQueue.calledWith('nald-import.import-licence')).to.be.true()
-          expect(messageQueue.deleteQueue.calledWith('nald-import.queue-licences')).to.be.true()
+          expect(messageQueue.deleteQueue.calledWith('nald-import.trigger-end-date-check')).to.be.true()
           expect(messageQueue.deleteQueue.calledWith('nald-import.delete-removed-documents')).to.be.true()
+          expect(messageQueue.deleteQueue.calledWith('nald-import.queue-licences')).to.be.true()
+          expect(messageQueue.deleteQueue.calledWith('nald-import.import-licence')).to.be.true()
         })
 
-        test('the delete removed documents job is published to the queue', async () => {
+        test('the trigger end date check job is published to the queue', async () => {
           await S3DownloadJob.onComplete(messageQueue, job)
 
           const jobMessage = messageQueue.publish.lastCall.args[0]
 
-          expect(jobMessage.name).to.equal('nald-import.delete-removed-documents')
+          expect(jobMessage.name).to.equal('nald-import.trigger-end-date-check')
         })
 
         experiment('but an error is thrown', () => {

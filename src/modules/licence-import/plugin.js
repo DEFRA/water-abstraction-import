@@ -9,6 +9,7 @@ const ImportPointsJob = require('./jobs/import-points.js')
 const ImportPurposeConditionTypesJob = require('./jobs/import-purpose-condition-types.js')
 const QueueCompaniesJob = require('./jobs/queue-companies.js')
 const QueueLicencesJob = require('./jobs/queue-licences.js')
+const TriggerEndDateProcessJob = require('./jobs/trigger-end-date-process.js')
 
 const config = require('../../../config')
 
@@ -19,8 +20,13 @@ async function register (server, _options) {
     return CleanJob.onComplete(server.messageQueue, executedJob)
   })
 
-  // When the documents have been marked as deleted import a list of all companies into the
-  // water_import.company_import table
+  // When the licences have been cleaned, trigger the licences end date process in water abstraction system
+  await server.messageQueue.subscribe(TriggerEndDateProcessJob.name, TriggerEndDateProcessJob.handler)
+  await server.messageQueue.onComplete(TriggerEndDateProcessJob.name, (executedJob) => {
+    return TriggerEndDateProcessJob.onComplete(server.messageQueue, executedJob)
+  })
+
+  // Then import a list of all companies into the water_import.company_import table
   await server.messageQueue.subscribe(ImportPurposeConditionTypesJob.name, ImportPurposeConditionTypesJob.handler)
   await server.messageQueue.onComplete(ImportPurposeConditionTypesJob.name, (executedJob) => {
     return ImportPurposeConditionTypesJob.onComplete(server.messageQueue, executedJob)

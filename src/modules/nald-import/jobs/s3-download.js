@@ -6,6 +6,7 @@ const extractService = require('../services/extract-service.js')
 const ImportLicenceJob = require('./import-licence.js')
 const QueueLicences = require('./queue-licences')
 const s3Service = require('../services/s3-service.js')
+const TriggerEndDateCheckJob = require('./trigger-end-date-check.js')
 
 const JOB_NAME = 'nald-import.s3-download'
 
@@ -50,13 +51,14 @@ async function onComplete (messageQueue, job) {
     if (isRequired) {
       // Delete existing PG boss import queues
       await Promise.all([
-        messageQueue.deleteQueue(ImportLicenceJob.name),
+        messageQueue.deleteQueue(TriggerEndDateCheckJob.name),
         messageQueue.deleteQueue(DeleteRemovedDocumentsJob.name),
-        messageQueue.deleteQueue(QueueLicences.name)
+        messageQueue.deleteQueue(QueueLicences.name),
+        messageQueue.deleteQueue(ImportLicenceJob.name)
       ])
 
-      // Publish a new job to delete any removed documents
-      await messageQueue.publish(DeleteRemovedDocumentsJob.createMessage(replicateReturns))
+      // Publish a new job to trigger the licences end date check
+      await messageQueue.publish(TriggerEndDateCheckJob.createMessage(replicateReturns))
     }
   }
 

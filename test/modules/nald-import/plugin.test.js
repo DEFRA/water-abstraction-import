@@ -14,6 +14,7 @@ const DeleteRemovedDocumentsJob = require('../../../src/modules/nald-import/jobs
 const ImportLicenceJob = require('../../../src/modules/nald-import/jobs/import-licence.js')
 const QueueLicencesJob = require('../../../src/modules/nald-import/jobs/queue-licences.js')
 const S3DownloadJob = require('../../../src/modules/nald-import/jobs/s3-download.js')
+const TriggerEndDateCheckJob = require('../../../src/modules/nald-import/jobs/trigger-end-date-check.js')
 
 // Things we need to stub
 const cron = require('node-cron')
@@ -74,11 +75,37 @@ experiment('modules/nald-import/plugin', () => {
       })
     })
 
-    experiment('for Delete Removed Documents', () => {
+    experiment('for Trigger End Date Check', () => {
       test('subscribes its handler to the job queue', async () => {
         await NaldImportPlugin.plugin.register(server)
 
         const subscribeArgs = server.messageQueue.subscribe.getCall(1).args
+
+        expect(subscribeArgs[0]).to.equal(TriggerEndDateCheckJob.name)
+        expect(subscribeArgs[1]).to.equal(TriggerEndDateCheckJob.handler)
+      })
+
+      test('registers its onComplete for the job', async () => {
+        await NaldImportPlugin.plugin.register(server)
+
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(1).args
+
+        expect(onCompleteArgs[0]).to.equal(TriggerEndDateCheckJob.name)
+        expect(onCompleteArgs[1]).to.be.a.function()
+      })
+
+      test('schedules the job to be published', async () => {
+        await NaldImportPlugin.plugin.register(server)
+
+        expect(cron.schedule.calledWith(config.import.nald.schedule)).to.be.true()
+      })
+    })
+
+    experiment('for Delete Removed Documents', () => {
+      test('subscribes its handler to the job queue', async () => {
+        await NaldImportPlugin.plugin.register(server)
+
+        const subscribeArgs = server.messageQueue.subscribe.getCall(2).args
 
         expect(subscribeArgs[0]).to.equal(DeleteRemovedDocumentsJob.name)
         expect(subscribeArgs[1]).to.equal(DeleteRemovedDocumentsJob.handler)
@@ -87,7 +114,7 @@ experiment('modules/nald-import/plugin', () => {
       test('registers its onComplete for the job', async () => {
         await NaldImportPlugin.plugin.register(server)
 
-        const onCompleteArgs = server.messageQueue.onComplete.getCall(1).args
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(2).args
 
         expect(onCompleteArgs[0]).to.equal(DeleteRemovedDocumentsJob.name)
         expect(onCompleteArgs[1]).to.be.a.function()
@@ -98,7 +125,7 @@ experiment('modules/nald-import/plugin', () => {
       test('subscribes its handler to the job queue', async () => {
         await NaldImportPlugin.plugin.register(server)
 
-        const subscribeArgs = server.messageQueue.subscribe.getCall(2).args
+        const subscribeArgs = server.messageQueue.subscribe.getCall(3).args
 
         expect(subscribeArgs[0]).to.equal(QueueLicencesJob.name)
         expect(subscribeArgs[1]).to.equal(QueueLicencesJob.handler)
@@ -107,7 +134,7 @@ experiment('modules/nald-import/plugin', () => {
       test('registers its onComplete for the job', async () => {
         await NaldImportPlugin.plugin.register(server)
 
-        const onCompleteArgs = server.messageQueue.onComplete.getCall(2).args
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(3).args
 
         expect(onCompleteArgs[0]).to.equal(QueueLicencesJob.name)
         expect(onCompleteArgs[1]).to.be.a.function()
@@ -118,7 +145,7 @@ experiment('modules/nald-import/plugin', () => {
       test('subscribes its handler to the job queue', async () => {
         await NaldImportPlugin.plugin.register(server)
 
-        const subscribeArgs = server.messageQueue.subscribe.getCall(3).args
+        const subscribeArgs = server.messageQueue.subscribe.getCall(4).args
 
         expect(subscribeArgs[0]).to.equal(ImportLicenceJob.name)
         expect(subscribeArgs[1]).to.equal(ImportLicenceJob.options)
