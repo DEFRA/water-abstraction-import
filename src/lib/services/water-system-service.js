@@ -10,6 +10,13 @@ const postLicencesEndDatesCheck = async () => {
   return serviceRequest.post(url.href)
 }
 
+const postLicencesEndDatesProcess = async () => {
+  const url = new URL(`${config.services.system}/licences/end-dates/process`)
+
+  return serviceRequest.post(url.href)
+}
+
 module.exports = {
-  postLicencesEndDatesCheck
+  postLicencesEndDatesCheck,
+  postLicencesEndDatesProcess
 }
