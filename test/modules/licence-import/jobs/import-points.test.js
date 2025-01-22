@@ -12,9 +12,9 @@ const { expect } = Code
 const { pool } = require('../../../../src/lib/connectors/db.js')
 
 // Thing under test
-const CleanJob = require('../../../../src/modules/licence-import/jobs/clean.js')
+const ImportPointsJob = require('../../../../src/modules/licence-import/jobs/import-points.js')
 
-experiment('Licence Import: Clean', () => {
+experiment('Licence Import: Import Points job', () => {
   let notifierStub
 
   beforeEach(async () => {
@@ -33,13 +33,13 @@ experiment('Licence Import: Clean', () => {
   })
 
   experiment('.createMessage', () => {
-    test('formats a message for PG boss', async () => {
-      const message = CleanJob.createMessage()
+    test('formats a message for the queue', async () => {
+      const message = ImportPointsJob.createMessage()
 
       expect(message).to.equal({
-        name: 'licence-import.clean',
+        name: 'licence-import.import-points',
         options: {
-          singletonKey: 'licence-import.clean',
+          singletonKey: 'licence-import.import-points',
           expireIn: '1 hours'
         }
       })
@@ -49,15 +49,15 @@ experiment('Licence Import: Clean', () => {
   experiment('.handler', () => {
     experiment('when the job is successful', () => {
       test('a message is logged', async () => {
-        await CleanJob.handler()
+        await ImportPointsJob.handler()
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('licence-import.clean: started')
+        expect(message).to.equal('licence-import.import-points: started')
       })
 
-      test('deletes the removed documents', async () => {
-        await CleanJob.handler()
+      test('import the points', async () => {
+        await ImportPointsJob.handler()
 
         expect(pool.query.called).to.equal(true)
       })
@@ -67,19 +67,19 @@ experiment('Licence Import: Clean', () => {
       const err = new Error('Oops!')
 
       beforeEach(async () => {
-        pool.query.throws(err)
+        pool.query.rejects(err)
       })
 
       test('logs an error message', async () => {
-        await expect(CleanJob.handler()).to.reject()
+        await expect(ImportPointsJob.handler()).to.reject()
 
         expect(notifierStub.omfg.calledWith(
-          'licence-import.clean: errored', err
+          'licence-import.import-points: errored', err
         )).to.equal(true)
       })
 
       test('rethrows the error', async () => {
-        const err = await expect(CleanJob.handler()).to.reject()
+        const err = await expect(ImportPointsJob.handler()).to.reject()
 
         expect(err.message).to.equal('Oops!')
       })
@@ -102,19 +102,19 @@ experiment('Licence Import: Clean', () => {
       })
 
       test('a message is logged', async () => {
-        await CleanJob.onComplete(messageQueue, job)
+        await ImportPointsJob.onComplete(messageQueue, job)
 
         const [message] = notifierStub.omg.lastCall.args
 
-        expect(message).to.equal('licence-import.clean: finished')
+        expect(message).to.equal('licence-import.import-points: finished')
       })
 
-      test('the import purpose condition types job is published to the queue', async () => {
-        await CleanJob.onComplete(messageQueue, job)
+      test('the trigger end date process job is published to the queue', async () => {
+        await ImportPointsJob.onComplete(messageQueue, job)
 
         const jobMessage = messageQueue.publish.lastCall.args[0]
 
-        expect(jobMessage.name).to.equal('licence-import.import-purpose-condition-types')
+        expect(jobMessage.name).to.equal('licence-import.trigger-end-date-process')
       })
 
       experiment('but an error is thrown', () => {
@@ -125,7 +125,7 @@ experiment('Licence Import: Clean', () => {
         })
 
         test('rethrows the error', async () => {
-          const error = await expect(CleanJob.onComplete(messageQueue, job)).to.reject()
+          const error = await expect(ImportPointsJob.onComplete(messageQueue, job)).to.reject()
 
           expect(error).to.equal(error)
         })
@@ -138,7 +138,7 @@ experiment('Licence Import: Clean', () => {
       })
 
       test('no further jobs are published', async () => {
-        await CleanJob.onComplete(messageQueue, job)
+        await ImportPointsJob.onComplete(messageQueue, job)
 
         expect(messageQueue.publish.called).to.be.false()
       })

@@ -3,7 +3,7 @@
 const config = require('../../../../config')
 const { pool } = require('../../../lib/connectors/db')
 const Queries = require('../connectors/queries/clean-queries.js')
-const TriggerEndDateProcessJob = require('./trigger-end-date-process.js')
+const ImportPurposeConditionTypesJob = require('./import-purpose-condition-types.js')
 
 const JOB_NAME = 'licence-import.clean'
 
@@ -109,7 +109,7 @@ async function _cleanDeletedLicenceVersionData () {
 
 async function onComplete (messageQueue, job) {
   if (!job.failed) {
-    await messageQueue.publish(TriggerEndDateProcessJob.createMessage())
+    await messageQueue.publish(ImportPurposeConditionTypesJob.createMessage())
   }
 
   global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
