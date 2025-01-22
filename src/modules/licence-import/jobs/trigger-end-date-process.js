@@ -1,6 +1,5 @@
 'use strict'
 
-const ImportPurposeConditionTypesJob = require('./import-purpose-condition-types.js')
 const WaterSystemService = require('../../../lib/services/water-system-service.js')
 
 const JOB_NAME = 'licence-import.trigger-end-date-process'
@@ -26,11 +25,7 @@ async function handler () {
   }
 }
 
-async function onComplete (messageQueue, job) {
-  if (!job.failed) {
-    await messageQueue.publish(ImportPurposeConditionTypesJob.createMessage())
-  }
-
+async function onComplete () {
   global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
 }
 

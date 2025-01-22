@@ -55,12 +55,6 @@ experiment('Licence Import: Trigger End Date Process', () => {
 
         expect(message).to.equal('licence-import.trigger-end-date-process: started')
       })
-
-      test('triggers the end date process', async () => {
-        await TriggerEndDateProcessJob.handler()
-
-        expect(WaterSystemService.postLicencesEndDatesProcess.called).to.equal(true)
-      })
     })
 
     experiment('when the job fails', () => {
@@ -87,63 +81,13 @@ experiment('Licence Import: Trigger End Date Process', () => {
   })
 
   experiment('.onComplete', () => {
-    let job
-    let messageQueue
-
-    beforeEach(async () => {
-      messageQueue = {
-        publish: Sinon.stub()
-      }
-    })
-
     experiment('when the job succeeds', () => {
-      beforeEach(async () => {
-        job = {
-          failed: false,
-          data: { request: { data: { replicateReturns: false } } }
-        }
-      })
-
       test('a message is logged', async () => {
-        await TriggerEndDateProcessJob.onComplete(messageQueue, job)
+        await TriggerEndDateProcessJob.onComplete()
 
         const [message] = notifierStub.omg.lastCall.args
 
         expect(message).to.equal('licence-import.trigger-end-date-process: finished')
-      })
-
-      test('the Import Purpose Condition Types job is published to the queue', async () => {
-        await TriggerEndDateProcessJob.onComplete(messageQueue, job)
-
-        const jobMessage = messageQueue.publish.lastCall.args[0]
-
-        expect(jobMessage.name).to.equal('licence-import.import-purpose-condition-types')
-      })
-
-      experiment('but an error is thrown', () => {
-        const err = new Error('oops')
-
-        beforeEach(async () => {
-          messageQueue.publish.rejects(err)
-        })
-
-        test('rethrows the error', async () => {
-          const error = await expect(TriggerEndDateProcessJob.onComplete(messageQueue, job)).to.reject()
-
-          expect(error).to.equal(error)
-        })
-      })
-    })
-
-    experiment('when the job fails', () => {
-      beforeEach(async () => {
-        job = { failed: true }
-      })
-
-      test('no further jobs are published', async () => {
-        await TriggerEndDateProcessJob.onComplete(messageQueue, job)
-
-        expect(messageQueue.publish.called).to.be.false()
       })
     })
   })
