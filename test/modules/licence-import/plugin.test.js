@@ -13,6 +13,7 @@ const config = require('../../../config.js')
 const CleanJob = require('../../../src/modules/licence-import/jobs/clean.js')
 const ImportCompanyJob = require('../../../src/modules/licence-import/jobs/import-company.js')
 const ImportLicenceJob = require('../../../src/modules/licence-import/jobs/import-licence.js')
+const ImportPointsJob = require('../../../src/modules/licence-import/jobs/import-points.js')
 const ImportPurposeConditionTypesJob = require('../../../src/modules/licence-import/jobs/import-purpose-condition-types.js')
 const QueueCompaniesJob = require('../../../src/modules/licence-import/jobs/queue-companies.js')
 const QueueLicencesJob = require('../../../src/modules/licence-import/jobs/queue-licences.js')
@@ -175,6 +176,27 @@ experiment('modules/licence-import/plugin.js', () => {
         const onCompleteArgs = server.messageQueue.onComplete.getCall(5).args
 
         expect(onCompleteArgs[0]).to.equal(ImportLicenceJob.name)
+        expect(onCompleteArgs[1]).to.be.a.function()
+      })
+    })
+
+    experiment('for Import Points', () => {
+      test('subscribes its handler and options to the job queue', async () => {
+        await LicenceImportPlugin.plugin.register(server)
+
+        const subscribeArgs = server.messageQueue.subscribe.getCall(6).args
+
+        expect(subscribeArgs[0]).to.equal(ImportPointsJob.name)
+        expect(subscribeArgs[1]).to.equal(ImportPointsJob.options)
+        expect(subscribeArgs[2]).to.equal(ImportPointsJob.handler)
+      })
+
+      test('registers its onComplete for the job', async () => {
+        await LicenceImportPlugin.plugin.register(server)
+
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(6).args
+
+        expect(onCompleteArgs[0]).to.equal(ImportPointsJob.name)
         expect(onCompleteArgs[1]).to.be.a.function()
       })
     })
