@@ -168,6 +168,15 @@ experiment('modules/licence-import/plugin.js', () => {
         expect(subscribeArgs[1]).to.equal(ImportLicenceJob.options)
         expect(subscribeArgs[2]).to.equal(ImportLicenceJob.handler)
       })
+
+      test('registers its onComplete for the job', async () => {
+        await LicenceImportPlugin.plugin.register(server)
+
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(5).args
+
+        expect(onCompleteArgs[0]).to.equal(ImportLicenceJob.name)
+        expect(onCompleteArgs[1]).to.be.a.function()
+      })
     })
 
     experiment('for Trigger End Date Process', () => {
