@@ -77,37 +77,11 @@ experiment('modules/licence-import/plugin.js', () => {
       })
     })
 
-    experiment('for Trigger End Date Process', () => {
-      test('subscribes its handler to the job queue', async () => {
-        await LicenceImportPlugin.plugin.register(server)
-
-        const subscribeArgs = server.messageQueue.subscribe.getCall(1).args
-
-        expect(subscribeArgs[0]).to.equal(TriggerEndDateProcessJob.name)
-        expect(subscribeArgs[1]).to.equal(TriggerEndDateProcessJob.handler)
-      })
-
-      test('registers its onComplete for the job', async () => {
-        await LicenceImportPlugin.plugin.register(server)
-
-        const onCompleteArgs = server.messageQueue.onComplete.getCall(1).args
-
-        expect(onCompleteArgs[0]).to.equal(TriggerEndDateProcessJob.name)
-        expect(onCompleteArgs[1]).to.be.a.function()
-      })
-
-      test('schedules the job to be published', async () => {
-        await LicenceImportPlugin.plugin.register(server)
-
-        expect(cron.schedule.calledWith(config.import.licences.schedule)).to.be.true()
-      })
-    })
-
     experiment('for Import Purpose Condition Types', () => {
       test('subscribes its handler to the job queue', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
-        const subscribeArgs = server.messageQueue.subscribe.getCall(2).args
+        const subscribeArgs = server.messageQueue.subscribe.getCall(1).args
 
         expect(subscribeArgs[0]).to.equal(ImportPurposeConditionTypesJob.name)
         expect(subscribeArgs[1]).to.equal(ImportPurposeConditionTypesJob.handler)
@@ -116,7 +90,7 @@ experiment('modules/licence-import/plugin.js', () => {
       test('registers its onComplete for the job', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
-        const onCompleteArgs = server.messageQueue.onComplete.getCall(2).args
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(1).args
 
         expect(onCompleteArgs[0]).to.equal(ImportPurposeConditionTypesJob.name)
         expect(onCompleteArgs[1]).to.be.a.function()
@@ -127,7 +101,7 @@ experiment('modules/licence-import/plugin.js', () => {
       test('subscribes its handler to the job queue', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
-        const subscribeArgs = server.messageQueue.subscribe.getCall(3).args
+        const subscribeArgs = server.messageQueue.subscribe.getCall(2).args
 
         expect(subscribeArgs[0]).to.equal(QueueCompaniesJob.name)
         expect(subscribeArgs[1]).to.equal(QueueCompaniesJob.handler)
@@ -136,7 +110,7 @@ experiment('modules/licence-import/plugin.js', () => {
       test('registers its onComplete for the job', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
-        const onCompleteArgs = server.messageQueue.onComplete.getCall(3).args
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(2).args
 
         expect(onCompleteArgs[0]).to.equal(QueueCompaniesJob.name)
         expect(onCompleteArgs[1]).to.be.a.function()
@@ -147,7 +121,7 @@ experiment('modules/licence-import/plugin.js', () => {
       test('subscribes its handler and options to the job queue', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
-        const subscribeArgs = server.messageQueue.subscribe.getCall(4).args
+        const subscribeArgs = server.messageQueue.subscribe.getCall(3).args
 
         expect(subscribeArgs[0]).to.equal(ImportCompanyJob.name)
         expect(subscribeArgs[1]).to.equal(ImportCompanyJob.options)
@@ -157,7 +131,7 @@ experiment('modules/licence-import/plugin.js', () => {
       test('registers its onComplete for the job', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
-        const onCompleteArgs = server.messageQueue.onComplete.getCall(4).args
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(3).args
 
         expect(onCompleteArgs[0]).to.equal(ImportCompanyJob.name)
         expect(onCompleteArgs[1]).to.be.a.function()
@@ -168,7 +142,7 @@ experiment('modules/licence-import/plugin.js', () => {
       test('subscribes its handler to the job queue', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
-        const subscribeArgs = server.messageQueue.subscribe.getCall(5).args
+        const subscribeArgs = server.messageQueue.subscribe.getCall(4).args
 
         expect(subscribeArgs[0]).to.equal(QueueLicencesJob.name)
         expect(subscribeArgs[1]).to.equal(QueueLicencesJob.handler)
@@ -177,7 +151,7 @@ experiment('modules/licence-import/plugin.js', () => {
       test('registers its onComplete for the job', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
-        const onCompleteArgs = server.messageQueue.onComplete.getCall(5).args
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(4).args
 
         expect(onCompleteArgs[0]).to.equal(QueueLicencesJob.name)
         expect(onCompleteArgs[1]).to.be.a.function()
@@ -188,11 +162,30 @@ experiment('modules/licence-import/plugin.js', () => {
       test('subscribes its handler and options to the job queue', async () => {
         await LicenceImportPlugin.plugin.register(server)
 
-        const subscribeArgs = server.messageQueue.subscribe.getCall(6).args
+        const subscribeArgs = server.messageQueue.subscribe.getCall(5).args
 
         expect(subscribeArgs[0]).to.equal(ImportLicenceJob.name)
         expect(subscribeArgs[1]).to.equal(ImportLicenceJob.options)
         expect(subscribeArgs[2]).to.equal(ImportLicenceJob.handler)
+      })
+    })
+
+    experiment('for Trigger End Date Process', () => {
+      test('subscribes its handler to the job queue', async () => {
+        await LicenceImportPlugin.plugin.register(server)
+
+        const subscribeArgs = server.messageQueue.subscribe.getCall(7).args
+
+        expect(subscribeArgs[0]).to.equal(TriggerEndDateProcessJob.name)
+        expect(subscribeArgs[1]).to.equal(TriggerEndDateProcessJob.handler)
+      })
+
+      test('registers its onComplete for the job', async () => {
+        await LicenceImportPlugin.plugin.register(server)
+
+        const onCompleteArgs = server.messageQueue.onComplete.getCall(7).args
+
+        expect(onCompleteArgs[0]).to.equal(TriggerEndDateProcessJob.name)
       })
     })
   })

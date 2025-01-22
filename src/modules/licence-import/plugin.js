@@ -20,42 +20,47 @@ async function register (server, _options) {
     return CleanJob.onComplete(server.messageQueue, executedJob)
   })
 
-  // When the licences have been cleaned, trigger the licences end date process in water abstraction system
-  await server.messageQueue.subscribe(TriggerEndDateProcessJob.name, TriggerEndDateProcessJob.handler)
-  await server.messageQueue.onComplete(TriggerEndDateProcessJob.name, (executedJob) => {
-    return TriggerEndDateProcessJob.onComplete(server.messageQueue, executedJob)
-  })
-
-  // Then import a list of all companies into the water_import.company_import table
+  // Update the reference list of licence purpose condition types
   await server.messageQueue.subscribe(ImportPurposeConditionTypesJob.name, ImportPurposeConditionTypesJob.handler)
   await server.messageQueue.onComplete(ImportPurposeConditionTypesJob.name, (executedJob) => {
     return ImportPurposeConditionTypesJob.onComplete(server.messageQueue, executedJob)
   })
 
-  // When the water_import.company_import table is ready, jobs are scheduled to import each company
+  // Queue up all companies for import by populating water_import.company_import
   await server.messageQueue.subscribe(QueueCompaniesJob.name, QueueCompaniesJob.handler)
   await server.messageQueue.onComplete(QueueCompaniesJob.name, (executedJob) => {
     return QueueCompaniesJob.onComplete(server.messageQueue, executedJob)
   })
 
+  // When the water_import.company_import table is ready, jobs are scheduled to import each company
   await server.messageQueue.subscribe(ImportCompanyJob.name, ImportCompanyJob.options, ImportCompanyJob.handler)
   await server.messageQueue.onComplete(ImportCompanyJob.name, () => {
     return ImportCompanyJob.onComplete(server.messageQueue)
   })
 
+  // Queue up the licences for import
   await server.messageQueue.subscribe(QueueLicencesJob.name, QueueLicencesJob.handler)
   await server.messageQueue.onComplete(QueueLicencesJob.name, (executedJob) => {
     return QueueLicencesJob.onComplete(server.messageQueue, executedJob)
   })
 
+  // Process the licence queue, inserting or updating each licence found
   await server.messageQueue.subscribe(ImportLicenceJob.name, ImportLicenceJob.options, ImportLicenceJob.handler)
   await server.messageQueue.onComplete(ImportLicenceJob.name, (executedJob) => {
     return ImportLicenceJob.onComplete(server.messageQueue, executedJob)
   })
 
+  // Import all licence points into WRLS
   await server.messageQueue.subscribe(ImportPointsJob.name, ImportPointsJob.options, ImportPointsJob.handler)
-  await server.messageQueue.onComplete(ImportPointsJob.name, () => {
-    return ImportPointsJob.onComplete()
+  await server.messageQueue.onComplete(ImportPointsJob.name, (executedJob) => {
+    return ImportPointsJob.onComplete(server.messageQueue, executedJob)
+  })
+
+  // Finally, trigger the licences end date process in water abstraction system. This needs to happen _after_ the
+  // licence have been imported
+  await server.messageQueue.subscribe(TriggerEndDateProcessJob.name, TriggerEndDateProcessJob.handler)
+  await server.messageQueue.onComplete(TriggerEndDateProcessJob.name, () => {
+    return TriggerEndDateProcessJob.onComplete()
   })
 
   cron.schedule(config.import.licences.schedule, async () => {
