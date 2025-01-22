@@ -1,6 +1,7 @@
 'use strict'
 
 const { pool } = require('../../../lib/connectors/db')
+const TriggerEndDateProcessJob = require('./trigger-end-date-process.js')
 
 const JOB_NAME = 'licence-import.import-points'
 
@@ -25,7 +26,11 @@ async function handler () {
   }
 }
 
-async function onComplete () {
+async function onComplete (messageQueue, job) {
+  if (!job.failed) {
+    await messageQueue.publish(TriggerEndDateProcessJob.createMessage())
+  }
+
   global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
 }
 
