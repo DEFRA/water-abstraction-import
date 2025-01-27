@@ -8,7 +8,7 @@ const { describe, it, beforeEach } = (exports.lab = Lab.script())
 const { expect } = Code
 
 // Thing under test
-const HapiPinoSerializersService = require('../../../../src/shared/lib/services/hapi-pino-serializers.service.js')
+const HapiPinoSerializersService = require('../../../src/lib/services/hapi-pino-serializers.service.js')
 
 describe('Hapi Pino Serializers service', () => {
   describe('when called', () => {
