@@ -9,10 +9,6 @@ const isTlsConnection = (process.env.REDIS_HOST || '').includes('aws')
 
 module.exports = {
 
-  blipp: {
-    showAuth: true
-  },
-
   jwt: {
     key: process.env.JWT_SECRET,
     verifyOptions: { algorithms: ['HS256'] }

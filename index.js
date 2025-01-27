@@ -2,8 +2,6 @@
 require('dotenv').config()
 
 // -------------- Require vendor code -----------------
-const Blipp = require('blipp')
-
 const HapiAuthJwt2 = require('hapi-auth-jwt2')
 const moment = require('moment')
 
@@ -20,10 +18,6 @@ const HapiPinoPlugin = require('./src/plugins/hapi-pino.plugin.js')
 const server = require('./server')
 
 const plugins = [
-  {
-    plugin: Blipp,
-    options: config.blipp
-  },
   HapiAuthJwt2,
   require('./src/plugins/pg-boss.plugin'),
   require('./src/modules/licence-import/plugin'),

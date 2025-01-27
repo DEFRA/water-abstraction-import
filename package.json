@@ -29,7 +29,6 @@
     "@hapi/hoek": "^10.0.1",
     "@hapi/joi": "^15.1.1",
     "aws-sdk": "^2.1657.0",
-    "blipp": "^4.0.2",
     "bluebird": "^3.7.2",
     "csv-stringify": "^5.5.0",
     "db-migrate": "^0.11.14",
