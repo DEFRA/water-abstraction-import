@@ -130,7 +130,7 @@ module.exports = {
   },
   // Credit to https://stackoverflow.com/a/323546/6117745 for how to handle
   // converting the env var to a boolean
-  featureFlags : {
+  featureFlags: {
     disableReturnsImports: String(process.env.DISABLE_RETURNS_IMPORTS) === 'true' || false
   }
 }
