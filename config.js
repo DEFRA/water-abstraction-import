@@ -127,5 +127,10 @@ module.exports = {
     templates: {
       service_status_alert: 'c34d1b16-694b-4364-8e7e-83e9dbd34a62'
     }
+  },
+  // Credit to https://stackoverflow.com/a/323546/6117745 for how to handle
+  // converting the env var to a boolean
+  featureFlags : {
+    disableReturnsImports: String(process.env.DISABLE_RETURNS_IMPORTS) === 'true' || false
   }
 }
