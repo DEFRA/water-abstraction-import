@@ -22,7 +22,9 @@ async function register (server, _options) {
 
   // Schedule clean job using cron. The clean job will then queue the import job in its onComplete
   cron.schedule(config.import.returnVersions.schedule, async () => {
-    await server.messageQueue.publish(CleanJob.createMessage())
+    if (!config.featureFlags.disableReturnsImports) {
+      await server.messageQueue.publish(CleanJob.createMessage())
+    }
   })
 }
 

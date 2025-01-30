@@ -12,6 +12,8 @@ const { persistReturns } = require('./lib/persist-returns')
 
 const repository = require('./repositories')
 
+const { featureFlags } = require('../../../config.js')
+
 /**
  * Loads data into the permit repository and CRM doc header
  * @param {String} licenceNumber
@@ -54,7 +56,10 @@ const load = async (licenceNumber, replicateReturns) => {
 
   if (licenceData.data.versions.length > 0) {
     await loadPermitAndDocumentHeader(licenceNumber, licenceData)
-    await loadReturns(licenceNumber, replicateReturns)
+
+    if (!featureFlags.disableReturnsImports) {
+      await loadReturns(licenceNumber, replicateReturns)
+    }
   }
 }
 
