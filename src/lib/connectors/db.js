@@ -15,6 +15,17 @@ pg.types.setTypeParser(pg.types.builtins.DATE, dateMapper)
 
 const pool = helpers.db.createPool(config.pg, logger)
 
+async function query (query, params = []) {
+  const { error, rows } = await pool.query(query, params)
+
+  if (error) {
+    throw error
+  }
+
+  return rows
+}
+
 module.exports = {
-  pool
+  pool,
+  query
 }
