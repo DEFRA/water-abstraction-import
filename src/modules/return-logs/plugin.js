@@ -9,8 +9,8 @@ const config = require('../../../config')
 
 async function register (server, _options) {
   // Queue the licences for processing
-  await server.messageQueue.subscribe(QueueJob.JOB_NAME, () => {
-    return QueueJob.handler(server.messageQueue)
+  await server.messageQueue.subscribe(QueueJob.JOB_NAME, (executedJob) => {
+    return QueueJob.handler(server.messageQueue, executedJob)
   })
   await server.messageQueue.onComplete(QueueJob.JOB_NAME, (executedJob) => {
     return QueueJob.onComplete(executedJob)

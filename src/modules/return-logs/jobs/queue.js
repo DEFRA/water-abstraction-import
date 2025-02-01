@@ -15,16 +15,19 @@ const QUERY = `
     "import"."NALD_ABS_LICENCES" nal;
 `
 
-function createMessage () {
+function createMessage (replicateReturnLogs) {
   return {
     name: JOB_NAME,
+    data: {
+      replicateReturnLogs
+    },
     options: {
       singletonKey: JOB_NAME
     }
   }
 }
 
-async function handler (messageQueue) {
+async function handler (messageQueue, job) {
   try {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
@@ -36,7 +39,8 @@ async function handler (messageQueue) {
       const data = {
         licence: { id: licence.ID, licenceRef: licence.LIC_NO, regionCode: licence.FGAC_REGION_CODE },
         jobNumber: index + 1,
-        numberOfJobs
+        numberOfJobs,
+        replicateReturnLogs: job.data.replicateReturnLogs
       }
       await messageQueue.publish(ImportJob.createMessage(data))
     }

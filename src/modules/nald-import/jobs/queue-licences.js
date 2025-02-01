@@ -6,15 +6,12 @@ const importService = require('../../../lib/services/import')
 
 const JOB_NAME = 'nald-import.queue-licences'
 
-function createMessage (replicateReturns) {
+function createMessage () {
   return {
     name: JOB_NAME,
     options: {
       expireIn: '1 hours',
       singletonKey: JOB_NAME
-    },
-    data: {
-      replicateReturns
     }
   }
 }
@@ -35,7 +32,6 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.failed) {
-    const { replicateReturns } = job.data.request.data
     const { licenceNumbers } = job.data.response
     const numberOfJobs = licenceNumbers.length
 
@@ -45,8 +41,7 @@ async function onComplete (messageQueue, job) {
       const data = {
         licenceNumber,
         jobNumber: index + 1,
-        numberOfJobs,
-        replicateReturns
+        numberOfJobs
       }
       await messageQueue.publish(ImportLicenceJob.createMessage(data))
     }

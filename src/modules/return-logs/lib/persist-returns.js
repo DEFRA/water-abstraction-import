@@ -5,7 +5,7 @@
  */
 const moment = require('moment')
 
-const { replicateReturnsDataFromNaldForNonProductionEnvironments } = require('./returns-helper')
+const ReplicateReturnsDataFromNaldForNonProductionEnvironments = require('./replicate-returns.js')
 const returnsApi = require('../../../lib/connectors/returns')
 const config = require('../../../../config')
 const { returns } = returnsApi
@@ -59,7 +59,7 @@ const createOrUpdateReturn = async (row, replicateReturns) => {
 
     /* For non-production environments, we allow the system to import the returns data so we can test billing */
     if (!config.isProduction && replicateReturns) {
-      await replicateReturnsDataFromNaldForNonProductionEnvironments(row)
+      await ReplicateReturnsDataFromNaldForNonProductionEnvironments.go(row)
     }
     return thisReturn
   }

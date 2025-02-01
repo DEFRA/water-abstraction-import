@@ -1,6 +1,8 @@
 'use strict'
 
-const { pool } = require('../../../lib/connectors/db.js')
+const { persistReturns } = require('../lib/persist-returns.js')
+const returnsConnector = require('../../../lib/connectors/returns.js')
+const { buildReturnsPacket } = require('../lib/transform-returns.js')
 
 const JOB_NAME = 'return-logs.import'
 
@@ -28,6 +30,8 @@ async function handler (job) {
     if (job.data.jobNumber === 1) {
       global.GlobalNotifier.omg(`${JOB_NAME}: started`, { numberOfJobs: job.data.numberOfJobs })
     }
+
+    await _loadReturns(job.data.licence.licenceRef, job.data.replicateReturnLogs)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
@@ -45,6 +49,15 @@ async function onComplete (job) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
+}
+
+async function _loadReturns (licenceNumber, replicateReturnLogs) {
+  const { returns } = await buildReturnsPacket(licenceNumber)
+  await persistReturns(returns, replicateReturnLogs)
+
+  // Clean up invalid cycles
+  const returnIds = returns.map(row => row.return_id)
+  await returnsConnector.voidReturns(licenceNumber, returnIds)
 }
 
 module.exports = {

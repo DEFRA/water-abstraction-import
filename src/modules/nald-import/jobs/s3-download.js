@@ -10,7 +10,7 @@ const TriggerEndDateCheckJob = require('./trigger-end-date-check.js')
 
 const JOB_NAME = 'nald-import.s3-download'
 
-function createMessage (checkEtag = true, replicateReturns = false) {
+function createMessage (checkEtag = true) {
   return {
     name: JOB_NAME,
     options: {
@@ -18,8 +18,7 @@ function createMessage (checkEtag = true, replicateReturns = false) {
       singletonKey: JOB_NAME
     },
     data: {
-      checkEtag,
-      replicateReturns
+      checkEtag
     }
   }
 }
@@ -46,7 +45,6 @@ async function handler (job) {
 async function onComplete (messageQueue, job) {
   if (!job.failed) {
     const { isRequired } = job.data.response
-    const { replicateReturns } = job.data.request.data
 
     if (isRequired) {
       // Delete existing PG boss import queues
@@ -58,7 +56,7 @@ async function onComplete (messageQueue, job) {
       ])
 
       // Publish a new job to trigger the licences end date check
-      await messageQueue.publish(TriggerEndDateCheckJob.createMessage(replicateReturns))
+      await messageQueue.publish(TriggerEndDateCheckJob.createMessage())
     }
   }
 

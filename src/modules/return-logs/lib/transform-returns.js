@@ -1,11 +1,11 @@
 'use strict'
 
 const moment = require('moment')
-const queries = require('./lib/nald-queries/returns')
+const returnHelpers = require('./return-helpers.js')
 
-const helpers = require('./lib/transform-returns-helpers.js')
+const helpers = require('./transform-returns-helpers.js')
 
-const dueDate = require('./lib/due-date')
+const dueDate = require('./due-date')
 
 const { getReturnId } = require('@envage/water-abstraction-helpers').returns
 
@@ -15,14 +15,14 @@ const { getReturnId } = require('@envage/water-abstraction-helpers').returns
  * @return {Promise} resolves with array of formats
  */
 const getLicenceFormats = async (licenceNumber) => {
-  const splitDate = await queries.getSplitDate(licenceNumber)
+  const splitDate = await returnHelpers.getSplitDate(licenceNumber)
 
-  const formats = await queries.getFormats(licenceNumber)
+  const formats = await returnHelpers.getFormats(licenceNumber)
 
   // Load format data
   for (const format of formats) {
-    format.purposes = await queries.getFormatPurposes(format.ID, format.FGAC_REGION_CODE)
-    format.points = await queries.getFormatPoints(format.ID, format.FGAC_REGION_CODE)
+    format.purposes = await returnHelpers.getFormatPurposes(format.ID, format.FGAC_REGION_CODE)
+    format.points = await returnHelpers.getFormatPoints(format.ID, format.FGAC_REGION_CODE)
     format.cycles = helpers.getFormatCycles(format, splitDate)
   }
   return formats
@@ -51,7 +51,7 @@ const buildReturnsPacket = async (licenceNumber) => {
     // Get all the logs for the format here and filter later by cycle.
     // This saves having to make many requests to the database for
     // each format cycle.
-    const logs = await queries.getLogs(format.ID, format.FGAC_REGION_CODE)
+    const logs = await returnHelpers.getLogs(format.ID, format.FGAC_REGION_CODE)
 
     for (const cycle of format.cycles) {
       const { startDate, endDate, isCurrent } = cycle
