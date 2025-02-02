@@ -4,10 +4,10 @@ const sandbox = require('sinon').createSandbox()
 const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
 const { expect } = require('@hapi/code')
 
-const dueDate = require('../../../../src/modules/nald-import/lib/due-date')
-const returnsQueries = require('../../../../src/modules/nald-import/lib/nald-queries/returns')
+const dueDate = require('../../../../src/modules/return-logs/lib/due-date.js')
+const returnHelpers = require('../../../../src/modules/return-logs/lib/return-helpers.js')
 
-experiment('modules/nald-import/lib/due-date', () => {
+experiment('modules/return-logs/lib/due-date', () => {
   experiment('getDueDate', () => {
     const formats = {
       nullEndDate: {
@@ -42,7 +42,7 @@ experiment('modules/nald-import/lib/due-date', () => {
       const endDate = '2019-01-01'
 
       beforeEach(async () => {
-        sandbox.stub(returnsQueries, 'getReturnVersionReason').resolves([])
+        sandbox.stub(returnHelpers, 'getReturnVersionReason').resolves([])
       })
 
       afterEach(async () => {
@@ -62,13 +62,13 @@ experiment('modules/nald-import/lib/due-date', () => {
       experiment('when the returns version end date equals the split end date', () => {
         test('the getReturnVersionReason query is called with licence ID, region, and the incremented return version number', async () => {
           await dueDate.getDueDate(endDate, formats.summerProductionMonth)
-          const { args } = returnsQueries.getReturnVersionReason.lastCall
+          const { args } = returnHelpers.getReturnVersionReason.lastCall
           expect(args).to.equal(['licence_id_1', 'region_1', 101])
         })
 
         experiment('and the mod log reason is in VARF, VARM, AMND, NAME, REDS, SPAC, SPAN, XCORR', () => {
           beforeEach(async () => {
-            returnsQueries.getReturnVersionReason.resolves([{
+            returnHelpers.getReturnVersionReason.resolves([{
               AMRE_CODE: 'VARF'
             }])
           })
@@ -86,7 +86,7 @@ experiment('modules/nald-import/lib/due-date', () => {
 
         experiment('and the mod log reason is not in VARF, VARM, AMND, NAME, REDS, SPAC, SPAN, XCORR', () => {
           beforeEach(async () => {
-            returnsQueries.getReturnVersionReason.resolves([{
+            returnHelpers.getReturnVersionReason.resolves([{
               AMRE_CODE: 'NO-MATCH'
             }])
           })

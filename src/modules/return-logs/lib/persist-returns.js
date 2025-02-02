@@ -6,9 +6,9 @@
 const moment = require('moment')
 
 const ReplicateReturnsDataFromNaldForNonProductionEnvironments = require('./replicate-returns.js')
-const returnsApi = require('../../../lib/connectors/returns')
+const { returns: returnsConnector } = require('../../../lib/connectors/returns.js')
+
 const config = require('../../../../config')
-const { returns } = returnsApi
 
 /**
  * Checks whether return exists
@@ -16,7 +16,7 @@ const { returns } = returnsApi
  * @return {Promise} resolves with boolean
  */
 const returnExists = async (returnId) => {
-  const { data } = await returns.findOne(returnId)
+  const { data } = await returnsConnector.findOne(returnId)
   if (data) {
     return true
   }
@@ -52,10 +52,10 @@ const createOrUpdateReturn = async (row, replicateReturns) => {
 
   // Conditional update
   if (exists) {
-    return returns.updateOne(returnId, getUpdateRow(row))
+    return returnsConnector.updateOne(returnId, getUpdateRow(row))
   } else {
     // Insert
-    const thisReturn = await returns.create(row)
+    const thisReturn = await returnsConnector.create(row)
 
     /* For non-production environments, we allow the system to import the returns data so we can test billing */
     if (!config.isProduction && replicateReturns) {
@@ -74,7 +74,7 @@ const createOrUpdateReturn = async (row, replicateReturns) => {
 const persistReturns = async (returns, replicateReturns) => {
   for (const ret of returns) {
     if (!config.isProduction && replicateReturns) {
-      await returnsApi.deleteAllReturnsData(ret.return_id)
+      await returnsConnector.deleteAllReturnsData(ret.return_id)
     }
     await createOrUpdateReturn(ret, replicateReturns)
   }

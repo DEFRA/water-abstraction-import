@@ -48,8 +48,7 @@ experiment('NALD Import: S3 Download job', () => {
           singletonKey: 'nald-import.s3-download'
         },
         data: {
-          checkEtag: true,
-          replicateReturns: false
+          checkEtag: true
         }
       })
     })
@@ -309,7 +308,7 @@ experiment('NALD Import: S3 Download job', () => {
           job = {
             failed: false,
             data: {
-              request: { data: { replicateReturns: false } },
+              request: { data: {} },
               response: { isRequired: true }
             }
           }
@@ -360,7 +359,7 @@ experiment('NALD Import: S3 Download job', () => {
           job = {
             failed: false,
             data: {
-              request: { data: { replicateReturns: false } },
+              request: { data: {} },
               response: { isRequired: false }
             }
           }
