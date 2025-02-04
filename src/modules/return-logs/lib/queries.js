@@ -2,6 +2,26 @@
 
 const getReturnLogExists = 'SELECT EXISTS (SELECT 1 FROM "returns"."returns" WHERE return_id=$1)::bool;'
 
+const updatePreNov2018ReturnLog = `
+  UPDATE "returns"."returns"
+  SET
+    due_date = $1,
+    metadata = $2,
+    received_date = $3,
+    status = $4,
+    updated_at = now()
+  WHERE return_id = $5;
+`
+
+const updatePostNov2018ReturnLog = `
+  UPDATE "returns"."returns"
+  SET
+    due_date = $1,
+    metadata = $2,
+    updated_at = now()
+  WHERE return_id = $3;
+`
+
 const getFormats = `
   SELECT f.*,
     v.*,
@@ -124,5 +144,7 @@ module.exports = {
   getReturnLogExists,
   getSplitDate,
   getReturnVersionReason,
-  isNilReturn
+  isNilReturn,
+  updatePostNov2018ReturnLog,
+  updatePreNov2018ReturnLog
 }

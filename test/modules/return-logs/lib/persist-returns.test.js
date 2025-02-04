@@ -45,7 +45,6 @@ const digitalServiceReturn = {
 experiment('modules/return-logs/lib/persist-returns', () => {
   beforeEach(async () => {
     sandbox.stub(returnsConnector.returns, 'create')
-    sandbox.stub(returnsConnector.returns, 'updateOne')
 
     sandbox.stub(returnsConnector.versions, 'create').resolves({
       data: {
@@ -74,28 +73,39 @@ experiment('modules/return-logs/lib/persist-returns', () => {
         await persistReturns.persistReturns([naldReturn], false)
 
         expect(returnsConnector.returns.create.firstCall.args[0]).to.equal(naldReturn)
-        expect(returnsConnector.returns.updateOne.firstCall).to.equal(null)
+
+        // Confirm no call to update the return log was fired
+        expect(db.query.calledOnce).to.be.true()
       })
     })
 
     experiment('when the return already exists', () => {
       beforeEach(async () => {
-        sandbox.stub(db, 'query').resolves([{ exists: true }])
-
-        returnsConnector.returns.updateOne.resolves({ error: null })
+        sandbox.stub(db, 'query')
+          .onFirstCall().resolves([{ exists: true }])
+          .onSecondCall().resolves()
       })
 
       experiment("and its 'endDate' is before 2018-10-31", () => {
         test("updates the return log's 'due_date', 'metadata', 'received_date' and 'status'", async () => {
           await persistReturns.persistReturns([naldReturn], false)
 
+          const [query, params] = db.query.secondCall.args
+
+          // Confirm it used the pre nov 2018 version of the update query
+          expect(query.endsWith('WHERE return_id = $5;\n')).to.be.true()
+
+          // Confirm all the params required were passed to the query
+          expect(params).to.equal([
+            '2017-11-28',
+            '{"param":"value","version":"1"}',
+            '2017-11-24',
+            'completed',
+            'v1:123:456'
+          ])
+
+          // Confirm no call to create the return log was fired
           expect(returnsConnector.returns.create.firstCall).to.equal(null)
-          expect(returnsConnector.returns.updateOne.firstCall.args).to.equal([naldReturn.return_id, {
-            due_date: naldReturn.due_date,
-            metadata: naldReturn.metadata,
-            received_date: naldReturn.received_date,
-            status: naldReturn.status
-          }])
         })
       })
 
@@ -103,11 +113,20 @@ experiment('modules/return-logs/lib/persist-returns', () => {
         test("updates only the return log's 'due_date' and 'metadata'", async () => {
           await persistReturns.persistReturns([digitalServiceReturn], false)
 
+          const [query, params] = db.query.secondCall.args
+
+          // Confirm it used the post nov 2018 version of the update query
+          expect(query.endsWith('WHERE return_id = $3;\n')).to.be.true()
+
+          // Confirm all the params required were passed to the query
+          expect(params).to.equal([
+            '2018-11-28',
+            { param: 'value', version: '1' },
+            'v1:234:789'
+          ])
+
+          // Confirm no call to create the return log was fired
           expect(returnsConnector.returns.create.firstCall).to.equal(null)
-          expect(returnsConnector.returns.updateOne.firstCall.args).to.equal([digitalServiceReturn.return_id, {
-            metadata: digitalServiceReturn.metadata,
-            due_date: digitalServiceReturn.due_date
-          }])
         })
       })
     })
