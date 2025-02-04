@@ -13,69 +13,54 @@ const { returns: returnsConnector } = require('../../../lib/connectors/returns.j
 const config = require('../../../../config')
 
 /**
- * Gets update data from row
- * @param {Object} row
- * @return {Object} row - with only fields that we wish to update set
+ * Persists list of returns to API
+ *
+ * @param {object[]} returns
+ * @param {boolean} replicateReturns
  */
-const getUpdateRow = (row) => {
-  const { end_date: endDate } = row
+async function persistReturns (returns, replicateReturns) {
+  for (const ret of returns) {
+    if (!config.isProduction && replicateReturns) {
+      await returnsConnector.deleteAllReturnsData(ret.return_id)
+    }
 
-  if (moment(endDate).isBefore('2018-10-31')) {
-    const { status, metadata, received_date: receivedDate, due_date: dueDate } = row
-    return { status, metadata, received_date: receivedDate, due_date: dueDate }
-  } else {
-    const { metadata, due_date: dueDate } = row
-    return { metadata, due_date: dueDate }
+    await _createOrUpdateReturn(ret, replicateReturns)
   }
 }
 
-/**
- * Creates or updates return depending on whether start_date
- * @param {Object} row
- * @return {Promise} resolves when row is created/updated
- */
-const createOrUpdateReturn = async (row, replicateReturns) => {
+async function _createOrUpdateReturn (row, replicateReturns) {
   const { return_id: returnId } = row
 
   const exists = await _returnExists(returnId)
 
   // Conditional update
   if (exists) {
-    return returnsConnector.updateOne(returnId, getUpdateRow(row))
+    await returnsConnector.updateOne(returnId, _determineFieldsToBeUpdated(row))
   } else {
     // Insert
-    const thisReturn = await returnsConnector.create(row)
+    await returnsConnector.create(row)
 
     /* For non-production environments, we allow the system to import the returns data so we can test billing */
     if (!config.isProduction && replicateReturns) {
       await ReplicateReturnsDataFromNaldForNonProductionEnvironments.go(row)
     }
-    return thisReturn
   }
 }
 
-/**
- * Persists list of returns to API
- * @param {Array} returns
- * @param {Boolean} replicateReturns
- * @return {Promise} resolves when all processed
- */
-const persistReturns = async (returns, replicateReturns) => {
-  for (const ret of returns) {
-    if (!config.isProduction && replicateReturns) {
-      await returnsConnector.deleteAllReturnsData(ret.return_id)
-    }
-    await createOrUpdateReturn(ret, replicateReturns)
+const _determineFieldsToBeUpdated = (row) => {
+  const { end_date: endDate } = row
+
+  if (moment(endDate).isBefore('2018-10-31')) {
+    const { status, metadata, received_date: receivedDate, due_date: dueDate } = row
+
+    return { status, metadata, received_date: receivedDate, due_date: dueDate }
+  } else {
+    const { metadata, due_date: dueDate } = row
+
+    return { metadata, due_date: dueDate }
   }
 }
 
-/**
- * Checks whether return exists
- * @param {String} returnId - the return ID in the returns service
- * @return {Promise} resolves with boolean
- *
- * @private
- */
 async function _returnExists (returnId) {
   const [result] = await db.query(getReturnLogExists, [returnId])
 
@@ -83,7 +68,5 @@ async function _returnExists (returnId) {
 }
 
 module.exports = {
-  createOrUpdateReturn,
-  getUpdateRow,
   persistReturns
 }

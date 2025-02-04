@@ -62,36 +62,16 @@ experiment('modules/return-logs/lib/persist-returns', () => {
     sandbox.restore()
   })
 
-  experiment('.getUpdateRow', () => {
-    test('updates metadata, status, date received and due date for a past return', async () => {
-      const data = persistReturns.getUpdateRow(naldReturn)
-      expect(data).to.equal({
-        status: 'completed',
-        metadata: JSON.stringify({ param: 'value', version: '1' }),
-        received_date: '2017-11-24',
-        due_date: '2017-11-28'
-      })
-    })
-
-    test('updates metadata and due date only for a return managed by the digital service', async () => {
-      const data = persistReturns.getUpdateRow(digitalServiceReturn)
-      expect(data).to.equal({
-        metadata: { param: 'value', version: '1' },
-        due_date: '2018-11-28'
-      })
-    })
-  })
-
-  experiment('.createOrUpdateReturn', () => {
+  experiment('#persistReturns', () => {
     experiment('when the return does not exist', () => {
       beforeEach(async () => {
         sandbox.stub(db, 'query').resolves([{ exists: false }])
+
+        returnsConnector.returns.create.resolves({ error: null })
       })
 
       test('creates a row', async () => {
-        returnsConnector.returns.create.resolves({ error: null })
-
-        await persistReturns.createOrUpdateReturn(naldReturn, '2018-01-01')
+        await persistReturns.persistReturns([naldReturn], false)
 
         expect(returnsConnector.returns.create.firstCall.args[0]).to.equal(naldReturn)
         expect(returnsConnector.returns.updateOne.firstCall).to.equal(null)
@@ -101,30 +81,34 @@ experiment('modules/return-logs/lib/persist-returns', () => {
     experiment('when the return already exists', () => {
       beforeEach(async () => {
         sandbox.stub(db, 'query').resolves([{ exists: true }])
+
+        returnsConnector.returns.updateOne.resolves({ error: null })
       })
 
-      test('updates a row', async () => {
-        returnsConnector.returns.updateOne.resolves({ error: null })
-        await persistReturns.createOrUpdateReturn(naldReturn, '2018-01-01')
+      experiment("and its 'endDate' is before 2018-10-31", () => {
+        test("updates the return log's 'due_date', 'metadata', 'received_date' and 'status'", async () => {
+          await persistReturns.persistReturns([naldReturn], false)
 
-        expect(returnsConnector.returns.create.firstCall).to.equal(null)
-        expect(returnsConnector.returns.updateOne.firstCall.args).to.equal([naldReturn.return_id, {
-          metadata: naldReturn.metadata,
-          status: naldReturn.status,
-          received_date: naldReturn.received_date,
-          due_date: naldReturn.due_date
-        }])
+          expect(returnsConnector.returns.create.firstCall).to.equal(null)
+          expect(returnsConnector.returns.updateOne.firstCall.args).to.equal([naldReturn.return_id, {
+            due_date: naldReturn.due_date,
+            metadata: naldReturn.metadata,
+            received_date: naldReturn.received_date,
+            status: naldReturn.status
+          }])
+        })
       })
 
-      test('updates a digital service return metadata only if the record is present', async () => {
-        returnsConnector.returns.updateOne.resolves({ error: null })
-        await persistReturns.createOrUpdateReturn(digitalServiceReturn, '2018-01-01')
+      experiment("and its 'endDate' is after 2018-10-31", () => {
+        test("updates only the return log's 'due_date' and 'metadata'", async () => {
+          await persistReturns.persistReturns([digitalServiceReturn], false)
 
-        expect(returnsConnector.returns.create.firstCall).to.equal(null)
-        expect(returnsConnector.returns.updateOne.firstCall.args).to.equal([digitalServiceReturn.return_id, {
-          metadata: digitalServiceReturn.metadata,
-          due_date: digitalServiceReturn.due_date
-        }])
+          expect(returnsConnector.returns.create.firstCall).to.equal(null)
+          expect(returnsConnector.returns.updateOne.firstCall.args).to.equal([digitalServiceReturn.return_id, {
+            metadata: digitalServiceReturn.metadata,
+            due_date: digitalServiceReturn.due_date
+          }])
+        })
       })
     })
   })
