@@ -45,16 +45,6 @@ const digitalServiceReturn = {
 experiment('modules/return-logs/lib/persist-returns', () => {
   beforeEach(async () => {
     sandbox.stub(returnsConnector.returns, 'create')
-
-    sandbox.stub(returnsConnector.versions, 'create').resolves({
-      data: {
-        version_id: uuid(),
-        return_id: 'v1:234:789'
-      }
-    })
-    sandbox.stub(returnsConnector.versions, 'updateOne')
-
-    sandbox.stub(returnsConnector.lines, 'create')
   })
 
   afterEach(async () => {
