@@ -4,7 +4,6 @@ const sandbox = require('sinon').createSandbox()
 
 const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
 const { expect } = require('@hapi/code')
-const { v4: uuid } = require('uuid')
 
 const returnsConnector = require('../../../../src/lib/connectors/returns.js')
 const db = require('../../../../src/lib/connectors/db.js')
