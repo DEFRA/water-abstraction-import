@@ -7,21 +7,21 @@ const sandbox = sinon.createSandbox()
 const moment = require('moment')
 moment.locale('en-gb')
 
-const { buildReturnsPacket, getLicenceFormats } = require('../../../src/modules/nald-import/transform-returns')
-const queries = require('../../../src/modules/nald-import/lib/nald-queries/returns')
-const helpers = require('../../../src/modules/nald-import/lib/transform-returns-helpers.js')
-const dueDate = require('../../../src/modules/nald-import/lib/due-date')
+const { buildReturnsPacket, getLicenceFormats } = require('../../../../src/modules/return-logs/lib/transform-returns.js')
+const returnHelpers = require('../../../../src/modules/return-logs/lib/return-helpers.js')
+const transformReturnHelpers = require('../../../../src/modules/return-logs/lib/transform-returns-helpers.js')
+const dueDate = require('../../../../src/modules/return-logs/lib/due-date.js')
 
-experiment('modules/nald-import/transform-returns', () => {
+experiment('modules/return-logs/lib/transform-returns', () => {
   experiment('getLicenceFormats', () => {
     beforeEach(() => {
       const formats = [{ name: 'format1' }]
 
-      sandbox.stub(queries, 'getSplitDate').returns()
-      sandbox.stub(queries, 'getFormats').returns(formats)
-      sandbox.stub(queries, 'getFormatPurposes').returns('formatPurposes')
-      sandbox.stub(queries, 'getFormatPoints').returns('formatPoints')
-      sandbox.stub(helpers, 'getFormatCycles').returns('formatCycles')
+      sandbox.stub(returnHelpers, 'getSplitDate').returns()
+      sandbox.stub(returnHelpers, 'getFormats').returns(formats)
+      sandbox.stub(returnHelpers, 'getFormatPurposes').returns('formatPurposes')
+      sandbox.stub(returnHelpers, 'getFormatPoints').returns('formatPoints')
+      sandbox.stub(transformReturnHelpers, 'getFormatCycles').returns('formatCycles')
     })
 
     afterEach(() => {
@@ -49,18 +49,18 @@ experiment('modules/nald-import/transform-returns', () => {
     }]
 
     beforeEach(() => {
-      sandbox.stub(queries, 'getSplitDate').returns()
-      sandbox.stub(queries, 'getFormats').returns(formats)
-      sandbox.stub(queries, 'getFormatPurposes').returns('formatPurposes')
-      sandbox.stub(queries, 'getFormatPoints').returns('formatPoints')
-      sandbox.stub(helpers, 'getFormatCycles').returns(cycle)
-      sandbox.stub(queries, 'getLogs').returns(logs)
-      sandbox.stub(helpers, 'mapReceivedDate').returns()
-      sandbox.stub(helpers, 'getStatus').returns()
+      sandbox.stub(returnHelpers, 'getSplitDate').returns()
+      sandbox.stub(returnHelpers, 'getFormats').returns(formats)
+      sandbox.stub(returnHelpers, 'getFormatPurposes').returns('formatPurposes')
+      sandbox.stub(returnHelpers, 'getFormatPoints').returns('formatPoints')
+      sandbox.stub(transformReturnHelpers, 'getFormatCycles').returns(cycle)
+      sandbox.stub(returnHelpers, 'getLogs').returns(logs)
+      sandbox.stub(transformReturnHelpers, 'mapReceivedDate').returns()
+      sandbox.stub(transformReturnHelpers, 'getStatus').returns()
       sandbox.stub(dueDate, 'getDueDate').returns('2019-04-28')
-      sandbox.stub(helpers, 'mapPeriod').returns('monthly')
-      sandbox.stub(helpers, 'formatReturnMetadata').returns({ version: 1 })
-      sandbox.stub(helpers, 'getFormatEndDate')
+      sandbox.stub(transformReturnHelpers, 'mapPeriod').returns('monthly')
+      sandbox.stub(transformReturnHelpers, 'formatReturnMetadata').returns({ version: 1 })
+      sandbox.stub(transformReturnHelpers, 'getFormatEndDate')
     })
 
     afterEach(() => {
@@ -78,14 +78,14 @@ experiment('modules/nald-import/transform-returns', () => {
     })
 
     test('isFinal flag returns true if endDate matches format end date', async () => {
-      helpers.getFormatEndDate.returns('2019-03-31')
+      transformReturnHelpers.getFormatEndDate.returns('2019-03-31')
       const { returns } = await buildReturnsPacket('123/xyz')
 
       expect(returns[0].metadata).to.include('"isFinal":true')
     })
 
     test('isFinal flag returns false if endDate does not match format end date', async () => {
-      helpers.getFormatEndDate.returns('2019-04-01')
+      transformReturnHelpers.getFormatEndDate.returns('2019-04-01')
       const { returns } = await buildReturnsPacket('123/xyz')
 
       expect(returns[0].metadata).to.include('"isFinal":false')

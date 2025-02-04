@@ -2,39 +2,14 @@
 
 const moment = require('moment')
 const { v4: uuid } = require('uuid')
-const db = require('./db')
-const returnsApi = require('../../../lib/connectors/returns')
-const { versions, lines } = returnsApi
 
-const dbdateformat = 'YYYY-MM-DD'
+const db = require('../../../lib/connectors/db.js')
+const { versions, lines } = require('../../../lib/connectors/returns.js')
 
-/* UTILS */
-const plainEnglishFrequency = (val = 'M') => ({
-  D: 'day',
-  W: 'week',
-  M: 'month',
-  Y: 'year'
-}[val])
-
-const padDateComponent = (val = '1') => val.length === 1 ? `0${val}` : val
-
-const createLine = (versionId, startDate, endDate, frequency, line, qtyKey) => parseFloat(line[qtyKey]) > 0 &&
-  lines.create({
-    line_id: uuid(),
-    version_id: versionId,
-    substance: 'water',
-    quantity: parseFloat(line[qtyKey]),
-    unit: 'm³',
-    user_unit: 'm³',
-    start_date: startDate,
-    end_date: endDate,
-    time_period: plainEnglishFrequency(frequency),
-    metadata: JSON.stringify(line),
-    reading_type: 'measured'
-  })
+const DB_DATE_FORMAT = 'YYYY-MM-DD'
 
 /* MAIN FUNC */
-const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisReturn => {
+const go = async thisReturn => {
   const { metadata } = thisReturn
   // create returns.versions
   const version = await versions.create({
@@ -48,10 +23,10 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
     current: JSON.parse(metadata).isCurrent
   })
 
-  const naldReturnFormatQuery = await db.dbQuery('SELECT * FROM import."NALD_RET_FORMATS" WHERE "ID" = $1', [thisReturn.return_requirement])
+  const naldReturnFormatQuery = await db.query('SELECT * FROM import."NALD_RET_FORMATS" WHERE "ID" = $1', [thisReturn.return_requirement])
   const naldReturnFormat = naldReturnFormatQuery[0]
 
-  const naldLinesFromNaldReturnFormLogs = await db.dbQuery(`
+  const naldLinesFromNaldReturnFormLogs = await db.query(`
         SELECT * FROM import."NALD_RET_FORM_LOGS"
         WHERE "ARTY_ID" = $1
         AND "FGAC_REGION_CODE" = $2
@@ -63,7 +38,7 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
       `${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}/${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}/${moment(thisReturn.start_date).format('YYYY')}`
   ])
 
-  const returnLinesFromNaldReturnLines = await db.dbQuery(`
+  const returnLinesFromNaldReturnLines = await db.query(`
             SELECT * FROM import."NALD_RET_LINES" WHERE
             "ARFL_ARTY_ID" = $1
             AND "FGAC_REGION_CODE" = $2
@@ -76,7 +51,7 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
     naldReturnFormat.FGAC_REGION_CODE,
       `${moment(thisReturn.start_date).format('YYYY')}-${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}-${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}`,
       `${moment(thisReturn.start_date).add(naldReturnFormat.ABS_PERIOD_END_MONTH < naldReturnFormat.ABS_PERIOD_ST_MONTH ? 1 : 0, 'year').format('YYYY')}-${padDateComponent(naldReturnFormat.ABS_PERIOD_END_MONTH)}-${padDateComponent(naldReturnFormat.ABS_PERIOD_END_DAY)}`,
-      dbdateformat
+      DB_DATE_FORMAT
   ])
 
   // Two db queries have been run
@@ -109,11 +84,11 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
       let endDate
 
       if (returnLinesFromNaldReturnLines.length > 0) {
-        startDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(dbdateformat)
-        endDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(dbdateformat)
+        startDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(DB_DATE_FORMAT)
+        endDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(DB_DATE_FORMAT)
       } else {
-        startDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').format(dbdateformat)
-        endDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').format(dbdateformat)
+        startDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').format(DB_DATE_FORMAT)
+        endDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').format(DB_DATE_FORMAT)
       }
 
       createLine(version.data.version_id, startDate, endDate, naldReturnFormat.ARTC_REC_FREQ_CODE, line, qtyKey)
@@ -121,6 +96,31 @@ const replicateReturnsDataFromNaldForNonProductionEnvironments = async thisRetur
   }
 }
 
+/* UTILS */
+const plainEnglishFrequency = (val = 'M') => ({
+  D: 'day',
+  W: 'week',
+  M: 'month',
+  Y: 'year'
+}[val])
+
+const padDateComponent = (val = '1') => val.length === 1 ? `0${val}` : val
+
+const createLine = (versionId, startDate, endDate, frequency, line, qtyKey) => parseFloat(line[qtyKey]) > 0 &&
+  lines.create({
+    line_id: uuid(),
+    version_id: versionId,
+    substance: 'water',
+    quantity: parseFloat(line[qtyKey]),
+    unit: 'm³',
+    user_unit: 'm³',
+    start_date: startDate,
+    end_date: endDate,
+    time_period: plainEnglishFrequency(frequency),
+    metadata: JSON.stringify(line),
+    reading_type: 'measured'
+  })
+
 module.exports = {
-  replicateReturnsDataFromNaldForNonProductionEnvironments
+  go
 }

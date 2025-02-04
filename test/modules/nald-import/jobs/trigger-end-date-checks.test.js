@@ -15,8 +15,6 @@ const WaterSystemService = require('../../../../src/lib/services/water-system-se
 const TriggerEndDateCheckJob = require('../../../../src/modules/nald-import/jobs/trigger-end-date-check.js')
 
 experiment('NALD Import: Trigger End Date Check job', () => {
-  const replicateReturns = false
-
   let notifierStub
 
   beforeEach(async () => {
@@ -36,16 +34,13 @@ experiment('NALD Import: Trigger End Date Check job', () => {
 
   experiment('.createMessage', () => {
     test('formats a message for PG boss', async () => {
-      const message = TriggerEndDateCheckJob.createMessage(replicateReturns)
+      const message = TriggerEndDateCheckJob.createMessage()
 
       expect(message).to.equal({
         name: 'nald-import.trigger-end-date-check',
         options: {
           expireIn: '1 hours',
           singletonKey: 'nald-import.trigger-end-date-check'
-        },
-        data: {
-          replicateReturns: false
         }
       })
     })
@@ -105,7 +100,7 @@ experiment('NALD Import: Trigger End Date Check job', () => {
       beforeEach(async () => {
         job = {
           failed: false,
-          data: { request: { data: { replicateReturns: false } } }
+          data: { request: {} }
         }
       })
 

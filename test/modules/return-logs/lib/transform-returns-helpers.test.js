@@ -5,9 +5,9 @@ const { expect } = require('@hapi/code')
 const moment = require('moment')
 moment.locale('en-gb')
 
-const transformReturnHelpers = require('../../../../src/modules/nald-import/lib/transform-returns-helpers')
+const transformReturnHelpers = require('../../../../src/modules/return-logs/lib/transform-returns-helpers.js')
 
-experiment('modules/nald-import/lib/transform-return-helpers', () => {
+experiment('modules/return-logs/lib/transform-return-helpers', () => {
   experiment('.mapPeriod', () => {
     test('Test mapping of NALD returns periods codes', async () => {
       expect(transformReturnHelpers.mapPeriod('D')).to.equal('day')

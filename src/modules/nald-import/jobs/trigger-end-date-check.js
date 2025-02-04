@@ -5,15 +5,12 @@ const WaterSystemService = require('../../../lib/services/water-system-service.j
 
 const JOB_NAME = 'nald-import.trigger-end-date-check'
 
-function createMessage (replicateReturns) {
+function createMessage () {
   return {
     name: JOB_NAME,
     options: {
       expireIn: '1 hours',
       singletonKey: JOB_NAME
-    },
-    data: {
-      replicateReturns
     }
   }
 }
@@ -31,10 +28,8 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.failed) {
-    const { replicateReturns } = job.data.request.data
-
     // Publish a new job to delete any removed documents
-    await messageQueue.publish(DeleteRemovedDocumentsJob.createMessage(replicateReturns))
+    await messageQueue.publish(DeleteRemovedDocumentsJob.createMessage())
   }
 
   global.GlobalNotifier.omg(`${JOB_NAME}: finished`)

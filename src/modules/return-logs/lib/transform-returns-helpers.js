@@ -1,7 +1,6 @@
 'use strict'
 
 const moment = require('moment')
-
 const waterHelpers = require('@envage/water-abstraction-helpers')
 
 const { returns: { date: { getPeriodStart } } } = waterHelpers
