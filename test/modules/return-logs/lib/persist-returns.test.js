@@ -62,32 +62,6 @@ experiment('modules/return-logs/lib/persist-returns', () => {
     sandbox.restore()
   })
 
-  experiment('.returnExists', () => {
-    experiment('when the return already exists', () => {
-      beforeEach(async () => {
-        sandbox.stub(db, 'query').resolves([{ exists: true }])
-      })
-
-      test('returns true', async () => {
-        const exists = await persistReturns.returnExists('01/123')
-
-        expect(exists).to.equal(true)
-      })
-    })
-
-    experiment('when the return does not exist', () => {
-      beforeEach(async () => {
-        sandbox.stub(db, 'query').resolves([{ exists: false }])
-      })
-
-      test('returns false', async () => {
-        const exists = await persistReturns.returnExists('01/123')
-
-        expect(exists).to.equal(false)
-      })
-    })
-  })
-
   experiment('.getUpdateRow', () => {
     test('updates metadata, status, date received and due date for a past return', async () => {
       const data = persistReturns.getUpdateRow(naldReturn)

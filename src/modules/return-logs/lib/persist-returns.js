@@ -13,17 +13,6 @@ const { returns: returnsConnector } = require('../../../lib/connectors/returns.j
 const config = require('../../../../config')
 
 /**
- * Checks whether return exists
- * @param {String} returnId - the return ID in the returns service
- * @return {Promise} resolves with boolean
- */
-async function returnExists (returnId) {
-  const [result] = await db.query(getReturnLogExists, [returnId])
-
-  return result.exists
-}
-
-/**
  * Gets update data from row
  * @param {Object} row
  * @return {Object} row - with only fields that we wish to update set
@@ -48,7 +37,7 @@ const getUpdateRow = (row) => {
 const createOrUpdateReturn = async (row, replicateReturns) => {
   const { return_id: returnId } = row
 
-  const exists = await returnExists(returnId)
+  const exists = await _returnExists(returnId)
 
   // Conditional update
   if (exists) {
@@ -80,9 +69,21 @@ const persistReturns = async (returns, replicateReturns) => {
   }
 }
 
+/**
+ * Checks whether return exists
+ * @param {String} returnId - the return ID in the returns service
+ * @return {Promise} resolves with boolean
+ *
+ * @private
+ */
+async function _returnExists (returnId) {
+  const [result] = await db.query(getReturnLogExists, [returnId])
+
+  return result.exists
+}
+
 module.exports = {
   createOrUpdateReturn,
   getUpdateRow,
-  returnExists,
   persistReturns
 }
