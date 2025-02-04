@@ -5,15 +5,19 @@ const { getFormats } = require('./lib/return-helpers.js')
 const { buildReturnsPacket } = require('./lib/transform-returns.js')
 
 async function importReturnLogs (request, h) {
+  const licenceRef = request.payload?.licenceRef ?? null
+
   await request.messageQueue.deleteQueue(QueueJob.JOB_NAME)
-  await request.messageQueue.publish(QueueJob.createMessage(false))
+  await request.messageQueue.publish(QueueJob.createMessage(false, licenceRef))
 
   return h.response().code(204)
 }
 
 async function replicateReturnLogs (request, h) {
+  const licenceRef = request.payload?.licenceRef ?? null
+
   await request.messageQueue.deleteQueue(QueueJob.JOB_NAME)
-  await request.messageQueue.publish(QueueJob.createMessage(true))
+  await request.messageQueue.publish(QueueJob.createMessage(true, licenceRef))
 
   return h.response().code(204)
 }

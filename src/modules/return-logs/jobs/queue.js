@@ -1,24 +1,15 @@
 'use strict'
 
 const db = require('../../../lib/connectors/db.js')
-
 const ImportJob = require('./import.js')
 
 const JOB_NAME = 'return-logs.queue'
 
-const QUERY = `
-  SELECT
-    nal."ID",
-    nal."LIC_NO",
-    nal."FGAC_REGION_CODE"
-  FROM
-    "import"."NALD_ABS_LICENCES" nal;
-`
-
-function createMessage (replicateReturnLogs) {
+function createMessage (replicateReturnLogs, licenceRef) {
   return {
     name: JOB_NAME,
     data: {
+      licenceRef,
       replicateReturnLogs
     },
     options: {
@@ -32,7 +23,7 @@ async function handler (messageQueue, job) {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
     // Get _all_ licences in NALD
-    const licences =  await db.query(QUERY)
+    const licences =  await _licences(job.data.licenceRef)
     const numberOfJobs = licences.length
 
     for (const [index, licence] of licences.entries()) {
@@ -50,6 +41,17 @@ async function handler (messageQueue, job) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
+}
+
+async function _licences (licenceRef) {
+  if (licenceRef) {
+    return db.query(
+      `SELECT nal."ID", nal."LIC_NO", nal."FGAC_REGION_CODE" FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = $1;`,
+      [licenceRef]
+    )
+  }
+
+  return db.query('SELECT nal."ID", nal."LIC_NO", nal."FGAC_REGION_CODE" FROM "import"."NALD_ABS_LICENCES" nal;')
 }
 
 async function onComplete (job) {
