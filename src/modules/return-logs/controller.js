@@ -1,7 +1,9 @@
 'use strict'
 
+const Boom = require('@hapi/boom')
+
 const QueueJob = require('./jobs/queue.js')
-const { getFormats } = require('./lib/return-helpers.js')
+const { getFormats, getLogLines, getLogs } = require('./lib/return-helpers.js')
 const { buildReturnsPacket } = require('./lib/transform-returns.js')
 
 async function importReturnLogs (request, h) {

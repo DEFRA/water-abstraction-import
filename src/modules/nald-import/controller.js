@@ -6,8 +6,6 @@ const { getLicenceJson } = require('./transform-permit')
 const importLicenceJob = require('./jobs/import-licence.js')
 const s3DownloadJob = require('./jobs/s3-download.js')
 
-const { getFormats, getLogs, getLogLines } = require('./lib/nald-queries/returns')
-
 /**
  * For test purposes, builds licence from the data in the NALD import
  * tables.  This is used in the NALD import unit test

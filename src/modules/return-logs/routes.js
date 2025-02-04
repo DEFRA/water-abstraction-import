@@ -19,20 +19,20 @@ const routes = [
     path: '/import/1.0/nald/returns/formats'
   },
   {
-      method: 'get',
-      handler: controller.returnLogs,
-      path: '/import/1.0/nald/returns/logs'
-    },
-    {
-      method: 'get',
-      handler: controller.returnLogLines,
-      path: '/import/1.0/nald/returns/lines'
-    },
+    method: 'get',
+    handler: controller.returnLogs,
+    path: '/import/1.0/nald/returns/logs'
+  },
+  {
+    method: 'get',
+    handler: controller.returnLogLines,
+    path: '/import/1.0/nald/returns/lines'
+  },
   {
     method: 'get',
     handler: controller.returns,
     path: '/import/1.0/nald/returns'
-  },
+  }
 ]
 
 module.exports = routes

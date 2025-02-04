@@ -23,7 +23,7 @@ async function handler (messageQueue, job) {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
     // Get _all_ licences in NALD
-    const licences =  await _licences(job.data.licenceRef)
+    const licences = await _licences(job.data.licenceRef)
     const numberOfJobs = licences.length
 
     for (const [index, licence] of licences.entries()) {
@@ -46,7 +46,7 @@ async function handler (messageQueue, job) {
 async function _licences (licenceRef) {
   if (licenceRef) {
     return db.query(
-      `SELECT nal."ID", nal."LIC_NO", nal."FGAC_REGION_CODE" FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = $1;`,
+      'SELECT nal."ID", nal."LIC_NO", nal."FGAC_REGION_CODE" FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = $1;',
       [licenceRef]
     )
   }
