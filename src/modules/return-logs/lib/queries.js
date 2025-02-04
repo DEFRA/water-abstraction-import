@@ -1,5 +1,7 @@
 'use strict'
 
+const getReturnLogExists = 'SELECT EXISTS (SELECT 1 FROM "returns"."returns" WHERE return_id=$1)::bool;'
+
 const getFormats = `
   SELECT f.*,
     v.*,
@@ -119,7 +121,8 @@ module.exports = {
   getLogs,
   getLines,
   getLogLines,
-  isNilReturn,
+  getReturnLogExists,
   getSplitDate,
-  getReturnVersionReason
+  getReturnVersionReason,
+  isNilReturn
 }

@@ -44,9 +44,6 @@ const digitalServiceReturn = {
 
 experiment('modules/return-logs/lib/persist-returns', () => {
   beforeEach(async () => {
-    sandbox.stub(db, 'query').resolves([{}])
-
-    sandbox.stub(returnsConnector.returns, 'findOne')
     sandbox.stub(returnsConnector.returns, 'create')
     sandbox.stub(returnsConnector.returns, 'updateOne')
 
@@ -66,16 +63,28 @@ experiment('modules/return-logs/lib/persist-returns', () => {
   })
 
   experiment('.returnExists', () => {
-    test('returns true if return exists', async () => {
-      returnsConnector.returns.findOne.resolves({ error: null, data: digitalServiceReturn })
-      const exists = await persistReturns.returnExists('01/123')
-      expect(exists).to.equal(true)
+    experiment('when the return already exists', () => {
+      beforeEach(async () => {
+        sandbox.stub(db, 'query').resolves([{ exists: true }])
+      })
+
+      test('returns true', async () => {
+        const exists = await persistReturns.returnExists('01/123')
+
+        expect(exists).to.equal(true)
+      })
     })
 
-    test('returns false if return does not exist', async () => {
-      returnsConnector.returns.findOne.resolves({ error: { name: 'NotFoundError' }, data: null })
-      const exists = await persistReturns.returnExists('01/123')
-      expect(exists).to.equal(false)
+    experiment('when the return does not exist', () => {
+      beforeEach(async () => {
+        sandbox.stub(db, 'query').resolves([{ exists: false }])
+      })
+
+      test('returns false', async () => {
+        const exists = await persistReturns.returnExists('01/123')
+
+        expect(exists).to.equal(false)
+      })
     })
   })
 
@@ -100,40 +109,49 @@ experiment('modules/return-logs/lib/persist-returns', () => {
   })
 
   experiment('.createOrUpdateReturn', () => {
-    test('creates a row if the record is not present', async () => {
-      returnsConnector.returns.findOne.resolves({ error: { name: 'NotFoundError' }, data: null })
-      returnsConnector.returns.create.resolves({ error: null })
+    experiment('when the return does not exist', () => {
+      beforeEach(async () => {
+        sandbox.stub(db, 'query').resolves([{ exists: false }])
+      })
 
-      await persistReturns.createOrUpdateReturn(naldReturn, '2018-01-01')
+      test('creates a row', async () => {
+        returnsConnector.returns.create.resolves({ error: null })
 
-      expect(returnsConnector.returns.create.firstCall.args[0]).to.equal(naldReturn)
-      expect(returnsConnector.returns.updateOne.firstCall).to.equal(null)
+        await persistReturns.createOrUpdateReturn(naldReturn, '2018-01-01')
+
+        expect(returnsConnector.returns.create.firstCall.args[0]).to.equal(naldReturn)
+        expect(returnsConnector.returns.updateOne.firstCall).to.equal(null)
+      })
     })
 
-    test('updates a NALD return if the record is present', async () => {
-      returnsConnector.returns.findOne.resolves({ error: null, data: naldReturn })
-      returnsConnector.returns.updateOne.resolves({ error: null })
-      await persistReturns.createOrUpdateReturn(naldReturn, '2018-01-01')
+    experiment('when the return already exists', () => {
+      beforeEach(async () => {
+        sandbox.stub(db, 'query').resolves([{ exists: true }])
+      })
 
-      expect(returnsConnector.returns.create.firstCall).to.equal(null)
-      expect(returnsConnector.returns.updateOne.firstCall.args).to.equal([naldReturn.return_id, {
-        metadata: naldReturn.metadata,
-        status: naldReturn.status,
-        received_date: naldReturn.received_date,
-        due_date: naldReturn.due_date
-      }])
-    })
+      test('updates a row', async () => {
+        returnsConnector.returns.updateOne.resolves({ error: null })
+        await persistReturns.createOrUpdateReturn(naldReturn, '2018-01-01')
 
-    test('updates a digital service return metadata only if the record is present', async () => {
-      returnsConnector.returns.findOne.resolves({ error: null, data: digitalServiceReturn })
-      returnsConnector.returns.updateOne.resolves({ error: null })
-      await persistReturns.createOrUpdateReturn(digitalServiceReturn, '2018-01-01')
+        expect(returnsConnector.returns.create.firstCall).to.equal(null)
+        expect(returnsConnector.returns.updateOne.firstCall.args).to.equal([naldReturn.return_id, {
+          metadata: naldReturn.metadata,
+          status: naldReturn.status,
+          received_date: naldReturn.received_date,
+          due_date: naldReturn.due_date
+        }])
+      })
 
-      expect(returnsConnector.returns.create.firstCall).to.equal(null)
-      expect(returnsConnector.returns.updateOne.firstCall.args).to.equal([digitalServiceReturn.return_id, {
-        metadata: digitalServiceReturn.metadata,
-        due_date: digitalServiceReturn.due_date
-      }])
+      test('updates a digital service return metadata only if the record is present', async () => {
+        returnsConnector.returns.updateOne.resolves({ error: null })
+        await persistReturns.createOrUpdateReturn(digitalServiceReturn, '2018-01-01')
+
+        expect(returnsConnector.returns.create.firstCall).to.equal(null)
+        expect(returnsConnector.returns.updateOne.firstCall.args).to.equal([digitalServiceReturn.return_id, {
+          metadata: digitalServiceReturn.metadata,
+          due_date: digitalServiceReturn.due_date
+        }])
+      })
     })
   })
 })

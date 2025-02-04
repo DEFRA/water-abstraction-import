@@ -5,6 +5,8 @@
  */
 const moment = require('moment')
 
+const db = require('../../../lib/connectors/db.js')
+const { getReturnLogExists } = require('../lib/queries.js')
 const ReplicateReturnsDataFromNaldForNonProductionEnvironments = require('./replicate-returns.js')
 const { returns: returnsConnector } = require('../../../lib/connectors/returns.js')
 
@@ -15,12 +17,10 @@ const config = require('../../../../config')
  * @param {String} returnId - the return ID in the returns service
  * @return {Promise} resolves with boolean
  */
-const returnExists = async (returnId) => {
-  const { data } = await returnsConnector.findOne(returnId)
-  if (data) {
-    return true
-  }
-  return false
+async function returnExists (returnId) {
+  const [result] = await db.query(getReturnLogExists, [returnId])
+
+  return result.exists
 }
 
 /**
