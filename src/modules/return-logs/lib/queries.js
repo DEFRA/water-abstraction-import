@@ -22,6 +22,42 @@ const updatePostNov2018ReturnLog = `
   WHERE return_id = $3;
 `
 
+const createReturnLog = `
+  INSERT INTO "returns"."returns" (
+    due_date,
+    end_date,
+    licence_ref,
+    licence_type,
+    metadata,
+    received_date,
+    regime,
+    return_id,
+    return_requirement,
+    returns_frequency,
+    "source",
+    start_date,
+    status,
+    return_cycle_id,
+    created_at,
+    updated_at
+  )
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, now(), now());
+`
+
+const upsertReturnCycle = `
+  INSERT INTO returns.return_cycles (
+    start_date,
+    end_date,
+    due_date,
+    is_summer,
+    is_submitted_in_wrls,
+    date_created
+  )
+  VALUES ($1, $2, $2::date + interval '28 day', $3, $2 >= '2018-10-31'::date, now())
+  ON CONFLICT (start_date, end_date, is_summer) DO UPDATE SET date_updated=now()
+  RETURNING return_cycle_id;
+`
+
 const getFormats = `
   SELECT f.*,
     v.*,
@@ -135,6 +171,7 @@ const getReturnVersionReason = `
 `
 
 module.exports = {
+  createReturnLog,
   getFormats,
   getFormatPurposes,
   getFormatPoints,
@@ -146,5 +183,6 @@ module.exports = {
   getReturnVersionReason,
   isNilReturn,
   updatePostNov2018ReturnLog,
-  updatePreNov2018ReturnLog
+  updatePreNov2018ReturnLog,
+  upsertReturnCycle
 }

@@ -5,7 +5,6 @@ const sandbox = require('sinon').createSandbox()
 const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
 const { expect } = require('@hapi/code')
 
-const returnsConnector = require('../../../../src/lib/connectors/returns.js')
 const db = require('../../../../src/lib/connectors/db.js')
 const persistReturns = require('../../../../src/modules/return-logs/lib/persist-returns.js')
 
@@ -42,10 +41,6 @@ const digitalServiceReturn = {
 }
 
 experiment('modules/return-logs/lib/persist-returns', () => {
-  beforeEach(async () => {
-    sandbox.stub(returnsConnector.returns, 'create')
-  })
-
   afterEach(async () => {
     sandbox.restore()
   })
@@ -53,18 +48,68 @@ experiment('modules/return-logs/lib/persist-returns', () => {
   experiment('#persistReturns', () => {
     experiment('when the return does not exist', () => {
       beforeEach(async () => {
-        sandbox.stub(db, 'query').resolves([{ exists: false }])
-
-        returnsConnector.returns.create.resolves({ error: null })
+        sandbox.stub(db, 'query')
+          .onFirstCall().resolves([{ exists: false }])
+          .onSecondCall().resolves([{ return_cycle_id: '40eb9d9e-0cad-4794-b7eb-dfc7ccaf8b26' }])
+          .onThirdCall().resolves()
       })
 
-      test('creates a row', async () => {
-        await persistReturns.persistReturns([naldReturn], false)
+      experiment("and its 'endDate' is before 2018-10-31", () => {
+        test('creates the return log based on the NALD row data', async () => {
+          await persistReturns.persistReturns([naldReturn], false)
 
-        expect(returnsConnector.returns.create.firstCall.args[0]).to.equal(naldReturn)
+          const [query, params] = db.query.thirdCall.args
 
-        // Confirm no call to update the return log was fired
-        expect(db.query.calledOnce).to.be.true()
+          // Confirm it used the pre nov 2018 version of the update query
+          expect(query.startsWith('\n  INSERT INTO "returns"."returns"')).to.be.true()
+
+          // Confirm all the params required were passed to the query
+          expect(params).to.equal([
+            '2017-11-28',
+            '2017-10-31',
+            '01/234/567',
+            'abstraction',
+            JSON.stringify({ param: 'value', version: '1' }),
+            '2017-11-24',
+            'water',
+            'v1:123:456',
+            '012345',
+            'month',
+            'NALD',
+            '2016-11-01',
+            'completed',
+            '40eb9d9e-0cad-4794-b7eb-dfc7ccaf8b26'
+          ])
+        })
+      })
+
+      experiment("and its 'endDate' is after 2018-10-31", () => {
+        test('creates the return log based on the WRLS row data', async () => {
+          await persistReturns.persistReturns([digitalServiceReturn], false)
+
+          const [query, params] = db.query.thirdCall.args
+
+          // Confirm it used the pre nov 2018 version of the update query
+          expect(query.startsWith('\n  INSERT INTO "returns"."returns"')).to.be.true()
+
+          // Confirm all the params required were passed to the query
+          expect(params).to.equal([
+            '2018-11-28',
+            '2018-10-31',
+            '04/567/890',
+            'abstraction',
+            { param: 'value', version: '1' },
+            '2018-11-24',
+            'water',
+            'v1:234:789',
+            '67890',
+            'month',
+            'NALD',
+            '2017-11-01',
+            'due',
+            '40eb9d9e-0cad-4794-b7eb-dfc7ccaf8b26'
+          ])
+        })
       })
     })
 
@@ -92,9 +137,6 @@ experiment('modules/return-logs/lib/persist-returns', () => {
             'completed',
             'v1:123:456'
           ])
-
-          // Confirm no call to create the return log was fired
-          expect(returnsConnector.returns.create.firstCall).to.equal(null)
         })
       })
 
@@ -113,9 +155,6 @@ experiment('modules/return-logs/lib/persist-returns', () => {
             { param: 'value', version: '1' },
             'v1:234:789'
           ])
-
-          // Confirm no call to create the return log was fired
-          expect(returnsConnector.returns.create.firstCall).to.equal(null)
         })
       })
     })
