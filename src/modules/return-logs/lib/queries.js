@@ -58,6 +58,18 @@ const upsertReturnCycle = `
   RETURNING return_cycle_id;
 `
 
+const voidReturnLogs = `
+  UPDATE "returns"."returns"
+  SET
+    status = 'void',
+    updated_at = now()
+  WHERE
+    regime = 'water'
+    AND licence_type = 'abstraction'
+    AND licence_ref = $1
+    AND NOT (return_id = ANY ($2));
+`
+
 const getFormats = `
   SELECT f.*,
     v.*,
@@ -184,5 +196,6 @@ module.exports = {
   isNilReturn,
   updatePostNov2018ReturnLog,
   updatePreNov2018ReturnLog,
-  upsertReturnCycle
+  upsertReturnCycle,
+  voidReturnLogs
 }
