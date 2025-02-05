@@ -27,7 +27,7 @@ const config = require('../../../../config')
  * @param {object[]} returns
  * @param {boolean} replicateReturns
  */
-async function persistReturns (returns, replicateReturns) {
+async function go (returns, replicateReturns) {
   for (const ret of returns) {
     if (!config.isProduction && replicateReturns) {
       await returnsConnector.deleteAllReturnsData(ret.return_id)
@@ -137,5 +137,5 @@ async function _update (row) {
 }
 
 module.exports = {
-  persistReturns
+  go
 }
