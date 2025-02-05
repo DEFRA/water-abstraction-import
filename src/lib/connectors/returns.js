@@ -1,9 +1,6 @@
 'use strict'
 
 const { APIClient } = require('@envage/hapi-pg-rest-api')
-const { serviceRequest } = require('@envage/water-abstraction-helpers')
-const { pool } = require('./db')
-const config = require('../../../config')
 
 const rp = require('request-promise-native').defaults({
   proxy: null,
