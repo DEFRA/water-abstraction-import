@@ -6,7 +6,18 @@
  */
 
 const db = require('../../../lib/connectors/db.js')
-const { voidReturnLogs } = require('../lib/queries.js')
+
+const QUERY = `
+UPDATE "returns"."returns"
+SET
+  status = 'void',
+  updated_at = now()
+WHERE
+  regime = 'water'
+  AND licence_type = 'abstraction'
+  AND licence_ref = $1
+  AND NOT (return_id = ANY ($2));
+`
 
 /**
  * Void any return logs which do not match those determined by the import job
@@ -19,7 +30,7 @@ async function go (licenceRef, rows) {
     return row.return_id
   })
 
-  await db.query(voidReturnLogs, [licenceRef, returnIds])
+  await db.query(QUERY, [licenceRef, returnIds])
 }
 
 module.exports = {
