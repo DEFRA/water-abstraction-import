@@ -21,7 +21,7 @@ experiment('modules/return-logs/lib/void-returns', () => {
   const licenceRef = '04/567/890'
   const rows = [ { return_id: 'v1:123:456' }, { return_id: 'v1:234:789' } ]
 
-  afterEach(async () => {
+  afterEach(() => {
     Sinon.restore()
   })
 

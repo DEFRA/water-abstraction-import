@@ -1,54 +1,60 @@
 'use strict'
 
-const sandbox = require('sinon').createSandbox()
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
+const { experiment, test, beforeEach, afterEach } = (exports.lab = Lab.script())
+const { expect } = Code
 
+// Things we need to stub
 const db = require('../../../../src/lib/connectors/db.js')
+
+// Thing under test
 const persistReturns = require('../../../../src/modules/return-logs/lib/persist-returns.js')
 
-const naldReturn = {
-  return_id: 'v1:123:456',
-  regime: 'water',
-  licence_type: 'abstraction',
-  licence_ref: '01/234/567',
-  start_date: '2016-11-01',
-  end_date: '2017-10-31',
-  returns_frequency: 'month',
-  status: 'completed',
-  source: 'NALD',
-  metadata: JSON.stringify({ param: 'value', version: '1' }),
-  received_date: '2017-11-24',
-  return_requirement: '012345',
-  due_date: '2017-11-28'
-}
-
-const digitalServiceReturn = {
-  return_id: 'v1:234:789',
-  regime: 'water',
-  licence_type: 'abstraction',
-  licence_ref: '04/567/890',
-  start_date: '2017-11-01',
-  end_date: '2018-10-31',
-  returns_frequency: 'month',
-  status: 'due',
-  source: 'NALD',
-  metadata: { param: 'value', version: '1' },
-  received_date: '2018-11-24',
-  return_requirement: '67890',
-  due_date: '2018-11-28'
-}
-
 experiment('modules/return-logs/lib/persist-returns', () => {
-  afterEach(async () => {
-    sandbox.restore()
+  const naldReturn = {
+    return_id: 'v1:123:456',
+    regime: 'water',
+    licence_type: 'abstraction',
+    licence_ref: '01/234/567',
+    start_date: '2016-11-01',
+    end_date: '2017-10-31',
+    returns_frequency: 'month',
+    status: 'completed',
+    source: 'NALD',
+    metadata: JSON.stringify({ param: 'value', version: '1' }),
+    received_date: '2017-11-24',
+    return_requirement: '012345',
+    due_date: '2017-11-28'
+  }
+
+  const digitalServiceReturn = {
+    return_id: 'v1:234:789',
+    regime: 'water',
+    licence_type: 'abstraction',
+    licence_ref: '04/567/890',
+    start_date: '2017-11-01',
+    end_date: '2018-10-31',
+    returns_frequency: 'month',
+    status: 'due',
+    source: 'NALD',
+    metadata: { param: 'value', version: '1' },
+    received_date: '2018-11-24',
+    return_requirement: '67890',
+    due_date: '2018-11-28'
+  }
+
+  afterEach(() => {
+    Sinon.restore()
   })
 
   experiment('#persistReturns', () => {
     experiment('when the return does not exist', () => {
-      beforeEach(async () => {
-        sandbox.stub(db, 'query')
+      beforeEach(() => {
+        Sinon.stub(db, 'query')
           .onFirstCall().resolves([{ exists: false }])
           .onSecondCall().resolves([{ return_cycle_id: '40eb9d9e-0cad-4794-b7eb-dfc7ccaf8b26' }])
           .onThirdCall().resolves()
@@ -115,7 +121,7 @@ experiment('modules/return-logs/lib/persist-returns', () => {
 
     experiment('when the return already exists', () => {
       beforeEach(async () => {
-        sandbox.stub(db, 'query')
+        Sinon.stub(db, 'query')
           .onFirstCall().resolves([{ exists: true }])
           .onSecondCall().resolves()
       })
