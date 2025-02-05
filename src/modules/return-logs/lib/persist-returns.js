@@ -9,13 +9,6 @@ const helpers = require('@envage/water-abstraction-helpers')
 const moment = require('moment')
 
 const db = require('../../../lib/connectors/db.js')
-const {
-  createReturnLog,
-  getReturnLogExists,
-  updatePostNov2018ReturnLog,
-  updatePreNov2018ReturnLog,
-  upsertReturnCycle
-} = require('../lib/queries.js')
 const ReplicateReturnsDataFromNaldForNonProductionEnvironments = require('./replicate-returns.js')
 const { returns: returnsConnector } = require('../../../lib/connectors/returns.js')
 
@@ -55,7 +48,29 @@ async function _create (row, returnCycleId) {
     returnCycleId
   ]
 
-  await db.query(createReturnLog, params)
+  const query = `
+    INSERT INTO "returns"."returns" (
+      due_date,
+      end_date,
+      licence_ref,
+      licence_type,
+      metadata,
+      received_date,
+      regime,
+      return_id,
+      return_requirement,
+      returns_frequency,
+      "source",
+      start_date,
+      status,
+      return_cycle_id,
+      created_at,
+      updated_at
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, now(), now());
+  `
+
+  await db.query(query, params)
 }
 
 async function _createOrUpdateReturn (row, replicateReturns) {
@@ -108,13 +123,30 @@ async function _returnCycleId (row) {
   const startDate = helpers.returns.date.getPeriodStart(row.start_date, isSummer)
   const endDate = helpers.returns.date.getPeriodEnd(row.start_date, isSummer)
 
-  const results = await db.query(upsertReturnCycle, [startDate, endDate, isSummer])
+  const query = `
+    INSERT INTO returns.return_cycles (
+      start_date,
+      end_date,
+      due_date,
+      is_summer,
+      is_submitted_in_wrls,
+      date_created
+    )
+    VALUES ($1, $2, $2::date + interval '28 day', $3, $2 >= '2018-10-31'::date, now())
+    ON CONFLICT (start_date, end_date, is_summer) DO UPDATE SET date_updated=now()
+    RETURNING return_cycle_id;
+  `
+
+  const results = await db.query(query, [startDate, endDate, isSummer])
 
   return results[0].return_cycle_id
 }
 
 async function _returnExists (returnId) {
-  const [result] = await db.query(getReturnLogExists, [returnId])
+  const [result] = await db.query(
+    'SELECT EXISTS (SELECT 1 FROM "returns"."returns" WHERE return_id=$1)::bool;',
+    [returnId]
+  )
 
   return result.exists
 }
@@ -126,9 +158,9 @@ async function _update (row) {
 
   if (moment(row.end_date).isBefore('2018-10-31')) {
     params.push(row.received_date, row.status)
-    query = updatePreNov2018ReturnLog
+    query = 'UPDATE "returns"."returns" SET due_date=$1, metadata=$2, received_date=$3, status=$4, updated_at = now() WHERE return_id=$5;'
   } else {
-    query = updatePostNov2018ReturnLog
+    query = 'UPDATE "returns"."returns" SET due_date=$1, metadata=$2, updated_at = now() WHERE return_id=$3;'
   }
 
   params.push(row.return_id)

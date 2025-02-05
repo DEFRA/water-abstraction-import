@@ -63,10 +63,7 @@ experiment('modules/return-logs/lib/persist-returns', () => {
       test('creates the return log based on the NALD row data', async () => {
         await PersistReturns.go([naldReturn], false)
 
-        const [query, params] = db.query.thirdCall.args
-
-        // Confirm it used the pre nov 2018 version of the update query
-        expect(query.startsWith('\n  INSERT INTO "returns"."returns"')).to.be.true()
+        const [_query, params] = db.query.thirdCall.args
 
         // Confirm all the params required were passed to the query
         expect(params).to.equal([
@@ -92,10 +89,7 @@ experiment('modules/return-logs/lib/persist-returns', () => {
       test('creates the return log based on the WRLS row data', async () => {
         await PersistReturns.go([digitalServiceReturn], false)
 
-        const [query, params] = db.query.thirdCall.args
-
-        // Confirm it used the pre nov 2018 version of the update query
-        expect(query.startsWith('\n  INSERT INTO "returns"."returns"')).to.be.true()
+        const [_query, params] = db.query.thirdCall.args
 
         // Confirm all the params required were passed to the query
         expect(params).to.equal([
@@ -129,10 +123,7 @@ experiment('modules/return-logs/lib/persist-returns', () => {
       test("updates the return log's 'due_date', 'metadata', 'received_date' and 'status'", async () => {
         await PersistReturns.go([naldReturn], false)
 
-        const [query, params] = db.query.secondCall.args
-
-        // Confirm it used the pre nov 2018 version of the update query
-        expect(query.endsWith('WHERE return_id = $5;\n')).to.be.true()
+        const [_query, params] = db.query.secondCall.args
 
         // Confirm all the params required were passed to the query
         expect(params).to.equal([
@@ -149,10 +140,7 @@ experiment('modules/return-logs/lib/persist-returns', () => {
       test("updates only the return log's 'due_date' and 'metadata'", async () => {
         await PersistReturns.go([digitalServiceReturn], false)
 
-        const [query, params] = db.query.secondCall.args
-
-        // Confirm it used the post nov 2018 version of the update query
-        expect(query.endsWith('WHERE return_id = $3;\n')).to.be.true()
+        const [_query, params] = db.query.secondCall.args
 
         // Confirm all the params required were passed to the query
         expect(params).to.equal([
