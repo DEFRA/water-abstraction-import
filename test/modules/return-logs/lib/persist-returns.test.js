@@ -89,7 +89,7 @@ experiment('modules/return-logs/lib/persist-returns', () => {
       test('creates the return log based on the WRLS row data', async () => {
         await PersistReturns.go([digitalServiceReturn], false)
 
-        const [_query, params] = db.query.thirdCall.args
+        const params = db.query.thirdCall.args[1]
 
         // Confirm all the params required were passed to the query
         expect(params).to.equal([
@@ -123,7 +123,7 @@ experiment('modules/return-logs/lib/persist-returns', () => {
       test("updates the return log's 'due_date', 'metadata', 'received_date' and 'status'", async () => {
         await PersistReturns.go([naldReturn], false)
 
-        const [_query, params] = db.query.secondCall.args
+        const params = db.query.secondCall.args[1]
 
         // Confirm all the params required were passed to the query
         expect(params).to.equal([
@@ -140,7 +140,7 @@ experiment('modules/return-logs/lib/persist-returns', () => {
       test("updates only the return log's 'due_date' and 'metadata'", async () => {
         await PersistReturns.go([digitalServiceReturn], false)
 
-        const [_query, params] = db.query.secondCall.args
+        const params = db.query.secondCall.args[1]
 
         // Confirm all the params required were passed to the query
         expect(params).to.equal([
