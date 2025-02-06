@@ -22,29 +22,29 @@ const db = require('../../../lib/connectors/db.js')
  */
 async function go (rows) {
   for (const row of rows) {
-    const { return_id } = row
+    const { return_id: returnId } = row
 
-    await _deleteLines(return_id)
-    await _deleteVersions(return_id)
-    await _deleteReturn(return_id)
+    await _deleteLines(returnId)
+    await _deleteVersions(returnId)
+    await _deleteReturn(returnId)
   }
 }
 
-async function _deleteLines(returnId) {
+async function _deleteLines (returnId) {
   await db.query(
     'DELETE FROM "returns".lines WHERE version_id IN (SELECT version_id FROM "returns".versions WHERE return_id = $1);',
     [returnId]
   )
 }
 
-async function _deleteReturn(returnId) {
+async function _deleteReturn (returnId) {
   await db.query(
     'DELETE from "returns"."returns" WHERE return_id = $1;',
     [returnId]
   )
 }
 
-async function _deleteVersions(returnId) {
+async function _deleteVersions (returnId) {
   await db.query(
     'DELETE FROM "returns".versions WHERE return_id = $1;',
     [returnId]

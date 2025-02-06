@@ -63,7 +63,7 @@ experiment('modules/return-logs/lib/persist-returns', () => {
       test('creates the return log based on the NALD row data', async () => {
         await PersistReturns.go([naldReturn], false)
 
-        const [_query, params] = db.query.thirdCall.args
+        const params = db.query.thirdCall.args[1]
 
         // Confirm all the params required were passed to the query
         expect(params).to.equal([
