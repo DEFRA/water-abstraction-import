@@ -119,7 +119,7 @@ module.exports = {
   getLogs,
   getLines,
   getLogLines,
-  isNilReturn,
   getSplitDate,
-  getReturnVersionReason
+  getReturnVersionReason,
+  isNilReturn
 }

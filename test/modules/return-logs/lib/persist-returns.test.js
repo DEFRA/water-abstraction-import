@@ -1,139 +1,154 @@
 'use strict'
 
-const sandbox = require('sinon').createSandbox()
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const { experiment, test, beforeEach, afterEach } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const { v4: uuid } = require('uuid')
+const { experiment, test, beforeEach, afterEach } = (exports.lab = Lab.script())
+const { expect } = Code
 
-const returnsConnector = require('../../../../src/lib/connectors/returns.js')
+// Things we need to stub
 const db = require('../../../../src/lib/connectors/db.js')
-const persistReturns = require('../../../../src/modules/return-logs/lib/persist-returns.js')
 
-const naldReturn = {
-  return_id: 'v1:123:456',
-  regime: 'water',
-  licence_type: 'abstraction',
-  licence_ref: '01/234/567',
-  start_date: '2016-11-01',
-  end_date: '2017-10-31',
-  returns_frequency: 'month',
-  status: 'completed',
-  source: 'NALD',
-  metadata: JSON.stringify({ param: 'value', version: '1' }),
-  received_date: '2017-11-24',
-  return_requirement: '012345',
-  due_date: '2017-11-28'
-}
-
-const digitalServiceReturn = {
-  return_id: 'v1:234:789',
-  regime: 'water',
-  licence_type: 'abstraction',
-  licence_ref: '04/567/890',
-  start_date: '2017-11-01',
-  end_date: '2018-10-31',
-  returns_frequency: 'month',
-  status: 'due',
-  source: 'NALD',
-  metadata: { param: 'value', version: '1' },
-  received_date: '2018-11-24',
-  return_requirement: '67890',
-  due_date: '2018-11-28'
-}
+// Thing under test
+const PersistReturns = require('../../../../src/modules/return-logs/lib/persist-returns.js')
 
 experiment('modules/return-logs/lib/persist-returns', () => {
-  beforeEach(async () => {
-    sandbox.stub(db, 'query').resolves([{}])
+  const naldReturn = {
+    return_id: 'v1:123:456',
+    regime: 'water',
+    licence_type: 'abstraction',
+    licence_ref: '01/234/567',
+    start_date: '2016-11-01',
+    end_date: '2017-10-31',
+    returns_frequency: 'month',
+    status: 'completed',
+    source: 'NALD',
+    metadata: JSON.stringify({ param: 'value', version: '1' }),
+    received_date: '2017-11-24',
+    return_requirement: '012345',
+    due_date: '2017-11-28'
+  }
 
-    sandbox.stub(returnsConnector.returns, 'findOne')
-    sandbox.stub(returnsConnector.returns, 'create')
-    sandbox.stub(returnsConnector.returns, 'updateOne')
+  const digitalServiceReturn = {
+    return_id: 'v1:234:789',
+    regime: 'water',
+    licence_type: 'abstraction',
+    licence_ref: '04/567/890',
+    start_date: '2017-11-01',
+    end_date: '2018-10-31',
+    returns_frequency: 'month',
+    status: 'due',
+    source: 'NALD',
+    metadata: { param: 'value', version: '1' },
+    received_date: '2018-11-24',
+    return_requirement: '67890',
+    due_date: '2018-11-28'
+  }
 
-    sandbox.stub(returnsConnector.versions, 'create').resolves({
-      data: {
-        version_id: uuid(),
-        return_id: 'v1:234:789'
-      }
-    })
-    sandbox.stub(returnsConnector.versions, 'updateOne')
-
-    sandbox.stub(returnsConnector.lines, 'create')
+  afterEach(() => {
+    Sinon.restore()
   })
 
-  afterEach(async () => {
-    sandbox.restore()
-  })
-
-  experiment('.returnExists', () => {
-    test('returns true if return exists', async () => {
-      returnsConnector.returns.findOne.resolves({ error: null, data: digitalServiceReturn })
-      const exists = await persistReturns.returnExists('01/123')
-      expect(exists).to.equal(true)
+  experiment('when the return does not exist', () => {
+    beforeEach(() => {
+      Sinon.stub(db, 'query')
+        .onFirstCall().resolves([{ exists: false }])
+        .onSecondCall().resolves([{ return_cycle_id: '40eb9d9e-0cad-4794-b7eb-dfc7ccaf8b26' }])
+        .onThirdCall().resolves()
     })
 
-    test('returns false if return does not exist', async () => {
-      returnsConnector.returns.findOne.resolves({ error: { name: 'NotFoundError' }, data: null })
-      const exists = await persistReturns.returnExists('01/123')
-      expect(exists).to.equal(false)
-    })
-  })
+    experiment("and its 'endDate' is before 2018-10-31", () => {
+      test('creates the return log based on the NALD row data', async () => {
+        await PersistReturns.go([naldReturn], false)
 
-  experiment('.getUpdateRow', () => {
-    test('updates metadata, status, date received and due date for a past return', async () => {
-      const data = persistReturns.getUpdateRow(naldReturn)
-      expect(data).to.equal({
-        status: 'completed',
-        metadata: JSON.stringify({ param: 'value', version: '1' }),
-        received_date: '2017-11-24',
-        due_date: '2017-11-28'
+        const params = db.query.thirdCall.args[1]
+
+        // Confirm all the params required were passed to the query
+        expect(params).to.equal([
+          '2017-11-28',
+          '2017-10-31',
+          '01/234/567',
+          'abstraction',
+          JSON.stringify({ param: 'value', version: '1' }),
+          '2017-11-24',
+          'water',
+          'v1:123:456',
+          '012345',
+          'month',
+          'NALD',
+          '2016-11-01',
+          'completed',
+          '40eb9d9e-0cad-4794-b7eb-dfc7ccaf8b26'
+        ])
       })
     })
 
-    test('updates metadata and due date only for a return managed by the digital service', async () => {
-      const data = persistReturns.getUpdateRow(digitalServiceReturn)
-      expect(data).to.equal({
-        metadata: { param: 'value', version: '1' },
-        due_date: '2018-11-28'
+    experiment("and its 'endDate' is after 2018-10-31", () => {
+      test('creates the return log based on the WRLS row data', async () => {
+        await PersistReturns.go([digitalServiceReturn], false)
+
+        const params = db.query.thirdCall.args[1]
+
+        // Confirm all the params required were passed to the query
+        expect(params).to.equal([
+          '2018-11-28',
+          '2018-10-31',
+          '04/567/890',
+          'abstraction',
+          { param: 'value', version: '1' },
+          '2018-11-24',
+          'water',
+          'v1:234:789',
+          '67890',
+          'month',
+          'NALD',
+          '2017-11-01',
+          'due',
+          '40eb9d9e-0cad-4794-b7eb-dfc7ccaf8b26'
+        ])
       })
     })
   })
 
-  experiment('.createOrUpdateReturn', () => {
-    test('creates a row if the record is not present', async () => {
-      returnsConnector.returns.findOne.resolves({ error: { name: 'NotFoundError' }, data: null })
-      returnsConnector.returns.create.resolves({ error: null })
-
-      await persistReturns.createOrUpdateReturn(naldReturn, '2018-01-01')
-
-      expect(returnsConnector.returns.create.firstCall.args[0]).to.equal(naldReturn)
-      expect(returnsConnector.returns.updateOne.firstCall).to.equal(null)
+  experiment('when the return already exists', () => {
+    beforeEach(async () => {
+      Sinon.stub(db, 'query')
+        .onFirstCall().resolves([{ exists: true }])
+        .onSecondCall().resolves()
     })
 
-    test('updates a NALD return if the record is present', async () => {
-      returnsConnector.returns.findOne.resolves({ error: null, data: naldReturn })
-      returnsConnector.returns.updateOne.resolves({ error: null })
-      await persistReturns.createOrUpdateReturn(naldReturn, '2018-01-01')
+    experiment("and its 'endDate' is before 2018-10-31", () => {
+      test("updates the return log's 'due_date', 'metadata', 'received_date' and 'status'", async () => {
+        await PersistReturns.go([naldReturn], false)
 
-      expect(returnsConnector.returns.create.firstCall).to.equal(null)
-      expect(returnsConnector.returns.updateOne.firstCall.args).to.equal([naldReturn.return_id, {
-        metadata: naldReturn.metadata,
-        status: naldReturn.status,
-        received_date: naldReturn.received_date,
-        due_date: naldReturn.due_date
-      }])
+        const params = db.query.secondCall.args[1]
+
+        // Confirm all the params required were passed to the query
+        expect(params).to.equal([
+          '2017-11-28',
+          '{"param":"value","version":"1"}',
+          '2017-11-24',
+          'completed',
+          'v1:123:456'
+        ])
+      })
     })
 
-    test('updates a digital service return metadata only if the record is present', async () => {
-      returnsConnector.returns.findOne.resolves({ error: null, data: digitalServiceReturn })
-      returnsConnector.returns.updateOne.resolves({ error: null })
-      await persistReturns.createOrUpdateReturn(digitalServiceReturn, '2018-01-01')
+    experiment("and its 'endDate' is after 2018-10-31", () => {
+      test("updates only the return log's 'due_date' and 'metadata'", async () => {
+        await PersistReturns.go([digitalServiceReturn], false)
 
-      expect(returnsConnector.returns.create.firstCall).to.equal(null)
-      expect(returnsConnector.returns.updateOne.firstCall.args).to.equal([digitalServiceReturn.return_id, {
-        metadata: digitalServiceReturn.metadata,
-        due_date: digitalServiceReturn.due_date
-      }])
+        const params = db.query.secondCall.args[1]
+
+        // Confirm all the params required were passed to the query
+        expect(params).to.equal([
+          '2018-11-28',
+          { param: 'value', version: '1' },
+          'v1:234:789'
+        ])
+      })
     })
   })
 })
