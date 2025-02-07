@@ -138,17 +138,16 @@ function _totalLineQuantity (blankLine, naldPopulatedLines) {
 }
 
 function _version (row) {
-  const versionId = uuid()
   const parsedMetadata = row.metadata instanceof Object ? row.metadata : JSON.parse(row.metadata)
 
   return {
     current: parsedMetadata.isCurrent,
-    metadata: parsedMetadata,
+    metadata: {},
     nil_return: false,
     return_id: row.return_id,
     user_id: 'imported@from.nald',
     user_type: 'system',
-    version_id: versionId,
+    version_id: uuid(),
     version_number: parsedMetadata.version
   }
 }
