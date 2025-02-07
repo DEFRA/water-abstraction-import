@@ -19,7 +19,7 @@ async function go (row) {
   const naldLines = await _naldLines(row.return_id)
   const naldLineData = _naldLineData(naldLines)
 
-  const version = _version (row)
+  const version = _version(row)
   const blankLines = _blankLines(row)
 
   _populateBlankLines(row, version, blankLines, naldLineData)

@@ -11,9 +11,9 @@ function daysFromPeriod (periodStartDate, periodEndDate) {
   const days = []
 
   // We have to clone the date, else as we increment in the loop we'd be incrementing the param passed in!
-  let clonedPeriodStartDate = _cloneDate(periodStartDate)
+  const clonedPeriodStartDate = _cloneDate(periodStartDate)
 
-  while (clonedPeriodStartDate <= periodEndDate) {
+  while (clonedPeriodStartDate <= periodEndDate) { // eslint-disable-line
     // Clone the date again for the same reason above
     const startDate = _cloneDate(clonedPeriodStartDate)
 
@@ -31,9 +31,9 @@ function weeksFromPeriod (periodStartDate, periodEndDate) {
   const weeks = []
 
   // We have to clone the date, else as we increment in the loop we'd be incrementing the param passed in!
-  let clonedPeriodStartDate = _cloneDate(periodStartDate)
+  const clonedPeriodStartDate = _cloneDate(periodStartDate)
 
-  while (clonedPeriodStartDate <= periodEndDate) {
+  while (clonedPeriodStartDate <= periodEndDate) { // eslint-disable-line
     // Is the date a Saturday?
     if (clonedPeriodStartDate.getDay() === 6) {
       // Yes! Clone the date again for the same reason above
@@ -61,9 +61,9 @@ function monthsFromPeriod (periodStartDate, periodEndDate) {
   const months = []
 
   // We have to clone the date, else as we increment in the loop we'd be incrementing the param passed in!
-  let clonedPeriodStartDate = _cloneDate(periodStartDate)
+  const clonedPeriodStartDate = _cloneDate(periodStartDate)
 
-  while (clonedPeriodStartDate <= periodEndDate) {
+  while (clonedPeriodStartDate <= periodEndDate) { // eslint-disable-line
     // Bump the returnLogStartDate to the next month, for example 2013-04-15 becomes 2013-05-15
     clonedPeriodStartDate.setMonth(clonedPeriodStartDate.getMonth() + 1)
 
