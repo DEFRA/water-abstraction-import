@@ -10,8 +10,8 @@ const routes = [
   },
   {
     method: 'post',
-    handler: controller.replicateReturnLogs,
-    path: '/replicate/return-logs'
+    handler: controller.importReturnLogsClean,
+    path: '/import/return-logs/clean'
   },
   {
     method: 'get',

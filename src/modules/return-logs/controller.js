@@ -17,7 +17,7 @@ async function importReturnLogs (request, h) {
   return h.response().code(204)
 }
 
-async function replicateReturnLogs (request, h) {
+async function importReturnLogsClean (request, h) {
   const licenceRef = request.payload?.licenceRef ?? null
 
   await request.messageQueue.deleteQueue(QueueJob.JOB_NAME)
@@ -88,7 +88,7 @@ async function returns (request, h) {
 
 module.exports = {
   importReturnLogs,
-  replicateReturnLogs,
+  importReturnLogsClean,
   returnFormats,
   returnLogs,
   returnLogLines,

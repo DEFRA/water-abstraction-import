@@ -32,7 +32,7 @@ async function handler (job) {
       global.GlobalNotifier.omg(`${JOB_NAME}: started`, { numberOfJobs: job.data.numberOfJobs })
     }
 
-    await _loadReturns(job.data.licence.licenceRef, job.data.replicateReturnLogs)
+    await _loadReturns(job.data.licence.licenceRef, job.data.cleanReturnLogs)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
@@ -52,12 +52,12 @@ async function onComplete (job) {
   }
 }
 
-async function _loadReturns (licenceNumber, replicateReturnLogs) {
+async function _loadReturns (licenceNumber, cleanReturnLogs) {
   const { returns } = await buildReturnsPacket(licenceNumber)
 
   // Only intended to be used in non-production environments to reset the returns information in WRLS to match what is
-  // held in NALD. You can only set `replicateReturnLogs` by manually triggering the `/replicate/return-logs` endpoint.
-  if (replicateReturnLogs) {
+  // held in NALD. You can only set `cleanReturnLogs` by manually triggering the `/import/return-logs-clean` endpoint.
+  if (cleanReturnLogs) {
     await DeleteReturns.go(returns)
   }
 
