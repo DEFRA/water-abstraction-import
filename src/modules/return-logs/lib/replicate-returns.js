@@ -1,125 +1,223 @@
 'use strict'
 
-const moment = require('moment')
 const { v4: uuid } = require('uuid')
+const { returns: returnsHelpers } = require('@envage/water-abstraction-helpers')
 
 const db = require('../../../lib/connectors/db.js')
-const { versions, lines } = require('../../../lib/connectors/returns.js')
+const { daysFromPeriod, weeksFromPeriod, monthsFromPeriod } = require('./return-helpers.js')
 
-const DB_DATE_FORMAT = 'YYYY-MM-DD'
-
-/* MAIN FUNC */
-const go = async thisReturn => {
-  const { metadata } = thisReturn
-  // create returns.versions
-  const version = await versions.create({
-    metadata,
-    version_id: uuid(),
-    return_id: thisReturn.return_id,
-    user_id: 'imported@from.nald',
-    user_type: 'system',
-    version_number: JSON.parse(metadata).version,
-    nil_return: false,
-    current: JSON.parse(metadata).isCurrent
-  })
-
-  const naldReturnFormatQuery = await db.query('SELECT * FROM import."NALD_RET_FORMATS" WHERE "ID" = $1', [thisReturn.return_requirement])
-  const naldReturnFormat = naldReturnFormatQuery[0]
-
-  const naldLinesFromNaldReturnFormLogs = await db.query(`
-        SELECT * FROM import."NALD_RET_FORM_LOGS"
-        WHERE "ARTY_ID" = $1
-        AND "FGAC_REGION_CODE" = $2
-        AND "DATE_FROM" = $3
-        ORDER BY to_date("DATE_FROM", 'DD/MM/YYYY')`,
-  [
-    thisReturn.return_requirement,
-    naldReturnFormat.FGAC_REGION_CODE,
-      `${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}/${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}/${moment(thisReturn.start_date).format('YYYY')}`
-  ])
-
-  const returnLinesFromNaldReturnLines = await db.query(`
-            SELECT * FROM import."NALD_RET_LINES" WHERE
-            "ARFL_ARTY_ID" = $1
-            AND "FGAC_REGION_CODE" = $2
-            AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')>=to_date($3, $5)
-            AND to_date("RET_DATE", 'YYYYMMDDHH24MISS')<=to_date($4, $5)
-            ORDER BY "RET_DATE";
-        `,
-  [
-    thisReturn.return_requirement,
-    naldReturnFormat.FGAC_REGION_CODE,
-      `${moment(thisReturn.start_date).format('YYYY')}-${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_MONTH)}-${padDateComponent(naldReturnFormat.ABS_PERIOD_ST_DAY)}`,
-      `${moment(thisReturn.start_date).add(naldReturnFormat.ABS_PERIOD_END_MONTH < naldReturnFormat.ABS_PERIOD_ST_MONTH ? 1 : 0, 'year').format('YYYY')}-${padDateComponent(naldReturnFormat.ABS_PERIOD_END_MONTH)}-${padDateComponent(naldReturnFormat.ABS_PERIOD_END_DAY)}`,
-      DB_DATE_FORMAT
-  ])
-
-  // Two db queries have been run
-  // Now we check if they have pulled any data from the db
-  // If they have, set qtyKey to be the name of the column we will be summing up
-  // Set iterable to the data set we will be summing
-  let qtyKey
-  let iterable
-
-  if (returnLinesFromNaldReturnLines.length > 0) {
-    qtyKey = 'RET_QTY'
-    iterable = returnLinesFromNaldReturnLines
-  } else if (naldLinesFromNaldReturnFormLogs.length > 0) {
-    qtyKey = 'MONTHLY_RET_QTY'
-    iterable = naldLinesFromNaldReturnFormLogs
-  } else {
-    iterable = []
+async function go (row) {
+  // TODO: Support old NALD quarterly and yearly returns
+  if (row.returns_frequency === 'quarter' || row.returns_frequency === 'year') {
+    return
   }
 
-  const sumOfLines = iterable
-    .map((item) => parseFloat(item[qtyKey]))
-    .filter((value) => ![null, undefined, NaN].includes(value))
-    .reduce((acc, num) => acc + num, 0)
+  if (row.status !== 'completed') {
+    return
+  }
 
-  if (sumOfLines === 0) {
-    await versions.updateOne(version.data.version_id, { nil_return: true }, ['nil_return'])
-  } else {
-    iterable.forEach(line => {
-      let startDate
-      let endDate
+  const naldLines = await _naldLines(row.return_id)
+  const naldLineData = _naldLineData(naldLines)
 
-      if (returnLinesFromNaldReturnLines.length > 0) {
-        startDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(DB_DATE_FORMAT)
-        endDate = moment(line.RET_DATE, 'YYYYMMDD000000').format(DB_DATE_FORMAT)
-      } else {
-        startDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').format(DB_DATE_FORMAT)
-        endDate = moment(line.FORM_PROD_ST_DATE, 'DD/MM/YYYY').format(DB_DATE_FORMAT)
-      }
+  const version = _version(row)
+  const wrlsLines = _blankLines(row)
 
-      createLine(version.data.version_id, startDate, endDate, naldReturnFormat.ARTC_REC_FREQ_CODE, line, qtyKey)
-    })
+  _populateBlankLines(row, version, wrlsLines, naldLineData)
+
+  await _saveVersion(version)
+  await _saveLines(wrlsLines)
+}
+
+function _blankLines (row) {
+  const frequency = row.returns_frequency
+  const startDate = new Date(row.start_date)
+  const endDate = new Date(row.end_date)
+
+  if (frequency === 'day') {
+    return daysFromPeriod(startDate, endDate)
+  }
+
+  if (frequency === 'week') {
+    return weeksFromPeriod(startDate, endDate)
+  }
+
+  return monthsFromPeriod(startDate, endDate)
+}
+
+function _populateBlankLines (row, version, blankLines, naldLineData) {
+  let nilReturn = true
+
+  for (const line of blankLines) {
+    line.line_id = uuid()
+    line.version_id = version.version_id
+    line.time_period = row.returns_frequency
+    line.metadata = {}
+    line.user_unit = returnsHelpers.mappers.mapUnit(naldLineData.userUnit)
+    line.reading_type = returnsHelpers.mappers.mapUsability(naldLineData.readingType)
+    line.quantity = _totalLineQuantity(line, naldLineData.lines)
+
+    if (line.quantity !== null) {
+      nilReturn = false
+    }
+  }
+
+  version.nil_return = nilReturn
+}
+
+function _naldLineData (naldLines) {
+  const { RET_QTY_USABILITY: readingType, UNIT_RET_FLAG: userUnit } = naldLines[0]
+
+  const lines = naldLines.filter((naldLine) => {
+    const { RET_QTY: qty } = naldLine
+
+    // We need to consider a line with a qty 0 as populated, hence the more convoluted check
+    return qty !== null && qty !== undefined && qty !== 'null' && qty !== ''
+  })
+
+  return {
+    lines,
+    readingType,
+    userUnit
   }
 }
 
-/* UTILS */
-const plainEnglishFrequency = (val = 'M') => ({
-  D: 'day',
-  W: 'week',
-  M: 'month',
-  Y: 'year'
-}[val])
+async function _naldLines (returnId) {
+  // The row generated by the import contains all things but the region code. Its embedded in the return id and the
+  // abstraction-helpers has a function that will parse a return ID back out into its constituent parts. As the query
+  // was built to work with the values extracted from it, we just go ahead and use them all!
+  const { regionCode, formatId, startDate, endDate } = returnsHelpers.parseReturnId(returnId)
 
-const padDateComponent = (val = '1') => val.length === 1 ? `0${val}` : val
+  const params = [formatId, regionCode, startDate, endDate]
+  const query = `
+    SELECT
+      nrl."ARFL_ARTY_ID",
+      nrl."ARFL_DATE_FROM",
+      nrl."RET_DATE",
+      nrl."RET_QTY",
+      nrl."RET_QTY_USABILITY",
+      nrl."UNIT_RET_FLAG",
+      to_date("RET_DATE", 'YYYYMMDDHH24MISS') AS end_date
+    FROM "import"."NALD_RET_LINES" nrl
+    WHERE
+      nrl."ARFL_ARTY_ID"=$1
+      AND nrl."FGAC_REGION_CODE"=$2
+      AND to_date(nrl."RET_DATE", 'YYYYMMDDHH24MISS') >= to_date($3, 'YYYY-MM-DD')
+      AND to_date(nrl."RET_DATE", 'YYYYMMDDHH24MISS') <= to_date($4, 'YYYY-MM-DD')
+    ORDER BY "RET_DATE";
+  `
 
-const createLine = (versionId, startDate, endDate, frequency, line, qtyKey) => parseFloat(line[qtyKey]) > 0 &&
-  lines.create({
-    line_id: uuid(),
-    version_id: versionId,
-    substance: 'water',
-    quantity: parseFloat(line[qtyKey]),
-    unit: 'm³',
-    user_unit: 'm³',
-    start_date: startDate,
-    end_date: endDate,
-    time_period: plainEnglishFrequency(frequency),
-    metadata: JSON.stringify(line),
-    reading_type: 'measured'
-  })
+  return db.query(query, params)
+}
+
+function _totalLineQuantity (blankLine, naldPopulatedLines) {
+  let match = false
+  let totalQuantity = 0
+
+  for (const naldLine of naldPopulatedLines) {
+    // Even though we cast RET_DATE to a Date as `end_date` in the query, the DB connection the
+    // water-abstraction-helpers makes always returns them it as a string.
+    const naldLineEndDate = new Date(naldLine.end_date)
+
+    // We have gone past the last line that could possibly match so stop looking
+    if (naldLineEndDate > blankLine.end_date) {
+      break
+    }
+
+    // The nald line ends before the blank line starts so continue to the next line
+    if (naldLineEndDate < blankLine.start_date) {
+      continue
+    }
+
+    // We have found a match!
+    match = true
+    totalQuantity += parseFloat(naldLine.RET_QTY)
+  }
+
+  if (match) {
+    return totalQuantity
+  }
+
+  return null
+}
+
+function _version (row) {
+  const parsedMetadata = row.metadata instanceof Object ? row.metadata : JSON.parse(row.metadata)
+
+  return {
+    current: parsedMetadata.isCurrent,
+    metadata: {},
+    nil_return: false,
+    return_id: row.return_id,
+    user_id: 'imported@from.nald',
+    user_type: 'system',
+    version_id: uuid(),
+    version_number: parsedMetadata.version
+  }
+}
+
+async function _saveVersion (version) {
+  const params = [
+    version.current,
+    version.metadata,
+    version.nil_return,
+    version.return_id,
+    version.user_id,
+    version.user_type,
+    version.version_id,
+    version.version_number
+  ]
+
+  const query = `
+    INSERT INTO "returns"."versions" (
+      current,
+      metadata,
+      nil_return,
+      return_id,
+      user_id,
+      user_type,
+      version_id,
+      version_number,
+      created_at,
+      updated_at
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now(), now())
+  `
+
+  await db.query(query, params)
+}
+
+async function _saveLines (lines) {
+  const query = `
+    INSERT INTO "returns".lines (
+      end_date,
+      line_id,
+      metadata,
+      quantity,
+      reading_type,
+      start_date,
+      time_period,
+      user_unit,
+      version_id,
+      created_at,
+      updated_at
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())
+  `
+
+  for (const line of lines) {
+    const params = [
+      line.end_date,
+      line.line_id,
+      line.metadata,
+      line.quantity,
+      line.reading_type,
+      line.start_date,
+      line.time_period,
+      line.user_unit,
+      line.version_id
+    ]
+
+    await db.query(query, params)
+  }
+}
 
 module.exports = {
   go

@@ -9,7 +9,7 @@ const moment = require('moment')
 const helpers = require('@envage/water-abstraction-helpers')
 
 const db = require('../../../lib/connectors/db.js')
-const ReplicateReturnsDataFromNaldForNonProductionEnvironments = require('./replicate-returns.js')
+const ReplicateReturns = require('./replicate-returns.js')
 
 /**
  * Updates matching return logs or creates missing ones based on those determined by the import from NALD data
@@ -95,7 +95,7 @@ async function _createOrUpdateReturn (row, replicateReturns) {
     // held in NALD. You can only set `replicateReturnLogs` by manually triggering the `/replicate/return-logs`
     // endpoint.
     if (replicateReturns) {
-      await ReplicateReturnsDataFromNaldForNonProductionEnvironments.go(row)
+      await ReplicateReturns.go(row)
     }
   }
 }
