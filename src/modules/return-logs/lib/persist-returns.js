@@ -81,10 +81,10 @@ async function _create (row, returnCycleId) {
 }
 
 async function _createOrUpdateReturn (row, replicateReturns) {
-  const exists = await _returnExists(row.return_id)
+  const returnDataExists = await _returnDataExists(row.return_id)
 
   // Conditional update
-  if (exists) {
+  if (returnDataExists.return_log_exists) {
     await _update(row)
   } else {
     const returnCycleId = await _returnCycleId(row)
@@ -151,13 +151,17 @@ async function _returnCycleId (row) {
   return results[0].return_cycle_id
 }
 
-async function _returnExists (returnId) {
-  const [result] = await db.query(
-    'SELECT EXISTS (SELECT 1 FROM "returns"."returns" WHERE return_id=$1)::bool;',
-    [returnId]
-  )
+async function _returnDataExists (returnId) {
+  const params = [returnId]
+  const query = `
+    SELECT
+      (EXISTS (SELECT 1 FROM "returns"."returns" WHERE return_id=$1)::bool) AS return_log_exists,
+      (EXISTS (SELECT 1 FROM "returns".versions WHERE return_id=$1)::bool) AS return_submission_exists
+    ;
+  `
+  const [result] = await db.query(query, params)
 
-  return result.exists
+  return result
 }
 
 async function _update (row) {
