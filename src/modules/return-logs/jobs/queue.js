@@ -43,6 +43,16 @@ async function handler (messageQueue, job) {
   }
 }
 
+async function onComplete (job) {
+  if (job.failed) {
+    global.GlobalNotifier.omg(`${JOB_NAME}: failed`)
+
+    return
+  }
+
+  global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { queuedJobs: job.data.response.value })
+}
+
 async function _licences (licenceRef) {
   if (licenceRef) {
     return db.query(
@@ -52,16 +62,6 @@ async function _licences (licenceRef) {
   }
 
   return db.query('SELECT nal."ID", nal."LIC_NO", nal."FGAC_REGION_CODE" FROM "import"."NALD_ABS_LICENCES" nal;')
-}
-
-async function onComplete (job) {
-  if (job.failed) {
-    global.GlobalNotifier.omg(`${JOB_NAME}: failed`)
-
-    return
-  }
-
-  global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { queuedJobs: job.data.response.value })
 }
 
 module.exports = {
