@@ -46,7 +46,7 @@ async function go (row, oldLinesExist) {
   await _saveLines(wrlsLines)
 }
 
-async function _addOldNaldLines(naldLines, row, naldLinesParams) {
+async function _addOldNaldLines (naldLines, row, naldLinesParams) {
   // If the return log's start date is 2013-01-01 or greater then it's return lines will be in the NALD nightly extract.
   // It is only return lines with a `ARFL_DATE_FROM` of 2012-12-31 or less that exist in the one-off extract
   if (row.start_date > '2012-12-31') {
