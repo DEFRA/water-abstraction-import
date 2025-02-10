@@ -57,21 +57,23 @@ async function _addOldNaldLines(naldLines, row, naldLinesParams) {
   // one-off extract so it matches and we could just reuse the query. But as we intend to delete both the extract and
   // this code in a few months we've opted to just live with some copy & paste!
   const query = `
-    SELECT
-      nrl."ARFL_ARTY_ID",
-      nrl."ARFL_DATE_FROM",
-      nrl."RET_DATE",
-      nrl."RET_QTY",
-      nrl."RET_QTY_USABILITY",
-      nrl."UNIT_RET_FLAG",
-      to_date("RET_DATE", 'DD/MM/YYYY') AS end_date
-    FROM public."NALD_RET_LINES" nrl
-    WHERE
-      nrl."ARFL_ARTY_ID"=$1
-      AND nrl."FGAC_REGION_CODE"=$2
-      AND to_date(nrl."RET_DATE", 'DD/MM/YYYY') >= to_date($3, 'YYYY-MM-DD')
-      AND to_date(nrl."RET_DATE", 'DD/MM/YYYY') <= to_date($4, 'YYYY-MM-DD')
-    ORDER BY "RET_DATE";
+    SELECT * FROM (
+      SELECT
+        nrl."ARFL_ARTY_ID",
+        nrl."ARFL_DATE_FROM",
+        nrl."RET_DATE",
+        nrl."RET_QTY",
+        nrl."RET_QTY_USABILITY",
+        nrl."UNIT_RET_FLAG",
+        to_date("RET_DATE", 'DD/MM/YYYY') AS end_date
+      FROM public."NALD_RET_LINES" nrl
+      WHERE
+        nrl."ARFL_ARTY_ID"=$1
+        AND nrl."FGAC_REGION_CODE"=$2
+        AND to_date(nrl."RET_DATE", 'DD/MM/YYYY') >= to_date($3, 'YYYY-MM-DD')
+        AND to_date(nrl."RET_DATE", 'DD/MM/YYYY') <= to_date($4, 'YYYY-MM-DD')
+    ) results
+    ORDER BY results.end_date ASC;
   `
 
   const results = await db.query(query, naldLinesParams)
@@ -148,7 +150,7 @@ async function _naldLines (naldLinesParams) {
       AND nrl."FGAC_REGION_CODE"=$2
       AND to_date(nrl."RET_DATE", 'YYYYMMDDHH24MISS') >= to_date($3, 'YYYY-MM-DD')
       AND to_date(nrl."RET_DATE", 'YYYYMMDDHH24MISS') <= to_date($4, 'YYYY-MM-DD')
-    ORDER BY "RET_DATE";
+    ORDER BY "RET_DATE" ASC;
   `
 
   return db.query(query, naldLinesParams)
