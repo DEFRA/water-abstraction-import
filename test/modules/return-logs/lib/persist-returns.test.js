@@ -54,7 +54,7 @@ experiment('modules/return-logs/lib/persist-returns', () => {
   experiment('when the return does not exist', () => {
     beforeEach(() => {
       Sinon.stub(db, 'query')
-        .onFirstCall().resolves([{ exists: false }])
+        .onFirstCall().resolves([{ return_log_exists: false, return_submission_exists: true }])
         .onSecondCall().resolves([{ return_cycle_id: '40eb9d9e-0cad-4794-b7eb-dfc7ccaf8b26' }])
         .onThirdCall().resolves()
     })
@@ -115,7 +115,7 @@ experiment('modules/return-logs/lib/persist-returns', () => {
   experiment('when the return already exists', () => {
     beforeEach(async () => {
       Sinon.stub(db, 'query')
-        .onFirstCall().resolves([{ exists: true }])
+        .onFirstCall().resolves([{ return_log_exists: true, return_submission_exists: true }])
         .onSecondCall().resolves()
     })
 

@@ -5,12 +5,12 @@ const ImportJob = require('./import.js')
 
 const JOB_NAME = 'return-logs.queue'
 
-function createMessage (replicateReturnLogs, licenceRef) {
+function createMessage (cleanReturnLogs, licenceRef) {
   return {
     name: JOB_NAME,
     data: {
       licenceRef,
-      replicateReturnLogs
+      cleanReturnLogs
     },
     options: {
       singletonKey: JOB_NAME
@@ -31,7 +31,7 @@ async function handler (messageQueue, job) {
         licence: { id: licence.ID, licenceRef: licence.LIC_NO, regionCode: licence.FGAC_REGION_CODE },
         jobNumber: index + 1,
         numberOfJobs,
-        replicateReturnLogs: job.data.replicateReturnLogs
+        cleanReturnLogs: job.data.cleanReturnLogs
       }
       await messageQueue.publish(ImportJob.createMessage(data))
     }
