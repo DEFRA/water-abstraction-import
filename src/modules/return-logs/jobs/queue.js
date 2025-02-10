@@ -26,12 +26,16 @@ async function handler (messageQueue, job) {
     const licences = await _licences(job.data.licenceRef)
     const numberOfJobs = licences.length
 
+    // Determine if the one-off pre-2013 NALD return lines extract exists
+    const oldLinesExist = await _oldLinesExist()
+
     for (const [index, licence] of licences.entries()) {
       const data = {
         licence: { id: licence.ID, licenceRef: licence.LIC_NO, regionCode: licence.FGAC_REGION_CODE },
         jobNumber: index + 1,
         numberOfJobs,
-        cleanReturnLogs: job.data.cleanReturnLogs
+        cleanReturnLogs: job.data.cleanReturnLogs,
+        oldLinesExist
       }
       await messageQueue.publish(ImportJob.createMessage(data))
     }
@@ -41,6 +45,16 @@ async function handler (messageQueue, job) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
+}
+
+async function onComplete (job) {
+  if (job.failed) {
+    global.GlobalNotifier.omg(`${JOB_NAME}: failed`)
+
+    return
+  }
+
+  global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { queuedJobs: job.data.response.value })
 }
 
 async function _licences (licenceRef) {
@@ -54,14 +68,24 @@ async function _licences (licenceRef) {
   return db.query('SELECT nal."ID", nal."LIC_NO", nal."FGAC_REGION_CODE" FROM "import"."NALD_ABS_LICENCES" nal;')
 }
 
-async function onComplete (job) {
-  if (job.failed) {
-    global.GlobalNotifier.omg(`${JOB_NAME}: failed`)
+async function _oldLinesExist () {
+  const query = `
+    SELECT
+      EXISTS(
+        SELECT
+          1
+        FROM
+          information_schema.TABLES
+        WHERE
+          table_type = 'BASE TABLE'
+          AND table_schema = 'public'
+          AND table_name = 'NALD_RET_LINES'
+      )::bool AS old_lines_exist
+  `
 
-    return
-  }
+  const results = await db.query(query)
 
-  global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { queuedJobs: job.data.response.value })
+  return results[0].old_lines_exist
 }
 
 module.exports = {
