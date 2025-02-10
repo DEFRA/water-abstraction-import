@@ -2,12 +2,21 @@
 
 const cron = require('node-cron')
 
+const DownloadJob = require('./jobs/download.js')
 const QueueJob = require('./jobs/queue.js')
 const ImportJob = require('./jobs/import.js')
 
 const config = require('../../../config')
 
 async function register (server, _options) {
+  // Check if the old return lines extract needs downloading and loading into the DB
+  await server.messageQueue.subscribe(DownloadJob.JOB_NAME, (executedJob) => {
+    return DownloadJob.handler(executedJob)
+  })
+  await server.messageQueue.onComplete(DownloadJob.JOB_NAME, (executedJob) => {
+    return DownloadJob.onComplete(server.messageQueue, executedJob)
+  })
+
   // Queue the licences for processing
   await server.messageQueue.subscribe(QueueJob.JOB_NAME, (executedJob) => {
     return QueueJob.handler(server.messageQueue, executedJob)
@@ -22,10 +31,10 @@ async function register (server, _options) {
     return ImportJob.onComplete(executedJob)
   })
 
-  // Schedule queue job using cron. The queue job will then queue the import job in its onComplete
+  // Schedule download job using cron. The download job will then queue up the queue job in its onComplete
   cron.schedule(config.import.returnLogs.schedule, async () => {
     if (!config.featureFlags.disableReturnsImports) {
-      await server.messageQueue.publish(QueueJob.createMessage())
+      await server.messageQueue.publish(DownloadJob.createMessage())
     }
   })
 }
