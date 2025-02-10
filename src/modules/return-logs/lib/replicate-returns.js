@@ -97,26 +97,6 @@ function _blankLines (row) {
   return monthsFromPeriod(startDate, endDate)
 }
 
-function _populateBlankLines (row, version, blankLines, naldLineData) {
-  let nilReturn = true
-
-  for (const line of blankLines) {
-    line.line_id = uuid()
-    line.version_id = version.version_id
-    line.time_period = row.returns_frequency
-    line.metadata = {}
-    line.user_unit = returnsHelpers.mappers.mapUnit(naldLineData.userUnit)
-    line.reading_type = returnsHelpers.mappers.mapUsability(naldLineData.readingType)
-    line.quantity = _totalLineQuantity(line, naldLineData.lines)
-
-    if (line.quantity !== null) {
-      nilReturn = false
-    }
-  }
-
-  version.nil_return = nilReturn
-}
-
 function _naldLineData (naldLines) {
   const { RET_QTY_USABILITY: readingType, UNIT_RET_FLAG: userUnit } = naldLines[0]
 
@@ -165,6 +145,90 @@ function _naldLinesParams (returnId) {
   return [formatId, regionCode, startDate, endDate]
 }
 
+function _populateBlankLines (row, version, blankLines, naldLineData) {
+  let nilReturn = true
+
+  for (const line of blankLines) {
+    line.line_id = uuid()
+    line.version_id = version.version_id
+    line.time_period = row.returns_frequency
+    line.metadata = {}
+    line.user_unit = returnsHelpers.mappers.mapUnit(naldLineData.userUnit)
+    line.reading_type = returnsHelpers.mappers.mapUsability(naldLineData.readingType)
+    line.quantity = _totalLineQuantity(line, naldLineData.lines)
+
+    if (line.quantity !== null) {
+      nilReturn = false
+    }
+  }
+
+  version.nil_return = nilReturn
+}
+
+async function _saveLines (lines) {
+  const query = `
+    INSERT INTO "returns".lines (
+      end_date,
+      line_id,
+      metadata,
+      quantity,
+      reading_type,
+      start_date,
+      time_period,
+      user_unit,
+      version_id,
+      created_at,
+      updated_at
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())
+  `
+
+  for (const line of lines) {
+    const params = [
+      line.end_date,
+      line.line_id,
+      line.metadata,
+      line.quantity,
+      line.reading_type,
+      line.start_date,
+      line.time_period,
+      line.user_unit,
+      line.version_id
+    ]
+
+    await db.query(query, params)
+  }
+}
+
+async function _saveVersion (version) {
+  const params = [
+    version.current,
+    version.metadata,
+    version.nil_return,
+    version.return_id,
+    version.user_id,
+    version.user_type,
+    version.version_id,
+    version.version_number
+  ]
+
+  const query = `
+    INSERT INTO "returns"."versions" (
+      current,
+      metadata,
+      nil_return,
+      return_id,
+      user_id,
+      user_type,
+      version_id,
+      version_number,
+      created_at,
+      updated_at
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now(), now())
+  `
+
+  await db.query(query, params)
+}
+
 function _totalLineQuantity (blankLine, naldPopulatedLines) {
   let match = false
   let totalQuantity = 0
@@ -208,70 +272,6 @@ function _version (row) {
     user_type: 'system',
     version_id: uuid(),
     version_number: parsedMetadata.version
-  }
-}
-
-async function _saveVersion (version) {
-  const params = [
-    version.current,
-    version.metadata,
-    version.nil_return,
-    version.return_id,
-    version.user_id,
-    version.user_type,
-    version.version_id,
-    version.version_number
-  ]
-
-  const query = `
-    INSERT INTO "returns"."versions" (
-      current,
-      metadata,
-      nil_return,
-      return_id,
-      user_id,
-      user_type,
-      version_id,
-      version_number,
-      created_at,
-      updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now(), now())
-  `
-
-  await db.query(query, params)
-}
-
-async function _saveLines (lines) {
-  const query = `
-    INSERT INTO "returns".lines (
-      end_date,
-      line_id,
-      metadata,
-      quantity,
-      reading_type,
-      start_date,
-      time_period,
-      user_unit,
-      version_id,
-      created_at,
-      updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())
-  `
-
-  for (const line of lines) {
-    const params = [
-      line.end_date,
-      line.line_id,
-      line.metadata,
-      line.quantity,
-      line.reading_type,
-      line.start_date,
-      line.time_period,
-      line.user_unit,
-      line.version_id
-    ]
-
-    await db.query(query, params)
   }
 }
 
