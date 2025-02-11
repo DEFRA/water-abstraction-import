@@ -2,6 +2,7 @@
 
 const Boom = require('@hapi/boom')
 
+const DownloadJob = require('./jobs/download.js')
 const QueueJob = require('./jobs/queue.js')
 const ImportJob = require('./jobs/import.js')
 const { getFormats, getLogLines, getLogs } = require('./lib/return-helpers.js')
@@ -10,9 +11,11 @@ const { buildReturnsPacket } = require('./lib/transform-returns.js')
 async function importReturnLogs (request, h) {
   const licenceRef = request.payload?.licenceRef ?? null
 
+  await request.messageQueue.deleteQueue(DownloadJob.JOB_NAME)
   await request.messageQueue.deleteQueue(QueueJob.JOB_NAME)
   await request.messageQueue.deleteQueue(ImportJob.JOB_NAME)
-  await request.messageQueue.publish(QueueJob.createMessage(false, licenceRef))
+
+  await request.messageQueue.publish(DownloadJob.createMessage(false, licenceRef))
 
   return h.response().code(204)
 }
@@ -20,8 +23,11 @@ async function importReturnLogs (request, h) {
 async function importReturnLogsClean (request, h) {
   const licenceRef = request.payload?.licenceRef ?? null
 
+  await request.messageQueue.deleteQueue(DownloadJob.JOB_NAME)
   await request.messageQueue.deleteQueue(QueueJob.JOB_NAME)
-  await request.messageQueue.publish(QueueJob.createMessage(true, licenceRef))
+  await request.messageQueue.deleteQueue(ImportJob.JOB_NAME)
+
+  await request.messageQueue.publish(DownloadJob.createMessage(true, licenceRef))
 
   return h.response().code(204)
 }
