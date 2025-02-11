@@ -10,8 +10,8 @@ const config = require('../../../config')
 
 async function register (server, _options) {
   // Check if the old return lines extract needs downloading and loading into the DB
-  await server.messageQueue.subscribe(DownloadJob.JOB_NAME, (executedJob) => {
-    return DownloadJob.handler(executedJob)
+  await server.messageQueue.subscribe(DownloadJob.JOB_NAME, () => {
+    return DownloadJob.handler()
   })
   await server.messageQueue.onComplete(DownloadJob.JOB_NAME, (executedJob) => {
     return DownloadJob.onComplete(server.messageQueue, executedJob)
