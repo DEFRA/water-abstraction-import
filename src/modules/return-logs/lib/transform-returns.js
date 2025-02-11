@@ -38,16 +38,25 @@ const getCycleLogs = (logs, startDate, endDate) => {
 }
 
 /**
- * @param {String} licenceNumber - the abstraction licence number
+ * @param {String} licenceRef - the abstraction licence reference
  */
-const buildReturnsPacket = async (licenceNumber) => {
-  const formats = await getLicenceFormats(licenceNumber)
+const buildReturnsPacket = async (licenceRef) => {
+  const formats = await getLicenceFormats(licenceRef)
 
   const returnsData = {
     returns: []
   }
 
   for (const format of formats) {
+    // TODO: The returns.returns table does not support a returns_frequency of fortnightly
+    if (format.ARTC_REC_FREQ_CODE === 'F') {
+      global.GlobalNotifier.omg(
+        'return-logs.import: unsupported frequency',
+        { formatId: format.ID, frequency: format.ARTC_REC_FREQ_CODE, licenceRef }
+      )
+
+      continue
+    }
     // Get all the logs for the format here and filter later by cycle.
     // This saves having to make many requests to the database for
     // each format cycle.
@@ -65,7 +74,7 @@ const buildReturnsPacket = async (licenceNumber) => {
         continue
       }
 
-      const returnId = getReturnId(format.FGAC_REGION_CODE, licenceNumber, format.ID, startDate, endDate)
+      const returnId = getReturnId(format.FGAC_REGION_CODE, licenceRef, format.ID, startDate, endDate)
       const receivedDate = helpers.mapReceivedDate(cycleLogs)
       const status = helpers.getStatus(receivedDate)
 
@@ -74,7 +83,7 @@ const buildReturnsPacket = async (licenceNumber) => {
         return_id: returnId,
         regime: 'water',
         licence_type: 'abstraction',
-        licence_ref: licenceNumber,
+        licence_ref: licenceRef,
         start_date: startDate,
         end_date: endDate,
         due_date: await dueDate.getDueDate(endDate, format),
