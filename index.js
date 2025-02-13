@@ -20,6 +20,7 @@ const server = require('./server')
 const plugins = [
   HapiAuthJwt2,
   require('./src/plugins/pg-boss.plugin'),
+  require('./src/modules/import-job/plugin.js'),
   require('./src/modules/licence-import/plugin'),
   require('./src/modules/charging-import/plugin'),
   require('./src/modules/mod-logs/plugin'),

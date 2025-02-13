@@ -1,3 +1,4 @@
+const importJobRoutes = require('./modules/import-job/routes')
 const chargingImportRoutes = require('./modules/charging-import/routes')
 const coreRoutes = require('./modules/core/routes')
 const healthRoutes = require('./modules/health/routes')
@@ -11,6 +12,7 @@ const modLogsRoutes = require('./modules/mod-logs/routes.js')
 const pointsRoutes = require('./modules/points/routes.js')
 
 module.exports = [
+  ...importJobRoutes,
   ...chargingImportRoutes,
   ...coreRoutes,
   ...healthRoutes,
