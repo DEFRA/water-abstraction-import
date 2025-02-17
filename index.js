@@ -20,16 +20,7 @@ const server = require('./server')
 const plugins = [
   HapiAuthJwt2,
   require('./src/plugins/pg-boss.plugin'),
-  require('./src/modules/import-job/plugin.js'),
-  require('./src/modules/licence-import/plugin'),
-  require('./src/modules/charging-import/plugin'),
-  require('./src/modules/mod-logs/plugin'),
-  require('./src/modules/points/plugin'),
-  require('./src/modules/return-logs/plugin.js'),
-  require('./src/modules/return-versions/plugin.js'),
-  require('./src/modules/nald-import/plugin'),
-  require('./src/modules/bill-runs-import/plugin'),
-  require('./src/modules/core/plugin')
+  require('./src/modules/import-job/plugin.js')
 ]
 
 const configureServerAuthStrategy = (server) => {

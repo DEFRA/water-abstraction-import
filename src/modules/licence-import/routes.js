@@ -7,11 +7,6 @@ const controller = require('./controller')
 module.exports = [
   {
     method: 'post',
-    handler: controller.postImport,
-    path: '/import/licences'
-  },
-  {
-    method: 'post',
     handler: controller.postImportLicence,
     path: '/import/licence',
     options: {

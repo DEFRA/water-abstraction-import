@@ -1,9 +1,10 @@
 'use strict'
 
-const { pool } = require('../../../lib/connectors/db.js')
-const Queries = require('../lib/queries.js')
+const ExtractNaldDataProcess = require('../../extract-nald-data/process.js')
 
-const JOB_NAME = 'mod-logs.import'
+const EndDateCheckJob = require('./end-date-check.js')
+
+const JOB_NAME = 'import-job.extract-nald-data'
 
 function createMessage () {
   return {
@@ -18,17 +19,17 @@ async function handler () {
   try {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
-    await pool.query(Queries.linkLicencesToModLogs)
-    await pool.query(Queries.linkChargeVersionsToModLogs)
-    await pool.query(Queries.linkLicenceVersionsToModLogs)
+    await ExtractNaldDataProcess.go(false)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
 }
 
-async function onComplete (job) {
+async function onComplete (messageQueue, job) {
   if (!job.failed) {
+    await messageQueue.publish(EndDateCheckJob.createMessage())
+
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {
     global.GlobalNotifier.omg(`${JOB_NAME}: failed`)

@@ -1,9 +1,10 @@
 'use strict'
 
-const { pool } = require('../../../lib/connectors/db.js')
-const Queries = require('../lib/queries.js')
+const EndDateCheckProcess = require('../../end-date-check/process.js')
 
-const JOB_NAME = 'mod-logs.import'
+const PurposeConditionTypesJob = require('./reference-data-import.js')
+
+const JOB_NAME = 'import-job.end-date-check'
 
 function createMessage () {
   return {
@@ -18,17 +19,17 @@ async function handler () {
   try {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
-    await pool.query(Queries.linkLicencesToModLogs)
-    await pool.query(Queries.linkChargeVersionsToModLogs)
-    await pool.query(Queries.linkLicenceVersionsToModLogs)
+    await EndDateCheckProcess.go(false)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
 }
 
-async function onComplete (job) {
+async function onComplete (messageQueue, job) {
   if (!job.failed) {
+    await messageQueue.publish(PurposeConditionTypesJob.createMessage())
+
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {
     global.GlobalNotifier.omg(`${JOB_NAME}: failed`)

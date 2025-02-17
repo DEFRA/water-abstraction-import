@@ -22,11 +22,5 @@ module.exports = [
         }
       }
     }
-  },
-  {
-    method: 'POST',
-    path: '/import/1.0/nald/licences',
-    handler: controller.postImportLicences,
-    config: { description: 'Trigger the NALD licences import process' }
   }
 ]

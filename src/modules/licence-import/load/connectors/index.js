@@ -133,8 +133,6 @@ const cleanUpAgreements = licence => {
   return pool.query(queries.cleanUpAgreements, [licence.licenceNumber, keys])
 }
 
-const createPurposeConditionTypes = async () => pool.query(queries.createPurposeConditionTypes)
-
 const createPurposeCondition = (condition, purposeId) =>
   pool.query(queries.createPurposeCondition, [
     purposeId,
@@ -148,7 +146,6 @@ const createPurposeCondition = (condition, purposeId) =>
 
 module.exports = {
   createPurposeCondition,
-  createPurposeConditionTypes,
   createAddress,
   createAgreement,
   createCompany,

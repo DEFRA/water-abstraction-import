@@ -80,8 +80,7 @@ module.exports = {
     schedule: process.env.WRLS_CRON_IMPORT || '15 23 * * *',
     nald: {
       zipPassword: process.env.NALD_ZIP_PASSWORD,
-      path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release',
-      schedule: process.env.WRLS_CRON_NALD || '15 23 * * *'
+      path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release'
     },
     licences: {
       schedule: process.env.WRLS_CRON_LICENCES || '15 3 * * 1,2,3,4,',

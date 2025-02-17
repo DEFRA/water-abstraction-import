@@ -1,23 +1,9 @@
 'use strict'
 
-const CleanJob = require('./jobs/clean.js')
 const ImportCompanyJob = require('./jobs/import-company.js')
 const ImportLicenceJob = require('./jobs/import-licence.js')
 
 const Boom = require('@hapi/boom')
-
-const postImport = async (request, h) => {
-  const message = CleanJob.createMessage()
-
-  try {
-    await request.server.messageQueue.deleteQueue(CleanJob.name)
-    await request.server.messageQueue.publish(message)
-
-    return h.response().code(202)
-  } catch (error) {
-    throw Boom.boomify(error)
-  }
-}
 
 const postImportCompany = async (request, h) => {
   const { regionCode, partyId } = request.query
@@ -59,7 +45,6 @@ const postImportLicence = async (request, h) => {
 }
 
 module.exports = {
-  postImport,
   postImportCompany,
   postImportLicence
 }

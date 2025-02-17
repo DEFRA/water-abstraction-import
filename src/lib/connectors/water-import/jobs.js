@@ -1,6 +1,6 @@
 'use strict'
 
-const { pool } = require('../db')
+const db = require('../db.js')
 const { pgBossJobOverview, pgBossFailedJobs } = require('./queries')
 const moment = require('moment')
 
@@ -28,13 +28,13 @@ const getJobSummary = () => {
   ]
 
   return Promise.all(pgBossJobsArray.map(async eachJob => {
-    const { rows: status } = await pool.query(pgBossJobOverview, [eachJob.id])
+    const results = await db.query(pgBossJobOverview, [eachJob.id])
 
-    const failedRow = status.find(row => row.state === 'failed')
+    const failedRow = results.find(row => row.state === 'failed')
     const failedCount = parseInt(failedRow?.count ?? 0)
-    const completedRow = status.find(row => row.state === 'completed')
+    const completedRow = results.find(row => row.state === 'completed')
     const completedCount = parseInt(completedRow?.count ?? 0)
-    const isActive = !!status.find(row => row.state === 'active') || !!status.find(row => row.state === 'created')
+    const isActive = !!results.find(row => row.state === 'active') || !!results.find(row => row.state === 'created')
     const lastUpdated = completedRow?.max_completed_date ?? null
 
     return {
@@ -48,8 +48,8 @@ const getJobSummary = () => {
 }
 
 const getFailedJobs = async () => {
-  const { rows } = await pool.query(pgBossFailedJobs)
-  return rows.map(row => {
+  const results = await db.query(pgBossFailedJobs)
+  return results.map(row => {
     return {
       jobName: row.name,
       total: row.count,
