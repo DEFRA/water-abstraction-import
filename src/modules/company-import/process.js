@@ -5,7 +5,7 @@ const Extract = require('./lib/extract.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const Transformer = require('./lib/transformer.js')
 
-async function go(party, log = false) {
+async function go(party, index = 0, log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -20,10 +20,10 @@ async function go(party, log = false) {
     await _persistCompanyAddresses(transformedPartyData)
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, 'company-import: complete')
+      calculateAndLogTimeTaken(startTime, `company-import: complete (${index})`)
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('company-import: errored', error)
+    global.GlobalNotifier.omfg('company-import: errored', error, { party, index })
   }
 }
 

@@ -2,7 +2,7 @@
 
 const ReturnVersionsImportProcess = require('../../return-versions-import/process.js')
 
-const QueueCompanyImportJob = require('./queue-company-import.js')
+const CompanyImportJob = require('./company-import.js')
 
 const config = require('../../../../config.js')
 
@@ -30,7 +30,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    // await messageQueue.publish(QueueCompanyImportJob.createMessage())
+    await messageQueue.publish(CompanyImportJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {

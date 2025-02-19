@@ -1,55 +1,60 @@
 'use strict'
 
+const db = require('../../../lib/connectors/db.js')
+
 const CompanyImportProcess = require('../../company-import/process.js')
 
 const LinkToModLogsJob = require('./link-to-mod-logs.js')
 
 const JOB_NAME = 'import-job.company-import'
 
-function createMessage (data) {
+function createMessage () {
   return {
     name: JOB_NAME,
-    data,
     options: {
-      singletonKey: `${JOB_NAME}.${data.jobNumber}`
+      expireIn: '1 hours',
+      singletonKey: JOB_NAME
     }
   }
 }
 
-async function handler (job) {
+async function handler () {
   try {
-    // Most 'jobs' are single operation things, for example, flag-deleted-documents or end-date-check. However, there
-    // are typically 70K instances of this job queued up as part of the process! If we logged everyone it would just be
-    // noise in the logs. But that leaves us with no way of confirming the job is running. So, instead we get
-    // `queue-company-import.js` to include details on the total number of jobs plus a job number for each one added. We
-    // then use this information to log when the first is picked up and the last.
-    //
-    // N.B. It's not entirely accurate. If you added logging for all back in you might see the start message appear
-    // after a few jobs and likewise the finished message a few before the end. But it's good enough to give an
-    // indication that the 'jobs' did start and finish.
-    if (job.data.jobNumber === 1) {
-      global.GlobalNotifier.omg(`${JOB_NAME}: started`)
-    }
+    global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
-    await CompanyImportProcess.go(job.data.party, false)
+    const pMap = (await import('p-map')).default
+
+    const parties = await _parties()
+
+    await pMap(parties, CompanyImportProcess.go, { concurrency: 10 })
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
   }
 }
 
 async function onComplete (messageQueue, job) {
-  try {
-    const { data } = job.data.request
+  if (!job.data.failed) {
+    await messageQueue.publish(LinkToModLogsJob.createMessage())
 
-    if (data.jobNumber === data.numberOfJobs) {
-      // await messageQueue.publish(LinkToModLogsJob.createMessage())
-
-      global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { numberOfJobs: job.data.request.data.numberOfJobs })
-    }
-  } catch (error) {
-    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
-    throw error
+    global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
+  } else {
+    global.GlobalNotifier.omg(`${JOB_NAME}: failed`)
   }
+}
+
+async function _parties () {
+  return db.query(`
+    SELECT
+      "ID",
+      "APAR_TYPE",
+      "NAME",
+      "FORENAME",
+      "INITIALS",
+      "SALUTATION",
+      "FGAC_REGION_CODE"
+    FROM
+      "import"."NALD_PARTIES";
+  `)
 }
 
 module.exports = {

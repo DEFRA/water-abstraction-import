@@ -12,7 +12,6 @@ const ExtractOldLinesJob = require('./jobs/extract-old-lines.js')
 const FlagDeletedDocumentsJob = require('./jobs/flag-deleted-documents.js')
 const ImportJobEmailJob = require('./jobs/import-job-email.js')
 const LinkToModLogsProcessJob = require('./jobs/link-to-mod-logs.js')
-const QueueCompanyImportJob = require('./jobs/queue-company-import.js')
 const ReferenceDataImportJob = require('./jobs/reference-data-import.js')
 const ReturnVersionsImportJob = require('./jobs/return-versions-import.js')
 
@@ -69,16 +68,8 @@ async function register (server, _options) {
     return ReturnVersionsImportJob.onComplete(server.messageQueue, executedJob)
   })
 
-  // Register queue-company-import job
-  await server.messageQueue.subscribe(QueueCompanyImportJob.JOB_NAME, () => {
-    return QueueCompanyImportJob.handler(server.messageQueue)
-  })
-  await server.messageQueue.onComplete(QueueCompanyImportJob.JOB_NAME, (executedJob) => {
-    return QueueCompanyImportJob.onComplete(executedJob)
-  })
-
   // Register company-import job
-  await server.messageQueue.subscribe(CompanyImportJob.JOB_NAME, { teamSize: 75, teamConcurrency: 1 }, CompanyImportJob.handler)
+  await server.messageQueue.subscribe(CompanyImportJob.JOB_NAME, CompanyImportJob.handler)
   await server.messageQueue.onComplete(CompanyImportJob.JOB_NAME, (executedJob) => {
     return CompanyImportJob.onComplete(server.messageQueue, executedJob)
   })
