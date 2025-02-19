@@ -1,9 +1,10 @@
 'use strict'
 
-const { pool } = require('../../../lib/connectors/db.js')
-const Queries = require('../lib/queries.js')
+const EndDateTriggerProcess = require('../../end-date-trigger/process.js')
 
-const JOB_NAME = 'mod-logs.import'
+const ImportEmailJob = require('./import-job-email.js')
+
+const JOB_NAME = 'import-job.end-date-trigger'
 
 function createMessage () {
   return {
@@ -18,17 +19,17 @@ async function handler () {
   try {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
-    await pool.query(Queries.linkLicencesToModLogs)
-    await pool.query(Queries.linkChargeVersionsToModLogs)
-    await pool.query(Queries.linkLicenceVersionsToModLogs)
+    await EndDateTriggerProcess.go(false)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
   }
 }
 
-async function onComplete (job) {
-  if (!job.failed) {
+async function onComplete (messageQueue, job) {
+  if (!job.data.failed) {
+    await messageQueue.publish(ImportEmailJob.createMessage())
+
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {
     global.GlobalNotifier.omg(`${JOB_NAME}: failed`)

@@ -2,7 +2,7 @@
 
 const EndDateCheckProcess = require('../../end-date-check/process.js')
 
-const PurposeConditionTypesJob = require('./reference-data-import.js')
+const ReferenceDataImportJob = require('./reference-data-import.js')
 
 const JOB_NAME = 'import-job.end-date-check'
 
@@ -27,8 +27,8 @@ async function handler () {
 }
 
 async function onComplete (messageQueue, job) {
-  if (!job.failed) {
-    await messageQueue.publish(PurposeConditionTypesJob.createMessage())
+  if (!job.data.failed) {
+    await messageQueue.publish(ReferenceDataImportJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {

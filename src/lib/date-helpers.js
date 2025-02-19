@@ -2,16 +2,59 @@
 
 const moment = require('moment')
 
+const DATE_FORMAT = 'YYYY-MM-DD'
+const NALD_FORMAT = 'DD/MM/YYYY'
+
 /**
- * Given an array of dates which can be parsed by Moment,
- * filters out falsey values and returns a list of moment objects
- * sorted in ascending date order
- * @param {Array<String>} arr
- * @return {Array<Object>}
+ * Gets the end date for a company address from licence version data
+ * @param {Object} row - from NALD licence/licence version data
+ * @param {String,Null} currentEnd - the current value of the end date in the accumulator
  */
-const getSortedDates = arr => {
-  const filteredArray = arr.filter(value => value)
-  const mappedArray = filteredArray.map(value => moment(value))
+function getEndDate (row, currentEnd) {
+  // Get all end dates for this row
+  const endDates = [row.EFF_END_DATE, row.EXPIRY_DATE, row.REV_DATE, row.LAPSED_DATE]
+    .map(mapNaldDate)
+    .filter(value => value)
+
+  const arr = [getMinDate(endDates), currentEnd]
+
+  return arr.includes(null) ? null : getMaxDate(arr)
+}
+
+function getMinDate (values) {
+  const sortedDates = _sortDates(values)
+
+  return sortedDates[0]
+}
+
+function getMaxDate (values) {
+  const sortedDates = _sortDates(values)
+
+  return sortedDates[sortedDates.length - 1]
+}
+
+function mapNaldDate (value) {
+  if (value === 'null') {
+    return null
+  }
+
+  return moment(value, NALD_FORMAT).format(DATE_FORMAT)
+}
+
+/**
+ * Given an array of dates which can be parsed by Moment, filters out falsey values and returns a list of moment objects
+ * sorted in ascending date order
+ *
+ * @private
+ */
+function _sortDates (arr) {
+  const filteredArray = arr.filter((value) => {
+    return value
+  })
+  const mappedArray = filteredArray.map((value) => {
+    return moment(value)
+  })
+
   mappedArray.sort(function (startDate1, startDate2) {
     if ((startDate1.unix > startDate2.unix)) {
       return -1
@@ -19,18 +62,13 @@ const getSortedDates = arr => {
       return 1
     }
   })
+
   return mappedArray
 }
 
-const getMinDate = arr => {
-  return getSortedDates(arr)[0]
-}
-const getMaxDate = arr => {
-  const sorted = getSortedDates(arr)
-  return sorted[sorted.length - 1]
-}
-
 module.exports = {
+  getEndDate,
   getMinDate,
-  getMaxDate
+  getMaxDate,
+  mapNaldDate
 }

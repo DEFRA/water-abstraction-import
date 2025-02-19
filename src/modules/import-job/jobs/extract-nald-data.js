@@ -2,7 +2,7 @@
 
 const ExtractNaldDataProcess = require('../../extract-nald-data/process.js')
 
-const EndDateCheckJob = require('./end-date-check.js')
+const ExtractOldLinesJob = require('./extract-old-lines.js')
 
 const JOB_NAME = 'import-job.extract-nald-data'
 
@@ -27,8 +27,8 @@ async function handler () {
 }
 
 async function onComplete (messageQueue, job) {
-  if (!job.failed) {
-    await messageQueue.publish(EndDateCheckJob.createMessage())
+  if (!job.data.failed) {
+    await messageQueue.publish(ExtractOldLinesJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {

@@ -6,33 +6,24 @@ const path = require('path')
 
 const processHelper = require('@envage/water-abstraction-helpers').process
 
-const db = require('../../../lib/connectors/db.js')
-const QueueJob = require('./queue.js')
-const s3 = require('../../../lib/services/s3.js')
+const db = require('../../lib/connectors/db.js')
+const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
+const s3 = require('../../lib/services/s3.js')
 
-const JOB_NAME = 'return-logs.download'
+// Download / unzip paths
 const OLD_LINES_CSV_FILE = 'old_nald_return_lines.csv'
 const OLD_LINES_SQL_FILE = 'old_nald_return_lines.sql'
 const OLD_LINES_ZIP_FILE = 'old_nald_return_lines.zip'
 
-const config = require('../../../../config.js')
-
-function createMessage (cleanReturnLogs, licenceRef) {
-  return {
-    name: JOB_NAME,
-    data: {
-      licenceRef,
-      cleanReturnLogs
-    },
-    options: {
-      singletonKey: JOB_NAME
-    }
-  }
-}
-
-async function handler () {
+async function go(skip = false, log = false) {
   try {
-    global.GlobalNotifier.omg(`${JOB_NAME}: started`)
+    const startTime = currentTimeInNanoseconds()
+
+    if (skip) {
+      global.GlobalNotifier.omg('extract-old-lines: skipped')
+
+      return
+    }
 
     // Determine if the one-off pre-2013 NALD return lines data extract table exists and is populated
     let oldLinesExist = await _oldLinesExist()
@@ -54,22 +45,12 @@ async function handler () {
       oldLinesExist = true
     }
 
-    return oldLinesExist
+    if (log) {
+      calculateAndLogTimeTaken(startTime, 'extract-old-lines: complete', { oldLinesExist })
+    }
   } catch (error) {
-    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
-    throw error
+    global.GlobalNotifier.omfg('extract-old-lines: errored', error)
   }
-}
-
-async function onComplete (messageQueue, job) {
-  if (!job.failed) {
-    const oldLinesExist = job.data.response.value
-    const { cleanReturnLogs, licenceRef } = job.data.request.data
-
-    await messageQueue.publish(QueueJob.createMessage(cleanReturnLogs, oldLinesExist, licenceRef))
-  }
-
-  global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
 }
 
 function _cleanUpFiles (downloadLocalPath, extractLocalPath, sqlLocalPath) {
@@ -221,8 +202,5 @@ async function _oldLinesTableExists () {
 }
 
 module.exports = {
-  JOB_NAME,
-  createMessage,
-  handler,
-  onComplete
+  go
 }

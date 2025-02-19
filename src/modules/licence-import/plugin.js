@@ -7,7 +7,6 @@ const ImportLicenceJob = require('./jobs/import-licence.js')
 const ImportPointsJob = require('./jobs/import-points.js')
 const QueueCompaniesJob = require('./jobs/queue-companies.js')
 const QueueLicencesJob = require('./jobs/queue-licences.js')
-const TriggerEndDateProcessJob = require('./jobs/trigger-end-date-process.js')
 
 const config = require('../../../config')
 
@@ -38,15 +37,8 @@ async function register (server, _options) {
 
   // Import all licence points into WRLS
   await server.messageQueue.subscribe(ImportPointsJob.name, ImportPointsJob.options, ImportPointsJob.handler)
-  await server.messageQueue.onComplete(ImportPointsJob.name, (executedJob) => {
-    return ImportPointsJob.onComplete(server.messageQueue, executedJob)
-  })
-
-  // Finally, trigger the licences end date process in water abstraction system. This needs to happen _after_ the
-  // licence have been imported
-  await server.messageQueue.subscribe(TriggerEndDateProcessJob.name, TriggerEndDateProcessJob.handler)
-  await server.messageQueue.onComplete(TriggerEndDateProcessJob.name, () => {
-    return TriggerEndDateProcessJob.onComplete()
+  await server.messageQueue.onComplete(ImportPointsJob.name, () => {
+    return ImportPointsJob.onComplete()
   })
 
   cron.schedule(config.import.licences.schedule, async () => {

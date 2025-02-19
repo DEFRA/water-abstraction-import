@@ -2,6 +2,8 @@
 
 const ReturnVersionsImportProcess = require('../../return-versions-import/process.js')
 
+const QueueCompanyImportJob = require('./queue-company-import.js')
+
 const config = require('../../../../config.js')
 
 const JOB_NAME = 'import-job.return-versions-import'
@@ -27,8 +29,8 @@ async function handler () {
 }
 
 async function onComplete (messageQueue, job) {
-  if (!job.failed) {
-    // await messageQueue.publish(ExtractNaldDataJob.createMessage())
+  if (!job.data.failed) {
+    // await messageQueue.publish(QueueCompanyImportJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {

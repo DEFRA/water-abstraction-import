@@ -2,11 +2,9 @@
 
 const Controller = require('./controller.js')
 
-const coreRoutes = require('./modules/core/routes')
 const licenceImportRoutes = require('./modules/licence-import/routes')
 const naldImportRoutes = require('./modules/nald-import/routes')
 const returnsRoutes = require('./modules/returns/routes')
-const returnLogsRoutes = require('./modules/return-logs/routes')
 
 module.exports = [
   {
@@ -51,9 +49,19 @@ module.exports = [
     handler: Controller.clearQueues
   },
   {
+    method: 'post',
+    handler: Controller.companyImport,
+    path: '/process/company-import'
+  },
+  {
     method: 'POST',
     path: '/process/end-date-check',
     handler: Controller.endDateCheck
+  },
+  {
+    method: 'POST',
+    path: '/process/end-date-trigger',
+    handler: Controller.endDateTrigger
   },
   {
     method: 'POST',
@@ -62,8 +70,23 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/extract-old-lines',
+    handler: Controller.extractOldLines
+  },
+  {
+    method: 'POST',
     path: '/process/flag-deleted-documents',
     handler: Controller.flagDeletedDocuments
+  },
+  {
+    method: 'POST',
+    path: '/process/import-job-email',
+    handler: Controller.importJobEmail
+  },
+  {
+    method: 'POST',
+    path: '/process/link-to-mod-logs',
+    handler: Controller.linkToModLogs
   },
   {
     method: 'POST',
@@ -75,9 +98,7 @@ module.exports = [
     path: '/process/return-versions-import',
     handler: Controller.returnVersionsImport
   },
-  ...coreRoutes,
   ...licenceImportRoutes,
   ...naldImportRoutes,
-  ...returnsRoutes,
-  ...returnLogsRoutes
+  ...returnsRoutes
 ]

@@ -126,11 +126,13 @@ module.exports = {
     ...(isTlsConnection) && { tls: {} },
     db: 0
   },
+
   notify: {
-    templates: {
-      service_status_alert: 'c34d1b16-694b-4364-8e7e-83e9dbd34a62'
-    }
+    apiKey: process.env.NOTIFY_API_KEY,
+    mailbox: process.env.WATER_SERVICE_MAILBOX,
+    templateId: '46eeaa9c-7346-4898-a4ad-4e26d239d4ef'
   },
+
   // Credit to https://stackoverflow.com/a/323546/6117745 for how to handle
   // converting the env var to a boolean
   featureFlags: {

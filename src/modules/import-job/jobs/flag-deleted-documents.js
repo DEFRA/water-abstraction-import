@@ -1,12 +1,10 @@
 'use strict'
 
-const CleanProcess = require('../../clean/process.js')
+const FlagDeletedDocumentsProcess = require('../../flag-deleted-documents/process.js')
 
-const FlagDeletedDocumentsJob = require('./flag-deleted-documents.js')
+const EndDateCheckJob = require('./end-date-check.js')
 
-const config = require('../../../../config.js')
-
-const JOB_NAME = 'import-job.clean'
+const JOB_NAME = 'import-job.flag-deleted-documents'
 
 function createMessage () {
   return {
@@ -21,7 +19,7 @@ async function handler () {
   try {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
-    await CleanProcess.go(config.import.licences.isCleanLicenceImportsEnabled, false)
+    await FlagDeletedDocumentsProcess.go(false)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
@@ -30,7 +28,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    await messageQueue.publish(FlagDeletedDocumentsJob.createMessage())
+    await messageQueue.publish(EndDateCheckJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {

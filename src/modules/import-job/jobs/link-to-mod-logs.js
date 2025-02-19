@@ -1,12 +1,10 @@
 'use strict'
 
-const CleanProcess = require('../../clean/process.js')
+const LinkToModLogsProcess = require('../../link-to-mod-logs/process.js')
 
-const FlagDeletedDocumentsJob = require('./flag-deleted-documents.js')
+const EndDateTriggerJob = require('./end-date-trigger.js')
 
-const config = require('../../../../config.js')
-
-const JOB_NAME = 'import-job.clean'
+const JOB_NAME = 'import-job.link-to-mod-logs'
 
 function createMessage () {
   return {
@@ -21,7 +19,7 @@ async function handler () {
   try {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
-    await CleanProcess.go(config.import.licences.isCleanLicenceImportsEnabled, false)
+    await LinkToModLogsProcess.go(false)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
@@ -30,7 +28,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    await messageQueue.publish(FlagDeletedDocumentsJob.createMessage())
+    await messageQueue.publish(EndDateTriggerJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {

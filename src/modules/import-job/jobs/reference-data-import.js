@@ -27,7 +27,7 @@ async function handler () {
 }
 
 async function onComplete (messageQueue, job) {
-  if (!job.failed) {
+  if (!job.data.failed) {
     await messageQueue.publish(ReturnVersionsImportJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)

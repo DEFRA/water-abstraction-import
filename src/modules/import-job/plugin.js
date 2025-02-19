@@ -4,8 +4,15 @@ const cron = require('node-cron')
 
 const CleanJob = require('./jobs/clean.js')
 const ClearQueuesJob = require('./jobs/clear-queues.js')
+const CompanyImportJob = require('./jobs/company-import.js')
 const EndDateCheckJob = require('./jobs/end-date-check.js')
+const EndDateTriggerJob = require('./jobs/end-date-trigger.js')
 const ExtractNaldDataJob = require('./jobs/extract-nald-data.js')
+const ExtractOldLinesJob = require('./jobs/extract-old-lines.js')
+const FlagDeletedDocumentsJob = require('./jobs/flag-deleted-documents.js')
+const ImportJobEmailJob = require('./jobs/import-job-email.js')
+const LinkToModLogsProcessJob = require('./jobs/link-to-mod-logs.js')
+const QueueCompanyImportJob = require('./jobs/queue-company-import.js')
 const ReferenceDataImportJob = require('./jobs/reference-data-import.js')
 const ReturnVersionsImportJob = require('./jobs/return-versions-import.js')
 
@@ -26,10 +33,22 @@ async function register (server, _options) {
     return ExtractNaldDataJob.onComplete(server.messageQueue, executedJob)
   })
 
+  // Register extract-old-lines job
+  await server.messageQueue.subscribe(ExtractOldLinesJob.JOB_NAME, ExtractOldLinesJob.handler)
+  await server.messageQueue.onComplete(ExtractOldLinesJob.JOB_NAME, (executedJob) => {
+    return ExtractOldLinesJob.onComplete(server.messageQueue, executedJob)
+  })
+
   // Register clean job
   await server.messageQueue.subscribe(CleanJob.JOB_NAME, CleanJob.handler)
   await server.messageQueue.onComplete(CleanJob.JOB_NAME, (executedJob) => {
     return CleanJob.onComplete(server.messageQueue, executedJob)
+  })
+
+  // Register flag-deleted-documents job
+  await server.messageQueue.subscribe(FlagDeletedDocumentsJob.JOB_NAME, FlagDeletedDocumentsJob.handler)
+  await server.messageQueue.onComplete(FlagDeletedDocumentsJob.JOB_NAME, (executedJob) => {
+    return FlagDeletedDocumentsJob.onComplete(server.messageQueue, executedJob)
   })
 
   // Register end-date-check job
@@ -48,6 +67,38 @@ async function register (server, _options) {
   await server.messageQueue.subscribe(ReturnVersionsImportJob.JOB_NAME, ReturnVersionsImportJob.handler)
   await server.messageQueue.onComplete(ReturnVersionsImportJob.JOB_NAME, (executedJob) => {
     return ReturnVersionsImportJob.onComplete(server.messageQueue, executedJob)
+  })
+
+  // Register queue-company-import job
+  await server.messageQueue.subscribe(QueueCompanyImportJob.JOB_NAME, () => {
+    return QueueCompanyImportJob.handler(server.messageQueue)
+  })
+  await server.messageQueue.onComplete(QueueCompanyImportJob.JOB_NAME, (executedJob) => {
+    return QueueCompanyImportJob.onComplete(executedJob)
+  })
+
+  // Register company-import job
+  await server.messageQueue.subscribe(CompanyImportJob.JOB_NAME, { teamSize: 75, teamConcurrency: 1 }, CompanyImportJob.handler)
+  await server.messageQueue.onComplete(CompanyImportJob.JOB_NAME, (executedJob) => {
+    return CompanyImportJob.onComplete(server.messageQueue, executedJob)
+  })
+
+  // Register link-to-mod-logs job
+  await server.messageQueue.subscribe(LinkToModLogsProcessJob.JOB_NAME, LinkToModLogsProcessJob.handler)
+  await server.messageQueue.onComplete(LinkToModLogsProcessJob.JOB_NAME, (executedJob) => {
+    return LinkToModLogsProcessJob.onComplete(server.messageQueue, executedJob)
+  })
+
+  // Register end-date-trigger job
+  await server.messageQueue.subscribe(EndDateTriggerJob.JOB_NAME, EndDateTriggerJob.handler)
+  await server.messageQueue.onComplete(EndDateTriggerJob.JOB_NAME, (executedJob) => {
+    return EndDateTriggerJob.onComplete(server.messageQueue, executedJob)
+  })
+
+  // Register import-job-email job
+  await server.messageQueue.subscribe(ImportJobEmailJob.JOB_NAME, ImportJobEmailJob.handler)
+  await server.messageQueue.onComplete(ImportJobEmailJob.JOB_NAME, (executedJob) => {
+    return ImportJobEmailJob.onComplete(executedJob)
   })
 
   // Schedule clear-queues job using cron. The clear queues job will then queue the next job in the process in its

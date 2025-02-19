@@ -8,9 +8,14 @@ const BillRunsImportProcess = require('./modules/bill-runs-import/process.js')
 const ChargeVersionsImportProcess = require('./modules/charge-versions-import/process.js')
 const CleanProcess = require('./modules/clean/process.js')
 const ClearQueuesProcess = require('./modules/clear-queues/process.js')
+const CompanyImportProcess = require('./modules/company-import/process.js')
 const EndDateCheckProcess = require('./modules/end-date-check/process.js')
+const EndDateTriggerProcess = require('./modules/end-date-trigger/process.js')
 const ExtractNaldDataProcess = require('./modules/extract-nald-data/process.js')
+const ExtractOldLinesProcess = require('./modules/extract-old-lines/process.js')
 const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/process.js')
+const ImportJobEmailProcess = require('./modules/import-job-email/process.js')
+const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
 const ReturnVersionsImportProcess = require('./modules/return-versions-import/process.js')
 
@@ -44,14 +49,36 @@ async function clearQueues (request, h) {
   return h.response().code(204)
 }
 
+async function companyImport (request, h) {
+  // NOTE: The payload is expected to match the result of calling this SQL query
+  // SELECT "ID", "APAR_TYPE", NAME", "FORENAME", "INITIALS", "SALUTATION", "FGAC_REGION_CODE"
+  // FROM "import"."NALD_PARTIES" WHERE "FGAC_REGION_CODE"=$1 AND "ID" = $2;
+
+  CompanyImportProcess.go(request.payload, true)
+
+  return h.response().code(204)
+}
+
 async function endDateCheck (_request, h) {
   EndDateCheckProcess.go(true)
 
   return h.response().code(204)
 }
 
+async function endDateTrigger (_request, h) {
+  EndDateTriggerProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function extractNaldData (_request, h) {
   ExtractNaldDataProcess.go(true)
+
+  return h.response().code(204)
+}
+
+async function extractOldLines (_request, h) {
+  ExtractOldLinesProcess.go(config.featureFlags.disableReturnsImports, true)
 
   return h.response().code(204)
 }
@@ -77,10 +104,22 @@ async function importJob (request, h) {
   return h.response().code(204)
 }
 
+async function importJobEmail (_request, h) {
+  ImportJobEmailProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function jobSummary (_request, h) {
   const summary = await JobsConnector.getJobSummary()
 
   return h.response(summary).code(200)
+}
+
+async function linkToModLogs (_request, h) {
+  LinkToModLogsProcess.go(true)
+
+  return h.response().code(204)
 }
 
 async function referenceDataImport (_request, h) {
@@ -121,12 +160,17 @@ module.exports = {
   chargeVersionsImport,
   clean,
   clearQueues,
+  companyImport,
   endDateCheck,
+  endDateTrigger,
   extractNaldData,
+  extractOldLines,
   flagDeletedDocuments,
   healthInfo,
-  jobSummary,
   importJob,
+  importJobEmail,
+  jobSummary,
+  linkToModLogs,
   referenceDataImport,
   returnVersionsImport
 }
