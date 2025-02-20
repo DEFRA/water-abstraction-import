@@ -2,7 +2,6 @@
 
 const extract = require('../extract')
 const load = require('../load')
-const ImportPointsJob = require('./import-points.js')
 const transform = require('../transform')
 
 const JOB_NAME = 'licence-import.import-licence'
@@ -74,7 +73,6 @@ async function onComplete (messageQueue, job) {
     const { data } = job.data.request
 
     if (data.jobNumber === data.numberOfJobs) {
-      await messageQueue.publish(ImportPointsJob.createMessage())
       global.GlobalNotifier.omg(`${JOB_NAME}: finished`, { numberOfJobs: job.data.request.data.numberOfJobs })
     }
   } catch (error) {

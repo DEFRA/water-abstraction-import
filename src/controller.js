@@ -18,6 +18,7 @@ const ExtractNaldDataProcess = require('./modules/extract-nald-data/process.js')
 const ExtractOldLinesProcess = require('./modules/extract-old-lines/process.js')
 const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/process.js')
 const ImportJobEmailProcess = require('./modules/import-job-email/process.js')
+const LicencePointsImportProcess = require('./modules/licence-points-import/process.js')
 const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
 const ReturnVersionsImportProcess = require('./modules/return-versions-import/process.js')
@@ -146,6 +147,12 @@ async function jobSummary (_request, h) {
   return h.response(summary).code(200)
 }
 
+async function licencePointsImport (_request, h) {
+  LicencePointsImportProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function linkToModLogs (_request, h) {
   LinkToModLogsProcess.go(true)
 
@@ -201,6 +208,7 @@ module.exports = {
   importJob,
   importJobEmail,
   jobSummary,
+  licencePointsImport,
   linkToModLogs,
   referenceDataImport,
   returnVersionsImport

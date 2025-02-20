@@ -89,6 +89,11 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/licence-points-import',
+    handler: Controller.licencePointsImport
+  },
+  {
+    method: 'POST',
     path: '/process/link-to-mod-logs',
     handler: Controller.linkToModLogs
   },

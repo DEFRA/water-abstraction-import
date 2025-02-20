@@ -1,43 +1,24 @@
 'use strict'
 
-const { pool } = require('../../../lib/connectors/db.js')
-const ReturnsJob = require('./returns.js')
+const db = require('../../lib/connectors/db.js')
+const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
-const JOB_NAME = 'points.licences'
-
-function createMessage () {
-  return {
-    name: JOB_NAME,
-    options: {
-      singletonKey: JOB_NAME
-    }
-  }
-}
-
-async function handler () {
+async function go(log = false) {
   try {
-    global.GlobalNotifier.omg(`${JOB_NAME}: started`)
+    const startTime = currentTimeInNanoseconds()
 
-    // Import licence version purpose points
-    await pool.query(_query())
+    await _licenceVersionPurposePoints()
+
+    if (log) {
+      calculateAndLogTimeTaken(startTime, 'licence-points-import: complete')
+    }
   } catch (error) {
-    global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
-    throw error
+    global.GlobalNotifier.omfg('licence-points-import: errored', error)
   }
 }
 
-async function onComplete (messageQueue, job) {
-  if (!job.failed) {
-    await messageQueue.publish(ReturnsJob.createMessage())
-
-    global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
-  } else {
-    global.GlobalNotifier.omg(`${JOB_NAME}: failed`)
-  }
-}
-
-function _query () {
-  return `
+async function _licenceVersionPurposePoints () {
+  await db.query(`
     INSERT INTO water.licence_version_purpose_points (
       licence_version_purpose_id,
       external_id,
@@ -62,12 +43,9 @@ function _query () {
     SET
       point_id = excluded.point_id,
       abstraction_method = excluded.abstraction_method;
-  `
+  `)
 }
 
 module.exports = {
-  JOB_NAME,
-  createMessage,
-  handler,
-  onComplete
+  go
 }

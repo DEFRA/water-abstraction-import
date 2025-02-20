@@ -4,7 +4,7 @@ const db = require('../../../lib/connectors/db.js')
 
 const CrmPermitImportProcess = require('../..//crm-permit-import/process.js')
 
-const LinkToModLogsJob = require('./link-to-mod-logs.js')
+const LicencePointsImportJob = require('./licence-points-import.js')
 
 const JOB_NAME = 'import-job.licence-import'
 
@@ -35,7 +35,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    // await messageQueue.publish(LinkToModLogsJob.createMessage())
+    await messageQueue.publish(LicencePointsImportJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {
