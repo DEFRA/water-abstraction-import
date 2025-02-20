@@ -3,7 +3,6 @@
 const Controller = require('./controller.js')
 
 const licenceImportRoutes = require('./modules/licence-import/routes')
-const naldImportRoutes = require('./modules/nald-import/routes')
 const returnsRoutes = require('./modules/returns/routes')
 
 module.exports = [
@@ -104,6 +103,5 @@ module.exports = [
     handler: Controller.returnVersionsImport
   },
   ...licenceImportRoutes,
-  ...naldImportRoutes,
   ...returnsRoutes
 ]

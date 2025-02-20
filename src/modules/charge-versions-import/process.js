@@ -20,16 +20,16 @@
 const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const MetadataImport = require('./lib/metadata-import.js')
-const TransformPermit = require('../nald-import/transform-permit.js')
+const PermitTransformer = require('../crm-permit-import/lib/permit-transformer.js')
 
 async function go(log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 
-    const licenceNumbers = await _licenceNumbers()
+    const licences = await _licences()
 
-    for (const licenceNumber of licenceNumbers) {
-      await _importChargeVersionMetadataForLicence(licenceNumber)
+    for (const licence of licences) {
+      await _importChargeVersionMetadataForLicence(licence)
     }
 
     await _chargeVersions()
@@ -45,9 +45,9 @@ async function go(log = false) {
   }
 }
 
-async function _importChargeVersionMetadataForLicence (licenceNumber) {
+async function _importChargeVersionMetadataForLicence (licence) {
   try {
-    const licenceData = await TransformPermit.getLicenceJson(licenceNumber)
+    const licenceData = await PermitTransformer.go(licence)
 
     await MetadataImport.go(licenceData)
   } catch (error) {
@@ -55,12 +55,23 @@ async function _importChargeVersionMetadataForLicence (licenceNumber) {
   }
 }
 
-async function _licenceNumbers () {
-  const results = db.query('SELECT nal."LIC_NO" FROM "import"."NALD_ABS_LICENCES" nal;')
-
-  return results.map((result) => {
-    return result.LIC_NO
-  })
+async function _licences () {
+  return db.query(`
+    SELECT
+      nal.*
+    FROM
+      "import"."NALD_ABS_LICENCES" nal
+    WHERE EXISTS (
+      SELECT
+        1
+      FROM
+        "import"."NALD_ABS_LIC_VERSIONS" nalv
+      WHERE
+        nalv."AABL_ID" = nal."ID"
+        AND nalv."FGAC_REGION_CODE" = nal."FGAC_REGION_CODE"
+        AND nalv."STATUS" <> 'DRAFT'
+    );
+  `)
 }
 
 async function _chargeVersions () {

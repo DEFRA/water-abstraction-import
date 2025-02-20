@@ -10,6 +10,16 @@ async function go (licence, licenceVersions, licencePurposes) {
 
   const currentLicenceVersion = await _currentLicenceVersion(id, regionCode)
 
+  // NOTE: Most (because there are always exceptions in NALD!) 'ended' licences in NALD don't have a current version.
+  // Those who remember the legacy view licence summary page, will remember it displaying "No summary for this licence."
+  // when this was the case.
+  //
+  // Fortunately our new view licence page does not have this problem. But in regards importing to the permit and crm
+  // schemas we still have to expect NALD licences without current versions.
+  if (!currentLicenceVersion) {
+    return null
+  }
+
   _assignPartyDataToCurrentLicenceVersion(currentLicenceVersion, licenceVersions)
 
   const address = await _address(currentLicenceVersion.ACON_AADD_ID, currentLicenceVersion.FGAC_REGION_CODE)

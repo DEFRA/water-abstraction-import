@@ -4,7 +4,7 @@ const db = require('../../../lib/connectors/db.js')
 
 const CrmV2ImportProcess = require('../../crm-v2-import/process.js')
 
-const LinkToModLogsJob = require('./link-to-mod-logs.js')
+const LicenceImportJob = require('./licence-import.js')
 
 const JOB_NAME = 'import-job.crm-v2-import'
 
@@ -12,7 +12,7 @@ function createMessage () {
   return {
     name: JOB_NAME,
     options: {
-      expireIn: '1 hours',
+      expireIn: '2 hours',
       singletonKey: JOB_NAME
     }
   }
@@ -34,7 +34,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    await messageQueue.publish(LinkToModLogsJob.createMessage())
+    await messageQueue.publish(LicenceImportJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {

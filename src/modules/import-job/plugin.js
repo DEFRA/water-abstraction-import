@@ -11,6 +11,7 @@ const ExtractNaldDataJob = require('./jobs/extract-nald-data.js')
 const ExtractOldLinesJob = require('./jobs/extract-old-lines.js')
 const FlagDeletedDocumentsJob = require('./jobs/flag-deleted-documents.js')
 const ImportJobEmailJob = require('./jobs/import-job-email.js')
+const LicenceImportJob = require('./jobs/licence-import.js')
 const LinkToModLogsProcessJob = require('./jobs/link-to-mod-logs.js')
 const ReferenceDataImportJob = require('./jobs/reference-data-import.js')
 const ReturnVersionsImportJob = require('./jobs/return-versions-import.js')
@@ -72,6 +73,12 @@ async function register (server, _options) {
   await server.messageQueue.subscribe(CrmV2ImportJob.JOB_NAME, CrmV2ImportJob.handler)
   await server.messageQueue.onComplete(CrmV2ImportJob.JOB_NAME, (executedJob) => {
     return CrmV2ImportJob.onComplete(server.messageQueue, executedJob)
+  })
+
+  // Register licence-import job
+  await server.messageQueue.subscribe(LicenceImportJob.JOB_NAME, LicenceImportJob.handler)
+  await server.messageQueue.onComplete(LicenceImportJob.JOB_NAME, (executedJob) => {
+    return LicenceImportJob.onComplete(server.messageQueue, executedJob)
   })
 
   // Register link-to-mod-logs job
