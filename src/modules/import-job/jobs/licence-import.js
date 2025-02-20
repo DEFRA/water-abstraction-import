@@ -2,7 +2,7 @@
 
 const db = require('../../../lib/connectors/db.js')
 
-const CrmPermitImportProcess = require('../..//crm-permit-import/process.js')
+const LicenceLegacyImportProcess = require('../../licence-legacy-import/process.js')
 
 const LicencePointsImportJob = require('./licence-points-import.js')
 
@@ -25,7 +25,11 @@ async function handler () {
     const licences = await _licences()
 
     for (const [index, licence] of licences.entries()) {
-      await CrmPermitImportProcess.go(licence, index, false)
+      const results = await Promise.allSettled([
+        LicenceLegacyImportProcess.go(licence, index, false)
+      ])
+
+      _logLicenceErrors(results, index, licence)
     }
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
@@ -40,6 +44,16 @@ async function onComplete (messageQueue, job) {
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {
     global.GlobalNotifier.omg(`${JOB_NAME}: failed`)
+  }
+}
+
+function _logLicenceErrors (results, index, licence) {
+  const errors = results.filter((result) => {
+    return result.status === 'rejected'
+  })
+
+  for (const error of errors) {
+    global.GlobalNotifier.omg(`${JOB_NAME}: errored`, { index, licence, error })
   }
 }
 

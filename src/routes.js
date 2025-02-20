@@ -48,11 +48,6 @@ module.exports = [
     handler: Controller.clearQueues
   },
   {
-    method: 'POST',
-    path: '/process/crm-permit-import',
-    handler: Controller.crmPermitImport
-  },
-  {
     method: 'post',
     handler: Controller.crmV2Import,
     path: '/process/crm-v2-import'
@@ -86,6 +81,11 @@ module.exports = [
     method: 'POST',
     path: '/process/import-job-email',
     handler: Controller.importJobEmail
+  },
+  {
+    method: 'POST',
+    path: '/process/licence-legacy-import',
+    handler: Controller.licenceLegacyImport
   },
   {
     method: 'POST',

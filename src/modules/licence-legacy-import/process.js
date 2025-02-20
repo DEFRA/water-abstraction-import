@@ -21,10 +21,10 @@ async function go(licence, index = 0, log = false) {
     }
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, `crm-permit-import: complete (${index})`)
+      calculateAndLogTimeTaken(startTime, `licence-legacy-import: complete (${index})`)
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('crm-permit-import: errored', error, { licence, index })
+    global.GlobalNotifier.omfg('licence-legacy-import: errored', error, { licence, index })
   }
 }
 

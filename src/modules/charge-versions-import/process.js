@@ -20,7 +20,7 @@
 const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const MetadataImport = require('./lib/metadata-import.js')
-const PermitTransformer = require('../crm-permit-import/lib/permit-transformer.js')
+const PermitTransformer = require('../licence-legacy-import/lib/permit-transformer.js')
 
 async function go(log = false) {
   try {
