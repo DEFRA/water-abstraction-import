@@ -4,7 +4,7 @@ const cron = require('node-cron')
 
 const CleanJob = require('./jobs/clean.js')
 const ClearQueuesJob = require('./jobs/clear-queues.js')
-const CompanyImportJob = require('./jobs/company-import.js')
+const CrmV2ImportJob = require('./jobs/crm-v2-import.js')
 const EndDateCheckJob = require('./jobs/end-date-check.js')
 const EndDateTriggerJob = require('./jobs/end-date-trigger.js')
 const ExtractNaldDataJob = require('./jobs/extract-nald-data.js')
@@ -68,10 +68,10 @@ async function register (server, _options) {
     return ReturnVersionsImportJob.onComplete(server.messageQueue, executedJob)
   })
 
-  // Register company-import job
-  await server.messageQueue.subscribe(CompanyImportJob.JOB_NAME, CompanyImportJob.handler)
-  await server.messageQueue.onComplete(CompanyImportJob.JOB_NAME, (executedJob) => {
-    return CompanyImportJob.onComplete(server.messageQueue, executedJob)
+  // Register crm-v2-import job
+  await server.messageQueue.subscribe(CrmV2ImportJob.JOB_NAME, CrmV2ImportJob.handler)
+  await server.messageQueue.onComplete(CrmV2ImportJob.JOB_NAME, (executedJob) => {
+    return CrmV2ImportJob.onComplete(server.messageQueue, executedJob)
   })
 
   // Register link-to-mod-logs job

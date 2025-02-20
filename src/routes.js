@@ -50,8 +50,8 @@ module.exports = [
   },
   {
     method: 'post',
-    handler: Controller.companyImport,
-    path: '/process/company-import'
+    handler: Controller.crmV2Import,
+    path: '/process/crm-v2-import'
   },
   {
     method: 'POST',
@@ -97,6 +97,11 @@ module.exports = [
     method: 'POST',
     path: '/process/return-versions-import',
     handler: Controller.returnVersionsImport
+  },
+  {
+    method: 'POST',
+    path: '/process/permit-import',
+    handler: Controller.permitImport
   },
   ...licenceImportRoutes,
   ...naldImportRoutes,

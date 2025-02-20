@@ -21,14 +21,38 @@ function getEndDate (row, currentEnd) {
   return arr.includes(null) ? null : getMaxDate(arr)
 }
 
-function getMinDate (values) {
-  const sortedDates = _sortDates(values)
+function getMinDate (values, mapFromNald = false) {
+  let mappedValues = values
+
+  if (mapFromNald) {
+    mappedValues = values.map((value) => {
+      return mapNaldDate(value)
+    })
+  }
+
+  const sortedDates = _sortDates(mappedValues)
+
+  if (sortedDates.length === 0) {
+    return null
+  }
 
   return sortedDates[0]
 }
 
-function getMaxDate (values) {
-  const sortedDates = _sortDates(values)
+function getMaxDate (values, mapFromNald = false) {
+  let mappedValues = values
+
+  if (mapFromNald) {
+    mappedValues = values.map((value) => {
+      return mapNaldDate(value)
+    })
+  }
+
+  const sortedDates = _sortDates(mappedValues)
+
+  if (sortedDates.length === 0) {
+    return null
+  }
 
   return sortedDates[sortedDates.length - 1]
 }

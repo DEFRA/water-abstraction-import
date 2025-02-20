@@ -20,10 +20,10 @@ async function go(party, index = 0, log = false) {
     await _persistCompanyAddresses(transformedPartyData)
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, `company-import: complete (${index})`)
+      calculateAndLogTimeTaken(startTime, `crm-v2-import: complete (${index})`)
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('company-import: errored', error, { party, index })
+    global.GlobalNotifier.omfg('crm-v2-import: errored', error, { party, index })
   }
 }
 
