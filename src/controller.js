@@ -10,6 +10,7 @@ const BillRunsImportProcess = require('./modules/bill-runs-import/process.js')
 const ChargeVersionsImportProcess = require('./modules/charge-versions-import/process.js')
 const CleanProcess = require('./modules/clean/process.js')
 const ClearQueuesProcess = require('./modules/clear-queues/process.js')
+const CrmPermitImportProcess = require('./modules/crm-permit-import/process.js')
 const CrmV2ImportProcess = require('./modules/crm-v2-import/process.js')
 const EndDateCheckProcess = require('./modules/end-date-check/process.js')
 const EndDateTriggerProcess = require('./modules/end-date-trigger/process.js')
@@ -18,7 +19,6 @@ const ExtractOldLinesProcess = require('./modules/extract-old-lines/process.js')
 const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/process.js')
 const ImportJobEmailProcess = require('./modules/import-job-email/process.js')
 const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
-const PermitImportProcess = require('./modules/permit-import/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
 const ReturnVersionsImportProcess = require('./modules/return-versions-import/process.js')
 
@@ -48,6 +48,30 @@ async function clean (_request, h) {
 
 async function clearQueues (request, h) {
   ClearQueuesProcess.go(request.server.messageQueue, true)
+
+  return h.response().code(204)
+}
+
+async function crmPermitImport (request, h) {
+  const { licenceRef } = request.payload
+
+  const query = `
+    SELECT
+      l.*,
+      to_date(nullif(l."ORIG_EFF_DATE", 'null'), 'DD/MM/YYYY') AS start_date,
+      LEAST(
+        to_date(nullif(l."EXPIRY_DATE", 'null'), 'DD/MM/YYYY'),
+        to_date(nullif(l."REV_DATE", 'null'), 'DD/MM/YYYY'),
+        to_date(nullif(l."LAPSED_DATE", 'null'), 'DD/MM/YYYY')
+      ) AS end_date
+    FROM
+      "import"."NALD_ABS_LICENCES" l
+    WHERE
+      l."LIC_NO" = $1;
+  `
+  const results = await db.query(query, [licenceRef])
+
+  CrmPermitImportProcess.go(results[0], 0, true)
 
   return h.response().code(204)
 }
@@ -141,30 +165,6 @@ async function returnVersionsImport (_request, h) {
   return h.response().code(204)
 }
 
-async function permitImport (request, h) {
-  const { licenceRef } = request.payload
-
-  const query = `
-    SELECT
-      l.*,
-      to_date(nullif(l."ORIG_EFF_DATE", 'null'), 'DD/MM/YYYY') AS start_date,
-      LEAST(
-        to_date(nullif(l."EXPIRY_DATE", 'null'), 'DD/MM/YYYY'),
-        to_date(nullif(l."REV_DATE", 'null'), 'DD/MM/YYYY'),
-        to_date(nullif(l."LAPSED_DATE", 'null'), 'DD/MM/YYYY')
-      ) AS end_date
-    FROM
-      "import"."NALD_ABS_LICENCES" l
-    WHERE
-      l."LIC_NO" = $1;
-  `
-  const results = await db.query(query, [licenceRef])
-
-  PermitImportProcess.go(results[0], 0, true)
-
-  return h.response().code(204)
-}
-
 async function _tagReference () {
   try {
     const { stdout, stderr } = await exec('git describe --always --tags')
@@ -190,6 +190,7 @@ module.exports = {
   chargeVersionsImport,
   clean,
   clearQueues,
+  crmPermitImport,
   crmV2Import,
   endDateCheck,
   endDateTrigger,
@@ -202,6 +203,5 @@ module.exports = {
   jobSummary,
   linkToModLogs,
   referenceDataImport,
-  returnVersionsImport,
-  permitImport
+  returnVersionsImport
 }

@@ -49,6 +49,11 @@ module.exports = [
     handler: Controller.clearQueues
   },
   {
+    method: 'POST',
+    path: '/process/crm-permit-import',
+    handler: Controller.crmPermitImport
+  },
+  {
     method: 'post',
     handler: Controller.crmV2Import,
     path: '/process/crm-v2-import'
@@ -97,11 +102,6 @@ module.exports = [
     method: 'POST',
     path: '/process/return-versions-import',
     handler: Controller.returnVersionsImport
-  },
-  {
-    method: 'POST',
-    path: '/process/permit-import',
-    handler: Controller.permitImport
   },
   ...licenceImportRoutes,
   ...naldImportRoutes,

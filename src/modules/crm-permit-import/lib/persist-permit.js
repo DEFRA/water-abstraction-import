@@ -2,27 +2,14 @@
 
 const helpers = require('@envage/water-abstraction-helpers')
 
-const DateHelpers = require('../../lib/date-helpers.js')
-const db = require('../../lib/connectors/db.js')
-const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
-const Transformer = require('./lib/transformer.js')
+const DateHelpers = require('../../../lib/date-helpers.js')
+const db = require('../../../lib/connectors/db.js')
 
-async function go(licence, index = 0, log = false) {
-  try {
-    const startTime = currentTimeInNanoseconds()
+async function go (licenceData) {
+  const startDate = _latestLicenceVersionStartDate(licenceData.data.versions)
+  const endDate = DateHelpers.getMinDate([licenceData.EXPIRY_DATE, licenceData.LAPSED_DATE, licenceData.REV_DATE], true)
 
-    const licenceData = await Transformer.go(licence)
-
-    if (licenceData.data.versions.length > 0) {
-      await _persist(licenceData)
-    }
-
-    if (log) {
-      calculateAndLogTimeTaken(startTime, `permit-import: complete (${index})`)
-    }
-  } catch (error) {
-    global.GlobalNotifier.omfg('permit-import: errored', error, { licence, index })
-  }
+  return _persist(licenceData, startDate, endDate)
 }
 
 /**
@@ -60,10 +47,7 @@ function _licenceVersionSortScore (licenceVersion) {
   return issueNo + incrNo
 }
 
-async function _persist (licenceData) {
-  const startDate = _latestLicenceVersionStartDate(licenceData.data.versions)
-  const endDate = DateHelpers.getMinDate([licenceData.EXPIRY_DATE, licenceData.LAPSED_DATE, licenceData.REV_DATE], true)
-
+async function _persist (licenceData, startDate, endDate) {
   const params = [
     licenceData.LIC_NO,
     startDate,
@@ -89,10 +73,14 @@ async function _persist (licenceData) {
     ) DO UPDATE SET
       licence_start_dt = EXCLUDED.licence_start_dt,
       licence_end_dt = EXCLUDED.licence_end_dt,
-      licence_data_value = EXCLUDED.licence_data_value;
+      licence_data_value = EXCLUDED.licence_data_value
+    RETURNING
+      licence_id;
   `
 
-  await db.query(query, params)
+  const results = await db.query(query, params)
+
+  return results[0].licence_id
 }
 
 module.exports = {
