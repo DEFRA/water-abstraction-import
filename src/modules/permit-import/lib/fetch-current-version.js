@@ -36,7 +36,31 @@ function _assignPartyDataToCurrentLicenceVersion (currentLicenceVersion, licence
   const matchingLicenceVersion = licenceVersions.find((licenceVersion) => {
     return licenceVersion.ISSUE_NO === currentIssueNo && licenceVersion.INCR_NO === currentIncrementNo
   })
-  currentLicenceVersion.party = matchingLicenceVersion.parties
+
+  // NOTE: The legacy code intended to repeat how versions were setup when setting up the current version. So, parties
+  // are identified and assigned to the version. Then for each party, contacts are found and assigned to them. However,
+  // a typo in the `getCurrentVersionJson()` code meant no contacts ever get assigned to the parties
+  //
+  // ```javascript
+  // // It's .party here
+  // data.licence.party = await partyQueries.getParties(currentVersion.ACON_APAR_ID, regionCode)
+  //
+  // // It's .parties (which we think they meant to call it) here
+  // for (const p in data.licence.parties) {
+  //   data.licence.parties[p].contacts = await partyQueries.getPartyContacts(currentVersion.parties[p].ID, regionCode)
+  // }
+  // ```
+  //
+  // So, the loop never happens meaning parties in the current version never have a `contacts` property. If we left our
+  // code as `currentLicenceVersion.party = matchingLicenceVersion.parties` there error would be fixed. But to play it
+  // safe, and to more easily confirm what we're generating matches the legacy code, we recreate parties without
+  // contacts with this bit of code.
+  const partiesCopy = matchingLicenceVersion.parties.map((party) => {
+    const { contacts, ...copyOfRest } = party
+
+    return copyOfRest
+  })
+  currentLicenceVersion.party = partiesCopy
 }
 
 async function _currentLicenceVersion (id, regionCode) {
