@@ -8,45 +8,14 @@ const dueDate = require('./due-date')
 const returnHelpers = require('./return-helpers.js')
 const helpers = require('./transform-returns-helpers.js')
 
-/**
- * Loads licence formats from DB
- * @param {String} licenceNumber
- * @return {Promise} resolves with array of formats
- */
-const getLicenceFormats = async (licenceNumber) => {
-  const splitDate = await returnHelpers.getSplitDate(licenceNumber)
-
-  const formats = await returnHelpers.getFormats(licenceNumber)
-
-  // Load format data
-  for (const format of formats) {
-    format.purposes = await returnHelpers.getFormatPurposes(format.ID, format.FGAC_REGION_CODE)
-    format.points = await returnHelpers.getFormatPoints(format.ID, format.FGAC_REGION_CODE)
-    format.cycles = helpers.getFormatCycles(format, splitDate)
-  }
-  return formats
-}
-
-const getCycleLogs = (logs, startDate, endDate) => {
-  return logs.filter(log => {
-    return (
-      moment(log.DATE_TO, 'DD/MM/YYYY').isSameOrAfter(startDate) &&
-      moment(log.DATE_FROM, 'DD/MM/YYYY').isSameOrBefore(endDate)
-    )
-  })
-}
-
-/**
- * @param {String} licenceRef - the abstraction licence reference
- */
-const buildReturnsPacket = async (licenceRef) => {
-  const formats = await getLicenceFormats(licenceRef)
+async function go (licenceRef) {
+  const formats = await _licenceFormats(licenceRef)
 
   const returnsData = {
     returns: []
   }
 
-  for (const [index, format] of formats.entries()) {
+  for (const format of formats) {
     // TODO: The returns.returns table does not support a returns_frequency of fortnightly
     if (format.ARTC_REC_FREQ_CODE === 'F') {
       global.GlobalNotifier.omg(
@@ -65,7 +34,7 @@ const buildReturnsPacket = async (licenceRef) => {
       const { startDate, endDate, isCurrent } = cycle
 
       // Get all form logs relating to this cycle
-      const cycleLogs = getCycleLogs(logs, startDate, endDate)
+      const cycleLogs = _cycleLogs(logs, startDate, endDate)
 
       // Only create return cycles for formats with logs to allow NALD prepop to
       // drive online returns
@@ -102,11 +71,37 @@ const buildReturnsPacket = async (licenceRef) => {
     }
   }
 
-  return returnsData
+  return returnsData.returns
+}
+
+/**
+ * Loads licence formats from DB
+ * @param {String} licenceNumber
+ * @return {Promise} resolves with array of formats
+ */
+async function _licenceFormats (licenceNumber) {
+  const splitDate = await returnHelpers.getSplitDate(licenceNumber)
+
+  const formats = await returnHelpers.getFormats(licenceNumber)
+
+  // Load format data
+  for (const format of formats) {
+    format.purposes = await returnHelpers.getFormatPurposes(format.ID, format.FGAC_REGION_CODE)
+    format.points = await returnHelpers.getFormatPoints(format.ID, format.FGAC_REGION_CODE)
+    format.cycles = helpers.getFormatCycles(format, splitDate)
+  }
+  return formats
+}
+
+function _cycleLogs (logs, startDate, endDate) {
+  return logs.filter(log => {
+    return (
+      moment(log.DATE_TO, 'DD/MM/YYYY').isSameOrAfter(startDate) &&
+      moment(log.DATE_FROM, 'DD/MM/YYYY').isSameOrBefore(endDate)
+    )
+  })
 }
 
 module.exports = {
-  buildReturnsPacket,
-  getLicenceFormats,
-  getCycleLogs
+  go
 }
