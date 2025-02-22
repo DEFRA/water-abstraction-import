@@ -19,6 +19,7 @@ const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/pr
 const ImportJobEmailProcess = require('./modules/import-job-email/process.js')
 const LicenceLegacyImportProcess = require('./modules/licence-legacy-import/process.js')
 const LicencePointsImportProcess = require('./modules/licence-points-import/process.js')
+const LicenceReturnsImportProcess = require('./modules/licence-returns-import/process.js')
 const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
 const ReturnVersionsImportProcess = require('./modules/return-versions-import/process.js')
@@ -126,20 +127,7 @@ async function jobSummary (_request, h) {
 async function licenceLegacyImport (request, h) {
   const { licenceRef } = request.payload
 
-  const query = `
-    SELECT
-      l.*,
-      to_date(nullif(l."ORIG_EFF_DATE", 'null'), 'DD/MM/YYYY') AS start_date,
-      LEAST(
-        to_date(nullif(l."EXPIRY_DATE", 'null'), 'DD/MM/YYYY'),
-        to_date(nullif(l."REV_DATE", 'null'), 'DD/MM/YYYY'),
-        to_date(nullif(l."LAPSED_DATE", 'null'), 'DD/MM/YYYY')
-      ) AS end_date
-    FROM
-      "import"."NALD_ABS_LICENCES" l
-    WHERE
-      l."LIC_NO" = $1;
-  `
+  const query = `SELECT l.* FROM "import"."NALD_ABS_LICENCES" l WHERE l."LIC_NO" = $1;`
   const results = await db.query(query, [licenceRef])
 
   LicenceLegacyImportProcess.go(results[0], 0, true)
@@ -149,6 +137,17 @@ async function licenceLegacyImport (request, h) {
 
 async function licencePointsImport (_request, h) {
   LicencePointsImportProcess.go(true)
+
+  return h.response().code(204)
+}
+
+async function licenceReturnsImport (request, h) {
+  const { licenceRef } = request.payload
+
+  const query = `SELECT l.* FROM "import"."NALD_ABS_LICENCES" l WHERE l."LIC_NO" = $1;`
+  const results = await db.query(query, [licenceRef])
+
+  LicenceReturnsImportProcess.go(results[0], 0, true)
 
   return h.response().code(204)
 }
@@ -209,6 +208,7 @@ module.exports = {
   jobSummary,
   licenceLegacyImport,
   licencePointsImport,
+  licenceReturnsImport,
   linkToModLogs,
   referenceDataImport,
   returnVersionsImport

@@ -1,7 +1,7 @@
 'use strict'
 
-const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const CrmTransformer = require('./lib/crm-transformer.js')
+const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const PermitTransformer = require('./lib/permit-transformer.js')
 const PersistCrm = require('./lib/persist-crm.js')
 const PersistPermit = require('./lib/persist-permit.js')

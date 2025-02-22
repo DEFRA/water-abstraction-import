@@ -2,9 +2,7 @@
 
 const moment = require('moment')
 
-const server = require('../../../../server.js')
 const db = require('../../../lib/connectors/db.js')
-const cache = require('./cache.js')
 const queries = require('./queries.js')
 
 function daysFromPeriod (periodStartDate, periodEndDate) {
@@ -186,20 +184,10 @@ const getSplitDate = async (licenceNumber) => {
  * @param  {Number}  versionNumber - the version number of the return
  * @return {Promise<Array>}          resolves with reason codes
  */
-const getReturnVersionReason = async (licenceId, regionCode, versionNumber) => {
-  const id = cache.createId('returnVersionReason', {
-    licenceId,
-    regionCode,
-    versionNumber
-  })
-  return _getReturnVersionReasonCache.get(id)
-}
+const getReturnVersionReasons = async (licenceId, regionCode, versionNumber) => {
+  const params = [licenceId, versionNumber, regionCode]
 
-const _createReturnVersionReasonCache = () => {
-  return cache.createCachedQuery(server, 'getReturnVersionReason', id => {
-    const params = [id.licenceId, id.versionNumber, id.regionCode]
-    return db.query(queries.getReturnVersionReason, params)
-  })
+  return db.query(queries.getReturnVersionReasons, params)
 }
 
 function _cloneDate (dateToClone) {
@@ -210,11 +198,7 @@ function _cloneDate (dateToClone) {
   return new Date(`${year}-${month}-${day}`)
 }
 
-const _getReturnVersionReasonCache = _createReturnVersionReasonCache()
-
 module.exports = {
-  _createReturnVersionReasonCache,
-  _getReturnVersionReasonCache,
   getFormats,
   getFormatPurposes,
   getFormatPoints,
@@ -223,7 +207,7 @@ module.exports = {
   getLogLines,
   isNilReturn,
   getSplitDate,
-  getReturnVersionReason,
+  getReturnVersionReasons,
   daysFromPeriod,
   weeksFromPeriod,
   monthsFromPeriod

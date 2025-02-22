@@ -48,7 +48,7 @@ const getDueDate = async (endDate, format) => {
   if (endDate === returnVersionEndDate) {
     // Find the mod log reason codes for the following return version
     const nextReturnVersion = parseInt(format.VERS_NO) + 1
-    const results = await returnHelpers.getReturnVersionReason(format.AABL_ID, format.FGAC_REGION_CODE, nextReturnVersion)
+    const results = await returnHelpers.getReturnVersionReasons(format.AABL_ID, format.FGAC_REGION_CODE, nextReturnVersion)
 
     // If the code matches, use the end date of the full return cycle to
     // calculate the due date

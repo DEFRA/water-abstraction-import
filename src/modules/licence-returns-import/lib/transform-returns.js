@@ -1,13 +1,12 @@
 'use strict'
 
 const moment = require('moment')
-const returnHelpers = require('./return-helpers.js')
-
-const helpers = require('./transform-returns-helpers.js')
-
-const dueDate = require('./due-date')
 
 const { getReturnId } = require('@envage/water-abstraction-helpers').returns
+
+const dueDate = require('./due-date')
+const returnHelpers = require('./return-helpers.js')
+const helpers = require('./transform-returns-helpers.js')
 
 /**
  * Loads licence formats from DB
@@ -47,7 +46,7 @@ const buildReturnsPacket = async (licenceRef) => {
     returns: []
   }
 
-  for (const format of formats) {
+  for (const [index, format] of formats.entries()) {
     // TODO: The returns.returns table does not support a returns_frequency of fortnightly
     if (format.ARTC_REC_FREQ_CODE === 'F') {
       global.GlobalNotifier.omg(

@@ -99,7 +99,7 @@ const getSplitDate = `
   LIMIT 1;
 `
 
-const getReturnVersionReason = `
+const getReturnVersionReasons = `
   SELECT l."AMRE_CODE"
   FROM import."NALD_RET_VERSIONS" rv
     JOIN import."NALD_MOD_LOGS" l
@@ -120,6 +120,6 @@ module.exports = {
   getLines,
   getLogLines,
   getSplitDate,
-  getReturnVersionReason,
+  getReturnVersionReasons,
   isNilReturn
 }

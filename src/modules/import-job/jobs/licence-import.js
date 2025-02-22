@@ -3,6 +3,7 @@
 const db = require('../../../lib/connectors/db.js')
 
 const LicenceLegacyImportProcess = require('../../licence-legacy-import/process.js')
+const LicenceReturnsImportProcess = require('../../licence-returns-import/process.js')
 
 const LicencePointsImportJob = require('./licence-points-import.js')
 
@@ -26,7 +27,8 @@ async function handler () {
 
     for (const [index, licence] of licences.entries()) {
       const results = await Promise.allSettled([
-        LicenceLegacyImportProcess.go(licence, index, false)
+        LicenceLegacyImportProcess.go(licence, index, false),
+        LicenceReturnsImportProcess.go(licence, index, false)
       ])
 
       _logLicenceErrors(results, index, licence)
@@ -39,7 +41,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    await messageQueue.publish(LicencePointsImportJob.createMessage())
+    // await messageQueue.publish(LicencePointsImportJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {
@@ -72,7 +74,7 @@ async function _licences () {
         nalv."AABL_ID" = nal."ID"
         AND nalv."FGAC_REGION_CODE" = nal."FGAC_REGION_CODE"
         AND nalv."STATUS" <> 'DRAFT'
-    );
+    ) LIMIT 100;
   `)
 }
 
