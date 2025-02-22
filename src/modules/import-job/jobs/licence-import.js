@@ -2,8 +2,10 @@
 
 const db = require('../../../lib/connectors/db.js')
 
-const LicenceLegacyImportProcess = require('../../licence-legacy-import/process.js')
+const LicenceCrmImportProcess = require('../../licence-crm-import/process.js')
+const LicencePermitImportProcess = require('../../licence-permit-import/process.js')
 const LicenceReturnsImportProcess = require('../../licence-returns-import/process.js')
+const PermitTransformer = require('../../licence-permit-import/lib/permit-transformer.js')
 
 const LicencePointsImportJob = require('./licence-points-import.js')
 
@@ -26,10 +28,16 @@ async function handler () {
     const licences = await _licences()
 
     for (const [index, licence] of licences.entries()) {
+      const permitData = await PermitTransformer.go(licence)
+
       const results = await Promise.allSettled([
-        LicenceLegacyImportProcess.go(licence, index, false),
+        LicencePermitImportProcess.go(permitData, index, false),
         LicenceReturnsImportProcess.go(licence, index, false)
       ])
+
+      // This has to be persisted after LicencePermitImportProcess completes, because it depends on an ID it generates
+      // for new licences
+      await LicenceCrmImportProcess.go(permitData, index, false)
 
       _logLicenceErrors(results, index, licence)
     }

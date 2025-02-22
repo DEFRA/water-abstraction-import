@@ -4,11 +4,10 @@ const { sentenceCase } = require('sentence-case')
 
 const helpers = require('@envage/water-abstraction-helpers')
 
-function go (permitData, licenceId) {
+function go (permitData) {
   const metadata = _metadata(permitData)
 
   return {
-    system_internal_id: licenceId,
     system_external_id: permitData.LIC_NO,
     metadata
   }

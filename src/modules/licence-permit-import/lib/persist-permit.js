@@ -9,7 +9,7 @@ async function go (licenceData) {
   const startDate = _latestLicenceVersionStartDate(licenceData.data.versions)
   const endDate = DateHelpers.getMinDate([licenceData.EXPIRY_DATE, licenceData.LAPSED_DATE, licenceData.REV_DATE], true)
 
-  return _persist(licenceData, startDate, endDate)
+  await _persist(licenceData, startDate, endDate)
 }
 
 /**
@@ -73,14 +73,10 @@ async function _persist (licenceData, startDate, endDate) {
     ) DO UPDATE SET
       licence_start_dt = EXCLUDED.licence_start_dt,
       licence_end_dt = EXCLUDED.licence_end_dt,
-      licence_data_value = EXCLUDED.licence_data_value
-    RETURNING
-      licence_id;
+      licence_data_value = EXCLUDED.licence_data_value;
   `
 
-  const results = await db.query(query, params)
-
-  return results[0].licence_id
+  await db.query(query, params)
 }
 
 module.exports = {

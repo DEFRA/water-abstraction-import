@@ -17,7 +17,8 @@ const ExtractNaldDataProcess = require('./modules/extract-nald-data/process.js')
 const ExtractOldLinesProcess = require('./modules/extract-old-lines/process.js')
 const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/process.js')
 const ImportJobEmailProcess = require('./modules/import-job-email/process.js')
-const LicenceLegacyImportProcess = require('./modules/licence-legacy-import/process.js')
+const LicenceCrmImportProcess = require('./modules/licence-crm-import/process.js')
+const LicencePermitImportProcess = require('./modules/licence-permit-import/process.js')
 const LicencePointsImportProcess = require('./modules/licence-points-import/process.js')
 const LicenceReturnsImportProcess = require('./modules/licence-returns-import/process.js')
 const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
@@ -124,13 +125,18 @@ async function jobSummary (_request, h) {
   return h.response(summary).code(200)
 }
 
-async function licenceLegacyImport (request, h) {
+async function licenceCrmImport (request, h) {
   const { licenceRef } = request.payload
 
-  const query = `SELECT l.* FROM "import"."NALD_ABS_LICENCES" l WHERE l."LIC_NO" = $1;`
-  const results = await db.query(query, [licenceRef])
+  LicenceCrmImportProcess.go(licenceRef, 0, true)
 
-  LicenceLegacyImportProcess.go(results[0], 0, true)
+  return h.response().code(204)
+}
+
+async function licencePermitImport (request, h) {
+  const { licenceRef } = request.payload
+
+  LicencePermitImportProcess.go(licenceRef, 0, true)
 
   return h.response().code(204)
 }
@@ -206,7 +212,8 @@ module.exports = {
   importJob,
   importJobEmail,
   jobSummary,
-  licenceLegacyImport,
+  licenceCrmImport,
+  licencePermitImport,
   licencePointsImport,
   licenceReturnsImport,
   linkToModLogs,
