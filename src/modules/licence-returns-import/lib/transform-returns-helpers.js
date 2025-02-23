@@ -51,13 +51,13 @@ const getPurposeAlias = purpose => {
  * @param {Object} format
  * @return {Object} return metadata
  */
-const formatReturnMetadata = (format) => {
+const formatReturnMetadata = (format, purposes, points) => {
   const { isSummer, isUpload, isLineEntry } = mapProductionMonth(format.FORM_PRODN_MONTH)
 
   return {
     version: 1,
     description: format.SITE_DESCR,
-    purposes: format.purposes.map(purpose => ({
+    purposes: purposes.map(purpose => ({
       primary: {
         code: purpose.APUR_APPR_CODE,
         description: purpose.primary_purpose
@@ -72,7 +72,7 @@ const formatReturnMetadata = (format) => {
       },
       alias: getPurposeAlias(purpose)
     })),
-    points: format.points.map(point => {
+    points: points.map(point => {
       return naldFormatting.formatAbstractionPoint(waterHelpers.nald.transformNull(point))
     }),
     nald: formatReturnNaldMetadata(format),
