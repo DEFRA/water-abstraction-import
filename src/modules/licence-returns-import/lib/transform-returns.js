@@ -14,10 +14,18 @@ async function go (licenceRef) {
   const allReturnsLogs = []
 
   for (const format of formats) {
-    // TODO: The returns.returns table does not support a returns_frequency of fortnightly
-    if (format.ARTC_REC_FREQ_CODE === 'F') {
+    // TODO: The returns.returns table does not support a returns_frequency of fortnightly.
+    //
+    // We _were_ importing return logs for quarterly and yearly but _only_ the return logs; the submission data was part
+    // of the old return lines so not being imported.
+    //
+    // We need to bring them all in, which means converting them (fortnight to weekly, quarter and year to month). But
+    // its not a straight conversion. For example, in NALD the quarter will be 1 line, but when converted to WRLS that
+    // will become 3 (1 per month). Our current logic matches WRLS lines to NALD based on the period, so we'd get the
+    // same qty assigned 3 times.
+    if (['F', 'Q', 'A'].includes(format.ARTC_REC_FREQ_CODE)) {
       global.GlobalNotifier.omg(
-        'return-logs.import: unsupported frequency',
+        'licence-returns-import: unsupported frequency',
         { formatId: format.ID, frequency: format.ARTC_REC_FREQ_CODE, licenceRef }
       )
 
@@ -243,7 +251,18 @@ async function _naldLogs (formatId, regionCode) {
   const params = [formatId, regionCode]
   const query = `
     SELECT
-      l."RECD_DATE"
+      (CASE
+        WHEN l."DATE_FROM" = 'null' THEN NULL
+        ELSE to_date(l."DATE_FROM", 'DD/MM/YYYY')
+      END) AS start_date,
+      (CASE
+        WHEN l."DATE_TO" = 'null' THEN NULL
+        ELSE to_date(l."DATE_TO", 'DD/MM/YYYY')
+      END) AS end_date,
+      (CASE
+        WHEN l."RECD_DATE" = 'null' THEN NULL
+        ELSE to_date(l."RECD_DATE", 'DD/MM/YYYY')
+      END) AS received_date
     FROM
       "import"."NALD_RET_FORM_LOGS" l
     WHERE
@@ -257,13 +276,20 @@ async function _naldLogs (formatId, regionCode) {
 }
 
 function _naldLogsForCycle (logs, cycle) {
-  const { startDate, endDate } = cycle
+  if (logs.length === 0) {
+    return []
+  }
 
-  return logs.filter(log => {
-    return (
-      moment(log.DATE_TO, 'DD/MM/YYYY').isSameOrAfter(startDate) &&
-      moment(log.DATE_FROM, 'DD/MM/YYYY').isSameOrBefore(endDate)
-    )
+  const { startDate: cycleStartDate, endDate: cycleEndDate } = cycle
+
+  if (cycleEndDate < logs[0].start_date) {
+    return []
+  }
+
+  return logs.filter((log) => {
+    const { start_date: logStartDate, end_date: logEndDate } = log
+
+    return (logStartDate <= cycleEndDate && logEndDate >= cycleStartDate)
   })
 }
 

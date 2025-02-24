@@ -35,6 +35,25 @@ async function go (row, oldLinesExist) {
     await _addOldNaldLines(naldLines, row, naldLinesParams)
   }
 
+  // NOTE: Old NALD form logs can have awkward dates. For example, 28/39/22/0056 has a NALD_RET_FORMAT (ID = 1,
+  // FGAC_REGION_CODE = 7), which is record monthly, report yearly. This resulted in a NALD_RET_FORM_LOG dated
+  //
+  // - 01/01/1999 - 31/12/1999
+  //
+  // Problem is, when that format is put through the WRLS engine, which incorporates cycles, you end up with multiple
+  // return logs
+  //
+  // - 1998-04-01 - 1999-03-31
+  // - 1999-04-01 - 2000-03-31
+  //
+  // So, we'll have created and probably marked as `complete` both return logs, but the NALD lines with data only match
+  // to the second return log. That results in a 'completed' return log with no submission data. For now, we log it
+  // until we figure out what to do with these!
+  if (naldLines.length === 0) {
+    global.GlobalNotifier.omg('licence-returns-import: no matching lines for return log', { row })
+    return
+  }
+
   const naldLineData = _naldLineData(naldLines)
 
   const version = _version(row)
@@ -68,8 +87,8 @@ async function _addOldNaldLines (naldLines, row, naldLinesParams) {
         to_date("RET_DATE", 'DD/MM/YYYY') AS end_date
       FROM public."NALD_RET_LINES" nrl
       WHERE
-        nrl."ARFL_ARTY_ID"=$1
-        AND nrl."FGAC_REGION_CODE"=$2
+        nrl."ARFL_ARTY_ID" = $1
+        AND nrl."FGAC_REGION_CODE" = $2
         AND to_date(nrl."RET_DATE", 'DD/MM/YYYY') >= to_date($3, 'YYYY-MM-DD')
         AND to_date(nrl."RET_DATE", 'DD/MM/YYYY') <= to_date($4, 'YYYY-MM-DD')
     ) results

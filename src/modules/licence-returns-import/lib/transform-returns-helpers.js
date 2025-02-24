@@ -6,10 +6,28 @@ const waterHelpers = require('@envage/water-abstraction-helpers')
 const { returns: { date: { getPeriodStart } } } = waterHelpers
 const naldFormatting = waterHelpers.nald.formatting
 
-const mapPeriod = (str) => {
+/**
+ * TODO: See connected note in src/modules/licence-returns-import/lib/transform-returns.js. When we can convert
+ * fortnightly, quarterly, and yearly returns into weekly and monthly, then this comment will apply.
+ *
+ * These are the actual translations. However, we WRLS only supports daily, weekly, and monthly returns, which
+ * is why we translate fortnightly, quarterly, and annually to something else.
+ *
+ * - D = day
+ * - W = week
+ * - F = fortnight
+ * - M = month
+ * - Q = quarter
+ * - A = year
+ *
+ * @private
+ */
+function mapPeriod (str) {
+
   const periods = {
     D: 'day',
     W: 'week',
+    F: 'fortnight',
     M: 'month',
     Q: 'quarter',
     A: 'year'
@@ -105,30 +123,19 @@ const mapProductionMonth = (month) => {
  * @param {Array} logs - form log records
  */
 const mapReceivedDate = (logs) => {
-  const dates = logs.map(row => row.RECD_DATE)
-
-  if (logs.length < 1) {
+  if (logs.length === 0) {
     return null
   }
 
-  if (dates.findIndex(val => val === 'null') !== -1) {
+  const unreceivedLog = logs.some((log) => {
+    return !log.received_date
+  })
+
+  if (unreceivedLog) {
     return null
   }
 
-  const timestamps = dates.map(date => moment(date, 'DD/MM/YYYY HH:mm:ss').format('YYYY-MM-DD'))
-
-  // Sorting the timeStamps into highest value first and returning that individual value
-  const max = (timeStamp) => {
-    const sorted = timeStamp.sort((startTime1, startTime2) => {
-      if ((startTime1.unix > startTime2.unix)) {
-        return -1
-      } else {
-        return 1
-      }
-    })
-    return sorted[0]
-  }
-  return max(timestamps)
+  return logs[logs.length -1].received_date
 }
 
 /**
