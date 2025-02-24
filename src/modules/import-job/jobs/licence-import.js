@@ -15,7 +15,7 @@ function createMessage () {
   return {
     name: JOB_NAME,
     options: {
-      expireIn: '2 hours',
+      expireIn: '8 hours',
       singletonKey: JOB_NAME
     }
   }
