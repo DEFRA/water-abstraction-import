@@ -1,13 +1,13 @@
 'use strict'
 
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
-const WaterSystemService = require('../../lib/services/water-system-service.js')
+const WaterSystemConnector = require('../../lib/connectors/water-system.js')
 
 async function go(log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 
-    await WaterSystemService.postLicencesEndDatesProcess()
+    await WaterSystemConnector.postLicencesEndDatesProcess()
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'end-date-trigger: complete')

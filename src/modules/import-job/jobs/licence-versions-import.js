@@ -1,10 +1,10 @@
 'use strict'
 
-const LicencePointsImportProcess = require('../../licence-points-import/process.js')
+const LicenceVersionsImportProcess = require('../../licence-versions-import/process.js')
 
 const LinkToModLogsJob = require('./link-to-mod-logs.js')
 
-const JOB_NAME = 'import-job.link-to-mod-logs'
+const JOB_NAME = 'import-job.licence-versions-import'
 
 function createMessage () {
   return {
@@ -19,7 +19,7 @@ async function handler () {
   try {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
-    await LicencePointsImportProcess.go(false)
+    await LicenceVersionsImportProcess.go(false)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error

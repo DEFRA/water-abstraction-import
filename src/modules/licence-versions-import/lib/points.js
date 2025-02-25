@@ -1,23 +1,8 @@
 'use strict'
 
-const db = require('../../lib/connectors/db.js')
-const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
+const db = require('../../../lib/connectors/db.js')
 
-async function go(log = false) {
-  try {
-    const startTime = currentTimeInNanoseconds()
-
-    await _licenceVersionPurposePoints()
-
-    if (log) {
-      calculateAndLogTimeTaken(startTime, 'licence-points-import: complete')
-    }
-  } catch (error) {
-    global.GlobalNotifier.omfg('licence-points-import: errored', error)
-  }
-}
-
-async function _licenceVersionPurposePoints () {
+async function go () {
   await db.query(`
     INSERT INTO water.licence_version_purpose_points (
       licence_version_purpose_id,
@@ -39,8 +24,7 @@ async function _licenceVersionPurposePoints () {
     LEFT JOIN "import"."NALD_MEANS_OF_ABS" nmoa
       ON nmoa."CODE" = napp."AMOA_CODE"
     ON CONFLICT(external_id)
-    DO UPDATE
-    SET
+    DO UPDATE SET
       point_id = excluded.point_id,
       abstraction_method = excluded.abstraction_method;
   `)

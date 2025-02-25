@@ -3,7 +3,6 @@
 const { NotifyClient } = require('notifications-node-client')
 
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
-const JobsConnector = require('../../lib/connectors/water-import/jobs.js')
 
 const config = require('../../../config.js')
 
@@ -11,7 +10,7 @@ async function go(log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 
-    const failedJobs = await JobsConnector.getFailedJobs()
+    const failedJobs = await _failedJobsSummary()
 
     const emailOptions = _emailOptions(failedJobs)
 
@@ -49,6 +48,53 @@ function _emailOptions (failedJobs) {
   options.personalisation.content = `${subTitle}\n\n${reportRows.join('\n\n')}`
 
   return options
+}
+
+async function _failedJobsSummary () {
+  const results = await db.query(`
+    SELECT
+      name,
+      sum(count) AS count,
+      max(max_completed_date) AS max_completed_date,
+      max(max_created_date) AS max_created_date
+    FROM
+      (
+        SELECT
+            name,
+            COUNT(*),
+            max(completedon) AS max_completed_date,
+            max(createdon) AS max_created_date
+        FROM
+            water_import.job j
+        WHERE
+            j.state = 'failed'
+        GROUP BY
+          j.name
+      UNION ALL
+        SELECT
+            name,
+            COUNT(*),
+            max(completedon) AS max_completed_date,
+            max(createdon) AS max_created_date
+        FROM
+            water_import.archive a
+        WHERE
+            a.state = 'failed'
+        GROUP BY
+          a.name
+      ) cte
+    GROUP BY
+      name;
+  `)
+
+  return results.map((row) => {
+    return {
+      jobName: row.name,
+      total: row.count,
+      dateCreated: row.max_created_date ? moment(row.max_created_date).format('DD MMM YYYY HH:mm:ss') : '',
+      dateCompleted: row.max_completed_date ? moment(row.max_completed_date).format('DD MMM YYYY HH:mm:ss') : ''
+    }
+  })
 }
 
 async function _sendEmail (options) {

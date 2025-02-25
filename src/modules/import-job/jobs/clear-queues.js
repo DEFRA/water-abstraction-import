@@ -7,7 +7,7 @@ const ExtractNaldDataJob = require('./extract-nald-data.js')
 // TODO: Delete me!
 const CleanJob = require('./clean.js')
 const CompanyImportJob = require('./crm-v2-import.js')
-const LicenceImportJob = require('./licence-import.js')
+const LicenceImportJob = require('./licence-data-import.js')
 
 const JOB_NAME = 'import-job.clear-queues'
 
@@ -33,11 +33,11 @@ async function handler (messageQueue) {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    // await messageQueue.publish(ExtractNaldDataJob.createMessage())
+    await messageQueue.publish(ExtractNaldDataJob.createMessage())
 
     // await messageQueue.publish(CleanJob.createMessage())
     // await messageQueue.publish(CompanyImportJob.createMessage())
-    await messageQueue.publish(LicenceImportJob.createMessage())
+    // await messageQueue.publish(LicenceImportJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {

@@ -11,8 +11,8 @@ const ExtractNaldDataJob = require('./jobs/extract-nald-data.js')
 const ExtractOldLinesJob = require('./jobs/extract-old-lines.js')
 const FlagDeletedDocumentsJob = require('./jobs/flag-deleted-documents.js')
 const ImportJobEmailJob = require('./jobs/import-job-email.js')
-const LicenceImportJob = require('./jobs/licence-import.js')
-const LicencePointsImportJob = require('./jobs/licence-points-import.js')
+const LicenceDataImportJob = require('./jobs/licence-data-import.js')
+const LicenceVersionsImportJob = require('./jobs/licence-versions-import.js')
 const LinkToModLogsProcessJob = require('./jobs/link-to-mod-logs.js')
 const ReferenceDataImportJob = require('./jobs/reference-data-import.js')
 const ReturnVersionsImportJob = require('./jobs/return-versions-import.js')
@@ -76,16 +76,16 @@ async function register (server, _options) {
     return CrmV2ImportJob.onComplete(server.messageQueue, executedJob)
   })
 
-  // Register licence-import job
-  await server.messageQueue.subscribe(LicenceImportJob.JOB_NAME, LicenceImportJob.handler)
-  await server.messageQueue.onComplete(LicenceImportJob.JOB_NAME, (executedJob) => {
-    return LicenceImportJob.onComplete(server.messageQueue, executedJob)
+  // Register licence-data-import job
+  await server.messageQueue.subscribe(LicenceDataImportJob.JOB_NAME, LicenceDataImportJob.handler)
+  await server.messageQueue.onComplete(LicenceDataImportJob.JOB_NAME, (executedJob) => {
+    return LicenceDataImportJob.onComplete(server.messageQueue, executedJob)
   })
 
-  // Register licence-points-import job
-  await server.messageQueue.subscribe(LicencePointsImportJob.JOB_NAME, LicencePointsImportJob.handler)
-  await server.messageQueue.onComplete(LicencePointsImportJob.JOB_NAME, (executedJob) => {
-    return LicencePointsImportJob.onComplete(server.messageQueue, executedJob)
+  // Register licence-versions-import job
+  await server.messageQueue.subscribe(LicenceVersionsImportJob.JOB_NAME, LicenceVersionsImportJob.handler)
+  await server.messageQueue.onComplete(LicenceVersionsImportJob.JOB_NAME, (executedJob) => {
+    return LicenceVersionsImportJob.onComplete(server.messageQueue, executedJob)
   })
 
   // Register link-to-mod-logs job

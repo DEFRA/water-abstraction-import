@@ -19,15 +19,15 @@ const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/pr
 const ImportJobEmailProcess = require('./modules/import-job-email/process.js')
 const LicenceCrmImportProcess = require('./modules/licence-crm-import/process.js')
 const LicenceCrmV2ImportProcess = require('./modules/licence-crm-v2-import/process.js')
+const LicenceImportProcess = require('./modules/licence-import/process.js')
 const LicencePermitImportProcess = require('./modules/licence-permit-import/process.js')
-const LicencePointsImportProcess = require('./modules/licence-points-import/process.js')
 const LicenceReturnsImportProcess = require('./modules/licence-returns-import/process.js')
+const LicenceVersionsImportProcess = require('./modules/licence-versions-import/process.js')
 const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
 const ReturnVersionsImportProcess = require('./modules/return-versions-import/process.js')
 
 const ClearQueuesJob = require('./modules/import-job/jobs/clear-queues.js')
-const JobsConnector = require('./lib/connectors/water-import/jobs.js')
 
 const config = require('../config.js')
 
@@ -120,12 +120,6 @@ async function importJobEmail (_request, h) {
   return h.response().code(204)
 }
 
-async function jobSummary (_request, h) {
-  const summary = await JobsConnector.getJobSummary()
-
-  return h.response(summary).code(200)
-}
-
 async function licenceCrmImport (request, h) {
   const { licenceRef } = request.payload
 
@@ -142,16 +136,18 @@ async function licenceCrmV2Import (request, h) {
   return h.response().code(204)
 }
 
-async function licencePermitImport (request, h) {
+async function licenceImport (request, h) {
   const { licenceRef } = request.payload
 
-  LicencePermitImportProcess.go(licenceRef, 0, true)
+  LicenceImportProcess.go(licenceRef, 0, true)
 
   return h.response().code(204)
 }
 
-async function licencePointsImport (_request, h) {
-  LicencePointsImportProcess.go(true)
+async function licencePermitImport (request, h) {
+  const { licenceRef } = request.payload
+
+  LicencePermitImportProcess.go(licenceRef, 0, true)
 
   return h.response().code(204)
 }
@@ -163,6 +159,12 @@ async function licenceReturnsImport (request, h) {
   const results = await db.query(query, [licenceRef])
 
   LicenceReturnsImportProcess.go(results[0], 0, true)
+
+  return h.response().code(204)
+}
+
+async function licenceVersionsImport (_request, h) {
+  LicenceVersionsImportProcess.go(true)
 
   return h.response().code(204)
 }
@@ -220,12 +222,12 @@ module.exports = {
   healthInfo,
   importJob,
   importJobEmail,
-  jobSummary,
   licenceCrmImport,
   licenceCrmV2Import,
+  licenceImport,
   licencePermitImport,
-  licencePointsImport,
   licenceReturnsImport,
+  licenceVersionsImport,
   linkToModLogs,
   referenceDataImport,
   returnVersionsImport

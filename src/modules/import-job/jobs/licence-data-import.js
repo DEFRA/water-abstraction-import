@@ -4,13 +4,14 @@ const db = require('../../../lib/connectors/db.js')
 
 const LicenceCrmImportProcess = require('../../licence-crm-import/process.js')
 const LicenceCrmV2ImportProcess = require('../../licence-crm-v2-import/process.js')
+const LicenceImportProcess = require('../../licence-import/process.js')
 const LicencePermitImportProcess = require('../../licence-permit-import/process.js')
 const LicenceReturnsImportProcess = require('../../licence-returns-import/process.js')
 const PermitTransformer = require('../../licence-permit-import/lib/permit-transformer.js')
 
-const LicencePointsImportJob = require('./licence-points-import.js')
+const LicenceVersionsImportJob = require('./licence-versions-import.js')
 
-const JOB_NAME = 'import-job.licence-import'
+const JOB_NAME = 'import-job.licence-data-import'
 
 function createMessage () {
   return {
@@ -34,6 +35,7 @@ async function handler () {
       const results = await Promise.allSettled([
         LicencePermitImportProcess.go(permitData, index, false),
         LicenceCrmV2ImportProcess.go(permitData, index, false),
+        LicenceImportProcess.go(permitData, index, false),
         LicenceReturnsImportProcess.go(licence, index, false)
       ])
 
@@ -51,7 +53,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    // await messageQueue.publish(LicencePointsImportJob.createMessage())
+    await messageQueue.publish(LicenceVersionsImportJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {
@@ -84,7 +86,7 @@ async function _licences () {
         nalv."AABL_ID" = nal."ID"
         AND nalv."FGAC_REGION_CODE" = nal."FGAC_REGION_CODE"
         AND nalv."STATUS" <> 'DRAFT'
-    ) LIMIT 5000;
+    ) LIMIT 50;
   `)
 }
 

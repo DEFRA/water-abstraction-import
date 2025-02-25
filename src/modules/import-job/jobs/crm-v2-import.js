@@ -4,7 +4,7 @@ const db = require('../../../lib/connectors/db.js')
 
 const CrmV2ImportProcess = require('../../crm-v2-import/process.js')
 
-const LicenceImportJob = require('./licence-import.js')
+const LicenceDataImportJob = require('./licence-data-import.js')
 
 const JOB_NAME = 'import-job.crm-v2-import'
 
@@ -34,7 +34,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    await messageQueue.publish(LicenceImportJob.createMessage())
+    await messageQueue.publish(LicenceDataImportJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {

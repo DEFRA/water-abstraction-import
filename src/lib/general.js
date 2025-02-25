@@ -118,6 +118,10 @@ function generateUUID() {
   return randomUUID({ disableEntropyCache: true })
 }
 
+function naldNull (value) {
+  return value === 'null' ? null : value
+}
+
 /**
  * Returns the current date and time as an ISO string
  *
@@ -138,5 +142,6 @@ module.exports = {
   currentTimeInNanoseconds,
   determineCurrentFinancialYear,
   generateUUID,
+  naldNull,
   timestampForPostgres
 }

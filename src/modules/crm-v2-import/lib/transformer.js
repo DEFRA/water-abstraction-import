@@ -1,6 +1,7 @@
 'use strict'
 
 const DateHelpers = require('../../../lib/date-helpers.js')
+const { naldNull } = require('../../../lib/general.js')
 
 function go (party, licenceVersions, licenceRoles, naldAddresses) {
   const company = _company(party)
@@ -19,14 +20,14 @@ function go (party, licenceVersions, licenceRoles, naldAddresses) {
 
 function _address (address) {
   return {
-    address1: _null(address.ADDR_LINE1),
-    address2: _null(address.ADDR_LINE2),
-    address3: _null(address.ADDR_LINE3),
-    address4: _null(address.ADDR_LINE4),
-    town: _null(address.TOWN),
-    county: _null(address.COUNTY),
-    postcode: _null(address.POSTCODE),
-    country: _null(address.COUNTRY),
+    address1: naldNull(address.ADDR_LINE1),
+    address2: naldNull(address.ADDR_LINE2),
+    address3: naldNull(address.ADDR_LINE3),
+    address4: naldNull(address.ADDR_LINE4),
+    town: naldNull(address.TOWN),
+    county: naldNull(address.COUNTY),
+    postcode: naldNull(address.POSTCODE),
+    country: naldNull(address.COUNTRY),
     externalId: `${address.FGAC_REGION_CODE}:${address.ID}`
   }
 }
@@ -40,9 +41,9 @@ function _addresses (naldAddresses) {
 function _company (party) {
   const startName = party.FORENAME === 'null' ? party.INITIALS : party.FORENAME
   const parts = [
-    _null(party.SALUTATION),
-    _null(startName),
-    _null(party.NAME)
+    naldNull(party.SALUTATION),
+    naldNull(startName),
+    naldNull(party.NAME)
   ]
 
   const filteredParts = parts.filter((part) => {
@@ -62,10 +63,10 @@ function _contact (party) {
   }
 
   return {
-    salutation: _null(party.SALUTATION),
-    initials: _null(party.INITIALS),
-    firstName: _null(party.FORENAME),
-    lastName: _null(party.NAME),
+    salutation: naldNull(party.SALUTATION),
+    initials: naldNull(party.INITIALS),
+    firstName: naldNull(party.FORENAME),
+    lastName: naldNull(party.NAME),
     externalId: `${party.FGAC_REGION_CODE}:${party.ID}`
   }
 }
@@ -148,22 +149,6 @@ function _licenceRoleAddresses (licenceRoles, addresses) {
     }
   })
 }
-
-function _null (value) {
-  return value === 'null' ? null : value
-}
-
-// function _mapParties (party, company, contact) {
-//   const mappedParties = _regionSkeleton()
-
-//   mappedParties[party.FGAC_REGION_CODE][party.ID] = { company, contact }
-
-//   return mappedParties
-// }
-
-// function _regionSkeleton () {
-//   return { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {} }
-// }
 
 module.exports = {
   go

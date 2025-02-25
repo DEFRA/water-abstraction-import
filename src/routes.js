@@ -2,7 +2,6 @@
 
 const Controller = require('./controller.js')
 
-const licenceImportRoutes = require('./modules/licence-import/routes')
 const returnsRoutes = require('./modules/returns/routes')
 
 module.exports = [
@@ -10,14 +9,6 @@ module.exports = [
     method: 'GET',
     path: '/health/info',
     handler: Controller.healthInfo,
-    config: {
-      auth: false
-    }
-  },
-  {
-    method: 'GET',
-    path: '/import/1.0/jobs/summary',
-    handler: Controller.jobSummary,
     config: {
       auth: false
     }
@@ -94,18 +85,23 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/licence-import',
+    handler: Controller.licenceImport
+  },
+  {
+    method: 'POST',
     path: '/process/licence-permit-import',
     handler: Controller.licencePermitImport
   },
   {
     method: 'POST',
-    path: '/process/licence-points-import',
-    handler: Controller.licencePointsImport
+    path: '/process/licence-returns-import',
+    handler: Controller.licenceReturnsImport
   },
   {
     method: 'POST',
-    path: '/process/licence-returns-import',
-    handler: Controller.licenceReturnsImport
+    path: '/process/licence-versions-import',
+    handler: Controller.licenceVersionsImport
   },
   {
     method: 'POST',
@@ -122,6 +118,5 @@ module.exports = [
     path: '/process/return-versions-import',
     handler: Controller.returnVersionsImport
   },
-  ...licenceImportRoutes,
   ...returnsRoutes
 ]
