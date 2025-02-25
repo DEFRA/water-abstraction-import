@@ -12,7 +12,7 @@ const NALD_FORMAT = 'DD/MM/YYYY'
  */
 function getEndDate (row, currentEnd) {
   // Get all end dates for this row
-  const endDates = [row.EFF_END_DATE, row.EXPIRY_DATE, row.REV_DATE, row.LAPSED_DATE]
+  const endDates = [row?.EFF_END_DATE, row?.EXPIRY_DATE, row?.REV_DATE, row?.LAPSED_DATE]
     .map(mapNaldDate)
     .filter(value => value)
 
@@ -58,7 +58,7 @@ function getMaxDate (values, mapFromNald = false) {
 }
 
 function mapNaldDate (value) {
-  if (value === 'null') {
+  if (!value || value === 'null') {
     return null
   }
 

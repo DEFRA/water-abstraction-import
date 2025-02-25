@@ -36,8 +36,7 @@ async function go (licence) {
       "import"."NALD_ADDRESSES" a ON a."ID" = r."ACON_AADD_ID" AND a."FGAC_REGION_CODE" = r."FGAC_REGION_CODE"
     WHERE
       r."AABL_ID"=$1
-      AND r."FGAC_REGION_CODE" = $2
-      AND (r."EFF_END_DATE" = 'null' or to_date(r."EFF_END_DATE", 'DD/MM/YYYY') > now());
+      AND r."FGAC_REGION_CODE" = $2;
   `
 
   return db.query(query, params)

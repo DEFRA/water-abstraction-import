@@ -18,6 +18,7 @@ const ExtractOldLinesProcess = require('./modules/extract-old-lines/process.js')
 const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/process.js')
 const ImportJobEmailProcess = require('./modules/import-job-email/process.js')
 const LicenceCrmImportProcess = require('./modules/licence-crm-import/process.js')
+const LicenceCrmV2ImportProcess = require('./modules/licence-crm-v2-import/process.js')
 const LicencePermitImportProcess = require('./modules/licence-permit-import/process.js')
 const LicencePointsImportProcess = require('./modules/licence-points-import/process.js')
 const LicenceReturnsImportProcess = require('./modules/licence-returns-import/process.js')
@@ -133,6 +134,14 @@ async function licenceCrmImport (request, h) {
   return h.response().code(204)
 }
 
+async function licenceCrmV2Import (request, h) {
+  const { licenceRef } = request.payload
+
+  LicenceCrmV2ImportProcess.go(licenceRef, 0, true)
+
+  return h.response().code(204)
+}
+
 async function licencePermitImport (request, h) {
   const { licenceRef } = request.payload
 
@@ -213,6 +222,7 @@ module.exports = {
   importJobEmail,
   jobSummary,
   licenceCrmImport,
+  licenceCrmV2Import,
   licencePermitImport,
   licencePointsImport,
   licenceReturnsImport,

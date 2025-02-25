@@ -89,6 +89,11 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/licence-crm-v2-import',
+    handler: Controller.licenceCrmV2Import
+  },
+  {
+    method: 'POST',
     path: '/process/licence-permit-import',
     handler: Controller.licencePermitImport
   },

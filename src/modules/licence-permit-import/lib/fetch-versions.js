@@ -37,7 +37,8 @@ async function _licenceVersions (id, regionCode) {
       "import"."NALD_ABS_LIC_VERSIONS"
     WHERE
       "AABL_ID" = $1
-      AND "FGAC_REGION_CODE" = $2;
+      AND "FGAC_REGION_CODE" = $2
+    ORDER BY "EFF_ST_DATE" ASC;
   `
 
   return db.query(query, params)
