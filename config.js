@@ -5,8 +5,6 @@ require('dotenv').config()
 const environment = process.env.ENVIRONMENT
 const isProduction = environment === 'prd'
 
-const isTlsConnection = (process.env.REDIS_HOST || '').includes('aws')
-
 module.exports = {
 
   jwt: {
@@ -58,8 +56,6 @@ module.exports = {
   },
 
   services: {
-    water: process.env.WATER_URI || 'http://127.0.0.1:8001/water/1.0',
-    crm: process.env.CRM_URI || 'http://127.0.0.1:8002/crm/1.0',
     returns: process.env.RETURNS_URI || 'http://127.0.0.1:8006/returns/1.0',
     system: process.env.SYSTEM_URI || 'http://127.0.0.1:8013'
   },
@@ -83,39 +79,10 @@ module.exports = {
       path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release'
     },
     licences: {
-      schedule: process.env.WRLS_CRON_LICENCES || '15 3 * * 1,2,3,4,',
       // Note: If the `isCleanLicenceImportsEnabled` flag is set to `true` the licence data that no longer exists in
       // NALD but is in the WRLS DB will be removed from the WRLS DB
-      isCleanLicenceImportsEnabled: (process.env.CLEAN_LICENCE_IMPORTS === 'true') || false,
-      // Note: these 2 flags need to be set to false for charging go-live
-      // to suspend the import of invoice accounts and licence agreements
-      // Update: I've changed those values to false ahead of the v2.0 charging
-      // release as described in WATER-3201 - TT 20210603
-      isInvoiceAccountImportEnabled: true,
-      // Credit to https://stackoverflow.com/a/323546/6117745 for how to handle
-      // converting the env var to a boolean
-      isLicenceAgreementImportEnabled: (process.env.IMPORT_LICENCE_AGREEMENTS === 'true') || false,
-      // Note: we think a solution is needed where a list of billing contacts
-      // for a given licence is calculated from the charge version history
-      // in the water service, and synced to CRM v2.
-      // This will supersede the implementation here where the billing contact history
-      // was calculated from NALD data
-      isBillingDocumentRoleImportEnabled: false
-    },
-    points: {
-      schedule: process.env.WRLS_CRON_MOD_LOGS || '45 7 * * 1,2,3,4,5'
-    },
-    returnLogs: {
-      schedule: process.env.WRLS_CRON_RETURN_LOGS || '30 1 * * 1,2,3,4,5'
+      isCleanLicenceImportsEnabled: (process.env.CLEAN_LICENCE_IMPORTS === 'true') || false
     }
-  },
-
-  redis: {
-    host: process.env.REDIS_HOST || '127.0.0.1',
-    port: process.env.REDIS_PORT || 6379,
-    password: process.env.REDIS_PASSWORD || '',
-    ...(isTlsConnection) && { tls: {} },
-    db: 0
   },
 
   notify: {

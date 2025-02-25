@@ -5,10 +5,10 @@
  * @module
  */
 
-const { v4: uuid } = require('uuid')
 const { returns: returnsHelpers } = require('@envage/water-abstraction-helpers')
 
 const db = require('../../../lib/connectors/db.js')
+const { generateUUID } = require('../../../lib/general.js')
 const { daysFromPeriod, weeksFromPeriod, monthsFromPeriod } = require('./return-helpers.js')
 
 /**
@@ -168,7 +168,7 @@ function _populateBlankLines (row, version, blankLines, naldLineData) {
   let nilReturn = true
 
   for (const line of blankLines) {
-    line.line_id = uuid()
+    line.line_id = generateUUID()
     line.version_id = version.version_id
     line.time_period = row.returns_frequency
     line.metadata = {}
@@ -289,7 +289,7 @@ function _version (row) {
     return_id: row.return_id,
     user_id: 'imported@from.nald',
     user_type: 'system',
-    version_id: uuid(),
+    version_id: generateUUID(),
     version_number: parsedMetadata.version
   }
 }
