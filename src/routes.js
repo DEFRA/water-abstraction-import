@@ -39,6 +39,11 @@ module.exports = [
     handler: Controller.clearQueues
   },
   {
+    method: 'POST',
+    path: '/process/completion-email',
+    handler: Controller.completionEmail
+  },
+  {
     method: 'post',
     handler: Controller.crmV2Import,
     path: '/process/crm-v2-import'
@@ -67,11 +72,6 @@ module.exports = [
     method: 'POST',
     path: '/process/flag-deleted-documents',
     handler: Controller.flagDeletedDocuments
-  },
-  {
-    method: 'POST',
-    path: '/process/import-job-email',
-    handler: Controller.importJobEmail
   },
   {
     method: 'POST',

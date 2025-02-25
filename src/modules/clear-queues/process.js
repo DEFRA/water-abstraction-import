@@ -22,7 +22,7 @@ async function go (messageQueue,log = false) {
     messageQueue.deleteQueue('import-job.licence-versions-import')
     messageQueue.deleteQueue('import-job.link-to-mod-logs')
     messageQueue.deleteQueue('import-job.end-date-trigger')
-    messageQueue.deleteQueue('import-job.import-job-email')
+    messageQueue.deleteQueue('import-job.completion-email')
 
     await _clearJobHistory()
 

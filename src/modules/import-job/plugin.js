@@ -4,13 +4,13 @@ const cron = require('node-cron')
 
 const CleanJob = require('./jobs/clean.js')
 const ClearQueuesJob = require('./jobs/clear-queues.js')
+const CompletionEmailJob = require('./jobs/completion-email.js')
 const CrmV2ImportJob = require('./jobs/crm-v2-import.js')
 const EndDateCheckJob = require('./jobs/end-date-check.js')
 const EndDateTriggerJob = require('./jobs/end-date-trigger.js')
 const ExtractNaldDataJob = require('./jobs/extract-nald-data.js')
 const ExtractOldLinesJob = require('./jobs/extract-old-lines.js')
 const FlagDeletedDocumentsJob = require('./jobs/flag-deleted-documents.js')
-const ImportJobEmailJob = require('./jobs/import-job-email.js')
 const LicenceDataImportJob = require('./jobs/licence-data-import.js')
 const LicenceVersionsImportJob = require('./jobs/licence-versions-import.js')
 const LinkToModLogsProcessJob = require('./jobs/link-to-mod-logs.js')
@@ -100,10 +100,10 @@ async function register (server, _options) {
     return EndDateTriggerJob.onComplete(server.messageQueue, executedJob)
   })
 
-  // Register import-job-email job
-  await server.messageQueue.subscribe(ImportJobEmailJob.JOB_NAME, ImportJobEmailJob.handler)
-  await server.messageQueue.onComplete(ImportJobEmailJob.JOB_NAME, (executedJob) => {
-    return ImportJobEmailJob.onComplete(executedJob)
+  // Register completion-email job
+  await server.messageQueue.subscribe(CompletionEmailJob.JOB_NAME, CompletionEmailJob.handler)
+  await server.messageQueue.onComplete(CompletionEmailJob.JOB_NAME, (executedJob) => {
+    return CompletionEmailJob.onComplete(executedJob)
   })
 
   // Schedule clear-queues job using cron. The clear queues job will then queue the next job in the process in its

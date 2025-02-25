@@ -1,8 +1,8 @@
 'use strict'
 
-const ImportJobEmailProcess = require('../../import-job-email/process.js')
+const ImportJobEmailProcess = require('../../completion-email/process.js')
 
-const JOB_NAME = 'import-job.import-job-email'
+const JOB_NAME = 'import-job.completion-email'
 
 function createMessage () {
   return {

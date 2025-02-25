@@ -2,7 +2,7 @@
 
 const EndDateTriggerProcess = require('../../end-date-trigger/process.js')
 
-const ImportEmailJob = require('./import-job-email.js')
+const CompletionJob = require('./completion-email.js')
 
 const JOB_NAME = 'import-job.end-date-trigger'
 
@@ -28,7 +28,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    await messageQueue.publish(ImportEmailJob.createMessage())
+    await messageQueue.publish(CompletionJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {

@@ -17,10 +17,10 @@ async function go(log = false) {
     await _sendEmail(emailOptions)
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, 'import-job-email: complete')
+      calculateAndLogTimeTaken(startTime, 'completion-email: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('import-job-email: errored', error)
+    global.GlobalNotifier.omfg('completion-email: errored', error)
   }
 }
 

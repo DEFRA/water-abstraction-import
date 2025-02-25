@@ -10,13 +10,13 @@ const BillRunsImportProcess = require('./modules/bill-runs-import/process.js')
 const ChargeVersionsImportProcess = require('./modules/charge-versions-import/process.js')
 const CleanProcess = require('./modules/clean/process.js')
 const ClearQueuesProcess = require('./modules/clear-queues/process.js')
+const CompletionEmailProcess = require('./modules/completion-email/process.js')
 const CrmV2ImportProcess = require('./modules/crm-v2-import/process.js')
 const EndDateCheckProcess = require('./modules/end-date-check/process.js')
 const EndDateTriggerProcess = require('./modules/end-date-trigger/process.js')
 const ExtractNaldDataProcess = require('./modules/extract-nald-data/process.js')
 const ExtractOldLinesProcess = require('./modules/extract-old-lines/process.js')
 const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/process.js')
-const ImportJobEmailProcess = require('./modules/import-job-email/process.js')
 const LicenceCrmImportProcess = require('./modules/licence-crm-import/process.js')
 const LicenceCrmV2ImportProcess = require('./modules/licence-crm-v2-import/process.js')
 const LicenceImportProcess = require('./modules/licence-import/process.js')
@@ -52,6 +52,12 @@ async function clean (_request, h) {
 
 async function clearQueues (request, h) {
   ClearQueuesProcess.go(request.server.messageQueue, true)
+
+  return h.response().code(204)
+}
+
+async function completionEmail (_request, h) {
+  CompletionEmailProcess.go(true)
 
   return h.response().code(204)
 }
@@ -110,12 +116,6 @@ async function healthInfo (_request, h) {
 
 async function importJob (request, h) {
   await request.messageQueue.publish(ClearQueuesJob.createMessage())
-
-  return h.response().code(204)
-}
-
-async function importJobEmail (_request, h) {
-  ImportJobEmailProcess.go(true)
 
   return h.response().code(204)
 }
@@ -213,6 +213,7 @@ module.exports = {
   chargeVersionsImport,
   clean,
   clearQueues,
+  completionEmail,
   crmV2Import,
   endDateCheck,
   endDateTrigger,
@@ -221,7 +222,6 @@ module.exports = {
   flagDeletedDocuments,
   healthInfo,
   importJob,
-  importJobEmail,
   licenceCrmImport,
   licenceCrmV2Import,
   licenceImport,
