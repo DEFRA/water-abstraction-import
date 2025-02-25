@@ -31,7 +31,7 @@ async function go(licence, index = 0, log = false) {
  * we persist.
  *
  * When triggered from the job, `LicenceImportJob` passes in the result of a call to PermitTransformer, because we use
- * the same object in all 4 licence import processes to reduce the number of queries being made against the DB.
+ * the same object in all licence import processes to reduce the number of queries being made against the DB.
  *
  * @private
  */

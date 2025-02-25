@@ -30,6 +30,19 @@ async function go(licence, index = 0, log = false) {
   }
 }
 
+/**
+ * When triggered from a POST request (for testing/debugging), licence will be a reference, so we need to first fetch
+ * the matching NALD licence record, then call PermitTransformer to get the full permit data object that represents what
+ * gets persisted before the CRM V2 data.
+ *
+ * When triggered from the job, `LicenceImportJob` passes in the result of a call to PermitTransformer, because we use
+ * the same object in all licence import processes to reduce the number of queries being made against the DB.
+ *
+ * Either way, this process ends up with a populated Permit object from which the CRM data can be extracted,
+ * transformed, and persisted.
+ *
+ * @private
+ */
 async function _permitData (licence) {
   if (typeof licence !== 'string') {
     return licence

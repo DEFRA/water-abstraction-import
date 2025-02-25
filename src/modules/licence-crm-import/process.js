@@ -34,7 +34,7 @@ async function go(licence, index = 0, log = false) {
  * gets persisted before the CRM data.
  *
  * When triggered from the job, `LicenceImportJob` passes in the result of a call to PermitTransformer, because we use
- * the same object in all 4 licence import processes to reduce the number of queries being made against the DB.
+ * the same object in all licence import processes to reduce the number of queries being made against the DB.
  *
  * Either way, this process ends up with a populated Permit object from which the CRM data can be extracted,
  * transformed, and persisted.
