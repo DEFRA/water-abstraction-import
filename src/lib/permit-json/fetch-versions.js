@@ -1,6 +1,6 @@
 'use strict'
 
-const db = require('../../../lib/connectors/db.js')
+const db = require('../connectors/db.js')
 
 async function go (licence) {
   const { FGAC_REGION_CODE: regionCode, ID: id } = licence

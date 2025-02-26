@@ -2,7 +2,7 @@
 
 const helpers = require('@envage/water-abstraction-helpers')
 
-const db = require('../../../lib/connectors/db.js')
+const db = require('../connectors/db.js')
 const FetchReturnFormats = require('./fetch-return-formats.js')
 
 async function go (licence, licenceVersions, licencePurposes) {

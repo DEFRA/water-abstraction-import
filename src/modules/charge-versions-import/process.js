@@ -20,7 +20,7 @@
 const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const MetadataImport = require('./lib/metadata-import.js')
-const PermitTransformer = require('../licence-permit-import/lib/permit-transformer.js')
+const PermitJson = require('../../lib/permit-json/permit-json.js')
 
 async function go (log = false) {
   try {
@@ -47,7 +47,7 @@ async function go (log = false) {
 
 async function _importChargeVersionMetadataForLicence (licence) {
   try {
-    const licenceData = await PermitTransformer.go(licence)
+    const licenceData = await PermitJson.go(licence)
 
     await MetadataImport.go(licenceData)
   } catch (error) {

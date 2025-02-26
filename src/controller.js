@@ -5,6 +5,7 @@ const util = require('util')
 const exec = util.promisify(require('child_process').exec)
 
 const db = require('./lib/connectors/db.js')
+const PermitJson = require('./lib/permit-json/permit-json.js')
 
 const BillRunsImportProcess = require('./modules/bill-runs-import/process.js')
 const ChargeVersionsImportProcess = require('./modules/charge-versions-import/process.js')
@@ -122,7 +123,9 @@ async function importJob (request, h) {
 async function licenceCrmImport (request, h) {
   const { licenceRef } = request.payload
 
-  LicenceCrmImportProcess.go(licenceRef, 0, true)
+  const permitJson = await PermitJson.go(licenceRef)
+
+  LicenceCrmImportProcess.go(permitJson, 0, true)
 
   return h.response().code(204)
 }
@@ -130,7 +133,9 @@ async function licenceCrmImport (request, h) {
 async function licenceCrmV2Import (request, h) {
   const { licenceRef } = request.payload
 
-  LicenceCrmV2ImportProcess.go(licenceRef, 0, true)
+  const permitJson = await PermitJson.go(licenceRef)
+
+  LicenceCrmV2ImportProcess.go(permitJson, 0, true)
 
   return h.response().code(204)
 }
@@ -138,7 +143,9 @@ async function licenceCrmV2Import (request, h) {
 async function licenceImport (request, h) {
   const { licenceRef } = request.payload
 
-  LicenceImportProcess.go(licenceRef, 0, true)
+  const permitJson = await PermitJson.go(licenceRef)
+
+  LicenceImportProcess.go(permitJson, 0, true)
 
   return h.response().code(204)
 }
@@ -146,7 +153,9 @@ async function licenceImport (request, h) {
 async function licencePermitImport (request, h) {
   const { licenceRef } = request.payload
 
-  LicencePermitImportProcess.go(licenceRef, 0, true)
+  const permitJson = await PermitJson.go(licenceRef)
+
+  LicencePermitImportProcess.go(permitJson, 0, true)
 
   return h.response().code(204)
 }

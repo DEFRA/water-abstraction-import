@@ -7,7 +7,7 @@ const LicenceCrmV2ImportProcess = require('../../licence-crm-v2-import/process.j
 const LicenceImportProcess = require('../../licence-import/process.js')
 const LicencePermitImportProcess = require('../../licence-permit-import/process.js')
 const LicenceReturnsImportProcess = require('../../licence-returns-import/process.js')
-const PermitTransformer = require('../../licence-permit-import/lib/permit-transformer.js')
+const PermitJson = require('../../../lib/permit-json/permit-json.js')
 
 const LicenceVersionsImportJob = require('./licence-versions-import.js')
 
@@ -30,18 +30,18 @@ async function handler () {
     const licences = await _licences()
 
     for (const [index, licence] of licences.entries()) {
-      const permitData = await PermitTransformer.go(licence)
+      const permitJson = await PermitJson.go(licence)
 
       const results = await Promise.allSettled([
-        LicencePermitImportProcess.go(permitData, index, false),
-        LicenceCrmV2ImportProcess.go(permitData, index, false),
-        LicenceImportProcess.go(permitData, index, false),
+        LicencePermitImportProcess.go(permitJson, index, false),
+        LicenceCrmV2ImportProcess.go(permitJson, index, false),
+        LicenceImportProcess.go(permitJson, index, false),
         LicenceReturnsImportProcess.go(licence, index, false)
       ])
 
-      // This has to be persisted after LicencePermitImportProcess completes, because it depends on an ID it generates
-      // for new licences
-      await LicenceCrmImportProcess.go(permitData, index, false)
+      // This has to be persisted after LicencePermitImportProcess completes, because it depends on the `permit.licence`
+      // record having been created for new licences
+      await LicenceCrmImportProcess.go(permitJson, index, false)
 
       _logLicenceErrors(results, index, licence)
     }
@@ -86,7 +86,7 @@ async function _licences () {
         nalv."AABL_ID" = nal."ID"
         AND nalv."FGAC_REGION_CODE" = nal."FGAC_REGION_CODE"
         AND nalv."STATUS" <> 'DRAFT'
-    );
+    ) LIMIT 1;
   `)
 }
 
