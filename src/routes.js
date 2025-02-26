@@ -1,25 +1,122 @@
-const chargingImportRoutes = require('./modules/charging-import/routes')
-const coreRoutes = require('./modules/core/routes')
-const healthRoutes = require('./modules/health/routes')
-const jobSummaryRoutes = require('./modules/jobs/routes')
-const licenceImportRoutes = require('./modules/licence-import/routes')
-const naldImportRoutes = require('./modules/nald-import/routes')
+'use strict'
+
+const Controller = require('./controller.js')
+
 const returnsRoutes = require('./modules/returns/routes')
-const returnLogsRoutes = require('./modules/return-logs/routes')
-const returnVersionsRoutes = require('./modules/return-versions/routes.js')
-const modLogsRoutes = require('./modules/mod-logs/routes.js')
-const pointsRoutes = require('./modules/points/routes.js')
 
 module.exports = [
-  ...chargingImportRoutes,
-  ...coreRoutes,
-  ...healthRoutes,
-  ...jobSummaryRoutes,
-  ...licenceImportRoutes,
-  ...naldImportRoutes,
-  ...returnsRoutes,
-  ...returnLogsRoutes,
-  ...returnVersionsRoutes,
-  ...modLogsRoutes,
-  ...pointsRoutes
+  {
+    method: 'GET',
+    path: '/health/info',
+    handler: Controller.healthInfo,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
+    path: '/import-job',
+    handler: Controller.importJob
+  },
+  {
+    method: 'POST',
+    path: '/process/bill-runs-import',
+    handler: Controller.billRunsImport
+  },
+  {
+    method: 'POST',
+    path: '/process/charge-versions-import',
+    handler: Controller.billRunsImport
+  },
+  {
+    method: 'POST',
+    path: '/process/clean',
+    handler: Controller.clean
+  },
+  {
+    method: 'POST',
+    path: '/process/clear-queues',
+    handler: Controller.clearQueues
+  },
+  {
+    method: 'POST',
+    path: '/process/completion-email',
+    handler: Controller.completionEmail
+  },
+  {
+    method: 'post',
+    handler: Controller.crmV2Import,
+    path: '/process/crm-v2-import'
+  },
+  {
+    method: 'POST',
+    path: '/process/end-date-check',
+    handler: Controller.endDateCheck
+  },
+  {
+    method: 'POST',
+    path: '/process/end-date-trigger',
+    handler: Controller.endDateTrigger
+  },
+  {
+    method: 'POST',
+    path: '/process/extract-nald-data',
+    handler: Controller.extractNaldData
+  },
+  {
+    method: 'POST',
+    path: '/process/extract-old-lines',
+    handler: Controller.extractOldLines
+  },
+  {
+    method: 'POST',
+    path: '/process/flag-deleted-documents',
+    handler: Controller.flagDeletedDocuments
+  },
+  {
+    method: 'POST',
+    path: '/process/licence-crm-import',
+    handler: Controller.licenceCrmImport
+  },
+  {
+    method: 'POST',
+    path: '/process/licence-crm-v2-import',
+    handler: Controller.licenceCrmV2Import
+  },
+  {
+    method: 'POST',
+    path: '/process/licence-import',
+    handler: Controller.licenceImport
+  },
+  {
+    method: 'POST',
+    path: '/process/licence-permit-import',
+    handler: Controller.licencePermitImport
+  },
+  {
+    method: 'POST',
+    path: '/process/licence-returns-import',
+    handler: Controller.licenceReturnsImport
+  },
+  {
+    method: 'POST',
+    path: '/process/licence-versions-import',
+    handler: Controller.licenceVersionsImport
+  },
+  {
+    method: 'POST',
+    path: '/process/link-to-mod-logs',
+    handler: Controller.linkToModLogs
+  },
+  {
+    method: 'POST',
+    path: '/process/reference-data-import',
+    handler: Controller.referenceDataImport
+  },
+  {
+    method: 'POST',
+    path: '/process/return-versions-import',
+    handler: Controller.returnVersionsImport
+  },
+  ...returnsRoutes
 ]

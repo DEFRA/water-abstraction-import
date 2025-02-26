@@ -1,19 +1,17 @@
 'use strict'
 
-require('dotenv').config()
-
+const moment = require('moment')
+const Pino = require('pino')
 const pg = require('pg')
-const config = require('../../../config.js')
+
 const helpers = require('@envage/water-abstraction-helpers')
-const { logger } = require('../../logger')
+
+const config = require('../../../config.js')
 
 // Set date parser
-const moment = require('moment')
-const DATE_FORMAT = 'YYYY-MM-DD'
-const dateMapper = str => moment(str).format(DATE_FORMAT)
-pg.types.setTypeParser(pg.types.builtins.DATE, dateMapper)
+pg.types.setTypeParser(pg.types.builtins.DATE, (str) => { return moment(str).format('YYYY-MM-DD') })
 
-const pool = helpers.db.createPool(config.pg, logger)
+const pool = helpers.db.createPool(config.pg, Pino())
 
 async function query (query, params = []) {
   const { error, rows } = await pool.query(query, params)

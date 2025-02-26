@@ -2,8 +2,8 @@
 
 const Boom = require('@hapi/boom')
 
-const { lines, returns, versions } = require('../../lib/connectors/returns')
-const { events } = require('../../lib/connectors/water/events')
+const { lines, returns, versions } = require('./lib/returns.js')
+const { events } = require('./lib/events.js')
 const {
   transformReturn,
   transformWeeklyLine,
