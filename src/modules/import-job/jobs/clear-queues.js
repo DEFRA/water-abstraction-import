@@ -33,9 +33,9 @@ async function handler (messageQueue) {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    // await messageQueue.publish(ExtractNaldDataJob.createMessage())
+    await messageQueue.publish(ExtractNaldDataJob.createMessage())
 
-    await messageQueue.publish(CleanJob.createMessage())
+    // await messageQueue.publish(CleanJob.createMessage())
     // await messageQueue.publish(CompanyImportJob.createMessage())
     // await messageQueue.publish(LicenceImportJob.createMessage())
 
