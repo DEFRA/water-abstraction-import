@@ -35,22 +35,9 @@ async function go (row, oldLinesExist) {
     await _addOldNaldLines(naldLines, row, naldLinesParams)
   }
 
-  // NOTE: Old NALD form logs can have awkward dates. For example, 28/39/22/0056 has a NALD_RET_FORMAT (ID = 1,
-  // FGAC_REGION_CODE = 7), which is record monthly, report yearly. This resulted in a NALD_RET_FORM_LOG dated
-  //
-  // - 01/01/1999 - 31/12/1999
-  //
-  // Problem is, when that format is put through the WRLS engine, which incorporates cycles, you end up with multiple
-  // return logs
-  //
-  // - 1998-04-01 - 1999-03-31
-  // - 1999-04-01 - 2000-03-31
-  //
-  // So, we'll have created and probably marked as `complete` both return logs, but the NALD lines with data only match
-  // to the second return log. That results in a 'completed' return log with no submission data. For now, we log it
-  // until we figure out what to do with these!
   if (naldLines.length === 0) {
-    global.GlobalNotifier.omg('licence-returns-import: no matching lines for return log', { row })
+    await _nilReturn(row)
+
     return
   }
 
@@ -162,6 +149,30 @@ function _naldLinesParams (returnId) {
   const { regionCode, formatId, startDate, endDate } = returnsHelpers.parseReturnId(returnId)
 
   return [formatId, regionCode, startDate, endDate]
+}
+
+/**
+ * Old NALD form logs can have awkward dates. For example, 28/39/22/0056 has a NALD_RET_FORMAT (ID = 1,
+ * FGAC_REGION_CODE = 7), which requires recording monthly, reporting yearly. This results in a NALD_RET_FORM_LOG dated
+ * - 01/01/1999 - 31/12/1999
+ * Problem is, when that format is put through the WRLS engine, which incorporates cycles, you end up with multiple
+ * return logs
+ *
+ * - 1998-04-01 - 1999-03-31
+ * - 1999-04-01 - 2000-03-31
+ *
+ * So, the transformation engine will have created and marked as `complete` both return logs, but the NALD lines with data only match
+ * to the second return log. That results in a 'completed' return log with no submission data. So, we log it for reference
+ * and create a Nil return submission. This way it won't appear 'wrong' in the UI (completed but no submission data)
+ * and will be skipped on the next import-job run, helping to keep the run time manageable.
+ * @private
+ */
+async function _nilReturn (row) {
+  global.GlobalNotifier.omg('licence-returns-import: no matching lines for return log so marking as Nil return', { row })
+
+  const version = _version(row, true)
+
+  await _saveVersion(version)
 }
 
 function _populateBlankLines (row, version, blankLines, naldLineData) {
@@ -279,13 +290,13 @@ function _totalLineQuantity (blankLine, naldPopulatedLines) {
   return null
 }
 
-function _version (row) {
+function _version (row, nilReturn = false) {
   const parsedMetadata = row.metadata instanceof Object ? row.metadata : JSON.parse(row.metadata)
 
   return {
     current: parsedMetadata.isCurrent,
     metadata: {},
-    nil_return: false,
+    nil_return: nilReturn,
     return_id: row.return_id,
     user_id: 'imported@from.nald',
     user_type: 'system',
