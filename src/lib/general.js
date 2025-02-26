@@ -29,7 +29,7 @@ const { randomUUID } = require('crypto')
  * @param {string} message - the message to log
  * @param {object} [data] - additional data to include with the log output
  */
-function calculateAndLogTimeTaken(startTime, message, data = {}) {
+function calculateAndLogTimeTaken (startTime, message, data = {}) {
   const endTime = currentTimeInNanoseconds()
   const timeTakenNs = endTime - startTime
   const timeTakenMs = timeTakenNs / 1000000n
@@ -64,7 +64,7 @@ function calculateAndLogTimeTaken(startTime, message, data = {}) {
  *
  * @returns {bigint} the current time in nanoseconds
  */
-function currentTimeInNanoseconds() {
+function currentTimeInNanoseconds () {
   return process.hrtime.bigint()
 }
 
@@ -76,7 +76,7 @@ function currentTimeInNanoseconds() {
  *
  * @returns {object} An object containing a `startDate` and `endDate`
  */
-function determineCurrentFinancialYear() {
+function determineCurrentFinancialYear () {
   const currentDate = new Date()
   const currentYear = currentDate.getFullYear()
 
@@ -114,7 +114,7 @@ function determineCurrentFinancialYear() {
  *
  * @returns {string} a randomly generated UUID
  */
-function generateUUID() {
+function generateUUID () {
   return randomUUID({ disableEntropyCache: true })
 }
 
@@ -133,7 +133,7 @@ function naldNull (value) {
  *
  * @returns {string} The date now as an ISO string, for example `'2023-01-13T18:29:51.682Z'`
  */
-function timestampForPostgres() {
+function timestampForPostgres () {
   return new Date().toISOString()
 }
 

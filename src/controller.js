@@ -44,7 +44,6 @@ async function chargeVersionsImport (_request, h) {
 }
 
 async function clean (_request, h) {
-
   CleanProcess.go(config.import.licences.isCleanLicenceImportsEnabled, true)
 
   return h.response().code(204)
@@ -155,7 +154,7 @@ async function licencePermitImport (request, h) {
 async function licenceReturnsImport (request, h) {
   const { licenceRef } = request.payload
 
-  const query = `SELECT l.* FROM "import"."NALD_ABS_LICENCES" l WHERE l."LIC_NO" = $1;`
+  const query = 'SELECT l.* FROM "import"."NALD_ABS_LICENCES" l WHERE l."LIC_NO" = $1;'
   const results = await db.query(query, [licenceRef])
 
   LicenceReturnsImportProcess.go(results[0], 0, true)
@@ -182,7 +181,6 @@ async function referenceDataImport (_request, h) {
 }
 
 async function returnVersionsImport (_request, h) {
-
   ReturnVersionsImportProcess.go(config.featureFlags.disableReturnsImports, true)
 
   return h.response().code(204)

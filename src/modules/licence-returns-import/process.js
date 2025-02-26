@@ -3,10 +3,10 @@
 const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const PersistReturns = require('./lib/persist-returns.js')
-const TransformReturns= require('./lib/transform-returns.js')
+const TransformReturns = require('./lib/transform-returns.js')
 const VoidReturns = require('./lib/void-returns.js')
 
-async function go(licence, index = 0, log = false) {
+async function go (licence, index = 0, log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 

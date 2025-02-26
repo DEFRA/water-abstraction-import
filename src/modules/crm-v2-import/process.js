@@ -5,7 +5,7 @@ const Extract = require('./lib/extract.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const Transformer = require('./lib/transformer.js')
 
-async function go(party, index = 0, log = false) {
+async function go (party, index = 0, log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 

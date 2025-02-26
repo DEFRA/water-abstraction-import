@@ -6,7 +6,7 @@ const DeletedReturnData = require('./lib/deleted-return-data.js')
 
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
-async function go(cleanLicences = false, log = false) {
+async function go (cleanLicences = false, log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 

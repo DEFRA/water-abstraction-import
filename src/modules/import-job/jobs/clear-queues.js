@@ -5,9 +5,9 @@ const ClearQueuesProcess = require('../../clear-queues/process.js')
 const ExtractNaldDataJob = require('./extract-nald-data.js')
 
 // TODO: Delete me!
-const CleanJob = require('./clean.js')
-const CompanyImportJob = require('./crm-v2-import.js')
-const LicenceImportJob = require('./licence-data-import.js')
+// const CleanJob = require('./clean.js')
+// const CompanyImportJob = require('./crm-v2-import.js')
+// const LicenceImportJob = require('./licence-data-import.js')
 
 const JOB_NAME = 'import-job.clear-queues'
 

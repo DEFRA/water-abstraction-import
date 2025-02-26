@@ -145,7 +145,7 @@ function _naldLogsForCycle (logs, cycle) {
   })
 }
 
-async function _points(formatId, regionCode) {
+async function _points (formatId, regionCode) {
   const params = [formatId, regionCode]
   const query = `
     SELECT

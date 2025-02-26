@@ -5,7 +5,7 @@ const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../li
 const PermitTransformer = require('../licence-permit-import/lib/permit-transformer.js')
 const Transformer = require('./lib/transformer.js')
 
-async function go(licence, index = 0, log = false) {
+async function go (licence, index = 0, log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -45,7 +45,7 @@ async function _permitData (licence) {
     return licence
   }
 
-  let results = await db.query('SELECT l.* FROM "import"."NALD_ABS_LICENCES" l WHERE l."LIC_NO" = $1;', [licence])
+  const results = await db.query('SELECT l.* FROM "import"."NALD_ABS_LICENCES" l WHERE l."LIC_NO" = $1;', [licence])
 
   return PermitTransformer.go(results[0])
 }

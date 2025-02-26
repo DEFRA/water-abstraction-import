@@ -5,7 +5,7 @@ const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../li
 const PermitTransformer = require('./lib/permit-transformer.js')
 const PersistPermit = require('./lib/persist-permit.js')
 
-async function go(licence, index = 0, log = false) {
+async function go (licence, index = 0, log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 

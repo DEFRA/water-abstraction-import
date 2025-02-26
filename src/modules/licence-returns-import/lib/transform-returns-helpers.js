@@ -23,7 +23,6 @@ const naldFormatting = waterHelpers.nald.formatting
  * @private
  */
 function mapPeriod (str) {
-
   const periods = {
     D: 'day',
     W: 'week',
@@ -135,7 +134,7 @@ const mapReceivedDate = (logs) => {
     return null
   }
 
-  return logs[logs.length -1].received_date
+  return logs[logs.length - 1].received_date
 }
 
 /**

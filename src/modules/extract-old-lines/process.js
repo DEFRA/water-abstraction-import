@@ -10,12 +10,14 @@ const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const s3 = require('../../lib/services/s3.js')
 
+const config = require('../../../config.js')
+
 // Download / unzip paths
 const OLD_LINES_CSV_FILE = 'old_nald_return_lines.csv'
 const OLD_LINES_SQL_FILE = 'old_nald_return_lines.sql'
 const OLD_LINES_ZIP_FILE = 'old_nald_return_lines.zip'
 
-async function go(skip = false, log = false) {
+async function go (skip = false, log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 

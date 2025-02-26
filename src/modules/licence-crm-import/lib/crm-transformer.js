@@ -60,23 +60,23 @@ function _metadata (permitData) {
     }
   }
 
-  const { address, expiry_date, party, version_effective_date } = permitData.data.current_version
+  const currentVersion = permitData.data.current_version
 
   const metadata = {
-    Name: _naldNullToEmptyString(party.NAME),
-    Salutation: _naldNullToEmptyString(party.SALUTATION),
-    Initials: _naldNullToEmptyString(party.INITIALS),
-    Forename: _naldNullToEmptyString(party.FORENAME),
-    AddressLine1: _naldNullToEmptyString(address.ADDR_LINE1),
-    AddressLine2: _naldNullToEmptyString(address.ADDR_LINE2),
-    AddressLine3: _naldNullToEmptyString(address.ADDR_LINE3),
-    AddressLine4: _naldNullToEmptyString(address.ADDR_LINE4),
-    Town: _naldNullToEmptyString(address.TOWN),
-    County: _naldNullToEmptyString(address.COUNTY),
-    Postcode: _naldNullToEmptyString(address.POSTCODE),
-    Country: _naldNullToEmptyString(address.COUNTRY),
-    Expires: expiry_date,
-    Modified: version_effective_date,
+    Name: _naldNullToEmptyString(currentVersion.party.NAME),
+    Salutation: _naldNullToEmptyString(currentVersion.party.SALUTATION),
+    Initials: _naldNullToEmptyString(currentVersion.party.INITIALS),
+    Forename: _naldNullToEmptyString(currentVersion.party.FORENAME),
+    AddressLine1: _naldNullToEmptyString(currentVersion.address.ADDR_LINE1),
+    AddressLine2: _naldNullToEmptyString(currentVersion.address.ADDR_LINE2),
+    AddressLine3: _naldNullToEmptyString(currentVersion.address.ADDR_LINE3),
+    AddressLine4: _naldNullToEmptyString(currentVersion.address.ADDR_LINE4),
+    Town: _naldNullToEmptyString(currentVersion.address.TOWN),
+    County: _naldNullToEmptyString(currentVersion.address.COUNTY),
+    Postcode: _naldNullToEmptyString(currentVersion.address.POSTCODE),
+    Country: _naldNullToEmptyString(currentVersion.address.COUNTRY),
+    Expires: currentVersion.expiry_date,
+    Modified: currentVersion.version_effective_date,
     IsCurrent: true,
     contacts
   }

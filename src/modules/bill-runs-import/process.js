@@ -5,25 +5,25 @@ const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../li
 
 async function go (log = false) {
   try {
-      const startTime = currentTimeInNanoseconds()
+    const startTime = currentTimeInNanoseconds()
 
-      await _removeConstraints()
-      await _billingBatches()
-      await _billingInvoices()
-      await _billingInvoiceLicences()
-      await _billingTransactions()
-      await _billingResetSecondPartChargeFlag()
-      await _billingSetSecondPartChargeFlag()
-      await _billingVolumes()
-      await _billingBatchChargeVersionYears()
-      await _addConstraints()
+    await _removeConstraints()
+    await _billingBatches()
+    await _billingInvoices()
+    await _billingInvoiceLicences()
+    await _billingTransactions()
+    await _billingResetSecondPartChargeFlag()
+    await _billingSetSecondPartChargeFlag()
+    await _billingVolumes()
+    await _billingBatchChargeVersionYears()
+    await _addConstraints()
 
-      if (log) {
-        calculateAndLogTimeTaken(startTime, 'bill-runs-import: complete')
-      }
-    } catch (error) {
-      global.GlobalNotifier.omfg('bill-runs-import: errored', error)
+    if (log) {
+      calculateAndLogTimeTaken(startTime, 'bill-runs-import: complete')
     }
+  } catch (error) {
+    global.GlobalNotifier.omfg('bill-runs-import: errored', error)
+  }
 }
 
 async function _removeConstraints () {
@@ -357,7 +357,7 @@ async function _billingTransactions () {
 }
 
 async function _billingResetSecondPartChargeFlag () {
-  await db.query(`update water.billing_transactions set is_two_part_second_part_charge = false;`)
+  await db.query('update water.billing_transactions set is_two_part_second_part_charge = false;')
 }
 
 async function _billingSetSecondPartChargeFlag () {
@@ -472,5 +472,5 @@ async function _addConstraints () {
 }
 
 module.exports = {
-
+  go
 }

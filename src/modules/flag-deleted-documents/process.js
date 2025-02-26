@@ -3,7 +3,7 @@
 const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
-async function go(log = false) {
+async function go (log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 

@@ -7,7 +7,7 @@ const ReturnRequirementPoints = require('./lib/points.js')
 const ReturnRequirementPurposes = require('./lib/purposes.js')
 const ReturnVersions = require('./lib/versions.js')
 
-async function go(skip = false, log = false) {
+async function go (skip = false, log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 

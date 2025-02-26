@@ -6,7 +6,7 @@ const LicenceVersionPurposePoints = require('./lib/points.js')
 const LicenceVersionPurposes = require('./lib/purposes.js')
 const LicenceVersions = require('./lib/versions.js')
 
-async function go(log = false) {
+async function go (log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 

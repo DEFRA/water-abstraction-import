@@ -22,7 +22,7 @@ const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../li
 const MetadataImport = require('./lib/metadata-import.js')
 const PermitTransformer = require('../licence-permit-import/lib/permit-transformer.js')
 
-async function go(log = false) {
+async function go (log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -51,7 +51,7 @@ async function _importChargeVersionMetadataForLicence (licence) {
 
     await MetadataImport.go(licenceData)
   } catch (error) {
-    global.GlobalNotifier.omfg('charge-versions-import: errored', error, { licenceNumber })
+    global.GlobalNotifier.omfg('charge-versions-import: errored', error, { licence })
   }
 }
 

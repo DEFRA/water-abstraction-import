@@ -11,7 +11,7 @@ const Zip = require('./lib/zip.js')
 // Download / unzip paths
 const FINAL_PATH = './temp/NALD'
 
-async function go(log = false) {
+async function go (log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 

@@ -1,12 +1,14 @@
 'use strict'
 
+const moment = require('moment')
 const { NotifyClient } = require('notifications-node-client')
 
+const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
 const config = require('../../../config.js')
 
-async function go(log = false) {
+async function go (log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 

@@ -3,7 +3,7 @@
 const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
-async function go (messageQueue,log = false) {
+async function go (messageQueue, log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -36,7 +36,7 @@ async function go (messageQueue,log = false) {
 
 async function _clearJobHistory () {
   await db.query('TRUNCATE water_import.archive;')
-  await db.query(`DELETE FROM water_import.job WHERE state IN ('completed', 'failed');`)
+  await db.query("DELETE FROM water_import.job WHERE state IN ('completed', 'failed');")
 }
 
 module.exports = {

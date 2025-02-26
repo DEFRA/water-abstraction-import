@@ -1,6 +1,5 @@
 'use strict'
 
-const db = require('../../../lib/connectors/db.js')
 const FetchCams = require('./fetch-cams.js')
 const FetchCurrentVersion = require('./fetch-current-version.js')
 const FetchPurposes = require('./fetch-purposes.js')

@@ -42,7 +42,7 @@ function _assignPartyDataToCurrentLicenceVersion (currentLicenceVersion, licence
     return
   }
 
-  const { INCR_NO: currentIncrementNo, ISSUE_NO: currentIssueNo} = currentLicenceVersion
+  const { INCR_NO: currentIncrementNo, ISSUE_NO: currentIssueNo } = currentLicenceVersion
   const matchingLicenceVersion = licenceVersions.find((licenceVersion) => {
     return licenceVersion.ISSUE_NO === currentIssueNo && licenceVersion.INCR_NO === currentIncrementNo
   })
@@ -117,7 +117,7 @@ function _transformCurrentLicenceVersion (licence, currentLicenceVersion, addres
     return null
   }
 
-  const { INCR_NO: currentIncrementNo, ISSUE_NO: currentIssueNo} = currentLicenceVersion
+  const { INCR_NO: currentIncrementNo, ISSUE_NO: currentIssueNo } = currentLicenceVersion
   const matchingLicencePurposes = licencePurposes.filter((licencePurpose) => {
     return licencePurpose.AABV_ISSUE_NO === currentIssueNo && licencePurpose.AABV_INCR_NO === currentIncrementNo
   })
