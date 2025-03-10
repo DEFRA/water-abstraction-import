@@ -177,18 +177,17 @@ async function _returnDataExists (returnId) {
 }
 
 async function _update (row) {
-  const params = [row.due_date, row.metadata]
+  const params = [row.due_date, row.metadata, row.received_date, row.status, row.return_id]
 
-  let query
-
-  if (moment(row.end_date).isBefore('2018-10-31')) {
-    params.push(row.received_date, row.status)
-    query = 'UPDATE "returns"."returns" SET due_date=$1, metadata=$2, received_date=$3, status=$4, updated_at = now() WHERE return_id=$5;'
-  } else {
-    query = 'UPDATE "returns"."returns" SET due_date=$1, metadata=$2, updated_at = now() WHERE return_id=$3;'
-  }
-
-  params.push(row.return_id)
+  const query = `
+    UPDATE "returns"."returns" SET
+      due_date = $1,
+      metadata = $2,
+      received_date = $3,
+      status = $4,
+      updated_at = now()
+    WHERE return_id=$5;
+  `
 
   await db.query(query, params)
 }
