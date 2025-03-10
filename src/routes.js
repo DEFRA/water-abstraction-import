@@ -85,8 +85,8 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/process/licence-import',
-    handler: Controller.licenceImport
+    path: '/process/licence-no-start-date-import',
+    handler: Controller.licenceNoStartDateImport
   },
   {
     method: 'POST',

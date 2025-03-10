@@ -4,7 +4,7 @@ const db = require('../../../lib/connectors/db.js')
 
 const LicenceCrmImportProcess = require('../../licence-crm-import/process.js')
 const LicenceCrmV2ImportProcess = require('../../licence-crm-v2-import/process.js')
-const LicenceImportProcess = require('../../licence-import/process.js')
+const LicenceNoStartDateImportProcess = require('../../licence-no-start-date-import/process.js')
 const LicencePermitImportProcess = require('../../licence-permit-import/process.js')
 const LicenceReturnsImportProcess = require('../../licence-returns-import/process.js')
 const PermitJson = require('../../../lib/permit-json/permit-json.js')
@@ -35,7 +35,7 @@ async function handler () {
       const results = await Promise.allSettled([
         LicencePermitImportProcess.go(permitJson, index, false),
         LicenceCrmV2ImportProcess.go(permitJson, index, false),
-        LicenceImportProcess.go(permitJson, index, false),
+        LicenceNoStartDateImportProcess.go(permitJson, index, false),
         LicenceReturnsImportProcess.go(licence, index, false)
       ])
 

@@ -20,7 +20,7 @@ const ExtractOldLinesProcess = require('./modules/extract-old-lines/process.js')
 const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/process.js')
 const LicenceCrmImportProcess = require('./modules/licence-crm-import/process.js')
 const LicenceCrmV2ImportProcess = require('./modules/licence-crm-v2-import/process.js')
-const LicenceImportProcess = require('./modules/licence-import/process.js')
+const LicenceNoStartDateImportProcess = require('./modules/licence-no-start-date-import/process.js')
 const LicencePermitImportProcess = require('./modules/licence-permit-import/process.js')
 const LicenceReturnsImportProcess = require('./modules/licence-returns-import/process.js')
 const LicenceVersionsImportProcess = require('./modules/licence-versions-import/process.js')
@@ -140,12 +140,12 @@ async function licenceCrmV2Import (request, h) {
   return h.response().code(204)
 }
 
-async function licenceImport (request, h) {
+async function licenceNoStartDateImport (request, h) {
   const { licenceRef } = request.payload
 
   const permitJson = await PermitJson.go(licenceRef)
 
-  LicenceImportProcess.go(permitJson, 0, true)
+  LicenceNoStartDateImportProcess.go(permitJson, 0, true)
 
   return h.response().code(204)
 }
@@ -231,7 +231,7 @@ module.exports = {
   importJob,
   licenceCrmImport,
   licenceCrmV2Import,
-  licenceImport,
+  licenceNoStartDateImport,
   licencePermitImport,
   licenceReturnsImport,
   licenceVersionsImport,
