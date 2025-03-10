@@ -48,13 +48,10 @@ async function go (permitJson, index = 0, log = false) {
 
 function _licence (permitJson) {
   const startDate = DateHelpers.mapNaldDate(permitJson.data.versions[0].EFF_ST_DATE)
-  const endDate = DateHelpers.getEndDate(permitJson)
 
   return {
     licenceNumber: permitJson.LIC_NO,
     startDate,
-    endDate,
-    externalId: `${permitJson.FGAC_REGION_CODE}:${permitJson.ID}`,
     isWaterUndertaker: permitJson.AREP_EIUC_CODE.endsWith('SWC'),
     regions: _regions(permitJson),
     regionCode: parseInt(permitJson.FGAC_REGION_CODE, 10),
