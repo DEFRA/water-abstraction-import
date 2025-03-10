@@ -41,12 +41,10 @@ async function go (row, oldLinesExist) {
     return
   }
 
-  const naldLineData = _naldLineData(naldLines)
-
   const version = _version(row)
   const wrlsLines = _blankLines(row)
 
-  _populateBlankLines(row, version, wrlsLines, naldLineData)
+  _populateBlankLines(row, version, wrlsLines, naldLines)
 
   await _saveVersion(version)
   await _saveLines(wrlsLines)
@@ -103,23 +101,6 @@ function _blankLines (row) {
   return monthsFromPeriod(startDate, endDate)
 }
 
-function _naldLineData (naldLines) {
-  const { RET_QTY_USABILITY: readingType, UNIT_RET_FLAG: userUnit } = naldLines[0]
-
-  const lines = naldLines.filter((naldLine) => {
-    const { RET_QTY: qty } = naldLine
-
-    // We need to consider a line with a qty 0 as populated, hence the more convoluted check
-    return qty !== null && qty !== undefined && qty !== 'null' && qty !== ''
-  })
-
-  return {
-    lines,
-    readingType,
-    userUnit
-  }
-}
-
 async function _naldLines (naldLinesParams) {
   const query = `
     SELECT
@@ -132,7 +113,10 @@ async function _naldLines (naldLinesParams) {
       to_date("RET_DATE", 'YYYYMMDDHH24MISS') AS end_date
     FROM "import"."NALD_RET_LINES" nrl
     WHERE
-      nrl."ARFL_ARTY_ID"=$1
+      nrl."RET_QTY" IS NOT NULL
+      AND nrl."RET_QTY" <> ''
+      AND nrl."RET_QTY" <> '0'
+      AND nrl."ARFL_ARTY_ID"=$1
       AND nrl."FGAC_REGION_CODE"=$2
       AND to_date(nrl."RET_DATE", 'YYYYMMDDHH24MISS') >= to_date($3, 'YYYY-MM-DD')
       AND to_date(nrl."RET_DATE", 'YYYYMMDDHH24MISS') <= to_date($4, 'YYYY-MM-DD')
@@ -152,47 +136,48 @@ function _naldLinesParams (returnId) {
 }
 
 /**
- * Old NALD form logs can have awkward dates. For example, 28/39/22/0056 has a NALD_RET_FORMAT (ID = 1,
- * FGAC_REGION_CODE = 7), which requires recording monthly, reporting yearly. This results in a NALD_RET_FORM_LOG dated
+ * NALD appears to always store a 0, so makes no distinction between something a user didn't submit, and where they
+ * specifically submitted 0.
+ *
+ * So, we ignore any line that has a NULL or 0 `RET_QTY`in NALD. These then get submitted as Nil returns.
+ *
+ * Its also worth noting another reason for Nil returns. Old NALD form logs can have awkward dates. For example,
+ * 28/39/22/0056 has a NALD_RET_FORMAT (ID = 1, FGAC_REGION_CODE = 7), which requires recording monthly, reporting
+ * yearly. This results in a NALD_RET_FORM_LOG dated
+ *
  * - 01/01/1999 - 31/12/1999
+ *
  * Problem is, when that format is put through the WRLS engine, which incorporates cycles, you end up with multiple
  * return logs
  *
  * - 1998-04-01 - 1999-03-31
  * - 1999-04-01 - 2000-03-31
  *
- * So, the transformation engine will have created and marked as `complete` both return logs, but the NALD lines with data only match
- * to the second return log. That results in a 'completed' return log with no submission data. So, we log it for reference
- * and create a Nil return submission. This way it won't appear 'wrong' in the UI (completed but no submission data)
- * and will be skipped on the next import-job run, helping to keep the run time manageable.
+ * So, the transformation engine will have created and marked as `complete` both return logs, but the NALD lines with
+ * data only match to the second return log. That results in a 'completed' return log with no submission data. So, we
+ * create a Nil return submission. This way it won't appear 'wrong' in the UI (completed but no submission data) and
+ * will be skipped on the next import-job run, helping to keep the run time manageable.
+ *
  * @private
  */
 async function _nilReturn (row) {
-  global.GlobalNotifier.omg('licence-returns-import: no matching lines for return log so marking as Nil return', { row })
-
   const version = _version(row, true)
 
   await _saveVersion(version)
 }
 
-function _populateBlankLines (row, version, blankLines, naldLineData) {
-  let nilReturn = true
+function _populateBlankLines (row, version, blankLines, naldLines) {
+  const { RET_QTY_USABILITY: readingType, UNIT_RET_FLAG: userUnit } = naldLines[0]
 
   for (const line of blankLines) {
     line.line_id = generateUUID()
     line.version_id = version.version_id
     line.time_period = row.returns_frequency
     line.metadata = {}
-    line.user_unit = returnsHelpers.mappers.mapUnit(naldLineData.userUnit)
-    line.reading_type = returnsHelpers.mappers.mapUsability(naldLineData.readingType)
-    line.quantity = _totalLineQuantity(line, naldLineData.lines)
-
-    if (line.quantity !== null) {
-      nilReturn = false
-    }
+    line.user_unit = returnsHelpers.mappers.mapUnit(userUnit)
+    line.reading_type = returnsHelpers.mappers.mapUsability(readingType)
+    line.quantity = _totalLineQuantity(line, naldLines)
   }
-
-  version.nil_return = nilReturn
 }
 
 async function _saveLines (lines) {
@@ -259,13 +244,13 @@ async function _saveVersion (version) {
   await db.query(query, params)
 }
 
-function _totalLineQuantity (blankLine, naldPopulatedLines) {
+function _totalLineQuantity (blankLine, naldLines) {
   let match = false
   let totalQuantity = 0
 
-  for (const naldLine of naldPopulatedLines) {
+  for (const naldLine of naldLines) {
     // Even though we cast RET_DATE to a Date as `end_date` in the query, the DB connection the
-    // water-abstraction-helpers makes always returns them it as a string.
+    // water-abstraction-helpers makes always returns it as a string.
     const naldLineEndDate = new Date(naldLine.end_date)
 
     // We have gone past the last line that could possibly match so stop looking
