@@ -23,7 +23,7 @@ const LicenceCrmV2ImportProcess = require('./modules/licence-crm-v2-import/proce
 const LicenceNoStartDateImportProcess = require('./modules/licence-no-start-date-import/process.js')
 const LicencePermitImportProcess = require('./modules/licence-permit-import/process.js')
 const LicenceReturnsImportProcess = require('./modules/licence-returns-import/process.js')
-const LicenceVersionsImportProcess = require('./modules/licence-versions-import/process.js')
+const LicencesImportProcess = require('./modules/licences-import/process.js')
 const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
 const ReturnVersionsImportProcess = require('./modules/return-versions-import/process.js')
@@ -171,8 +171,8 @@ async function licenceReturnsImport (request, h) {
   return h.response().code(204)
 }
 
-async function licenceVersionsImport (_request, h) {
-  LicenceVersionsImportProcess.go(true)
+async function licencesImport (_request, h) {
+  LicencesImportProcess.go(true)
 
   return h.response().code(204)
 }
@@ -234,7 +234,7 @@ module.exports = {
   licenceNoStartDateImport,
   licencePermitImport,
   licenceReturnsImport,
-  licenceVersionsImport,
+  licencesImport,
   linkToModLogs,
   referenceDataImport,
   returnVersionsImport

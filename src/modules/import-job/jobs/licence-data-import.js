@@ -9,7 +9,7 @@ const LicencePermitImportProcess = require('../../licence-permit-import/process.
 const LicenceReturnsImportProcess = require('../../licence-returns-import/process.js')
 const PermitJson = require('../../../lib/permit-json/permit-json.js')
 
-const LicenceVersionsImportJob = require('./licence-versions-import.js')
+const LicencesImportJob = require('./licences-import.js')
 
 const JOB_NAME = 'import-job.licence-data-import'
 
@@ -53,7 +53,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    await messageQueue.publish(LicenceVersionsImportJob.createMessage())
+    await messageQueue.publish(LicencesImportJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {

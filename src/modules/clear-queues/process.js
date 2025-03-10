@@ -19,7 +19,7 @@ async function go (messageQueue, log = false) {
     messageQueue.deleteQueue('import-job.return-versions-import')
     messageQueue.deleteQueue('import-job.company-import')
     messageQueue.deleteQueue('import-job.licence-data-import')
-    messageQueue.deleteQueue('import-job.licence-versions-import')
+    messageQueue.deleteQueue('import-job.licences-import')
     messageQueue.deleteQueue('import-job.link-to-mod-logs')
     messageQueue.deleteQueue('import-job.end-date-trigger')
     messageQueue.deleteQueue('import-job.completion-email')

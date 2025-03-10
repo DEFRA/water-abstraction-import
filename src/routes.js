@@ -100,8 +100,8 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/process/licence-versions-import',
-    handler: Controller.licenceVersionsImport
+    path: '/process/licences-import',
+    handler: Controller.licencesImport
   },
   {
     method: 'POST',
