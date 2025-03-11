@@ -195,6 +195,10 @@ async function returnVersionsImport (_request, h) {
   return h.response().code(204)
 }
 
+function status (_request, _h) {
+  return { status: 'alive' }
+}
+
 async function _tagReference () {
   try {
     const { stdout, stderr } = await exec('git describe --always --tags')
@@ -237,5 +241,6 @@ module.exports = {
   licencesImport,
   linkToModLogs,
   referenceDataImport,
-  returnVersionsImport
+  returnVersionsImport,
+  status
 }

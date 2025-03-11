@@ -14,6 +14,14 @@ module.exports = [
     }
   },
   {
+    method: 'GET',
+    path: '/status',
+    handler: Controller.status,
+    config: {
+      auth: false
+    }
+  },
+  {
     method: 'POST',
     path: '/import-job',
     handler: Controller.importJob
