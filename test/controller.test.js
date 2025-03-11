@@ -16,6 +16,13 @@ experiment('modules/health/controller', () => {
     Sinon.restore()
   })
 
+  experiment('getStatus', () => {
+    test('returns an object with the application status', () => {
+      const response = controller.getStatus()
+      expect(response.status).to.equal('alive')
+    })
+  })
+
   experiment('.getAirbrake', () => {
     let notifyFake
     let request
