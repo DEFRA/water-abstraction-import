@@ -1,6 +1,6 @@
 'use strict'
 
-const CrmV2Transformer = require('./lib/crm-v2-transformer.js')
+const Transformer = require('./lib/transformer.js')
 const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
@@ -12,7 +12,7 @@ async function go (permitJson, index = 0, log = false) {
       return null
     }
 
-    const { document, documentRoles } = CrmV2Transformer.go(permitJson)
+    const { document, documentRoles } = Transformer.go(permitJson)
     const documentId = await _persistDocument(document)
 
     for (const documentRole of documentRoles) {
