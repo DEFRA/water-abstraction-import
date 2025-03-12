@@ -12,9 +12,9 @@ const { expect } = Code
 const db = require('../../../../src/lib/connectors/db.js')
 
 // Thing under test
-const VoidReturns = require('../../../../src/modules/return-logs/lib/void-returns.js')
+const VoidReturns = require('../../../../src/modules/licence-returns-import/lib/void-returns.js')
 
-experiment('modules/return-logs/lib/void-returns', () => {
+experiment('modules/licence-returns-import/lib/void-returns.js', () => {
   const licenceRef = '04/567/890'
   const rows = [{ return_id: 'v1:123:456' }, { return_id: 'v1:234:789' }]
 
