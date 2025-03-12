@@ -66,7 +66,7 @@ async function crmV2Import (request, h) {
   const { partyId, regionCode } = request.payload
   const results = await db.query(
     `SELECT "ID", "APAR_TYPE", "NAME", "FORENAME", "INITIALS", "SALUTATION", "FGAC_REGION_CODE"
-    FROM "import"."NALD_PARTIES" WHERE "FGAC_REGION_CODE"=$1 AND "ID" = $2;`,
+    FROM "import"."NALD_PARTIES" WHERE "ID" = $1 AND "FGAC_REGION_CODE" = $2;`,
     [partyId, regionCode]
   )
 
