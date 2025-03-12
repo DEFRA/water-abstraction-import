@@ -11,9 +11,6 @@ const { expect } = Code
 const moment = require('moment')
 const CrmV2ImportFixture = require('../../../support/crm-v2-import.fixture.js')
 
-// Things we need to stub
-// const { lines, returns, versions } = require('../../../src/modules/returns/lib/returns.js')
-
 // Thing under test
 const Transformer = require('../../../../src/modules/crm-v2-import/lib/transformer.js')
 
@@ -33,13 +30,14 @@ experiment('modules/crm-v2-import/lib/transformer.js', () => {
     ]
 
     licenceRoles = [
-      CrmV2ImportFixture.createRole(licence, { ACON_APAR_ID: '1001', ACON_AADD_ID: '1000' })
+      CrmV2ImportFixture.createRole(licence, { ACON_APAR_ID: '1001', ACON_AADD_ID: '1000', EFF_END_DATE: '05/07/2015' }),
+      CrmV2ImportFixture.createRole(licence, { ACON_APAR_ID: '1001', ACON_AADD_ID: '1001', EFF_ST_DATE: '06/07/2015' })
     ]
 
     licenceVersions = [
       CrmV2ImportFixture.createVersion(
         licence,
-        { ISSUE_NO: '1', INCR_NO: '1', EFF_ST_DATE: '02/04/2015', EFF_END_DATE: '05/07/2015' }
+        { ISSUE_NO: '1', INCR_NO: '1', EFF_ST_DATE: '01/04/2015', EFF_END_DATE: '05/07/2015' }
       ),
       CrmV2ImportFixture.createVersion(
         licence,
@@ -83,8 +81,8 @@ experiment('modules/crm-v2-import/lib/transformer.js', () => {
           },
           {
             role: 'returnsTo',
-            startDate: moment('2016-04-01'),
-            endDate: null,
+            startDate: moment('2015-04-01'),
+            endDate: moment('2015-07-05'),
             address: {
               address1: 'BIG MANOR FARM',
               address2: 'BUTTERCUP LANE',
@@ -97,10 +95,26 @@ experiment('modules/crm-v2-import/lib/transformer.js', () => {
               town: 'TESTINGTON'
             }
           },
+          {
+            role: 'returnsTo',
+            startDate: moment('2015-07-06'),
+            endDate: null,
+            address: {
+              address1: 'BIG MANOR FARM',
+              address2: 'BUTTERCUP LANE',
+              address3: 'DAISY MEADOW',
+              address4: null,
+              country: 'ENGLAND',
+              county: 'TESTINGSHIRE',
+              externalId: '1:1001',
+              postcode: 'TT1 1TT',
+              town: 'TESTINGTON'
+            }
+          }
         ],
         licenceHolderContact: {
           role: 'licenceHolder',
-          startDate: moment('2015-04-02'),
+          startDate: moment('2015-04-01'),
           endDate: null,
           contact: {
             salutation: 'SIR',
@@ -145,8 +159,8 @@ experiment('modules/crm-v2-import/lib/transformer.js', () => {
           },
           {
             role: 'returnsTo',
-            startDate: moment('2016-04-01'),
-            endDate: null,
+            startDate: moment('2015-04-01'),
+            endDate: moment('2015-07-05'),
             address: {
               address1: 'BIG MANOR FARM',
               address2: 'BUTTERCUP LANE',
@@ -159,6 +173,22 @@ experiment('modules/crm-v2-import/lib/transformer.js', () => {
               town: 'TESTINGTON'
             }
           },
+          {
+            role: 'returnsTo',
+            startDate: moment('2015-07-06'),
+            endDate: null,
+            address: {
+              address1: 'BIG MANOR FARM',
+              address2: 'BUTTERCUP LANE',
+              address3: 'DAISY MEADOW',
+              address4: null,
+              country: 'ENGLAND',
+              county: 'TESTINGSHIRE',
+              externalId: '1:1001',
+              postcode: 'TT1 1TT',
+              town: 'TESTINGTON'
+            }
+          }
         ],
         licenceHolderContact: null
       })
