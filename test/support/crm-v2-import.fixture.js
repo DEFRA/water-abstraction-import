@@ -1,3 +1,5 @@
+'use strict'
+
 const createLicence = overrides => Object.assign({}, {
   ID: '123',
   LIC_NO: '01/123',
@@ -17,6 +19,7 @@ const createVersion = (licence, overrides) => Object.assign({}, {
   EFF_END_DATE: 'null',
   ACON_APAR_ID: '1000',
   ACON_AADD_ID: '1000',
+  li: '1000',
   ISSUE_NO: '100',
   INCR_NO: '1'
 }, overrides)
@@ -114,14 +117,27 @@ const createCondition = (purpose, overrides) => Object.assign({}, {
   FGAC_REGION_CODE: purpose.FGAC_REGION_CODE
 }, overrides)
 
-exports.createAddress = createAddress
-exports.createAgreement = createAgreement
-exports.createChargeVersion = createChargeVersion
-exports.createCompany = createCompany
-exports.createInvoiceAccount = createInvoiceAccount
-exports.createLicence = createLicence
-exports.createParty = createParty
-exports.createPerson = createPerson
-exports.createPurpose = createPurpose
-exports.createCondition = createCondition
-exports.createVersion = createVersion
+const createRole = (licence, overrides) => Object.assign({}, {
+  ID: '897',
+  ALRT_CODE: 'RT',
+  ACON_APAR_ID: '1000',
+  ACON_AADD_ID: '1000',
+  EFF_ST_DATE: licence.ORIG_EFF_DATE,
+  EFF_END_DATE: 'null',
+  FGAC_REGION_CODE: licence.FGAC_REGION_CODE
+}, overrides)
+
+module.exports = {
+  createAddress,
+  createAgreement,
+  createChargeVersion,
+  createCompany,
+  createInvoiceAccount,
+  createLicence,
+  createParty,
+  createPerson,
+  createPurpose,
+  createCondition,
+  createVersion,
+  createRole
+}
