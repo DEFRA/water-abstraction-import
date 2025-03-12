@@ -8,18 +8,14 @@ const Sinon = require('sinon')
 const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
 const { expect } = Code
 
-// Test helpers
-const moment = require('moment')
-moment.locale('en-gb')
-
 // Things we need to stub
-const config = require('../../../../config')
+const config = require('../../../../config.js')
 const processHelper = require('@envage/water-abstraction-helpers').process
 
 // Thing under test
-const zipService = require('../../../../src/modules/nald-import/services/zip-service')
+const Zip = require('../../../../src/modules/extract-nald-data/lib/zip.js')
 
-experiment('modules/nald-import/services/zip-service', () => {
+experiment('modules/extract-nald-data/lib/zip.js', () => {
   beforeEach(async () => {
     Sinon.stub(config.import.nald, 'zipPassword').value('test-password')
     Sinon.stub(processHelper, 'execCommand')
@@ -31,18 +27,20 @@ experiment('modules/nald-import/services/zip-service', () => {
 
   experiment('.extract', () => {
     experiment('when the zip commands succeed', () => {
-      beforeEach(async () => {
-        await zipService.extract()
-      })
-
       test('the first call extracts the primary zip with password', async () => {
+        await Zip.extract()
+
         const [cmd] = processHelper.execCommand.firstCall.args
-        expect(cmd).to.equal('7z x temp/nald_enc.zip -o./temp/ -ptest-password')
+
+        expect(cmd).to.equal('7z x ./temp/nald_enc.zip -o./temp/ -ptest-password')
       })
 
       test('the second call extracts the secondary zip without password', async () => {
+        await Zip.extract()
+
+
         const [cmd] = processHelper.execCommand.secondCall.args
-        expect(cmd).to.equal('7z x temp/NALD.zip -o./temp/')
+        expect(cmd).to.equal('7z x ./temp/NALD.zip -o./temp/')
       })
     })
 
@@ -54,7 +52,7 @@ experiment('modules/nald-import/services/zip-service', () => {
       })
 
       test('an error is thrown', async () => {
-        const func = () => zipService.extract()
+        const func = () => Zip.extract()
         const result = await expect(func()).to.reject()
 
         expect(result).to.equal(err)
