@@ -126,6 +126,18 @@ experiment('modules/crm-v2-import/lib/transformer.js', () => {
         }
       })
     })
+
+    experiment('and when the person has no forename', () => {
+      beforeEach(() => {
+        party = CrmV2ImportFixture.createPerson({ FORENAME: 'null' })
+      })
+
+      test('the initials are used as the first name', () => {
+        const result = Transformer.go(party, licenceVersions, licenceRoles, naldAddresses)
+
+        expect(result.name).to.equal('SIR J DOE')
+      })
+    })
   })
 
   experiment('when transforming an organisation', () => {
