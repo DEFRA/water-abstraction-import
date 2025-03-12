@@ -1,67 +1,65 @@
 'use strict'
 
-const { afterEach, beforeEach, experiment, test } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
-const sandbox = require('sinon').createSandbox()
-const moment = require('moment')
-moment.locale('en-gb')
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const constants = require('../../../../src/modules/nald-import/lib/constants')
-const schemaService = require('../../../../src/modules/nald-import/services/schema-service')
-const db = require('../../../../src/modules/nald-import/lib/db')
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
 
-experiment('modules/nald-import/services/schema-service', () => {
+// Things we need to stub
+const db = require('../../../../src/lib/connectors/db.js')
+
+// Thing under test
+const Schema = require('../../../../src/modules/extract-nald-data/lib/schema.js')
+
+experiment('modules/extract-nald-data/lib/schema.js', () => {
+  const schemaName = 'test_schema'
+
+  let dbStub
+
   beforeEach(async () => {
-    sandbox.stub(constants, 'SCHEMA_IMPORT').value('test_schema')
-    sandbox.stub(constants, 'SCHEMA_TEMP').value('temp_schema')
-
-    sandbox.stub(db, 'dbQuery')
+    dbStub = Sinon.stub(db, 'query').resolves()
   })
 
   afterEach(async () => {
-    sandbox.restore()
+    Sinon.restore()
   })
 
   experiment('.dropAndCreateSchema', () => {
-    beforeEach(async () => {
-      await schemaService.dropAndCreateSchema()
-    })
-
     test('the schema is dropped', async () => {
-      const [query] = db.dbQuery.firstCall.args
-      expect(query).to.equal('drop schema if exists test_schema cascade')
+      await Schema.dropAndCreateSchema(schemaName)
+
+      const [query] = dbStub.firstCall.args
+
+      expect(query).to.equal(`DROP SCHEMA IF EXISTS ${schemaName} CASCADE;`)
     })
 
     test('the schema is re-created', async () => {
-      const [query] = db.dbQuery.secondCall.args
-      expect(query).to.equal('create schema if not exists test_schema')
+      await Schema.dropAndCreateSchema(schemaName)
+
+      const [query] = dbStub.secondCall.args
+
+      expect(query).to.equal(`CREATE SCHEMA IF NOT EXISTS ${schemaName};`)
     })
   })
 
   experiment('.swapTemporarySchema', () => {
-    beforeEach(async () => {
-      await schemaService.swapTemporarySchema('test_schema')
-    })
-
     test('the schema is dropped', async () => {
-      const [query] = db.dbQuery.firstCall.args
-      expect(query).to.equal('drop schema if exists test_schema cascade')
+      await Schema.swapTemporarySchema()
+
+      const [query] = dbStub.firstCall.args
+
+      expect(query).to.equal('DROP SCHEMA IF EXISTS import CASCADE;')
     })
 
     test('the schema is re-created', async () => {
-      const [query] = db.dbQuery.secondCall.args
-      expect(query).to.equal('alter schema temp_schema rename to test_schema;')
-    })
-  })
+      await Schema.swapTemporarySchema()
 
-  experiment('rename schema', () => {
-    beforeEach(async () => {
-      await schemaService.renameSchema('schema_old', 'schema_new')
-    })
+      const [query] = dbStub.secondCall.args
 
-    test('the schema is renamed', async () => {
-      const [query] = db.dbQuery.firstCall.args
-      expect(query).to.equal('alter schema schema_old rename to schema_new;')
+      expect(query).to.equal('ALTER SCHEMA import_temp RENAME TO import;')
     })
   })
 })
