@@ -52,11 +52,6 @@ module.exports = [
     handler: Controller.completionEmail
   },
   {
-    method: 'post',
-    handler: Controller.crmV2Import,
-    path: '/process/crm-v2-import'
-  },
-  {
     method: 'POST',
     path: '/process/end-date-check',
     handler: Controller.endDateCheck
@@ -115,6 +110,11 @@ module.exports = [
     method: 'POST',
     path: '/process/link-to-mod-logs',
     handler: Controller.linkToModLogs
+  },
+  {
+    method: 'post',
+    handler: Controller.partyCrmV2Import,
+    path: '/process/party-crm-v2-import'
   },
   {
     method: 'POST',

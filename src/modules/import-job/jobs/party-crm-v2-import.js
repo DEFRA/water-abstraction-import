@@ -2,11 +2,11 @@
 
 const db = require('../../../lib/connectors/db.js')
 
-const CrmV2ImportProcess = require('../../crm-v2-import/process.js')
+const PartyCrmV2ImportProcess = require('../../party-crm-v2-import/process.js')
 
 const LicenceDataImportJob = require('./licence-data-import.js')
 
-const JOB_NAME = 'import-job.crm-v2-import'
+const JOB_NAME = 'import-job.party-crm-v2-import'
 
 function createMessage () {
   return {
@@ -26,7 +26,7 @@ async function handler () {
 
     const parties = await _parties()
 
-    await pMap(parties, CrmV2ImportProcess.go, { concurrency: 10 })
+    await pMap(parties, PartyCrmV2ImportProcess.go, { concurrency: 10 })
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
   }

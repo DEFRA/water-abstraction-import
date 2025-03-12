@@ -2,7 +2,7 @@
 
 const ReturnVersionsImportProcess = require('../../return-versions-import/process.js')
 
-const CrmV2ImportJob = require('./crm-v2-import.js')
+const PartyCrmV2ImportJob = require('./party-crm-v2-import.js')
 
 const config = require('../../../../config.js')
 
@@ -30,7 +30,7 @@ async function handler () {
 
 async function onComplete (messageQueue, job) {
   if (!job.data.failed) {
-    await messageQueue.publish(CrmV2ImportJob.createMessage())
+    await messageQueue.publish(PartyCrmV2ImportJob.createMessage())
 
     global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
   } else {

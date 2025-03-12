@@ -12,7 +12,6 @@ const ChargeVersionsImportProcess = require('./modules/charge-versions-import/pr
 const CleanProcess = require('./modules/clean/process.js')
 const ClearQueuesProcess = require('./modules/clear-queues/process.js')
 const CompletionEmailProcess = require('./modules/completion-email/process.js')
-const CrmV2ImportProcess = require('./modules/crm-v2-import/process.js')
 const EndDateCheckProcess = require('./modules/end-date-check/process.js')
 const EndDateTriggerProcess = require('./modules/end-date-trigger/process.js')
 const ExtractNaldDataProcess = require('./modules/extract-nald-data/process.js')
@@ -25,6 +24,7 @@ const LicencePermitImportProcess = require('./modules/licence-permit-import/proc
 const LicenceReturnsImportProcess = require('./modules/licence-returns-import/process.js')
 const LicencesImportProcess = require('./modules/licences-import/process.js')
 const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
+const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
 const ReturnVersionsImportProcess = require('./modules/return-versions-import/process.js')
 
@@ -58,19 +58,6 @@ async function clearQueues (request, h) {
 
 async function completionEmail (_request, h) {
   CompletionEmailProcess.go(true)
-
-  return h.response().code(204)
-}
-
-async function crmV2Import (request, h) {
-  const { partyId, regionCode } = request.payload
-  const results = await db.query(
-    `SELECT "ID", "APAR_TYPE", "NAME", "FORENAME", "INITIALS", "SALUTATION", "FGAC_REGION_CODE"
-    FROM "import"."NALD_PARTIES" WHERE "ID" = $1 AND "FGAC_REGION_CODE" = $2;`,
-    [partyId, regionCode]
-  )
-
-  CrmV2ImportProcess.go(results[0], 0, true)
 
   return h.response().code(204)
 }
@@ -183,6 +170,19 @@ async function linkToModLogs (_request, h) {
   return h.response().code(204)
 }
 
+async function partyCrmV2Import (request, h) {
+  const { partyId, regionCode } = request.payload
+  const results = await db.query(
+    `SELECT "ID", "APAR_TYPE", "NAME", "FORENAME", "INITIALS", "SALUTATION", "FGAC_REGION_CODE"
+    FROM "import"."NALD_PARTIES" WHERE "ID" = $1 AND "FGAC_REGION_CODE" = $2;`,
+    [partyId, regionCode]
+  )
+
+  PartyCrmV2ImportProcess.go(results[0], 0, true)
+
+  return h.response().code(204)
+}
+
 async function referenceDataImport (_request, h) {
   ReferenceDataImportProcess.go(true)
 
@@ -225,7 +225,6 @@ module.exports = {
   clean,
   clearQueues,
   completionEmail,
-  crmV2Import,
   endDateCheck,
   endDateTrigger,
   extractNaldData,
@@ -240,6 +239,7 @@ module.exports = {
   licenceReturnsImport,
   licencesImport,
   linkToModLogs,
+  partyCrmV2Import,
   referenceDataImport,
   returnVersionsImport,
   status

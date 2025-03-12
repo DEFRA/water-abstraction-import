@@ -9,12 +9,12 @@ const { expect } = Code
 
 // Test helpers
 const moment = require('moment')
-const CrmV2ImportFixture = require('../../../support/crm-v2-import.fixture.js')
+const CrmV2Fixture = require('../../../support/crm-v2.fixture.js')
 
 // Thing under test
-const Transformer = require('../../../../src/modules/crm-v2-import/lib/transformer.js')
+const Transformer = require('../../../../src/modules/party-crm-v2-import/lib/transformer.js')
 
-experiment('modules/crm-v2-import/lib/transformer.js', () => {
+experiment('modules/party-crm-v2-import/lib/transformer.js', () => {
   let licence
   let licenceRoles
   let licenceVersions
@@ -22,28 +22,28 @@ experiment('modules/crm-v2-import/lib/transformer.js', () => {
   let party
 
   beforeEach(() => {
-    licence = CrmV2ImportFixture.createLicence()
+    licence = CrmV2Fixture.createLicence()
 
     naldAddresses = [
-      CrmV2ImportFixture.createAddress(),
-      CrmV2ImportFixture.createAddress({ ID: '1001' })
+      CrmV2Fixture.createAddress(),
+      CrmV2Fixture.createAddress({ ID: '1001' })
     ]
 
     licenceRoles = [
-      CrmV2ImportFixture.createRole(licence, { ACON_APAR_ID: '1001', ACON_AADD_ID: '1000', EFF_END_DATE: '05/07/2015' }),
-      CrmV2ImportFixture.createRole(licence, { ACON_APAR_ID: '1001', ACON_AADD_ID: '1001', EFF_ST_DATE: '06/07/2015' })
+      CrmV2Fixture.createRole(licence, { ACON_APAR_ID: '1001', ACON_AADD_ID: '1000', EFF_END_DATE: '05/07/2015' }),
+      CrmV2Fixture.createRole(licence, { ACON_APAR_ID: '1001', ACON_AADD_ID: '1001', EFF_ST_DATE: '06/07/2015' })
     ]
 
     licenceVersions = [
-      CrmV2ImportFixture.createVersion(
+      CrmV2Fixture.createVersion(
         licence,
         { ISSUE_NO: '1', INCR_NO: '1', EFF_ST_DATE: '01/04/2015', EFF_END_DATE: '05/07/2015' }
       ),
-      CrmV2ImportFixture.createVersion(
+      CrmV2Fixture.createVersion(
         licence,
         { ISSUE_NO: '1', INCR_NO: '2', EFF_ST_DATE: '06/07/2015', EFF_END_DATE: '12/08/2015' }
       ),
-      CrmV2ImportFixture.createVersion(
+      CrmV2Fixture.createVersion(
         licence,
         { ISSUE_NO: '2', INCR_NO: '1', EFF_ST_DATE: '13/08/2015', EFF_END_DATE: 'null' }
       )
@@ -52,7 +52,7 @@ experiment('modules/crm-v2-import/lib/transformer.js', () => {
 
   experiment('when transforming a person', () => {
     beforeEach(() => {
-      party = CrmV2ImportFixture.createPerson()
+      party = CrmV2Fixture.createPerson()
     })
 
     test('the details are transformed correctly', () => {
@@ -129,7 +129,7 @@ experiment('modules/crm-v2-import/lib/transformer.js', () => {
 
     experiment('and when the person has no forename', () => {
       beforeEach(() => {
-        party = CrmV2ImportFixture.createPerson({ FORENAME: 'null' })
+        party = CrmV2Fixture.createPerson({ FORENAME: 'null' })
       })
 
       test('the initials are used as the first name', () => {
@@ -142,7 +142,7 @@ experiment('modules/crm-v2-import/lib/transformer.js', () => {
 
   experiment('when transforming an organisation', () => {
     beforeEach(() => {
-      party = CrmV2ImportFixture.createCompany()
+      party = CrmV2Fixture.createCompany()
     })
 
     test('the details are transformed correctly', () => {

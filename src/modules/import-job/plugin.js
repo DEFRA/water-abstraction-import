@@ -5,7 +5,7 @@ const cron = require('node-cron')
 const CleanJob = require('./jobs/clean.js')
 const ClearQueuesJob = require('./jobs/clear-queues.js')
 const CompletionEmailJob = require('./jobs/completion-email.js')
-const CrmV2ImportJob = require('./jobs/crm-v2-import.js')
+const PartyCrmV2ImportJob = require('./jobs/party-crm-v2-import.js')
 const EndDateCheckJob = require('./jobs/end-date-check.js')
 const EndDateTriggerJob = require('./jobs/end-date-trigger.js')
 const ExtractNaldDataJob = require('./jobs/extract-nald-data.js')
@@ -70,10 +70,10 @@ async function register (server, _options) {
     return ReturnVersionsImportJob.onComplete(server.messageQueue, executedJob)
   })
 
-  // Register crm-v2-import job
-  await server.messageQueue.subscribe(CrmV2ImportJob.JOB_NAME, CrmV2ImportJob.handler)
-  await server.messageQueue.onComplete(CrmV2ImportJob.JOB_NAME, (executedJob) => {
-    return CrmV2ImportJob.onComplete(server.messageQueue, executedJob)
+  // Register party-crm-v2-import job
+  await server.messageQueue.subscribe(PartyCrmV2ImportJob.JOB_NAME, PartyCrmV2ImportJob.handler)
+  await server.messageQueue.onComplete(PartyCrmV2ImportJob.JOB_NAME, (executedJob) => {
+    return PartyCrmV2ImportJob.onComplete(server.messageQueue, executedJob)
   })
 
   // Register licence-data-import job
