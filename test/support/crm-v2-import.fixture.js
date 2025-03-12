@@ -4,7 +4,7 @@ const createLicence = overrides => Object.assign({}, {
   ID: '123',
   LIC_NO: '01/123',
   FGAC_REGION_CODE: '1',
-  ORIG_EFF_DATE: '01/04/2016',
+  ORIG_EFF_DATE: '01/04/2015',
   EXPIRY_DATE: 'null',
   REV_DATE: 'null',
   LAPSED_DATE: 'null',
