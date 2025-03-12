@@ -1,51 +1,37 @@
 'use strict'
 
-const { afterEach, beforeEach, experiment, test } = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+const Sinon = require('sinon')
 
-const sandbox = require('sinon').createSandbox()
-const moment = require('moment')
-moment.locale('en-gb')
+const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
+const { expect } = Code
 
-const s3 = require('../../../../src/lib/services/s3')
-const s3Service = require('../../../../src/modules/nald-import/services/s3-service')
+// Things we need to stub
+const s3Service = require('../../../../src/lib/services/s3.js')
 
-experiment('modules/nald-import/services/s3', () => {
+// Thing under test
+const s3 = require('../../../../src/modules/extract-nald-data/lib/s3.js')
+
+experiment('modules/extract-nald-data/lib/s3.js', () => {
+  let s3ServiceStub
+
   beforeEach(async () => {
-    sandbox.stub(s3, 'download')
-    sandbox.stub(s3, 'getHead').resolves({
-      ETag: '"test-etag-here"'
-    })
+    s3ServiceStub = Sinon.stub(s3Service, 'download').resolves()
   })
 
   afterEach(async () => {
-    sandbox.restore()
-  })
-
-  experiment('.getEtag', () => {
-    let result
-    beforeEach(async () => {
-      result = await s3Service.getEtag()
-    })
-
-    test('the s3.getHead method is called', async () => {
-      expect(s3.getHead.calledWith('wal_nald_data_release/nald_enc.zip')).to.be.true()
-    })
-
-    test('the etag is returned with quotes stripped', async () => {
-      expect(result).to.equal('test-etag-here')
-    })
+    Sinon.restore()
   })
 
   experiment('.download', () => {
-    beforeEach(async () => {
-      await s3Service.download()
-    })
-
     test('the s3.download method is called', async () => {
-      expect(s3.download.calledWith(
-        'wal_nald_data_release/nald_enc.zip', 'temp/nald_enc.zip'
-      )).to.be.true()
+      await s3.download()
+
+      const args = s3ServiceStub.firstCall.args
+
+      expect(args).to.equal(['wal_nald_data_release/nald_enc.zip', './temp/nald_enc.zip'])
     })
   })
 })
