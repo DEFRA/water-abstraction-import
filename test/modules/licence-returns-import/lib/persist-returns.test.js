@@ -12,9 +12,9 @@ const { expect } = Code
 const db = require('../../../../src/lib/connectors/db.js')
 
 // Thing under test
-const PersistReturns = require('../../../../src/modules/return-logs/lib/persist-returns.js')
+const PersistReturns = require('../../../../src/modules/licence-returns-import/lib/persist-returns.js')
 
-experiment('modules/return-logs/lib/persist-returns', () => {
+experiment('modules/licence-returns-import/lib/persist-returns', () => {
   const naldReturn = {
     return_id: 'v1:123:456',
     regime: 'water',
@@ -47,11 +47,13 @@ experiment('modules/return-logs/lib/persist-returns', () => {
     due_date: '2018-11-28'
   }
 
+  let oldLinesExist
+
   afterEach(() => {
     Sinon.restore()
   })
 
-  experiment('when the return does not exist', () => {
+  experiment('when a return log does not exist', () => {
     beforeEach(() => {
       Sinon.stub(db, 'query')
         .onFirstCall().resolves([{ return_log_exists: false, return_submission_exists: true }])
@@ -59,56 +61,28 @@ experiment('modules/return-logs/lib/persist-returns', () => {
         .onThirdCall().resolves()
     })
 
-    experiment("and its 'endDate' is before 2018-10-31", () => {
-      test('creates the return log based on the NALD row data', async () => {
-        await PersistReturns.go([naldReturn], false)
+    test('creates the return log', async () => {
+      await PersistReturns.go([naldReturn], false)
 
-        const params = db.query.thirdCall.args[1]
+      const params = db.query.thirdCall.args[1]
 
-        // Confirm all the params required were passed to the query
-        expect(params).to.equal([
-          '2017-11-28',
-          '2017-10-31',
-          '01/234/567',
-          'abstraction',
-          JSON.stringify({ param: 'value', version: '1' }),
-          '2017-11-24',
-          'water',
-          'v1:123:456',
-          '012345',
-          'month',
-          'NALD',
-          '2016-11-01',
-          'completed',
-          '40eb9d9e-0cad-4794-b7eb-dfc7ccaf8b26'
-        ])
-      })
-    })
-
-    experiment("and its 'endDate' is after 2018-10-31", () => {
-      test('creates the return log based on the WRLS row data', async () => {
-        await PersistReturns.go([digitalServiceReturn], false)
-
-        const params = db.query.thirdCall.args[1]
-
-        // Confirm all the params required were passed to the query
-        expect(params).to.equal([
-          '2018-11-28',
-          '2018-10-31',
-          '04/567/890',
-          'abstraction',
-          { param: 'value', version: '1' },
-          '2018-11-24',
-          'water',
-          'v1:234:789',
-          '67890',
-          'month',
-          'NALD',
-          '2017-11-01',
-          'due',
-          '40eb9d9e-0cad-4794-b7eb-dfc7ccaf8b26'
-        ])
-      })
+      // Confirm all the params required were passed to the query
+      expect(params).to.equal([
+        '2017-11-28',
+        '2017-10-31',
+        '01/234/567',
+        'abstraction',
+        JSON.stringify({ param: 'value', version: '1' }),
+        '2017-11-24',
+        'water',
+        'v1:123:456',
+        '012345',
+        'month',
+        'NALD',
+        '2016-11-01',
+        'completed',
+        '40eb9d9e-0cad-4794-b7eb-dfc7ccaf8b26'
+      ])
     })
   })
 
@@ -119,36 +93,19 @@ experiment('modules/return-logs/lib/persist-returns', () => {
         .onSecondCall().resolves()
     })
 
-    experiment("and its 'endDate' is before 2018-10-31", () => {
-      test("updates the return log's 'due_date', 'metadata', 'received_date' and 'status'", async () => {
-        await PersistReturns.go([naldReturn], false)
+    test("updates the return log's 'due_date', 'metadata', 'received_date' and 'status'", async () => {
+      await PersistReturns.go([naldReturn], false)
 
-        const params = db.query.secondCall.args[1]
+      const params = db.query.secondCall.args[1]
 
-        // Confirm all the params required were passed to the query
-        expect(params).to.equal([
-          '2017-11-28',
-          '{"param":"value","version":"1"}',
-          '2017-11-24',
-          'completed',
-          'v1:123:456'
-        ])
-      })
-    })
-
-    experiment("and its 'endDate' is after 2018-10-31", () => {
-      test("updates only the return log's 'due_date' and 'metadata'", async () => {
-        await PersistReturns.go([digitalServiceReturn], false)
-
-        const params = db.query.secondCall.args[1]
-
-        // Confirm all the params required were passed to the query
-        expect(params).to.equal([
-          '2018-11-28',
-          { param: 'value', version: '1' },
-          'v1:234:789'
-        ])
-      })
+      // Confirm all the params required were passed to the query
+      expect(params).to.equal([
+        '2017-11-28',
+        '{"param":"value","version":"1"}',
+        '2017-11-24',
+        'completed',
+        'v1:123:456'
+      ])
     })
   })
 })
