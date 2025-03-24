@@ -7,60 +7,24 @@ const { returns: { date: { getPeriodStart } } } = waterHelpers
 const naldFormatting = waterHelpers.nald.formatting
 
 /**
- * TODO: See connected note in src/modules/licence-returns-import/lib/transform-returns.js. When we can convert
- * fortnightly, quarterly, and yearly returns into weekly and monthly, then this comment will apply.
- *
- * These are the actual translations. However, we WRLS only supports daily, weekly, and monthly returns, which
- * is why we translate fortnightly, quarterly, and annually to something else.
- *
- * - D = day
- * - W = week
- * - F = fortnight
- * - M = month
- * - Q = quarter
- * - A = year
- *
- * @private
+ * Adds a date to the supplied array, if it is between but not equal to the
+ * supplied start and end dates
+ * @param {Array} dates
+ * @param {String} date - YYYY-MM-DD, the date to add to array
+ * @param {String} startDate - the start of the date range YYYY-MM-DD
+ * @param {String} endDate - the end of the date range YYYY-MM-DD
+ * @return {Array} new date array
  */
-function mapPeriod (str) {
-  const periods = {
-    D: 'day',
-    W: 'week',
-    F: 'fortnight',
-    M: 'month',
-    Q: 'quarter',
-    A: 'year'
+const addDate = (dates, date, startDate, endDate) => {
+  const m = moment(date)
+  const dateStr = m.format('YYYY-MM-DD')
+  const arr = dates.slice()
+  const isValid = m.isBetween(startDate, endDate, 'day', '()')
+  const isUnique = !arr.includes(dateStr)
+  if (isValid && isUnique) {
+    arr.push(dateStr)
   }
-  return periods[str]
-}
-
-/**
- * Gets additional NALD data to store in return metadata
- * @param {Object} format - the return format record from NALD data
- * @return {Object} metadata to store
- */
-const formatReturnNaldMetadata = (format) => {
-  return {
-    regionCode: parseInt(format.FGAC_REGION_CODE),
-    areaCode: format.AREP_AREA_CODE,
-    formatId: parseInt(format.ID),
-    periodStartDay: format.ABS_PERIOD_ST_DAY,
-    periodStartMonth: format.ABS_PERIOD_ST_MONTH,
-    periodEndDay: format.ABS_PERIOD_END_DAY,
-    periodEndMonth: format.ABS_PERIOD_END_MONTH
-  }
-}
-
-/**
- * Returns the trimmed purpose alias if it is not
- * already empty or equal to 'null'
- */
-const getPurposeAlias = purpose => {
-  const alias = (purpose.PURP_ALIAS || '').trim()
-
-  if (!['', 'null'].includes(alias.toLowerCase())) {
-    return alias
-  }
+  return arr
 }
 
 /**
@@ -87,189 +51,17 @@ const formatReturnMetadata = (format, purposes, points) => {
         code: purpose.APUR_APUS_CODE,
         description: purpose.tertiary_purpose
       },
-      alias: getPurposeAlias(purpose)
+      alias: _getPurposeAlias(purpose)
     })),
     points: points.map(point => {
       return naldFormatting.formatAbstractionPoint(waterHelpers.nald.transformNull(point))
     }),
-    nald: formatReturnNaldMetadata(format),
+    nald: _formatReturnNaldMetadata(format),
     isTwoPartTariff: format.TPT_FLAG === 'Y',
     isSummer,
     isUpload: isUpload || isLineEntry
   }
 }
-
-/**
- * Maps NALD production month
- * @param {Number} month
- * @return {Object}
- */
-const mapProductionMonth = (month) => {
-  const intMonth = parseInt(month)
-  return {
-    isSummer: [65, 45, 80].includes(intMonth),
-    isUpload: [65, 66].includes(intMonth),
-    isLineEntry: [45, 46].includes(intMonth),
-    formProduced: [80, 70].includes(intMonth)
-  }
-}
-
-/**
- * A return may comprise more than one form log
- * If any form log has not been received, we return null
- * If there are no form log, return null
- * otherwise return max received last date
- * @param {Array} logs - form log records
- */
-const mapReceivedDate = (logs) => {
-  if (logs.length === 0) {
-    return null
-  }
-
-  const unreceivedLog = logs.some((log) => {
-    return !log.received_date
-  })
-
-  if (unreceivedLog) {
-    return null
-  }
-
-  return logs[logs.length - 1].received_date
-}
-
-/**
- * Split dates are the start date of the period.  This function
- * adds the period end dates to the array
- * @param {Array} arr - the array of split dates
- * @return {Array} an array containing the split dates and previous day
- */
-const sortAndPairSplitDates = (arr) => {
-  const sorted = arr.map(val => moment(val).format('YYYY-MM-DD')).sort()
-
-  return sorted.reduce((acc, value) => {
-    acc.push(moment(value).subtract(1, 'day').format('YYYY-MM-DD'))
-    acc.push(value)
-    return acc
-  }, [])
-}
-
-/**
- * Adds a date to the supplied array, if it is between but not equal to the
- * supplied start and end dates
- * @param {Array} dates
- * @param {String} date - YYYY-MM-DD, the date to add to array
- * @param {String} startDate - the start of the date range YYYY-MM-DD
- * @param {String} endDate - the end of the date range YYYY-MM-DD
- * @return {Array} new date array
- */
-const addDate = (dates, date, startDate, endDate) => {
-  const m = moment(date)
-  const dateStr = m.format('YYYY-MM-DD')
-  const arr = dates.slice()
-  const isValid = m.isBetween(startDate, endDate, 'day', '()')
-  const isUnique = !arr.includes(dateStr)
-  if (isValid && isUnique) {
-    arr.push(dateStr)
-  }
-  return arr
-}
-
-const chunk = (arr, chunkSize = 1, cache = []) => {
-  const tmp = [...arr]
-  if (chunkSize <= 0) return cache
-  while (tmp.length) cache.push(tmp.splice(0, chunkSize))
-  return cache
-}
-
-/**
- * Gets summer/financial year return cycles, including splitting the cycles
- * by licence effective start date (split date)
- * @param {String} startDate - YYYY-MM-DD
- * @param {String} endDate - YYYY-MM-DD
- * @param {String} splitDate - licence effective start date
- * @param {Boolean} isSummer - whether summer return cycle (default financial year)
- * @return {Array} of return cycle objects
- */
-const getReturnCycles = (startDate, endDate, splitDate, isSummer = false) => {
-  let splits = []
-
-  // Add split date
-  if (splitDate) {
-    splits = addDate(splits, splitDate, startDate, endDate)
-  }
-
-  // Date pointer should be within summer/financial year
-  let datePtr = moment().year()
-  do {
-    datePtr = getPeriodStart(datePtr, isSummer)
-    splits = addDate(splits, datePtr, startDate, endDate)
-    datePtr = moment(datePtr).add(1, 'year')
-  }
-  while (moment(datePtr).isBefore(endDate))
-
-  const dates = chunk([startDate, ...sortAndPairSplitDates(splits), endDate], 2)
-
-  return dates.map(arr => ({
-    startDate: arr[0],
-    endDate: arr[1],
-    isCurrent: (splitDate === null) || moment(arr[0]).isSameOrAfter(splitDate)
-  }))
-}
-
-/**
- * Given format/return version data, gets the start and end dates of
- * this format
- * @param {Object} format
- * @return {String} date YYYY-MM-DD
- */
-const getFormatStartDate = (format) => {
-  const versionStartDate = moment(format.EFF_ST_DATE, 'DD/MM/YYYY')
-  const timeLimitedStartDate = moment(format.TIMELTD_ST_DATE, 'DD/MM/YYYY')
-
-  if (timeLimitedStartDate.isValid() && timeLimitedStartDate.isAfter(versionStartDate)) {
-    return timeLimitedStartDate.format('YYYY-MM-DD')
-  }
-  return versionStartDate.format('YYYY-MM-DD')
-}
-
-/**
- * Finds the earlist valid date that represents the end date of
- * the given format.
- *
- * Returns null, if no format end date.
- * @param {Object} format
- * @return {String} date YYYY-MM-DD or null
- */
-const getFormatEndDate = (format) => {
-  const {
-    EFF_END_DATE,
-    TIMELTD_END_DATE,
-    LICENCE_LAPSED_DATE,
-    LICENCE_REVOKED_DATE,
-    LICENCE_EXPIRY_DATE
-  } = format
-
-  const dates = Object.values({
-    EFF_END_DATE,
-    TIMELTD_END_DATE,
-    LICENCE_LAPSED_DATE,
-    LICENCE_REVOKED_DATE,
-    LICENCE_EXPIRY_DATE
-  })
-
-  const validDates = dates
-    .map(date => moment(date, 'DD/MM/YYYY'))
-    .filter(date => date.isValid())
-    .sort(chronologicalMomentSort)
-    .map(date => date.format('YYYY-MM-DD'))
-
-  return validDates.length ? validDates[0] : null
-}
-
-/**
- * A sort camparator that will sort moment dates in ascending order
- */
-const chronologicalMomentSort = (left, right) => left.diff(right)
 
 /**
  * Gets cycles for a given format.  If the format has no effective end date,
@@ -300,6 +92,91 @@ const getFormatCycles = (format, splitDate) => {
 }
 
 /**
+ * Finds the earlist valid date that represents the end date of
+ * the given format.
+ *
+ * Returns null, if no format end date.
+ * @param {Object} format
+ * @return {String} date YYYY-MM-DD or null
+ */
+const getFormatEndDate = (format) => {
+  const {
+    EFF_END_DATE,
+    TIMELTD_END_DATE,
+    LICENCE_LAPSED_DATE,
+    LICENCE_REVOKED_DATE,
+    LICENCE_EXPIRY_DATE
+  } = format
+
+  const dates = Object.values({
+    EFF_END_DATE,
+    TIMELTD_END_DATE,
+    LICENCE_LAPSED_DATE,
+    LICENCE_REVOKED_DATE,
+    LICENCE_EXPIRY_DATE
+  })
+
+  const validDates = dates
+    .map(date => moment(date, 'DD/MM/YYYY'))
+    .filter(date => date.isValid())
+    .sort(_chronologicalMomentSort)
+    .map(date => date.format('YYYY-MM-DD'))
+
+  return validDates.length ? validDates[0] : null
+}
+
+/**
+ * Given format/return version data, gets the start and end dates of
+ * this format
+ * @param {Object} format
+ * @return {String} date YYYY-MM-DD
+ */
+const getFormatStartDate = (format) => {
+  const versionStartDate = moment(format.EFF_ST_DATE, 'DD/MM/YYYY')
+  const timeLimitedStartDate = moment(format.TIMELTD_ST_DATE, 'DD/MM/YYYY')
+
+  if (timeLimitedStartDate.isValid() && timeLimitedStartDate.isAfter(versionStartDate)) {
+    return timeLimitedStartDate.format('YYYY-MM-DD')
+  }
+  return versionStartDate.format('YYYY-MM-DD')
+}
+
+/**
+ * Gets summer/financial year return cycles, including splitting the cycles
+ * by licence effective start date (split date)
+ * @param {String} startDate - YYYY-MM-DD
+ * @param {String} endDate - YYYY-MM-DD
+ * @param {String} splitDate - licence effective start date
+ * @param {Boolean} isSummer - whether summer return cycle (default financial year)
+ * @return {Array} of return cycle objects
+ */
+const getReturnCycles = (startDate, endDate, splitDate, isSummer = false) => {
+  let splits = []
+
+  // Add split date
+  if (splitDate) {
+    splits = addDate(splits, splitDate, startDate, endDate)
+  }
+
+  // Date pointer should be within summer/financial year
+  let datePtr = moment().year()
+  do {
+    datePtr = getPeriodStart(datePtr, isSummer)
+    splits = addDate(splits, datePtr, startDate, endDate)
+    datePtr = moment(datePtr).add(1, 'year')
+  }
+  while (moment(datePtr).isBefore(endDate))
+
+  const dates = _chunk([startDate, ..._sortAndPairSplitDates(splits), endDate], 2)
+
+  return dates.map(arr => ({
+    startDate: arr[0],
+    endDate: arr[1],
+    isCurrent: (splitDate === null) || moment(arr[0]).isSameOrAfter(splitDate)
+  }))
+}
+
+/**
  * Gets return status
  * @param {String|null} receivedDate - the date received from NALD form logs YYYY-MM-DD, or null
  * @param {String} startDate - the start date of the return period
@@ -307,15 +184,147 @@ const getFormatCycles = (format, splitDate) => {
  */
 const getStatus = receivedDate => receivedDate === null ? 'due' : 'completed'
 
+/**
+ * TODO: See connected note in src/modules/licence-returns-import/lib/transform-returns.js. When we can convert
+ * fortnightly, quarterly, and yearly returns into weekly and monthly, then this comment will apply.
+ *
+ * These are the actual translations. However, we WRLS only supports daily, weekly, and monthly returns, which
+ * is why we translate fortnightly, quarterly, and annually to something else.
+ *
+ * - D = day
+ * - W = week
+ * - F = fortnight
+ * - M = month
+ * - Q = quarter
+ * - A = year
+ *
+ * @private
+ */
+function mapPeriod (str) {
+  const periods = {
+    D: 'day',
+    W: 'week',
+    F: 'fortnight',
+    M: 'month',
+    Q: 'quarter',
+    A: 'year'
+  }
+  return periods[str]
+}
+
+/**
+ * Maps NALD production month
+ * @param {Number} month
+ * @return {Object}
+ */
+const mapProductionMonth = (month) => {
+  const intMonth = parseInt(month)
+  return {
+    isSummer: [65, 45, 80].includes(intMonth),
+    isUpload: [65, 66].includes(intMonth),
+    isLineEntry: [45, 46].includes(intMonth),
+    formProduced: [80, 70].includes(intMonth)
+  }
+}
+
+/**
+ * A return may comprise more than one form log
+ * If any form log has not been received, we return null
+ * If there are no form log, return null
+ * otherwise return form log received date
+ *
+ * @param {Array} logs - form log records
+ */
+const mapReceivedDate = (logs) => {
+  if (logs.length === 0) {
+    return null
+  }
+
+  const unreceivedLog = logs.some((log) => {
+    return !log.received_date
+  })
+
+  if (unreceivedLog) {
+    return null
+  }
+
+  return logs[logs.length - 1].received_date
+}
+
+/**
+ * A sort comparator that will sort moment dates in ascending order
+ *
+ * @private
+ */
+const _chronologicalMomentSort = (left, right) => left.diff(right)
+
+const _chunk = (arr, chunkSize = 1, cache = []) => {
+  const tmp = [...arr]
+  if (chunkSize <= 0) return cache
+  while (tmp.length) cache.push(tmp.splice(0, chunkSize))
+  return cache
+}
+
+/**
+ * Gets additional NALD data to store in return metadata
+ * @param {Object} format - the return format record from NALD data
+ * @return {Object} metadata to store
+ *
+ * @private
+ */
+const _formatReturnNaldMetadata = (format) => {
+  return {
+    regionCode: parseInt(format.FGAC_REGION_CODE),
+    areaCode: format.AREP_AREA_CODE,
+    formatId: parseInt(format.ID),
+    periodStartDay: format.ABS_PERIOD_ST_DAY,
+    periodStartMonth: format.ABS_PERIOD_ST_MONTH,
+    periodEndDay: format.ABS_PERIOD_END_DAY,
+    periodEndMonth: format.ABS_PERIOD_END_MONTH
+  }
+}
+
+/**
+ * Returns the trimmed purpose alias if it is not
+ * already empty or equal to 'null'
+ *
+ * @private
+ */
+const _getPurposeAlias = purpose => {
+  const alias = (purpose.PURP_ALIAS || '').trim()
+
+  if (!['', 'null'].includes(alias.toLowerCase())) {
+    return alias
+  }
+}
+
+/**
+ * Split dates are the start date of the period.  This function
+ * adds the period end dates to the array
+ * @param {Array} arr - the array of split dates
+ * @return {Array} an array containing the split dates and previous day
+ *
+ * @private
+ */
+const _sortAndPairSplitDates = (arr) => {
+  const sorted = arr.map(val => moment(val).format('YYYY-MM-DD')).sort()
+
+  return sorted.reduce((acc, value) => {
+    acc.push(moment(value).subtract(1, 'day').format('YYYY-MM-DD'))
+    acc.push(value)
+    return acc
+  }, [])
+}
+
 module.exports = {
-  mapPeriod,
-  mapProductionMonth,
+  addDate,
   formatReturnMetadata,
   getFormatCycles,
-  mapReceivedDate,
-  getReturnCycles,
-  addDate,
-  getStatus,
+  getFormatEndDate,
   getFormatStartDate,
-  getFormatEndDate
+  getReturnCycles,
+  getStatus,
+  mapPeriod,
+  mapProductionMonth,
+  mapReceivedDate
 }
