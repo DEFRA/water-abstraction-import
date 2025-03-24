@@ -1,153 +1,134 @@
 'use strict'
 
-const {
-  beforeEach,
-  experiment,
-  test
-} = exports.lab = require('@hapi/lab').script()
-const { expect } = require('@hapi/code')
+// Test framework dependencies
+const Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
+
+const { experiment, test, beforeEach } = exports.lab = Lab.script()
+const { expect } = Code
+
+// Test helpers
 const moment = require('moment')
+moment.locale('en-gb')
+const PermitDataFixture = require('../../../support/permit-data.fixture.js')
 
-const transformCrm = require('../../../../src/modules/nald-import/transform-crm')
+// Thing under test
+const CrmTransformer = require('../../../../src/modules/licence-crm-import/lib/crm-transformer.js')
 
-experiment('modules/nald-import/lib/transform-crm', () => {
-  experiment('.buildCRMMetadata', () => {
-    test('returns a default object if the current version is falsy', async () => {
-      const meta = transformCrm.buildCRMMetadata()
-      expect(meta).to.equal({
-        IsCurrent: false
-      })
-    })
+experiment('modules/licence-crm-import/lib/crm-transformer', () => {
+  let permitData
 
-    test('IsCurrent is true if the currentVersion is supplied', async () => {
-      const currentVersion = {
-        expiry_date: moment().add(2, 'months').format('YYYYMMDD'),
-        version_effective_date: moment().subtract(1, 'month').format('YYYYMMDD'),
-        party: {},
-        address: {}
-      }
+  beforeEach(() => {
+    const licence = PermitDataFixture.createLicence()
+    const roleDetail = PermitDataFixture.createRole(licence)
+    const roleParty = PermitDataFixture.createParty()
+    const roleAddress = PermitDataFixture.createAddress()
+    const roleType = PermitDataFixture.createRoleType()
 
-      const meta = transformCrm.buildCRMMetadata(currentVersion)
-      expect(meta.IsCurrent).to.be.true()
-      expect(meta.Expires).to.equal(currentVersion.expiry_date)
-      expect(meta.Modified).to.equal(currentVersion.version_effective_date)
-    })
-  })
+    const role = {
+      role_party: roleParty,
+      role_detail: roleDetail,
+      role_address: roleAddress,
+      role_type: roleType
+    }
 
-  experiment('.contactsFormatter', () => {
-    experiment('when the current version is null', () => {
-      test('an empty array is returned', async () => {
-        const contacts = transformCrm.contactsFormatter(null, [])
-        expect(contacts).to.equal([])
-      })
-    })
+    const versions = [
+      PermitDataFixture.createVersion(
+        licence,
+        { ISSUE_NO: '1', INCR_NO: '1', EFF_ST_DATE: '01/04/2015', EFF_END_DATE: '05/07/2015', STATUS: 'SUPER' }
+      ),
+      PermitDataFixture.createVersion(
+        licence,
+        { ISSUE_NO: '2', INCR_NO: '1', EFF_ST_DATE: '01/04/2015', EFF_END_DATE: '05/07/2015', STATUS: 'SUPER' }
+      ),
+      PermitDataFixture.createVersion(
+        licence,
+        { ISSUE_NO: '2', INCR_NO: '2', EFF_ST_DATE: '13/08/2015', EFF_END_DATE: 'null' }
+      )
+    ]
 
-    experiment('when the current version is present without a licence role', () => {
-      let currentVersion
-      let roles
+    versions.forEach((version) => {
+      version.parties = [ PermitDataFixture.createParty() ]
+      const address = PermitDataFixture.createAddress()
 
-      beforeEach(async () => {
-        currentVersion = {
-          ACON_APAR_ID: 1,
-          ACON_AADD_ID: 2,
-          parties: [
-            {
-              ID: 1,
-              APAR_TYPE: 'PER',
-              FORENAME: 'forename',
-              NAME: 'name',
-              contacts: [
-                {
-                  AADD_ID: 2,
-                  party_address: {
-                    ADDR_LINE1: 'test-1'
-                  }
-                }
-              ]
-            }
-          ]
-        }
-
-        roles = []
-      })
-
-      test('the licence holder is added to the contacts', async () => {
-        const contacts = transformCrm.contactsFormatter(currentVersion, roles)
-        const licenceHolder = contacts[0]
-        expect(licenceHolder.role).to.equal('Licence holder')
-        expect(licenceHolder.type).to.equal('Person')
-        expect(licenceHolder.forename).to.equal('forename')
-        expect(licenceHolder.name).to.equal('name')
-        expect(licenceHolder.addressLine1).to.equal('test-1')
-      })
-
-      test('the roles are added after the licence holder', async () => {
-        const contacts = transformCrm.contactsFormatter(currentVersion, roles)
-        const role = contacts[1]
-        expect(role).to.equal(undefined)
-      })
-    })
-  })
-  experiment('when the current version is present with a licence role', () => {
-    let currentVersion
-    let roles
-
-    beforeEach(async () => {
-      currentVersion = {
-        ACON_APAR_ID: 1,
-        ACON_AADD_ID: 2,
-        parties: [
-          {
-            ID: 1,
-            APAR_TYPE: 'PER',
-            FORENAME: 'forename',
-            NAME: 'name',
-            contacts: [
-              {
-                AADD_ID: 2,
-                party_address: {
-                  ADDR_LINE1: 'test-1'
-                }
-              }
-            ]
-          }
-        ]
-      }
-
-      roles = [
+      version.parties[0].contacts = [
         {
-          role_type: {
-            DESCR: 'For returns'
-          },
-          role_address: {
-            ADDR_LINE1: 'test-1'
-          },
-          role_party: {
-            ID: 2,
-            APAR_TYPE: 'PER',
-            NAME: 'forname4role'
+          APAR_ID: version.parties[0].ID,
+          AADD_ID: address.ID,
+          DISABLED: 'N',
+          FGAC_REGION_CODE: version.parties[0].FGAC_REGION_CODE,
+          party_address: {
+            ID: address.ID,
+            ADDR_LINE1: address.ADDR_LINE1,
+            LAST_CHANGED: '01/10/1999',
+            DISABLED: 'N',
+            ADDR_LINE2: address.ADDR_LINE2,
+            ADDR_LINE3: address.ADDR_LINE3,
+            ADDR_LINE4: address.ADDR_LINE4,
+            TOWN: address.TOWN,
+            COUNTY: address.COUNTY,
+            POSTCODE: address.POSTCODE,
+            COUNTRY: address.COUNTRY,
+            APCO_CODE: 'null',
+            FGAC_REGION_CODE: address.FGAC_REGION_CODE
           }
         }
       ]
     })
 
-    test('the licence holder is added to the contacts', async () => {
-      const contacts = transformCrm.contactsFormatter(currentVersion, roles)
-      const licenceHolder = contacts[0]
-      expect(licenceHolder.role).to.equal('Licence holder')
-      expect(licenceHolder.type).to.equal('Person')
-      expect(licenceHolder.forename).to.equal('forename')
-      expect(licenceHolder.name).to.equal('name')
-      expect(licenceHolder.addressLine1).to.equal('test-1')
-    })
+    permitData = {
+      ...licence,
+      data: {
+        roles: [role],
+        versions
+      }
+    }
+  })
 
-    test('the roles are added after the licence holder', async () => {
-      const contacts = transformCrm.contactsFormatter(currentVersion, roles)
-      const role = contacts[1]
-      expect(role.role).to.equal('For returns')
-      expect(role.type).to.equal('Person')
-      expect(role.name).to.equal('forname4role')
-      expect(role.addressLine1).to.equal('test-1')
+  experiment('when called', () => {
+    test('returns the permit data formatted ready for persisting as a crm.document_header record', async () => {
+      const result = CrmTransformer.go(permitData)
+
+      expect(result).to.equal({
+        system_external_id: '01/123',
+        metadata: {
+          contacts: [
+            {
+              role: 'Licence holder',
+              type: 'Organisation',
+              salutation: null,
+              forename: null,
+              initials: null,
+              name: 'BIG CO LTD',
+              addressLine1: 'BIG MANOR FARM',
+              addressLine2: 'BUTTERCUP LANE',
+              addressLine3: 'DAISY MEADOW',
+              addressLine4: null,
+              town: 'TESTINGTON',
+              county: 'TESTINGSHIRE',
+              postcode: 'TT1 1TT',
+              country: 'ENGLAND'
+            },
+            {
+              role: 'Returns to',
+              type: 'Organisation',
+              salutation: null,
+              forename: null,
+              initials: null,
+              name: 'BIG CO LTD',
+              addressLine1: 'BIG MANOR FARM',
+              addressLine2: 'BUTTERCUP LANE',
+              addressLine3: 'DAISY MEADOW',
+              addressLine4: null,
+              town: 'TESTINGTON',
+              county: 'TESTINGSHIRE',
+              postcode: 'TT1 1TT',
+              country: 'ENGLAND'
+            }
+          ],
+          IsCurrent: false
+        }
+      })
     })
   })
 })
