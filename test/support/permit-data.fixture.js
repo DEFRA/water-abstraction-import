@@ -127,6 +127,17 @@ const createRole = (licence, overrides) => Object.assign({}, {
   FGAC_REGION_CODE: licence.FGAC_REGION_CODE
 }, overrides)
 
+const createRoleType = (overrides) => Object.assign({}, {
+  CODE: 'RT',
+  DESCR: 'Returns To',
+  AFFECTS_ABS: 'Y',
+  AFFECTS_IMP: 'N',
+  CUST_AGENCY: 'CUST',
+  USED_BY_SYS: 'Y',
+  DISABLED: 'N',
+  DISP_ORD: 'null'
+}, overrides)
+
 module.exports = {
   createAddress,
   createAgreement,
@@ -139,5 +150,6 @@ module.exports = {
   createPurpose,
   createCondition,
   createVersion,
-  createRole
+  createRole,
+  createRoleType
 }

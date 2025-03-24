@@ -9,7 +9,7 @@ const { expect } = Code
 
 // Test helpers
 const moment = require('moment')
-const CrmV2Fixture = require('../../../support/crm-v2.fixture.js')
+const PermitDataFixture = require('../../../support/permit-data.fixture.js')
 
 // Thing under test
 const Transformer = require('../../../../src/modules/licence-crm-v2-import/lib/transformer.js')
@@ -18,10 +18,10 @@ experiment('modules/licence-crm-v2-import/lib/transformer.js', () => {
   let permitData
 
   beforeEach(() => {
-    const licence = CrmV2Fixture.createLicence()
-    const roleDetail = CrmV2Fixture.createRole(licence)
-    const roleParty = CrmV2Fixture.createParty()
-    const roleAddress = CrmV2Fixture.createAddress()
+    const licence = PermitDataFixture.createLicence()
+    const roleDetail = PermitDataFixture.createRole(licence)
+    const roleParty = PermitDataFixture.createParty()
+    const roleAddress = PermitDataFixture.createAddress()
 
     const role = {
       role_party: roleParty,
@@ -30,22 +30,22 @@ experiment('modules/licence-crm-v2-import/lib/transformer.js', () => {
     }
 
     const versions = [
-      CrmV2Fixture.createVersion(
+      PermitDataFixture.createVersion(
         licence,
         { ISSUE_NO: '1', INCR_NO: '1', EFF_ST_DATE: '01/04/2015', EFF_END_DATE: '05/07/2015', STATUS: 'SUPER' }
       ),
-      CrmV2Fixture.createVersion(
+      PermitDataFixture.createVersion(
         licence,
         { ISSUE_NO: '2', INCR_NO: '1', EFF_ST_DATE: '01/04/2015', EFF_END_DATE: '05/07/2015' }
       ),
-      CrmV2Fixture.createVersion(
+      PermitDataFixture.createVersion(
         licence,
         { ISSUE_NO: '2', INCR_NO: '2', EFF_ST_DATE: '13/08/2015', EFF_END_DATE: 'null' }
       )
     ]
 
     versions.forEach((version) => {
-      version.parties = [ CrmV2Fixture.createParty() ]
+      version.parties = [ PermitDataFixture.createParty() ]
     })
 
     permitData = {
