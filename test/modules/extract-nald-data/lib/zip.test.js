@@ -38,7 +38,6 @@ experiment('modules/extract-nald-data/lib/zip.js', () => {
       test('the second call extracts the secondary zip without password', async () => {
         await Zip.extract()
 
-
         const [cmd] = processHelper.execCommand.secondCall.args
         expect(cmd).to.equal('7z x ./temp/NALD.zip -o./temp/')
       })

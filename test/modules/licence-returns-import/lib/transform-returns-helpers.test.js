@@ -62,7 +62,7 @@ experiment('modules/licence-returns-import/lib/transform-returns-helpers', () =>
         { PURP_ALIAS: 'null', ...basePurpose },
         { PURP_ALIAS: 'Null', ...basePurpose },
         { PURP_ALIAS: 'NULL', ...basePurpose },
-        { PURP_ALIAS: ' null ', ...basePurpose },
+        { PURP_ALIAS: ' null ', ...basePurpose }
       ]
 
       points = []

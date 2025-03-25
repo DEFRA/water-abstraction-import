@@ -5,7 +5,6 @@
  * @module
  */
 
-const moment = require('moment')
 const helpers = require('@envage/water-abstraction-helpers')
 
 const db = require('../../../lib/connectors/db.js')

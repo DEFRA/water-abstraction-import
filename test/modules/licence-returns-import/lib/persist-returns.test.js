@@ -31,24 +31,6 @@ experiment('modules/licence-returns-import/lib/persist-returns', () => {
     due_date: '2017-11-28'
   }
 
-  const digitalServiceReturn = {
-    return_id: 'v1:234:789',
-    regime: 'water',
-    licence_type: 'abstraction',
-    licence_ref: '04/567/890',
-    start_date: '2017-11-01',
-    end_date: '2018-10-31',
-    returns_frequency: 'month',
-    status: 'due',
-    source: 'NALD',
-    metadata: { param: 'value', version: '1' },
-    received_date: '2018-11-24',
-    return_requirement: '67890',
-    due_date: '2018-11-28'
-  }
-
-  let oldLinesExist
-
   afterEach(() => {
     Sinon.restore()
   })

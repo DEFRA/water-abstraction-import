@@ -48,7 +48,7 @@ experiment('modules/licence-crm-import/lib/crm-transformer', () => {
     ]
 
     versions.forEach((version) => {
-      version.parties = [ PermitDataFixture.createParty() ]
+      version.parties = [PermitDataFixture.createParty()]
       const address = PermitDataFixture.createAddress()
 
       version.parties[0].contacts = [

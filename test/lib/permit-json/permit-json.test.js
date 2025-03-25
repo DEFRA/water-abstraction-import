@@ -9,7 +9,6 @@ const { experiment, test, before, after } = exports.lab = Lab.script()
 const { expect } = Code
 
 // Test helpers
-const db = require('../../../src/lib/connectors/db.js')
 const NaldDataGenerator = require('../../../scripts/licence-creator/index.js')
 const processHelper = require('@envage/water-abstraction-helpers').process
 

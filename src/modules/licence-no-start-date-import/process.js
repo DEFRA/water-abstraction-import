@@ -25,7 +25,7 @@ async function go (permitJson, index = 0, log = false) {
       return null
     }
 
-    let startDate = DateHelpers.mapNaldDate(permitJson.ORIG_EFF_DATE)
+    const startDate = DateHelpers.mapNaldDate(permitJson.ORIG_EFF_DATE)
 
     // If there is a start date against the licence, the `licence-import` can handle importing the licence data. It does
     // it en-masse, reducing 74K hits on the DB to just one! There are 30-ish NALD licence records without a start date.
