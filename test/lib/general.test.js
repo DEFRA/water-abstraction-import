@@ -154,6 +154,27 @@ experiment('src/lib/general.js', () => {
     })
   })
 
+  experiment('#readableTimestamp()', () => {
+    let clock
+    let testDate
+
+    beforeEach(() => {
+      testDate = new Date('2021-09-12T14:41:10.511Z')
+
+      clock = Sinon.useFakeTimers(testDate)
+    })
+
+    afterEach(() => {
+      clock.restore()
+    })
+
+    test('correctly formats the current date, for example, 12 September 2021 at 14:41:10', async () => {
+      const result = GeneralLib.readableTimestamp()
+
+      expect(result).to.equal('12 September 2021 at 14:41:10')
+    })
+  })
+
   experiment('#timestampForPostgres', () => {
     let clock
     let testDate
