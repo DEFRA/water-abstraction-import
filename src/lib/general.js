@@ -118,6 +118,16 @@ function generateUUID () {
   return randomUUID({ disableEntropyCache: true })
 }
 
+/**
+ * Replaces 'null' with null
+ *
+ * Some of the data we load from NALD contains the string 'null' which is not the same as the null value. This function
+ * takes a value and checks if it is a string equal to 'null', and if it is, it will return null instead of the string.
+ *
+ * @param {string} value - the value to check
+ *
+ * @returns {string|null} the null value if the string is 'null', otherwise the same value
+ */
 function naldNull (value) {
   return value === 'null' ? null : value
 }
