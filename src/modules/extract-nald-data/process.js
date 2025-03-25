@@ -45,23 +45,6 @@ async function go (log = false) {
 }
 
 /**
- * Move test files
- * For the purposes of unit testing, this copies dummy CSV files from a test
- * folder to the import folder ready for the import script
- * @return {Promise} resolves when command completes
- */
-async function copyTestFiles () {
-  await _prepare()
-  await Schema.dropAndCreateSchema('import')
-
-  // move dummy data files
-  await processHelper.execCommand(`cp ./test/dummy-csv/* ${FINAL_PATH}`)
-
-  // Import CSV
-  return LoadCsv.importFiles('import')
-}
-
-/**
  * Prepares for import by removing files from temporary folder and creating directory
  *
  * @private
@@ -73,6 +56,5 @@ async function _prepare () {
 }
 
 module.exports = {
-  copyTestFiles,
   go
 }
