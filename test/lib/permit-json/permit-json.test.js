@@ -11,6 +11,7 @@ const { expect } = Code
 // Test helpers
 const NaldDataGenerator = require('../../../scripts/licence-creator/index.js')
 const processHelper = require('@envage/water-abstraction-helpers').process
+const ExtractNaldDataProcess = require('../../../src/modules/extract-nald-data/process.js')
 
 // Things we need to stub
 const S3 = require('../../../src/modules/extract-nald-data/lib/s3.js')
@@ -30,6 +31,8 @@ experiment('lib/permit-json/permit-json.js', () => {
       await NaldDataGenerator()
       await processHelper.execCommand("cp ./test/dummy-csv/* './temp/NALD'")
     })
+
+    await ExtractNaldDataProcess.go()
   })
 
   after(() => {
