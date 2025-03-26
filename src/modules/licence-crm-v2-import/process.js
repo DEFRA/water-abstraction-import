@@ -5,11 +5,16 @@ const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
 async function go (permitJson, index = 0, log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
-    if (!permitJson.data.versions.length === 0) {
-      return null
+    if (!permitJson || permitJson.data.versions.length === 0) {
+      global.GlobalNotifier.omg('licence-crm-v2-import: skipped')
+      messages.push(`Skipped ${permitJson?.LIC_NO}`)
+
+      return messages
     }
 
     const { document, documentRoles } = Transformer.go(permitJson)
@@ -24,7 +29,11 @@ async function go (permitJson, index = 0, log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('licence-crm-v2-import: errored', error, { licenceRef: permitJson?.LIC_NO, index })
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 async function _persistDocument (document) {

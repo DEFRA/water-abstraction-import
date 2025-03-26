@@ -24,7 +24,7 @@ async function handler (messageQueue) {
   try {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
-    await ClearQueuesProcess.go(messageQueue, false)
+    return await ClearQueuesProcess.go(messageQueue, false)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
@@ -36,10 +36,10 @@ async function onComplete (messageQueue, job) {
 
   global.GlobalNotifier.omg(`${JOB_NAME}: ${state}`)
 
-  // await messageQueue.publish(ExtractNaldDataJob.createMessage())
+  await messageQueue.publish(ExtractNaldDataJob.createMessage())
   // await messageQueue.publish(CompanyImportJob.createMessage())
   // await messageQueue.publish(LicenceImportJob.createMessage())
-  await messageQueue.publish(CleanJob.createMessage())
+  // await messageQueue.publish(CleanJob.createMessage())
 }
 
 module.exports = {

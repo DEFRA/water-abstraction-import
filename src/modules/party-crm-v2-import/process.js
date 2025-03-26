@@ -6,6 +6,8 @@ const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../li
 const Transformer = require('./lib/transformer.js')
 
 async function go (party, index = 0, log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -24,7 +26,11 @@ async function go (party, index = 0, log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('party-crm-v2-import: errored', error, { party, index })
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 async function _persistAddress (address) {

@@ -7,13 +7,19 @@ const DeletedReturnData = require('./lib/deleted-return-data.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
 async function go (cleanLicences = false, log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
     if (cleanLicences) {
       await DeletedLicences.go()
       await DeletedLicenceData.go()
+    } else {
+      global.GlobalNotifier.omg('clean: skipped licences')
+      messages.push('Skipped cleaning licences as not enabled')
     }
+
     await DeletedReturnData.go()
 
     if (log) {
@@ -21,7 +27,11 @@ async function go (cleanLicences = false, log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('clean: errored', error)
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 module.exports = {

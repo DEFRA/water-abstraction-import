@@ -8,13 +8,16 @@ const ReturnRequirementPurposes = require('./lib/purposes.js')
 const ReturnVersions = require('./lib/versions.js')
 
 async function go (skip = false, log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
     if (skip) {
       global.GlobalNotifier.omg('return-versions-import: skipped')
+      messages.push('Skipped because importing returns is disabled')
 
-      return
+      return messages
     }
 
     await ReturnVersions.go()
@@ -35,7 +38,11 @@ async function go (skip = false, log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('return-versions-import: errored', error)
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 async function _addMissingReturnVersionEndDates () {

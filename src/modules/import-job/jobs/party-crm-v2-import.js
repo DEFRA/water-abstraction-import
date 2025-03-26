@@ -26,7 +26,9 @@ async function handler () {
 
     const parties = await _parties()
 
-    await pMap(parties, PartyCrmV2ImportProcess.go, { concurrency: 10 })
+    const allMessages = await pMap(parties, PartyCrmV2ImportProcess.go, { concurrency: 10 })
+
+    return allMessages.flat()
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
   }

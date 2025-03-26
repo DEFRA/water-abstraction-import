@@ -4,6 +4,8 @@ const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
 async function go (messageQueue, log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -31,12 +33,22 @@ async function go (messageQueue, log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('clear-queues: errored', error)
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 async function _clearJobHistory () {
   await db.query('TRUNCATE water_import.archive;')
   await db.query("DELETE FROM water_import.job WHERE state IN ('completed', 'failed');")
+
+  // TODO: Delete me! This is only needed to ensure the job table is truly cleared out the first time this new version
+  // of the import is run.
+  const today = new Date()
+  const yesterday = new Date(`${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate() - 1}`)
+  await db.query("DELETE FROM water_import.job WHERE createdon < $1", [yesterday])
 }
 
 module.exports = {

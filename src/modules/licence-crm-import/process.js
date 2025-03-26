@@ -5,11 +5,16 @@ const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../li
 const PersistCrm = require('./lib/persist-crm.js')
 
 async function go (permitJson, index = 0, log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
     if (!permitJson || permitJson.data.versions.length === 0) {
-      return null
+      global.GlobalNotifier.omg('licence-crm-import: skipped')
+      messages.push(`Skipped ${permitJson?.LIC_NO}`)
+
+      return messages
     }
 
     const crmData = CrmTransformer.go(permitJson)
@@ -21,7 +26,11 @@ async function go (permitJson, index = 0, log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('licence-crm-import: errored', error, { licenceRef: permitJson?.LIC_NO, index })
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 module.exports = {

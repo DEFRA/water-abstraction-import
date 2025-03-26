@@ -12,6 +12,8 @@ const Zip = require('./lib/zip.js')
 const FINAL_PATH = './temp/NALD'
 
 async function go (log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -41,7 +43,11 @@ async function go (log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('extract-nald-data: errored', error)
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 /**

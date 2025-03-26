@@ -11,6 +11,8 @@ const PermitJson = require('../../../lib/permit-json/permit-json.js')
 
 const LicencesImportJob = require('./licences-import.js')
 
+const config = require('../../../../config.js')
+
 const JOB_NAME = 'import-job.licence-data-import'
 
 function createMessage () {
@@ -28,6 +30,11 @@ async function handler () {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
     const licences = await _licences()
+    const messages = []
+
+    if (config.featureFlags.disableReturnsImports) {
+      messages.push('Skipped licence-returns-import because importing returns is disabled')
+    }
 
     for (const [index, licence] of licences.entries()) {
       const permitJson = await PermitJson.go(licence)
@@ -36,15 +43,17 @@ async function handler () {
         LicencePermitImportProcess.go(permitJson, index, false),
         LicenceCrmV2ImportProcess.go(permitJson, index, false),
         LicenceNoStartDateImportProcess.go(permitJson, index, false),
-        LicenceReturnsImportProcess.go(licence, index, false)
+        _licenceReturnsImport(licence, index)
       ])
 
       // This has to be persisted after LicencePermitImportProcess completes, because it depends on the `permit.licence`
       // record having been created for new licences
       await LicenceCrmImportProcess.go(permitJson, index, false)
 
-      _logLicenceErrors(results, index, licence)
+      _logMessages(results, index, licence, messages)
     }
+
+    return messages
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error
@@ -59,14 +68,12 @@ async function onComplete (messageQueue, job) {
   await messageQueue.publish(LicencesImportJob.createMessage())
 }
 
-function _logLicenceErrors (results, index, licence) {
-  const errors = results.filter((result) => {
-    return result.status === 'rejected'
-  })
-
-  for (const error of errors) {
-    global.GlobalNotifier.omg(`${JOB_NAME}: errored`, { index, licence, error })
+async function _licenceReturnsImport(licence, index) {
+  if (config.featureFlags.disableReturnsImports) {
+    return []
   }
+
+  return LicenceReturnsImportProcess.go(licence, index, false)
 }
 
 async function _licences () {
@@ -86,6 +93,20 @@ async function _licences () {
         AND nalv."STATUS" <> 'DRAFT'
     );
   `)
+}
+
+function _logMessages (results, index, licence, messages) {
+  for (const result of results) {
+    if (result.status === 'rejected') {
+      global.GlobalNotifier.omg(`${JOB_NAME}: errored`, { index, licence, error })
+
+      messages.push(`${licence.LIC_NO} errored: ${error.message}`)
+
+      continue
+    }
+
+    messages.push(...result.value)
+  }
 }
 
 module.exports = {

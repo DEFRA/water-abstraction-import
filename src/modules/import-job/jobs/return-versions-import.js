@@ -21,7 +21,7 @@ async function handler () {
   try {
     global.GlobalNotifier.omg(`${JOB_NAME}: started`)
 
-    await ReturnVersionsImportProcess.go(config.featureFlags.disableReturnsImports, false)
+    return await ReturnVersionsImportProcess.go(config.featureFlags.disableReturnsImports, false)
   } catch (error) {
     global.GlobalNotifier.omfg(`${JOB_NAME}: errored`, error)
     throw error

@@ -4,6 +4,8 @@ const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../li
 const WaterSystemConnector = require('../../lib/connectors/water-system.js')
 
 async function go (log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -14,7 +16,11 @@ async function go (log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('end-date-check: errored', error)
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 module.exports = {

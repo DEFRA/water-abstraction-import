@@ -18,13 +18,16 @@ const OLD_LINES_SQL_FILE = 'old_nald_return_lines.sql'
 const OLD_LINES_ZIP_FILE = 'old_nald_return_lines.zip'
 
 async function go (skip = false, log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
     if (skip) {
       global.GlobalNotifier.omg('extract-old-lines: skipped')
+      messages.push('Skipped because importing returns is disabled')
 
-      return
+      return messages
     }
 
     // Determine if the one-off pre-2013 NALD return lines data extract table exists and is populated
@@ -52,7 +55,11 @@ async function go (skip = false, log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('extract-old-lines: errored', error)
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 function _cleanUpFiles (downloadLocalPath, extractLocalPath, sqlLocalPath) {

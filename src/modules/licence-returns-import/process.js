@@ -7,6 +7,8 @@ const TransformReturns = require('./lib/transform-returns.js')
 const VoidReturns = require('./lib/void-returns.js')
 
 async function go (licence, index = 0, log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -27,7 +29,11 @@ async function go (licence, index = 0, log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('licence-returns-import: errored', error, { licence, index })
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 async function _oldLinesDataExists () {

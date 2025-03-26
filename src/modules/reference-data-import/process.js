@@ -4,6 +4,8 @@ const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
 async function go (log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -16,7 +18,11 @@ async function go (log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('reference-data-import: errored', error)
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 async function _modLogs () {

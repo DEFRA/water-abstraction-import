@@ -8,6 +8,8 @@ const LicenceVersionPurposes = require('./lib/purposes.js')
 const LicenceVersions = require('./lib/versions.js')
 
 async function go (log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -22,7 +24,11 @@ async function go (log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('licences-import: errored', error)
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 module.exports = {

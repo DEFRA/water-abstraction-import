@@ -17,22 +17,28 @@ const REGIONS = {
 }
 
 async function go (permitJson, index = 0, log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
-    // If there are no versions against the licence, this is one we should be importing
-    if (!permitJson.data.versions.length === 0) {
-      return null
+    if (!permitJson || permitJson.data.versions.length === 0) {
+      global.GlobalNotifier.omg('licence-no-start-date-import: skipped')
+      messages.push(`Skipped ${permitJson?.LIC_NO}`)
+
+      return messages
     }
 
     const startDate = DateHelpers.mapNaldDate(permitJson.ORIG_EFF_DATE)
 
-    // If there is a start date against the licence, the `licence-import` can handle importing the licence data. It does
-    // it en-masse, reducing 74K hits on the DB to just one! There are 30-ish NALD licence records without a start date.
-    // For these we have to fall back to the versions against the licence. Hence this process exists.
+    // If there is a start date against the licence, the `licence-import` can handle importing the licence data. It
+    // does it en-masse, reducing 74K hits on the DB to just one! There are 30-ish NALD licence records without a
+    // start date. For these we have to fall back to the versions against the licence. Hence this process exists.
     if (startDate) {
-      return null
+      return messages
     }
+
+    messages.push(`${permitJson.LIC_NO} has no start date`)
 
     const licence = _licence(permitJson)
 
@@ -43,7 +49,11 @@ async function go (permitJson, index = 0, log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('licence-no-start-date-import: errored', error, { licenceRef: permitJson?.LIC_NO, index })
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 function _licence (permitJson) {
