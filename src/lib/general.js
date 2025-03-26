@@ -99,6 +99,24 @@ function determineCurrentFinancialYear () {
 }
 
 /**
+ * Formats a date into a human readable day, month, year and time string, for example, '12 September 2021 at 21:43:44'
+ *
+ * @param {Date} date - The date to be formatted
+ *
+ * @returns {string} The date formatted as a 'DD MMMM YYYY at HH:MM:SS' string
+ */
+function formatLongDateTime(date) {
+  return date.toLocaleDateString('en-GB', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+}
+
+/**
  * Generate a Universally Unique Identifier (UUID)
  *
  * The service uses these as the IDs for most records in the DB. Most tables will automatically generate them when
@@ -133,24 +151,6 @@ function naldNull (value) {
 }
 
 /**
- * The current date into a human readable day, month, year and time string, for example, '12 September 2021 at 21:43:44'
- *
- * @returns {string} The current date formatted as a 'DD MMMM YYYY at HH:MM:SS' string
- */
-function readableTimestamp() {
-  const currentDate = new Date()
-
-  return currentDate.toLocaleDateString('en-GB', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  })
-}
-
-/**
  * Returns the current date and time as an ISO string
  *
  * We can't use Date.now() because Javascript returns the time since the epoch in milliseconds, whereas a PostgreSQL
@@ -169,8 +169,8 @@ module.exports = {
   calculateAndLogTimeTaken,
   currentTimeInNanoseconds,
   determineCurrentFinancialYear,
+  formatLongDateTime,
   generateUUID,
   naldNull,
-  readableTimestamp,
   timestampForPostgres
 }

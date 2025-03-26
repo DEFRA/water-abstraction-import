@@ -113,6 +113,14 @@ experiment('src/lib/general.js', () => {
     })
   })
 
+  experiment('#formatLongDateTime()', () => {
+    test('correctly formats the given date, for example, 12 September 2021 at 14:41:10', async () => {
+      const result = GeneralLib.formatLongDateTime(new Date('2021-09-12T14:41:10.511Z'))
+
+      expect(result).to.equal('12 September 2021 at 14:41:10')
+    })
+  })
+
   experiment('#generateUUID', () => {
     // NOTE: generateUUID() only calls crypto.randomUUID(); it does nothing else. So, there is nothing really to test
     // and certainly, testing the UUID is really unique is beyond the scope of this project! But this test at least
@@ -151,27 +159,6 @@ experiment('src/lib/general.js', () => {
 
         expect(result).to.equal('foo')
       })
-    })
-  })
-
-  experiment('#readableTimestamp()', () => {
-    let clock
-    let testDate
-
-    beforeEach(() => {
-      testDate = new Date('2021-09-12T14:41:10.511Z')
-
-      clock = Sinon.useFakeTimers(testDate)
-    })
-
-    afterEach(() => {
-      clock.restore()
-    })
-
-    test('correctly formats the current date, for example, 12 September 2021 at 14:41:10', async () => {
-      const result = GeneralLib.readableTimestamp()
-
-      expect(result).to.equal('12 September 2021 at 14:41:10')
     })
   })
 
