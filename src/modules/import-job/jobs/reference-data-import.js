@@ -27,13 +27,11 @@ async function handler () {
 }
 
 async function onComplete (messageQueue, job) {
-  if (!job.data.failed) {
-    await messageQueue.publish(ReturnVersionsImportJob.createMessage())
+  const state = job.data.failed ? 'failed' : 'completed'
 
-    global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
-  } else {
-    global.GlobalNotifier.omg(`${JOB_NAME}: failed`)
-  }
+  global.GlobalNotifier.omg(`${JOB_NAME}: ${state}`)
+
+  await messageQueue.publish(ReturnVersionsImportJob.createMessage())
 }
 
 module.exports = {

@@ -33,13 +33,11 @@ async function handler () {
 }
 
 async function onComplete (messageQueue, job) {
-  if (!job.data.failed) {
-    await messageQueue.publish(LicenceDataImportJob.createMessage())
+  const state = job.data.failed ? 'failed' : 'completed'
 
-    global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
-  } else {
-    global.GlobalNotifier.omg(`${JOB_NAME}: failed`)
-  }
+  global.GlobalNotifier.omg(`${JOB_NAME}: ${state}`)
+
+  await messageQueue.publish(LicenceDataImportJob.createMessage())
 }
 
 async function _parties () {

@@ -25,11 +25,9 @@ async function handler () {
 }
 
 async function onComplete (job) {
-  if (!job.data.failed) {
-    global.GlobalNotifier.omg(`${JOB_NAME}: finished`)
-  } else {
-    global.GlobalNotifier.omg(`${JOB_NAME}: failed`)
-  }
+  const state = job.data.failed ? 'failed' : 'completed'
+
+  global.GlobalNotifier.omg(`${JOB_NAME}: ${state}`)
 }
 
 module.exports = {
