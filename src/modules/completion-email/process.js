@@ -8,6 +8,8 @@ const { currentTimeInNanoseconds, calculateAndLogTimeTaken, formatLongDateTime }
 const config = require('../../../config.js')
 
 async function go (log = false) {
+  const messages = []
+
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -22,21 +24,31 @@ async function go (log = false) {
     }
   } catch (error) {
     global.GlobalNotifier.omfg('completion-email: errored', error)
+
+    messages.push(error.message)
   }
+
+  return messages
 }
 
 function _detail (jobs) {
-  const details = jobs.map((job) => {
-    const { createdOn, name, state, timeTaken } = job
+  const details = []
+
+  for (const job of jobs) {
+    const { createdOn, name, messages, state, timeTaken } = job
 
     const startTime = createdOn.toLocaleTimeString('en-GB')
     const stepName = name.replace('import-job.', '')
-    const stepDuration = timeTaken ? ` (${timeTaken.toPostgres()})` : null
+    const stepDuration = timeTaken ? ` (${timeTaken.toPostgres()})` : ''
 
     // NOTE: timeTaken is returned as a PostgresInterval custom type thanks to the pg package and as such has a method
     // we can call on to nicely format the interval value into something we can read
-    return `* ${startTime} - ${stepName} - ${state}${stepDuration}`
-  })
+    details.push(`* ${startTime} - ${stepName} - ${state}${stepDuration}`)
+
+    for (const message of messages) {
+      details.push(`  * ${message}`)
+    }
+  }
 
   return details.join('\n')
 }
@@ -62,9 +74,19 @@ async function _jobs () {
       j.state,
       j.createdon,
       j.completedon,
-      age(j.completedon, j.createdon) AS time_taken
+      age(j.completedon, j.createdon) AS time_taken,
+      responses.messages
     FROM
       water_import.job j
+    LEFT JOIN (
+      SELECT
+        j2."data"->'request'->>'id' AS job_id,
+        j2."data"->'response'->'value' AS messages
+      FROM
+        water_import.job j2
+      WHERE
+        j2."name" LIKE '__state__%'
+    ) responses ON responses.job_id = j.id::text
     WHERE
       j."name" LIKE 'import-job.%'
     ORDER BY
@@ -76,6 +98,7 @@ async function _jobs () {
       completedOn: row.completedon,
       createdOn: row.createdon,
       name: row.job_name,
+      messages: row.messages ? row.messages : [],
       state: row.state,
       timeTaken: row.time_taken
     }
