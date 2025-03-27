@@ -16,12 +16,11 @@ const ReferenceDataImportStep = require('./lib/reference-data-import.js')
 const ReturnVersionsImport = require('./lib/return-versions-import.js')
 
 async function go () {
-  const steps = []
-
-  let step
-
   try {
     const startTime = currentTimeInNanoseconds()
+    const steps = []
+
+    let step
 
     global.GlobalNotifier.omg('import-job started')
 
@@ -61,14 +60,12 @@ async function go () {
     step = await EndDateTriggerStep.go()
     steps.push(step)
 
+    await CompletionEmail.go(steps)
+
     calculateAndLogTimeTaken(startTime, 'import-job completed')
   } catch (error) {
     global.GlobalNotifier.omfg('import-job errored', error)
-
-    messages.push(error.message)
   }
-
-  await CompletionEmail.go(steps)
 }
 
 module.exports = {

@@ -49,7 +49,7 @@ function _durationMessage (secondsAsBigInt) {
 
   const hoursPart = hours >= 1 ? `${hours} hours ` : ''
   const minutesPart = minutes >= 1 ? `${minutes} minutes ` : ''
-  const secondsPart = remainingSeconds >= 1 ? `${remainingSeconds} seconds`: '(milliseconds)'
+  const secondsPart = remainingSeconds >= 1 ? `${remainingSeconds} seconds` : '(milliseconds)'
 
   return `${hoursPart}${minutesPart}${secondsPart}`
 }

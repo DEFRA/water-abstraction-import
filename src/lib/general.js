@@ -122,7 +122,7 @@ function durations (startTime) {
  *
  * @returns {string} The date formatted as a 'DD MMMM YYYY at HH:MM:SS' string
  */
-function formatLongDateTime(date) {
+function formatLongDateTime (date) {
   return date.toLocaleDateString('en-GB', {
     year: 'numeric',
     month: 'long',

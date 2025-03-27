@@ -41,7 +41,7 @@ async function go () {
  *
  * @private
  */
-async function _licenceReturnsImport(licence, index) {
+async function _licenceReturnsImport (licence, index) {
   if (config.featureFlags.disableReturnsImports) {
     return []
   }
@@ -71,9 +71,9 @@ async function _licences () {
 function _logMessages (results, index, licence, messages) {
   for (const result of results) {
     if (result.status === 'rejected') {
-      global.GlobalNotifier.omg(`${STEP_NAME}: errored`, { index, licence, error })
+      global.GlobalNotifier.omg(`${STEP_NAME}: errored`, { index, licence, result })
 
-      messages.push(`${licence.LIC_NO} errored: ${error.message}`)
+      messages.push(`${licence.LIC_NO} errored: ${result.message}`)
 
       continue
     }
