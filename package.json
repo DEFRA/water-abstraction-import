@@ -42,7 +42,6 @@
     "notifications-node-client": "^8.2.1",
     "p-map": "^7.0.3",
     "pg": "^8.12.0",
-    "pg-boss": "^3.2.2",
     "proxy-agent": "^3.1.1",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.9",
