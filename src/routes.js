@@ -24,7 +24,10 @@ module.exports = [
   {
     method: 'POST',
     path: '/import-job',
-    handler: Controller.importJob
+    handler: Controller.importJob,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
