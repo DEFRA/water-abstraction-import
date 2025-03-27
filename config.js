@@ -42,12 +42,6 @@ module.exports = {
     max: 20
   },
 
-  pgBoss: {
-    schema: 'water_import',
-    application_name: process.env.SERVICE_NAME,
-    newJobCheckIntervalSeconds: 10
-  },
-
   server: {
     port: 8007,
     router: {
@@ -73,7 +67,6 @@ module.exports = {
   proxy: process.env.PROXY,
 
   import: {
-    schedule: process.env.WRLS_CRON_IMPORT || '15 23 * * *',
     nald: {
       zipPassword: process.env.NALD_ZIP_PASSWORD,
       path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release'
