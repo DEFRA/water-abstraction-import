@@ -46,11 +46,6 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/process/clear-queues',
-    handler: Controller.clearQueues
-  },
-  {
-    method: 'POST',
     path: '/process/completion-email',
     handler: Controller.completionEmail
   },

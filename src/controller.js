@@ -10,7 +10,6 @@ const PermitJson = require('./lib/permit-json/permit-json.js')
 const BillRunsImportProcess = require('./modules/bill-runs-import/process.js')
 const ChargeVersionsImportProcess = require('./modules/charge-versions-import/process.js')
 const CleanProcess = require('./modules/clean/process.js')
-const ClearQueuesProcess = require('./modules/clear-queues/process.js')
 const CompletionEmailProcess = require('./modules/completion-email/process.js')
 const EndDateCheckProcess = require('./modules/end-date-check/process.js')
 const EndDateTriggerProcess = require('./modules/end-date-trigger/process.js')
@@ -45,12 +44,6 @@ async function chargeVersionsImport (_request, h) {
 
 async function clean (_request, h) {
   CleanProcess.go(config.import.licences.isCleanLicenceImportsEnabled, true)
-
-  return h.response().code(204)
-}
-
-async function clearQueues (request, h) {
-  ClearQueuesProcess.go(request.server.messageQueue, true)
 
   return h.response().code(204)
 }
@@ -228,7 +221,6 @@ module.exports = {
   billRunsImport,
   chargeVersionsImport,
   clean,
-  clearQueues,
   completionEmail,
   endDateCheck,
   endDateTrigger,
