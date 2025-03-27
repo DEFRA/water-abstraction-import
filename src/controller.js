@@ -17,6 +17,7 @@ const EndDateTriggerProcess = require('./modules/end-date-trigger/process.js')
 const ExtractNaldDataProcess = require('./modules/extract-nald-data/process.js')
 const ExtractOldLinesProcess = require('./modules/extract-old-lines/process.js')
 const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/process.js')
+const ImportJobProcess = require('./modules/import-job/process.js')
 const LicenceCrmImportProcess = require('./modules/licence-crm-import/process.js')
 const LicenceCrmV2ImportProcess = require('./modules/licence-crm-v2-import/process.js')
 const LicenceNoStartDateImportProcess = require('./modules/licence-no-start-date-import/process.js')
@@ -27,8 +28,6 @@ const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
 const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
 const ReturnVersionsImportProcess = require('./modules/return-versions-import/process.js')
-
-const ClearQueuesJob = require('./modules/import-job/jobs/clear-queues.js')
 
 const config = require('../config.js')
 
@@ -57,7 +56,13 @@ async function clearQueues (request, h) {
 }
 
 async function completionEmail (_request, h) {
-  CompletionEmailProcess.go(true)
+  const dummySteps = [
+    { duration: 0.5, logTime: new Date(), name: 'super-short', messages: [] },
+    { duration: 47, logTime: new Date(), name: 'few-seconds', messages: ['Skipped for reasons'] },
+    { duration: 105, logTime: new Date(), name: 'minute-and-change', messages: ['Errored because of widget'] },
+    { duration: 6318, logTime: new Date(), name: 'hour-and-change', messages: [] }
+  ]
+  CompletionEmailProcess.go(dummySteps)
 
   return h.response().code(204)
 }
@@ -101,8 +106,8 @@ async function healthInfo (_request, h) {
   return h.response(result).code(200)
 }
 
-async function importJob (request, h) {
-  await request.messageQueue.publish(ClearQueuesJob.createMessage())
+async function importJob (_request, h) {
+  ImportJobProcess.go()
 
   return h.response().code(204)
 }
