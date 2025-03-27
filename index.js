@@ -10,7 +10,6 @@ moment.locale('en-gb')
 const config = require('./config')
 const routes = require('./src/routes.js')
 
-const PgBossPlugin = require('./src/plugins/pg-boss.plugin.js')
 const AirbrakePlugin = require('./src/plugins/airbrake.plugin.js')
 const GlobalNotifierPlugin = require('./src/plugins/global-notifier.plugin.js')
 const HapiPinoPlugin = require('./src/plugins/hapi-pino.plugin.js')
@@ -34,8 +33,6 @@ const start = async function () {
   await server.register(HapiPinoPlugin())
   await server.register(AirbrakePlugin)
   await server.register(GlobalNotifierPlugin)
-
-  await server.register(PgBossPlugin)
 
   server.validator(require('@hapi/joi'))
 
