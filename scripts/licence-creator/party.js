@@ -1,4 +1,5 @@
-const moment = require('moment')
+'use strict'
+
 const getNextId = require('./next-id')
 
 class Party {
@@ -24,7 +25,7 @@ class Party {
       NAME: this.name,
       SPOKEN_LANG: 'E',
       WRITTEN_LANG: 'E',
-      LAST_CHANGED: moment().format('DD/MM/YYYY'),
+      LAST_CHANGED: '01/01/2018',
       DISABLED: 'N',
       FORENAME: this.foreName,
       INITIALS: this.initials,

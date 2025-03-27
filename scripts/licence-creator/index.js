@@ -155,7 +155,6 @@ function writeCsv (outputPath, exportData) {
       return newTableObject
     })
 
-    console.log(`Exporting ${tableName}`)
     const columns = Object.keys(data[0])
     const csv = csvStringify(data, { columns, header: true, quoted: false, quotedEmpty: false, quotedString: false })
     return writeFile(`${outputPath}${tableName}.txt`, csv)

@@ -9,10 +9,10 @@ const { experiment, test, beforeEach, afterEach } = exports.lab = Lab.script()
 const { expect } = Code
 
 // Things we need to stub
-const { lines, returns, versions } = require('../../../src/lib/connectors/returns')
+const { lines, returns, versions } = require('../../../src/modules/returns/lib/returns.js')
 
 // Thing under test
-const controller = require('../../../src/modules/returns/controller')
+const controller = require('../../../src/modules/returns/controller.js')
 
 experiment('modules/returns/controller', () => {
   beforeEach(async () => {

@@ -1,5 +1,4 @@
-// provides all API services consumed by VML and VML Admin front ends
-require('dotenv').config()
+'use strict'
 
 // -------------- Require vendor code -----------------
 const HapiAuthJwt2 = require('hapi-auth-jwt2')
@@ -10,26 +9,13 @@ moment.locale('en-gb')
 // -------------- Require project code -----------------
 const config = require('./config')
 const routes = require('./src/routes.js')
+
 const AirbrakePlugin = require('./src/plugins/airbrake.plugin.js')
 const GlobalNotifierPlugin = require('./src/plugins/global-notifier.plugin.js')
 const HapiPinoPlugin = require('./src/plugins/hapi-pino.plugin.js')
 
 // Define server
 const server = require('./server')
-
-const plugins = [
-  HapiAuthJwt2,
-  require('./src/plugins/pg-boss.plugin'),
-  require('./src/modules/licence-import/plugin'),
-  require('./src/modules/charging-import/plugin'),
-  require('./src/modules/mod-logs/plugin'),
-  require('./src/modules/points/plugin'),
-  require('./src/modules/return-logs/plugin.js'),
-  require('./src/modules/return-versions/plugin.js'),
-  require('./src/modules/nald-import/plugin'),
-  require('./src/modules/bill-runs-import/plugin'),
-  require('./src/modules/core/plugin')
-]
 
 const configureServerAuthStrategy = (server) => {
   server.auth.strategy('jwt', 'jwt', {
@@ -40,7 +26,7 @@ const configureServerAuthStrategy = (server) => {
 }
 
 const start = async function () {
-  await server.register(plugins)
+  await server.register(HapiAuthJwt2)
 
   // The order is important here. We need the Hapi pino logger as a base. Then Airbrake needs to be added to the
   // server.app property. Then the GlobalNotifier can be setup as it needs access to both
