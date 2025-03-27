@@ -30,10 +30,7 @@ const { randomUUID } = require('crypto')
  * @param {object} [data] - additional data to include with the log output
  */
 function calculateAndLogTimeTaken (startTime, message, data = {}) {
-  const endTime = currentTimeInNanoseconds()
-  const timeTakenNs = endTime - startTime
-  const timeTakenMs = timeTakenNs / 1000000n
-  const timeTakenSs = timeTakenMs / 1000n
+  const { timeTakenMs, timeTakenSs } = durations(startTime)
 
   const logData = {
     timeTakenMs,
@@ -96,6 +93,26 @@ function determineCurrentFinancialYear () {
   }
 
   return { startDate: new Date(startYear, 3, 1), endDate: new Date(endYear, 2, 31) }
+}
+
+/**
+ * Calculates the duration between the given start time and the current time in milliseconds and seconds.
+ *
+ * This function uses the `currentTimeInNanoseconds` to determine the current time and computes the time taken
+ * since the provided `startTime`. It returns the duration in both milliseconds and seconds.
+ *
+ * @param {bigint} startTime - The start time in nanoseconds.
+ *
+ * @returns {object} An object containing the duration in milliseconds (`timeTakenMs`) and seconds (`timeTakenSs`).
+ */
+
+function durations (startTime) {
+  const endTime = currentTimeInNanoseconds()
+  const timeTakenNs = endTime - startTime
+  const timeTakenMs = timeTakenNs / 1000000n
+  const timeTakenSs = timeTakenMs / 1000n
+
+  return { timeTakenMs, timeTakenSs }
 }
 
 /**
@@ -169,6 +186,7 @@ module.exports = {
   calculateAndLogTimeTaken,
   currentTimeInNanoseconds,
   determineCurrentFinancialYear,
+  durations,
   formatLongDateTime,
   generateUUID,
   naldNull,
