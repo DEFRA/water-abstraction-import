@@ -67,6 +67,7 @@ module.exports = {
   proxy: process.env.PROXY,
 
   import: {
+    schedule: process.env.WRLS_CRON_NALD,
     nald: {
       zipPassword: process.env.NALD_ZIP_PASSWORD,
       path: process.env.S3_NALD_IMPORT_PATH || 'wal_nald_data_release'
