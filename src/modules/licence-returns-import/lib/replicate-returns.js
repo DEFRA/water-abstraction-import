@@ -19,11 +19,6 @@ const { daysFromPeriod, weeksFromPeriod, monthsFromPeriod } = require('./return-
  * replicating NALD submission data
  */
 async function go (row, oldLinesExist) {
-  // TODO: Support old NALD fortnightly, quarterly and yearly returns
-  if (row.returns_frequency === 'quarter' || row.returns_frequency === 'year' || row.returns_frequency === 'fortnight') {
-    return
-  }
-
   if (row.status !== 'completed') {
     return
   }
