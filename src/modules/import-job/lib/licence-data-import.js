@@ -64,7 +64,7 @@ async function _licences () {
         nalv."AABL_ID" = nal."ID"
         AND nalv."FGAC_REGION_CODE" = nal."FGAC_REGION_CODE"
         AND nalv."STATUS" <> 'DRAFT'
-    ) AND nal."LIC_NO" IN ('6/33/03/*G/0041', 'AN/033/0053/044R01', 'NW/068/0005/004', 'WA/055/0008/012', '6/33/03/*G/0012');
+    );
   `)
 }
 
