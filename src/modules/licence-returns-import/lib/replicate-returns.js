@@ -72,7 +72,11 @@ async function _addOldNaldLines (naldLines, row, naldLinesParams) {
         to_date("RET_DATE", 'DD/MM/YYYY') AS end_date
       FROM public."NALD_RET_LINES" nrl
       WHERE
-        nrl."ARFL_ARTY_ID" = $1
+        nrl."RET_QTY" IS NOT NULL
+        AND nrl."RET_QTY" <> 'null'
+        AND nrl."RET_QTY" <> ''
+        AND nrl."RET_QTY" <> '0'
+        AND nrl."ARFL_ARTY_ID" = $1
         AND nrl."FGAC_REGION_CODE" = $2
         AND to_date(nrl."RET_DATE", 'DD/MM/YYYY') >= to_date($3, 'YYYY-MM-DD')
         AND to_date(nrl."RET_DATE", 'DD/MM/YYYY') <= to_date($4, 'YYYY-MM-DD')
@@ -114,6 +118,7 @@ async function _naldLines (naldLinesParams) {
     FROM "import"."NALD_RET_LINES" nrl
     WHERE
       nrl."RET_QTY" IS NOT NULL
+      AND nrl."RET_QTY" <> 'null'
       AND nrl."RET_QTY" <> ''
       AND nrl."RET_QTY" <> '0'
       AND nrl."ARFL_ARTY_ID"=$1
