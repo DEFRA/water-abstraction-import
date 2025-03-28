@@ -69,7 +69,8 @@ async function _addOldNaldLines (naldLines, row, naldLinesParams) {
         nrl."RET_QTY",
         nrl."RET_QTY_USABILITY",
         nrl."UNIT_RET_FLAG",
-        to_date("RET_DATE", 'DD/MM/YYYY') AS end_date
+        to_date("RET_DATE", 'DD/MM/YYYY') AS end_date,
+        (false) AS matched
       FROM public."NALD_RET_LINES" nrl
       WHERE
         nrl."RET_QTY" IS NOT NULL
@@ -114,7 +115,8 @@ async function _naldLines (naldLinesParams) {
       nrl."RET_QTY",
       nrl."RET_QTY_USABILITY",
       nrl."UNIT_RET_FLAG",
-      to_date("RET_DATE", 'YYYYMMDDHH24MISS') AS end_date
+      to_date("RET_DATE", 'YYYYMMDDHH24MISS') AS end_date,
+      (false) AS matched
     FROM "import"."NALD_RET_LINES" nrl
     WHERE
       nrl."RET_QTY" IS NOT NULL
