@@ -559,9 +559,10 @@ experiment('modules/licence-returns-import/lib/transform-returns-helpers', () =>
     test('Test mapping of NALD returns periods codes', async () => {
       expect(TransformReturnsHelpers.mapPeriod('D')).to.equal('day')
       expect(TransformReturnsHelpers.mapPeriod('W')).to.equal('week')
+      expect(TransformReturnsHelpers.mapPeriod('F')).to.equal('week')
       expect(TransformReturnsHelpers.mapPeriod('M')).to.equal('month')
-      expect(TransformReturnsHelpers.mapPeriod('Q')).to.equal('quarter')
-      expect(TransformReturnsHelpers.mapPeriod('A')).to.equal('year')
+      expect(TransformReturnsHelpers.mapPeriod('Q')).to.equal('month')
+      expect(TransformReturnsHelpers.mapPeriod('A')).to.equal('month')
       expect(TransformReturnsHelpers.mapPeriod('x')).to.equal(undefined)
     })
   })

@@ -75,7 +75,7 @@ experiment('modules/licence-returns-import/lib/persist-returns', () => {
         .onSecondCall().resolves()
     })
 
-    test("updates the return log's 'due_date', 'metadata', 'received_date' and 'status'", async () => {
+    test("updates the return log's 'due_date', 'metadata', 'received_date', 'returns_frequency', and 'status'", async () => {
       await PersistReturns.go([naldReturn], false)
 
       const params = db.query.secondCall.args[1]
@@ -85,6 +85,7 @@ experiment('modules/licence-returns-import/lib/persist-returns', () => {
         '2017-11-28',
         '{"param":"value","version":"1"}',
         '2017-11-24',
+        'month',
         'completed',
         'v1:123:456'
       ])
