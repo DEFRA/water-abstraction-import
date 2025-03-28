@@ -177,13 +177,30 @@ function _populateBlankLines (row, version, blankLines, naldLines) {
   const { RET_QTY_USABILITY: readingType, UNIT_RET_FLAG: userUnit } = naldLines[0]
 
   for (const line of blankLines) {
+    // NOTE: We _were_ importing return logs for quarterly and yearly but _only_ the return logs; the submission data
+    // was part of the old return lines so not being imported.
+    //
+    // > Fortnightly was not a valid value in WRLS so these would just blow up!
+    //
+    // We need to bring them all in, which means converting them (fortnight to weekly, quarter and year to month). But
+    // its not a straight conversion. For example, in NALD the quarter will be 1 line, but when converted to WRLS that
+    // will become 3 (1 per month). Our current logic matches WRLS lines to NALD based on the period, so we'd get the
+    // same qty assigned 3 times.
+    //
+    // This is why we came up with marking lines as matched once they have been used. When unmatchedNaldLines is passed
+    // to _totalLineQuantity() it will set the `matched` flag on any it uses so we don't use them again within the same
+    // return submission.
+    const unmatchedNaldLines = naldLines.filter((naldLine) => {
+      return !naldLine.matched
+    })
+
     line.line_id = generateUUID()
     line.version_id = version.version_id
     line.time_period = row.returns_frequency
     line.metadata = {}
     line.user_unit = returnsHelpers.mappers.mapUnit(userUnit)
     line.reading_type = returnsHelpers.mappers.mapUsability(readingType)
-    line.quantity = _totalLineQuantity(line, naldLines)
+    line.quantity = _totalLineQuantity(line, unmatchedNaldLines)
   }
 }
 
@@ -256,6 +273,10 @@ function _totalLineQuantity (blankLine, naldLines) {
   let totalQuantity = 0
 
   for (const naldLine of naldLines) {
+    if (naldLine.matched) {
+      continue
+    }
+
     // Even though we cast RET_DATE to a Date as `end_date` in the query, the DB connection the
     // water-abstraction-helpers makes always returns it as a string.
     const naldLineEndDate = new Date(naldLine.end_date)
@@ -273,6 +294,10 @@ function _totalLineQuantity (blankLine, naldLines) {
     // We have found a match!
     match = true
     totalQuantity += parseFloat(naldLine.RET_QTY)
+
+    // Mark line as having been matched. This is needed for NALD frequencies that WRLS does not support, for example,
+    // quarterly. The NALD line can match multiple times but we only want to use its quantity once.
+    naldLine.matched = true
   }
 
   if (match) {
