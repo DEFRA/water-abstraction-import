@@ -185,9 +185,6 @@ const getReturnCycles = (startDate, endDate, splitDate, isSummer = false) => {
 const getStatus = receivedDate => receivedDate === null ? 'due' : 'completed'
 
 /**
- * TODO: See connected note in src/modules/licence-returns-import/lib/transform-returns.js. When we can convert
- * fortnightly, quarterly, and yearly returns into weekly and monthly, then this comment will apply.
- *
  * These are the actual translations. However, we WRLS only supports daily, weekly, and monthly returns, which
  * is why we translate fortnightly, quarterly, and annually to something else.
  *
@@ -204,10 +201,10 @@ function mapPeriod (str) {
   const periods = {
     D: 'day',
     W: 'week',
-    F: 'fortnight',
+    F: 'week',
     M: 'month',
-    Q: 'quarter',
-    A: 'year'
+    Q: 'month',
+    A: 'month'
   }
   return periods[str]
 }
