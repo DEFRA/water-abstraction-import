@@ -176,16 +176,17 @@ async function _returnDataExists (returnId) {
 }
 
 async function _update (row) {
-  const params = [row.due_date, row.metadata, row.received_date, row.status, row.return_id]
+  const params = [row.due_date, row.metadata, row.received_date, row.returns_frequency, row.status, row.return_id]
 
   const query = `
     UPDATE "returns"."returns" SET
       due_date = $1,
       metadata = $2,
       received_date = $3,
-      status = $4,
+      returns_frequency = $4,
+      status = $5,
       updated_at = now()
-    WHERE return_id=$5;
+    WHERE return_id=$6;
   `
 
   await db.query(query, params)

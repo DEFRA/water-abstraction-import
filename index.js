@@ -74,7 +74,6 @@ process
     // If there are no in-flight requests Hapi will immediately stop. If there are they get 25 seconds to finish
     // before Hapi terminates them
     await server.stop(options)
-    await server.messageQueue.stop()
 
     // Log we're shut down using the same log format as the rest of our log output
     server.logger.info("That's all folks!")

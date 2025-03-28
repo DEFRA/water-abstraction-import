@@ -7,8 +7,6 @@ const { currentTimeInNanoseconds, calculateAndLogTimeTaken, formatLongDateTime }
 const config = require('../../../config.js')
 
 async function go (steps) {
-  console.dir(steps, { depth: null, colors: true })
-
   try {
     const startTime = currentTimeInNanoseconds()
 
