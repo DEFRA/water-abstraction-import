@@ -6,7 +6,7 @@ const DeletedReturnData = require('./lib/deleted-return-data.js')
 
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
-async function go (cleanLicences = false, log = false) {
+async function go (cleanLicences = false, skipReturnData = false, log = false) {
   const messages = []
 
   try {
@@ -18,6 +18,13 @@ async function go (cleanLicences = false, log = false) {
     } else {
       global.GlobalNotifier.omg('clean: skipped licences')
       messages.push('Skipped cleaning licences as not enabled')
+    }
+
+    if (skipReturnData) {
+      global.GlobalNotifier.omg('clean: skipped return version data')
+      messages.push('Skipped because importing returns is disabled')
+
+      return messages
     }
 
     await DeletedReturnData.go()

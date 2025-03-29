@@ -14,7 +14,11 @@ async function go () {
 
   const startTime = currentTimeInNanoseconds()
 
-  step.messages = await CleanProcess.go(config.import.licences.isCleanLicenceImportsEnabled, false)
+  step.messages = await CleanProcess.go(
+    config.import.licences.isCleanLicenceImportsEnabled,
+    config.featureFlags.disableReturnsImports,
+    false
+  )
 
   const { timeTakenSs } = durations(startTime)
 
