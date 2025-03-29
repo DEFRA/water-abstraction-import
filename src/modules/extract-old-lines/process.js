@@ -33,22 +33,26 @@ async function go (skip = false, log = false) {
     // Determine if the one-off pre-2013 NALD return lines data extract table exists and is populated
     let oldLinesExist = await _oldLinesExist()
 
-    // We should only ever need to create and load the table once per environment
-    if (!oldLinesExist) {
-      const extractExists = await _oldLinesFileExists()
+    if (oldLinesExist) {
+      global.GlobalNotifier.omg('extract-old-lines: skipped')
+      messages.push('Skipped because they have already been extracted')
 
-      if (extractExists) {
-        const downloadLocalPath = await _downloadOldLinesFile()
-        const extractLocalPath = await _extractOldLinesFile(downloadLocalPath)
-
-        await _createOldLinesTable()
-        const sqlLocalPath = await _loadOldLinesTable(extractLocalPath)
-
-        _cleanUpFiles(downloadLocalPath, extractLocalPath, sqlLocalPath)
-      }
-
-      oldLinesExist = true
+      return messages
     }
+
+    const extractExists = await _oldLinesFileExists()
+
+    if (extractExists) {
+      const downloadLocalPath = await _downloadOldLinesFile()
+      const extractLocalPath = await _extractOldLinesFile(downloadLocalPath)
+
+      await _createOldLinesTable()
+      const sqlLocalPath = await _loadOldLinesTable(extractLocalPath)
+
+      _cleanUpFiles(downloadLocalPath, extractLocalPath, sqlLocalPath)
+    }
+
+    oldLinesExist = true
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'extract-old-lines: complete', { oldLinesExist })
