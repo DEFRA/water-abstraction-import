@@ -42,87 +42,138 @@ module.exports = [
   {
     method: 'POST',
     path: '/process/clean',
-    handler: Controller.clean
+    handler: Controller.clean,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/completion-email',
-    handler: Controller.completionEmail
+    handler: Controller.completionEmail,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/end-date-check',
-    handler: Controller.endDateCheck
+    handler: Controller.endDateCheck,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/end-date-trigger',
-    handler: Controller.endDateTrigger
+    handler: Controller.endDateTrigger,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/extract-nald-data',
-    handler: Controller.extractNaldData
+    handler: Controller.extractNaldData,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/extract-old-lines',
-    handler: Controller.extractOldLines
+    handler: Controller.extractOldLines,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/flag-deleted-documents',
-    handler: Controller.flagDeletedDocuments
+    handler: Controller.flagDeletedDocuments,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/licence-crm-import',
-    handler: Controller.licenceCrmImport
+    handler: Controller.licenceCrmImport,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/licence-crm-v2-import',
-    handler: Controller.licenceCrmV2Import
+    handler: Controller.licenceCrmV2Import,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/licence-no-start-date-import',
-    handler: Controller.licenceNoStartDateImport
+    handler: Controller.licenceNoStartDateImport,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/licence-permit-import',
-    handler: Controller.licencePermitImport
+    handler: Controller.licencePermitImport,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/licence-returns-import',
-    handler: Controller.licenceReturnsImport
+    handler: Controller.licenceReturnsImport,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/licences-import',
-    handler: Controller.licencesImport
+    handler: Controller.licencesImport,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/link-to-mod-logs',
-    handler: Controller.linkToModLogs
+    handler: Controller.linkToModLogs,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'post',
     handler: Controller.partyCrmV2Import,
-    path: '/process/party-crm-v2-import'
+    path: '/process/party-crm-v2-import',
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/reference-data-import',
-    handler: Controller.referenceDataImport
+    handler: Controller.referenceDataImport,
+    config: {
+      auth: false
+    }
   },
   {
     method: 'POST',
     path: '/process/return-versions-import',
-    handler: Controller.returnVersionsImport
+    handler: Controller.returnVersionsImport,
+    config: {
+      auth: false
+    }
   },
   ...returnsRoutes
 ]
