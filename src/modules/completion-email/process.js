@@ -1,10 +1,8 @@
 'use strict'
 
 const axios = require ('axios')
-// const { HttpsProxyAgent } = require('hpagent')
-const proxyAgent = require('proxy-agent')
+const { HttpsProxyAgent } = require('hpagent')
 const { NotifyClient } = require('notifications-node-client')
-
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken, formatLongDateTime } = require('../../lib/general.js')
 
 const config = require('../../../config.js')
@@ -82,10 +80,18 @@ function _emailOptions (steps) {
  * ```
  *
  * It appears this is a {@link https://github.com/axios/axios/issues/6320 | known issue with Axios} and how it sends
- * data via the proxy. Most workarounds suggest that you in fact need to tell Axios to disable its proxy, and specify
- * its httpsAgent instead.
+ * data via the proxy. Most workarounds suggest that you need to tell Axios to disable its proxy, and specify
+ * a https agent instead.
  *
+ * There is already {@link https://www.npmjs.com/package/proxy-agent | proxy-agent} in this repo used for connecting to
+ * AWS S3. However, we couldn't get it to work. One we have had success with is
+ * {@link https://www.npmjs.com/package/hpagent | hpagent} which we use in **water-abstraction-system**.
  *
+ * Thankfully, that one did work. To set the agent though, we have to create our own custom instance of Axios and tell
+ * Notify to use it instead.
+ *
+ * Hence, there is a bit more involved than the Notify docs suggest to setting up the Notify client, which is why it has
+ * its own function!
  *
  * @private
  */
@@ -94,8 +100,7 @@ function _notifyClient () {
   const proxy = config.proxy
 
   if (proxy) {
-    // const agent = new HttpsProxyAgent({ proxy: proxy })
-    const agent = proxyAgent(proxy)
+    const agent = new HttpsProxyAgent({ proxy: proxy })
     const axiosInstance = axios.create({
       proxy: false,
       httpsAgent: agent
