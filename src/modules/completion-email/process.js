@@ -1,6 +1,6 @@
 'use strict'
 
-const axios = require ('axios')
+const axios = require('axios')
 const { HttpsProxyAgent } = require('hpagent')
 const { NotifyClient } = require('notifications-node-client')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken, formatLongDateTime } = require('../../lib/general.js')
@@ -100,7 +100,7 @@ function _notifyClient () {
   const proxy = config.proxy
 
   if (proxy) {
-    const agent = new HttpsProxyAgent({ proxy: proxy })
+    const agent = new HttpsProxyAgent({ proxy })
     const axiosInstance = axios.create({
       proxy: false,
       httpsAgent: agent
