@@ -22,7 +22,7 @@ async function go (log = false) {
       calculateAndLogTimeTaken(startTime, 'bill-runs-import: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('bill-runs-import: errored', error)
+    global.GlobalNotifier.omfg('bill-runs-import: errored', {}, error)
   }
 }
 

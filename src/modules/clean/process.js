@@ -33,7 +33,7 @@ async function go (cleanLicences = false, skipReturnData = false, log = false) {
       calculateAndLogTimeTaken(startTime, 'clean: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('clean: errored', error)
+    global.GlobalNotifier.omfg('clean: errored', {}, error)
 
     messages.push(error.message)
   }

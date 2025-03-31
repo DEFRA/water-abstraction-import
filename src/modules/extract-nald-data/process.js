@@ -42,7 +42,7 @@ async function go (log = false) {
       calculateAndLogTimeTaken(startTime, 'extract-nald-data: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('extract-nald-data: errored', error)
+    global.GlobalNotifier.omfg('extract-nald-data: errored', {}, error)
 
     messages.push(error.message)
   }

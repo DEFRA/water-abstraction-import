@@ -23,7 +23,7 @@ async function go (log = false) {
       calculateAndLogTimeTaken(startTime, 'licences-import: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('licences-import: errored', error)
+    global.GlobalNotifier.omfg('licences-import: errored', {}, error)
 
     messages.push(error.message)
   }

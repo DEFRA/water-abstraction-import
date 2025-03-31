@@ -41,7 +41,7 @@ async function go (log = false) {
       calculateAndLogTimeTaken(startTime, 'charge-versions-import: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('charge-versions-import: errored', error)
+    global.GlobalNotifier.omfg('charge-versions-import: errored', {}, error)
   }
 }
 
@@ -51,7 +51,7 @@ async function _importChargeVersionMetadataForLicence (licence) {
 
     await MetadataImport.go(licenceData)
   } catch (error) {
-    global.GlobalNotifier.omfg('charge-versions-import: errored', error, { licence })
+    global.GlobalNotifier.omfg('charge-versions-import: errored', { licence }, error)
   }
 }
 

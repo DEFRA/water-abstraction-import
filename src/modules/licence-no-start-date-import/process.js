@@ -48,7 +48,7 @@ async function go (permitJson, index = 0, log = false) {
       calculateAndLogTimeTaken(startTime, `licence-no-start-date-import: complete (${index})`)
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('licence-no-start-date-import: errored', error, { licenceRef: permitJson?.LIC_NO, index })
+    global.GlobalNotifier.omfg('licence-no-start-date-import: errored', { licenceRef: permitJson?.LIC_NO, index }, error)
 
     messages.push(error.message)
   }
