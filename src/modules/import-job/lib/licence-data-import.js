@@ -91,6 +91,18 @@ async function _process () {
   }
 
   for (const [index, licence] of licences.entries()) {
+    const licenceMessages = await _processLicence(index, licence)
+
+    messages.push(...licenceMessages)
+  }
+
+  return messages
+}
+
+async function _processLicence (index, licence) {
+  const messages = []
+
+  try {
     const permitJson = await PermitJson.go(licence)
 
     const results = await Promise.allSettled([
@@ -100,11 +112,16 @@ async function _process () {
       _licenceReturnsImport(licence, index)
     ])
 
+    _logMessages(results, index, licence, messages)
+
     // This has to be persisted after LicencePermitImportProcess completes, because it depends on the `permit.licence`
     // record having been created for new licences
-    await LicenceCrmImportProcess.go(permitJson, index, false)
+    const crmMessages = await LicenceCrmImportProcess.go(permitJson, index, false)
 
-    _logMessages(results, index, licence, messages)
+    messages.push(...crmMessages)
+  } catch (error) {
+    global.GlobalNotifier.omg(`import-job.${STEP_NAME}: errored`, { licence, error })
+    messages.push(error.message)
   }
 
   return messages
