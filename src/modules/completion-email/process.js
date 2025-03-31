@@ -1,7 +1,8 @@
 'use strict'
 
+const axios = require('axios')
+const { HttpsProxyAgent } = require('hpagent')
 const { NotifyClient } = require('notifications-node-client')
-
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken, formatLongDateTime } = require('../../lib/general.js')
 
 const config = require('../../../config.js')
@@ -61,6 +62,56 @@ function _emailOptions (steps) {
   }
 }
 
+/**
+ * Returns an instance of {@link https://github.com/alphagov/notifications-node-client | notifications-node-client}
+ * configured to work in environments with and without proxy servers.
+ *
+ * Running locally just instantiating the NotifyClient was all we had to do. But when deployed to our AWS environments
+ * which use the {@link https://www.squid-cache.org/ | Squid proxy server} it failed.
+ *
+ * Initially, we followed the
+ * {@link https://docs.notifications.service.gov.uk/node.html#connect-through-a-proxy-optional | Notify documentation}
+ * but all we saw was the following returned by **Squid**.
+ *
+ * ```text
+ * This proxy and the remote host failed to negotiate a mutually acceptable security settings for handling your request.
+ * It is possible that the remote host does not support secure connections, or the proxy is not satisfied with the host
+ * security credentials.
+ * ```
+ *
+ * It appears this is a {@link https://github.com/axios/axios/issues/6320 | known issue with Axios} and how it sends
+ * data via the proxy. Most workarounds suggest that you need to tell Axios to disable its proxy, and specify
+ * a https agent instead.
+ *
+ * There is already {@link https://www.npmjs.com/package/proxy-agent | proxy-agent} in this repo used for connecting to
+ * AWS S3. However, we couldn't get it to work. One we have had success with is
+ * {@link https://www.npmjs.com/package/hpagent | hpagent} which we use in **water-abstraction-system**.
+ *
+ * Thankfully, that one did work. To set the agent though, we have to create our own custom instance of Axios and tell
+ * Notify to use it instead.
+ *
+ * Hence, there is a bit more involved than the Notify docs suggest to setting up the Notify client, which is why it has
+ * its own function!
+ *
+ * @private
+ */
+function _notifyClient () {
+  const notifyClient = new NotifyClient(config.notify.apiKey)
+  const proxy = config.proxy
+
+  if (proxy) {
+    const agent = new HttpsProxyAgent({ proxy })
+    const axiosInstance = axios.create({
+      proxy: false,
+      httpsAgent: agent
+    })
+
+    notifyClient.setClient(axiosInstance)
+  }
+
+  return notifyClient
+}
+
 function _summary (steps) {
   const summary = []
 
@@ -74,7 +125,7 @@ function _summary (steps) {
 }
 
 async function _sendEmail (options) {
-  const client = new NotifyClient(config.notify.apiKey)
+  const client = _notifyClient()
 
   await client.sendEmail(config.notify.templateId, config.notify.mailbox, options)
 }
