@@ -40,9 +40,9 @@ class BaseNotifierLib {
    *
    * The message will be added as an `INFO` level log message.
    *
-   * @param {string} message Message to add to the log (INFO)
-   * @param {Object} [data={}] An object containing any values to be logged, for example, a bill run ID to be included with
-   *  the log message. Defaults to an empty object
+   * @param {string} message - Message to add to the log (INFO)
+   * @param {object} [data={}] - An object containing any values to be logged, for example, a bill run ID to be included
+   * with the log message. Defaults to an empty object
    */
   omg (message, data = {}) {
     this._logger.info(this._formatLogPacket(data), message)
@@ -74,13 +74,13 @@ class BaseNotifierLib {
    * notifier.omfg('Bill run failed to generate.', { id: billRun.id })
    * ```
    *
-   * @param {string} message Message to add to the log (ERROR)
-   * @param {Error} [error=null] An instance of the error to be logged and sent to Errbit. If no error is provided one
-   *  will be created using `message` as the error message
-   * @param {Object} [data={}] An object containing any values to be logged and sent in the notification to Errbit, for
-   *  example, a bill run ID. Defaults to an empty object
+   * @param {string} message - Message to add to the log (ERROR)
+   * @param {object} [data={}] - An object containing any values to be logged and sent in the notification to Errbit,
+   * for example, a bill run ID. Defaults to an empty object
+   * @param {Error} [error=null] - An instance of the error to be logged and sent to Errbit. If no error is provided one
+   * will be created using `message` as the error message
    */
-  omfg (message, error = null, data = {}) {
+  omfg (message, data = {}, error = null) {
     // This deals with anyone calling omfg() with `omfg('It broke', null, error)` which would cause things to break
     if (!data) {
       data = {}
@@ -94,7 +94,8 @@ class BaseNotifierLib {
 
     this._logger.error(this._formatLogPacket(data, error), message)
 
-    this._notifier.notify(this._formatNotifyPacket(data, error, message))
+    this._notifier
+      .notify(this._formatNotifyPacket(data, error, message))
       // This section is a 'just in case' anything goes wrong when trying to send the notification to Errbit. It will
       // either fail (cannot connect) or blow up entirely. If it does we log the error directly (no calls to the
       // formatter)
@@ -103,7 +104,7 @@ class BaseNotifierLib {
           this._logger.error(notice.error, `${this.constructor.name} - Airbrake failed`)
         }
       })
-      .catch(err => {
+      .catch((err) => {
         this._logger.error(err, `${this.constructor.name} - Airbrake errored`)
       })
   }
@@ -135,6 +136,8 @@ class BaseNotifierLib {
    *
    * By doing it this way we can _still_ pass a `data` arg to `omfg()` and include those values in our log entry along
    * with the error.
+   *
+   * @private
    */
   _formatLogPacket (data, error) {
     const packet = {
@@ -160,6 +163,8 @@ class BaseNotifierLib {
    * But this means Airbrake's `message:` property becomes ignored. Errbit will set the issue title using the error's
    * `message` instead. In order to see our message when a 'proper' error is passed in we include our `message` as a
    * property of `session:`.
+   *
+   * @private
    */
   _formatNotifyPacket (data, error, message) {
     return {
@@ -177,8 +182,10 @@ class BaseNotifierLib {
    * Returns an instance of {@link https://github.com/pinojs/pino|Pino} the logger our dependency Hapi-pino brings in.
    * We can then call `info()` and `error()` on it in order to create our log entries.
    *
-   * @param {Object} [logger] An instance of {@link https://github.com/pinojs/pino|pino}. If 'null' the method will
+   * @param {object} [logger] - An instance of {@link https://github.com/pinojs/pino|pino}. If 'null' the method will
    * create a new instance.
+   *
+   * @private
    */
   _setLogger (logger) {
     if (logger) {
@@ -194,8 +201,10 @@ class BaseNotifierLib {
    * Returns an instance of {@link https://github.com/airbrake/airbrake-js|airbrake-js} `Notifier` which when called
    * with `notify()` will record errors in our Errbit instance.
    *
-   * @param {Object} [notifier] An instance of the {@link https://github.com/airbrake/airbrake-js|airbrake-js}
+   * @param {object} [notifier] - An instance of the {@link https://github.com/airbrake/airbrake-js|airbrake-js}
    * `Notifier`. If 'null' the class will create a new instance instead.
+   *
+   * @private
    */
   _setNotifier (notifier) {
     if (notifier) {

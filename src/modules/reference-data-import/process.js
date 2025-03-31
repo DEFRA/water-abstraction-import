@@ -17,7 +17,7 @@ async function go (log = false) {
       calculateAndLogTimeTaken(startTime, 'reference-data-import: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('reference-data-import: errored', error)
+    global.GlobalNotifier.omfg('reference-data-import: errored', {}, error)
 
     messages.push(error.message)
   }

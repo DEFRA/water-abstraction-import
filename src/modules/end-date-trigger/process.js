@@ -15,7 +15,7 @@ async function go (log = false) {
       calculateAndLogTimeTaken(startTime, 'end-date-trigger: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('end-date-trigger: errored', error)
+    global.GlobalNotifier.omfg('end-date-trigger: errored', {}, error)
 
     messages.push(error.message)
   }

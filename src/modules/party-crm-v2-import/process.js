@@ -25,7 +25,7 @@ async function go (party, index = 0, log = false) {
       calculateAndLogTimeTaken(startTime, `party-crm-v2-import: complete (${index})`)
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('party-crm-v2-import: errored', error, { party, index })
+    global.GlobalNotifier.omfg('party-crm-v2-import: errored', { party, index }, error)
 
     messages.push(error.message)
   }

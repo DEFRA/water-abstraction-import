@@ -17,7 +17,7 @@ async function go (steps) {
 
     calculateAndLogTimeTaken(startTime, 'completion-email: complete')
   } catch (error) {
-    global.GlobalNotifier.omfg('completion-email: errored', error)
+    global.GlobalNotifier.omfg('completion-email: errored', {}, error)
   }
 }
 

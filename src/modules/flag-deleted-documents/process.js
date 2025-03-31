@@ -16,7 +16,7 @@ async function go (log = false) {
       calculateAndLogTimeTaken(startTime, 'flag-deleted-documents: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('flag-deleted-documents: errored', error)
+    global.GlobalNotifier.omfg('flag-deleted-documents: errored', {}, error)
 
     messages.push(error.message)
   }

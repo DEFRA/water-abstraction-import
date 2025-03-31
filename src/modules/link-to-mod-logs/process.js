@@ -17,7 +17,7 @@ async function go (log = false) {
       calculateAndLogTimeTaken(startTime, 'link-to-mod-logs: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('link-to-mod-logs: errored', error)
+    global.GlobalNotifier.omfg('link-to-mod-logs: errored', {}, error)
 
     messages.push(error.message)
   }

@@ -64,7 +64,7 @@ async function go () {
 
     calculateAndLogTimeTaken(startTime, 'import-job completed')
   } catch (error) {
-    global.GlobalNotifier.omfg('import-job errored', error)
+    global.GlobalNotifier.omfg('import-job errored', {}, error)
   }
 }
 

@@ -58,7 +58,7 @@ async function go (skip = false, log = false) {
       calculateAndLogTimeTaken(startTime, 'extract-old-lines: complete', { oldLinesExist })
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('extract-old-lines: errored', error)
+    global.GlobalNotifier.omfg('extract-old-lines: errored', {}, error)
 
     messages.push(error.message)
   }

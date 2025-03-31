@@ -37,7 +37,7 @@ async function go (skip = false, log = false) {
       calculateAndLogTimeTaken(startTime, 'return-versions-import: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('return-versions-import: errored', error)
+    global.GlobalNotifier.omfg('return-versions-import: errored', {}, error)
 
     messages.push(error.message)
   }
