@@ -38,6 +38,7 @@ async function _licenceVersions (id, regionCode) {
     WHERE
       "AABL_ID" = $1
       AND "FGAC_REGION_CODE" = $2
+      AND "STATUS" <> 'DRAFT'
     ORDER BY "EFF_ST_DATE" ASC;
   `
 
