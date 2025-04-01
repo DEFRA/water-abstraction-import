@@ -4,7 +4,7 @@ const Transformer = require('./lib/transformer.js')
 const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
-async function go (permitJson, index = 0, log = false) {
+async function go (permitJson, log = false) {
   const messages = []
 
   try {
@@ -25,10 +25,10 @@ async function go (permitJson, index = 0, log = false) {
     }
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, `licence-crm-v2-import: complete (${index})`)
+      calculateAndLogTimeTaken(startTime, 'licence-crm-v2-import: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('licence-crm-v2-import: errored', { licenceRef: permitJson?.LIC_NO, index }, error)
+    global.GlobalNotifier.omfg('licence-crm-v2-import: errored', { licenceRef: permitJson?.LIC_NO }, error)
 
     messages.push(error.message)
   }

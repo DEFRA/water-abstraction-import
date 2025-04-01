@@ -6,7 +6,7 @@ const PersistReturns = require('./lib/persist-returns.js')
 const TransformReturns = require('./lib/transform-returns.js')
 const VoidReturns = require('./lib/void-returns.js')
 
-async function go (licence, index = 0, log = false) {
+async function go (licence, log = false) {
   const messages = []
 
   try {
@@ -25,10 +25,10 @@ async function go (licence, index = 0, log = false) {
     }
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, `licence-returns-import: complete (${index})`)
+      calculateAndLogTimeTaken(startTime, 'licence-returns-import: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('licence-returns-import: errored', { licence, index }, error)
+    global.GlobalNotifier.omfg('licence-returns-import: errored', { licence }, error)
 
     messages.push(error.message)
   }

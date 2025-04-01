@@ -4,7 +4,7 @@ const CrmTransformer = require('./lib/crm-transformer.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const PersistCrm = require('./lib/persist-crm.js')
 
-async function go (permitJson, index = 0, log = false) {
+async function go (permitJson, log = false) {
   const messages = []
 
   try {
@@ -22,10 +22,10 @@ async function go (permitJson, index = 0, log = false) {
     await PersistCrm.go(crmData)
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, `licence-crm-import: complete (${index})`)
+      calculateAndLogTimeTaken(startTime, 'licence-crm-import: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('licence-crm-import: errored', { licenceRef: permitJson?.LIC_NO, index }, error)
+    global.GlobalNotifier.omfg('licence-crm-import: errored', { licenceRef: permitJson?.LIC_NO }, error)
 
     messages.push(error.message)
   }
