@@ -64,7 +64,7 @@ async function _licences () {
         nalv."AABL_ID" = nal."ID"
         AND nalv."FGAC_REGION_CODE" = nal."FGAC_REGION_CODE"
         AND nalv."STATUS" <> 'DRAFT'
-    );
+    ) LIMIT 50;
   `)
 }
 
