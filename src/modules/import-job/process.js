@@ -24,43 +24,43 @@ async function go () {
 
     global.GlobalNotifier.omg('import-job started')
 
-    // step = await ExtractNaldDataStep.go()
-    // steps.push(step)
+    step = await ExtractNaldDataStep.go()
+    steps.push(step)
 
-    // step = await ExtractOldLinesStep.go()
-    // steps.push(step)
+    step = await ExtractOldLinesStep.go()
+    steps.push(step)
 
-    // step = await CleanStep.go()
-    // steps.push(step)
+    step = await CleanStep.go()
+    steps.push(step)
 
-    // step = await FlagDeletedDocumentsStep.go()
-    // steps.push(step)
+    step = await FlagDeletedDocumentsStep.go()
+    steps.push(step)
 
-    // step = await EndDateCheckStep.go()
-    // steps.push(step)
+    step = await EndDateCheckStep.go()
+    steps.push(step)
 
-    // step = await ReferenceDataImportStep.go()
-    // steps.push(step)
+    step = await ReferenceDataImportStep.go()
+    steps.push(step)
 
-    // step = await ReturnVersionsImport.go()
-    // steps.push(step)
+    step = await ReturnVersionsImport.go()
+    steps.push(step)
 
-    // step = await PartyCrmV2ImportStep.go()
-    // steps.push(step)
+    step = await PartyCrmV2ImportStep.go()
+    steps.push(step)
 
     step = await LicenceDataImportStep.go()
     steps.push(step)
 
-    // step = await LicencesImportStep.go()
-    // steps.push(step)
+    step = await LicencesImportStep.go()
+    steps.push(step)
 
-    // step = await LinkToModLogsStep.go()
-    // steps.push(step)
+    step = await LinkToModLogsStep.go()
+    steps.push(step)
 
-    // step = await EndDateTriggerStep.go()
-    // steps.push(step)
+    step = await EndDateTriggerStep.go()
+    steps.push(step)
 
-    // await CompletionEmail.go(steps)
+    await CompletionEmail.go(steps)
 
     calculateAndLogTimeTaken(startTime, 'import-job completed')
   } catch (error) {
