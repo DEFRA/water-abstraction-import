@@ -15,8 +15,6 @@ const db = require('../../../../src/lib/connectors/db.js')
 const Schema = require('../../../../src/modules/extract-nald-data/lib/schema.js')
 
 experiment('modules/extract-nald-data/lib/schema.js', () => {
-  const schemaName = 'test_schema'
-
   let dbStub
 
   beforeEach(async () => {
@@ -29,37 +27,19 @@ experiment('modules/extract-nald-data/lib/schema.js', () => {
 
   experiment('.dropAndCreateSchema', () => {
     test('the schema is dropped', async () => {
-      await Schema.dropAndCreateSchema(schemaName)
+      await Schema.dropAndCreateSchema()
 
       const [query] = dbStub.firstCall.args
 
-      expect(query).to.equal(`DROP SCHEMA IF EXISTS ${schemaName} CASCADE;`)
+      expect(query).to.equal('DROP SCHEMA IF EXISTS "import" CASCADE;')
     })
 
     test('the schema is re-created', async () => {
-      await Schema.dropAndCreateSchema(schemaName)
+      await Schema.dropAndCreateSchema()
 
       const [query] = dbStub.secondCall.args
 
-      expect(query).to.equal(`CREATE SCHEMA IF NOT EXISTS ${schemaName};`)
-    })
-  })
-
-  experiment('.swapTemporarySchema', () => {
-    test('the schema is dropped', async () => {
-      await Schema.swapTemporarySchema()
-
-      const [query] = dbStub.firstCall.args
-
-      expect(query).to.equal('DROP SCHEMA IF EXISTS import CASCADE;')
-    })
-
-    test('the schema is re-created', async () => {
-      await Schema.swapTemporarySchema()
-
-      const [query] = dbStub.secondCall.args
-
-      expect(query).to.equal('ALTER SCHEMA import_temp RENAME TO import;')
+      expect(query).to.equal('CREATE SCHEMA IF NOT EXISTS "import";')
     })
   })
 })

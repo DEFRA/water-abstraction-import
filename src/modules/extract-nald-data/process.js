@@ -26,14 +26,11 @@ async function go (log = false) {
     // extracting files from zip
     await Zip.extract()
 
-    // create import_temp schema
-    await Schema.dropAndCreateSchema('import_temp')
+    // drop existing tables by dropping the schema and recreating it
+    await Schema.dropAndCreateSchema()
 
     // importing CSV files
-    await LoadCsv.importFiles('import_temp')
-
-    // swapping schema from import_temp to import
-    await Schema.swapTemporarySchema()
+    await LoadCsv.importFiles()
 
     // cleaning up local files
     await _prepare()

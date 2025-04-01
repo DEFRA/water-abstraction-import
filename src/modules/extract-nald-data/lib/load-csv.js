@@ -71,21 +71,20 @@ const intersection = (arr, ...args) => {
 
 /**
  * Gets SQL for indexes to add to the supplied table
- * @param {String} schemaName
  * @param {String} table
  * @param {Array<String>} cols
  * @return {String}
  */
-const getIndexes = (schemaName, table, cols) => {
+const getIndexes = (table, cols) => {
   const indexableFields = intersection(indexableFieldsList, cols)
   if (table === 'NALD_RET_LINES') {
     // NALD_RET_LINES is large so more care is required when creating indexes which can take a long time to create
-    return `\nCREATE INDEX idx_nald_ret_lines_id_and_region ON ${schemaName}."NALD_RET_LINES" ("ARFL_ARTY_ID", "FGAC_REGION_CODE");`
+    return '\nCREATE INDEX idx_nald_ret_lines_id_and_region ON "import"."NALD_RET_LINES" ("ARFL_ARTY_ID", "FGAC_REGION_CODE");'
   } else {
     let str = ''
     for (const field of indexableFields) {
       const indexName = `${table}_${field}_index`
-      str += `\nCREATE INDEX "${indexName}" ON ${schemaName}."${table}" ("${field}");`
+      str += `\nCREATE INDEX "${indexName}" ON "import"."${table}" ("${field}");`
     }
     return str
   }
@@ -96,13 +95,13 @@ const getIndexes = (schemaName, table, cols) => {
  * @param {String} file - the CSV file to import
  * @return {String} the SQL statements to import the CSV file
  */
-async function getSqlForFile (file, schemaName) {
+async function getSqlForFile (file) {
   const table = file.split('.')[0]
   const tablePath = path.join(FINAL_PATH, `${table}.txt`)
   const line = await readFirstLine(tablePath)
   const cols = line.split(',')
 
-  let tableCreate = `\n CREATE TABLE if not exists ${schemaName}."${table}" (`
+  let tableCreate = `\n CREATE TABLE if not exists "import"."${table}" (`
 
   for (let col = 0; col < cols.length; col++) {
     tableCreate += `"${cols[col]}" varchar`
@@ -113,23 +112,18 @@ async function getSqlForFile (file, schemaName) {
     }
   }
 
-  tableCreate += `\n \\copy ${schemaName}."${table}" FROM '${FINAL_PATH}/${file}' HEADER DELIMITER ',' CSV;`
-  tableCreate += getIndexes(schemaName, table, cols)
+  tableCreate += `\n \\copy "import"."${table}" FROM '${FINAL_PATH}/${file}' HEADER DELIMITER ',' CSV;`
+  tableCreate += getIndexes(table, cols)
 
   return tableCreate
 }
 
-/**
- * Imports a single CSV file
- * @param {String} the CSV filename
- * @return {Promise}
- */
-async function importFiles (schemaName) {
+async function importFiles () {
   const files = await getImportFiles()
   const sqlPath = path.join(FINAL_PATH, 'sql.sql')
 
   for (const file of files) {
-    const sql = await getSqlForFile(file, schemaName)
+    const sql = await getSqlForFile(file)
 
     await writeFile(sqlPath, sql)
     await execCommand(`psql ${config.pg.connectionString} < ${sqlPath}`)
