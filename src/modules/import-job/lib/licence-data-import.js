@@ -20,7 +20,7 @@ async function go () {
 
   const startTime = currentTimeInNanoseconds()
 
-  step.messages = await _process()
+  step.messages = await _pmapProcess()
 
   const { timeTakenSs } = durations(startTime)
 
@@ -82,6 +82,20 @@ function _logMessages (results, index, licence, messages) {
   }
 }
 
+async function _pmapProcess () {
+  const pMap = (await import('p-map')).default
+
+  const licences = await _licences()
+
+  const allMessages = await pMap(licences, _processLicence.go, { concurrency: 10 })
+
+  if (config.featureFlags.disableReturnsImports) {
+    allMessages.push('Skipped licence-returns-import because importing returns is disabled')
+  }
+
+  return allMessages.flat()
+}
+
 async function _process () {
   const licences = await _licences()
   const messages = []
@@ -110,7 +124,7 @@ async function _process () {
   return messages
 }
 
-async function _processLicence (index, licence) {
+async function _processLicence (licence) {
   const messages = []
 
   let processMessages
@@ -118,19 +132,19 @@ async function _processLicence (index, licence) {
   try {
     const permitJson = await PermitJson.go(licence)
 
-    processMessages = await LicencePermitImportProcess.go(permitJson, index, false)
+    processMessages = await LicencePermitImportProcess.go(permitJson, 0, false)
     messages.push(processMessages)
 
-    processMessages = await LicenceCrmV2ImportProcess.go(permitJson, index, false)
+    processMessages = await LicenceCrmV2ImportProcess.go(permitJson, 0, false)
     messages.push(processMessages)
 
-    processMessages = await LicenceNoStartDateImportProcess.go(permitJson, index, false)
+    processMessages = await LicenceNoStartDateImportProcess.go(permitJson, 0, false)
     messages.push(processMessages)
 
-    processMessages = await _licenceReturnsImport(licence, index)
+    processMessages = await _licenceReturnsImport(licence, 0)
     messages.push(processMessages)
 
-    processMessages = await LicenceCrmImportProcess.go(permitJson, index, false)
+    processMessages = await LicenceCrmImportProcess.go(permitJson, 0, false)
     messages.push(processMessages)
 
     // const results = await Promise.allSettled([
