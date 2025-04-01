@@ -90,10 +90,21 @@ async function _process () {
     messages.push('Skipped licence-returns-import because importing returns is disabled')
   }
 
+  let progress = 0
+
   for (const [index, licence] of licences.entries()) {
+    progress += 1
+
     const licenceMessages = await _processLicence(index, licence)
 
     messages.push(...licenceMessages)
+
+    if (progress % 1000 === 0) {
+      global.GlobalNotifier.omg(
+        `import-job.${STEP_NAME}: progress (${progress} of ${licences.length})`,
+        { lastLicence: licence.LIC_NO }
+      )
+    }
   }
 
   return messages
