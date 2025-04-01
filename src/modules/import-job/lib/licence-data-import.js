@@ -161,9 +161,9 @@ async function _processLicence (licence) {
     const crmMessages = await LicenceCrmImportProcess.go(permitJson, 0, false)
 
     messages.push(...crmMessages)
-  } catch (error) {
-    global.GlobalNotifier.omg(`import-job.${STEP_NAME}: errored`, { licence, error })
-    messages.push(error.message)
+  } catch (err) {
+    global.GlobalNotifier.omg(`import-job.${STEP_NAME}: errored`, { licence, err })
+    messages.push(err.message)
   }
 
   return messages
