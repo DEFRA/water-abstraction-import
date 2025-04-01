@@ -20,7 +20,7 @@ async function go () {
 
   const startTime = currentTimeInNanoseconds()
 
-  step.messages = await _pmapProcess()
+  step.messages = await _process()
 
   const { timeTakenSs } = durations(startTime)
 
@@ -29,24 +29,6 @@ async function go () {
   global.GlobalNotifier.omg(`import-job.${STEP_NAME}: completed`)
 
   return step
-}
-
-/**
- * We need to pass LicenceReturnsImportProcess to the Promise.allSettled() in _process() but only if importing returns
- * is not disabled.
- *
- * So, because whether it gets called is dynamic, we have to wrap the actual call in this function. If importing returns
- * is enabled then the final result will be the messages `LicenceReturnsImportProcess.go()` spits out. Else it will be
- * an empty array.
- *
- * @private
- */
-async function _licenceReturnsImport (licence, index) {
-  if (config.featureFlags.disableReturnsImports) {
-    return []
-  }
-
-  return LicenceReturnsImportProcess.go(licence, index, false)
 }
 
 async function _licences () {
@@ -64,25 +46,11 @@ async function _licences () {
         nalv."AABL_ID" = nal."ID"
         AND nalv."FGAC_REGION_CODE" = nal."FGAC_REGION_CODE"
         AND nalv."STATUS" <> 'DRAFT'
-    ) LIMIT 1000;
+    );
   `)
 }
 
-function _logMessages (results, index, licence, messages) {
-  for (const result of results) {
-    if (result.status === 'rejected') {
-      global.GlobalNotifier.omg(`${STEP_NAME}: errored`, { index, licence, result })
-
-      messages.push(`${licence.LIC_NO} errored: ${result.message}`)
-
-      continue
-    }
-
-    messages.push(...result.value)
-  }
-}
-
-async function _pmapProcess () {
+async function _process () {
   const pMap = (await import('p-map')).default
 
   const licences = await _licences()
@@ -96,34 +64,6 @@ async function _pmapProcess () {
   return allMessages.flat()
 }
 
-async function _process () {
-  const licences = await _licences()
-  const messages = []
-
-  if (config.featureFlags.disableReturnsImports) {
-    messages.push('Skipped licence-returns-import because importing returns is disabled')
-  }
-
-  let progress = 0
-
-  for (const [index, licence] of licences.entries()) {
-    progress += 1
-
-    const licenceMessages = await _processLicence(index, licence)
-
-    messages.push(...licenceMessages)
-
-    if (progress % 1000 === 0) {
-      global.GlobalNotifier.omg(
-        `import-job.${STEP_NAME}: progress (${progress} of ${licences.length})`,
-        { lastLicence: licence.LIC_NO }
-      )
-    }
-  }
-
-  return messages
-}
-
 async function _processLicence (licence) {
   const messages = []
 
@@ -132,35 +72,22 @@ async function _processLicence (licence) {
   try {
     const permitJson = await PermitJson.go(licence)
 
-    // processMessages = await LicencePermitImportProcess.go(permitJson, 0, false)
-    // messages.push(processMessages)
+    processMessages = await LicencePermitImportProcess.go(permitJson, false)
+    messages.push(processMessages)
 
-    // processMessages = await LicenceCrmV2ImportProcess.go(permitJson, 0, false)
-    // messages.push(processMessages)
+    processMessages = await LicenceCrmV2ImportProcess.go(permitJson, false)
+    messages.push(processMessages)
 
-    // processMessages = await LicenceNoStartDateImportProcess.go(permitJson, 0, false)
-    // messages.push(processMessages)
+    processMessages = await LicenceNoStartDateImportProcess.go(permitJson, false)
+    messages.push(processMessages)
 
-    // processMessages = await _licenceReturnsImport(licence, 0)
-    // messages.push(processMessages)
+    processMessages = await LicenceCrmImportProcess.go(permitJson, false)
+    messages.push(processMessages)
 
-    // processMessages = await LicenceCrmImportProcess.go(permitJson, 0, false)
-    // messages.push(processMessages)
-
-    const results = await Promise.allSettled([
-      LicencePermitImportProcess.go(permitJson, 0, false),
-      LicenceCrmV2ImportProcess.go(permitJson, 0, false),
-      LicenceNoStartDateImportProcess.go(permitJson, 0, false),
-      _licenceReturnsImport(licence, 0)
-    ])
-
-    _logMessages(results, 0, licence, messages)
-
-    // This has to be persisted after LicencePermitImportProcess completes, because it depends on the `permit.licence`
-    // record having been created for new licences
-    const crmMessages = await LicenceCrmImportProcess.go(permitJson, 0, false)
-
-    messages.push(...crmMessages)
+    if (!config.featureFlags.disableReturnsImports) {
+      processMessages = LicenceReturnsImportProcess.go(licence, false)
+      messages.push(processMessages)
+    }
   } catch (err) {
     global.GlobalNotifier.omg(`import-job.${STEP_NAME}: errored`, { licence, err })
     messages.push(err.message)
