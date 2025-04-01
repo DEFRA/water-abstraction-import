@@ -3,7 +3,7 @@
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const PersistPermit = require('./lib/persist-permit.js')
 
-async function go (permitJson, index = 0, log = false) {
+async function go (permitJson, log = false) {
   const messages = []
 
   try {
@@ -19,10 +19,10 @@ async function go (permitJson, index = 0, log = false) {
     await PersistPermit.go(permitJson)
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, `licence-permit-import: complete (${index})`)
+      calculateAndLogTimeTaken(startTime, 'licence-permit-import: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('licence-permit-import: errored', { licenceRef: permitJson?.LIC_NO, index }, error)
+    global.GlobalNotifier.omfg('licence-permit-import: errored', { licenceRef: permitJson?.LIC_NO }, error)
 
     messages.push(error.message)
   }

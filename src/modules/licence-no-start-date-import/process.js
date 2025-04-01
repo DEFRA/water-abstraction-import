@@ -16,7 +16,7 @@ const REGIONS = {
   YO: 'Yorkshire'
 }
 
-async function go (permitJson, index = 0, log = false) {
+async function go (permitJson, log = false) {
   const messages = []
 
   try {
@@ -45,10 +45,10 @@ async function go (permitJson, index = 0, log = false) {
     await _persistLicence(licence)
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, `licence-no-start-date-import: complete (${index})`)
+      calculateAndLogTimeTaken(startTime, 'licence-no-start-date-import: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('licence-no-start-date-import: errored', { licenceRef: permitJson?.LIC_NO, index }, error)
+    global.GlobalNotifier.omfg('licence-no-start-date-import: errored', { licenceRef: permitJson?.LIC_NO }, error)
 
     messages.push(error.message)
   }
