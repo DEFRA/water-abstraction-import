@@ -87,7 +87,7 @@ async function _pmapProcess () {
 
   const licences = await _licences()
 
-  const allMessages = await pMap(licences, _processLicence, { concurrency: 20 })
+  const allMessages = await pMap(licences, _processLicence, { concurrency: 50 })
 
   if (config.featureFlags.disableReturnsImports) {
     allMessages.push('Skipped licence-returns-import because importing returns is disabled')
