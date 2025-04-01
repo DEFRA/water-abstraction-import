@@ -113,23 +113,40 @@ async function _process () {
 async function _processLicence (index, licence) {
   const messages = []
 
+  let processMessages
+
   try {
     const permitJson = await PermitJson.go(licence)
 
-    const results = await Promise.allSettled([
-      LicencePermitImportProcess.go(permitJson, index, false),
-      LicenceCrmV2ImportProcess.go(permitJson, index, false),
-      LicenceNoStartDateImportProcess.go(permitJson, index, false),
-      _licenceReturnsImport(licence, index)
-    ])
+    processMessages = await LicencePermitImportProcess.go(permitJson, index, false)
+    messages.push(processMessages)
 
-    _logMessages(results, index, licence, messages)
+    processMessages = await LicenceCrmV2ImportProcess.go(permitJson, index, false)
+    messages.push(processMessages)
 
-    // This has to be persisted after LicencePermitImportProcess completes, because it depends on the `permit.licence`
-    // record having been created for new licences
-    const crmMessages = await LicenceCrmImportProcess.go(permitJson, index, false)
+    processMessages = await LicenceNoStartDateImportProcess.go(permitJson, index, false)
+    messages.push(processMessages)
 
-    messages.push(...crmMessages)
+    processMessages = await _licenceReturnsImport(licence, index)
+    messages.push(processMessages)
+
+    processMessages = await LicenceCrmImportProcess.go(permitJson, index, false)
+    messages.push(processMessages)
+
+    // const results = await Promise.allSettled([
+    //   LicencePermitImportProcess.go(permitJson, index, false),
+    //   LicenceCrmV2ImportProcess.go(permitJson, index, false),
+    //   LicenceNoStartDateImportProcess.go(permitJson, index, false),
+    //   _licenceReturnsImport(licence, index)
+    // ])
+
+    // _logMessages(results, index, licence, messages)
+
+    // // This has to be persisted after LicencePermitImportProcess completes, because it depends on the `permit.licence`
+    // // record having been created for new licences
+    // const crmMessages = await LicenceCrmImportProcess.go(permitJson, index, false)
+
+    // messages.push(...crmMessages)
   } catch (error) {
     global.GlobalNotifier.omg(`import-job.${STEP_NAME}: errored`, { licence, error })
     messages.push(error.message)
