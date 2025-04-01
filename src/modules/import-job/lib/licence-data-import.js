@@ -148,17 +148,17 @@ async function _processLicence (licence) {
     // messages.push(processMessages)
 
     const results = await Promise.allSettled([
-      LicencePermitImportProcess.go(permitJson, index, false),
-      LicenceCrmV2ImportProcess.go(permitJson, index, false),
-      LicenceNoStartDateImportProcess.go(permitJson, index, false),
-      _licenceReturnsImport(licence, index)
+      LicencePermitImportProcess.go(permitJson, 0, false),
+      LicenceCrmV2ImportProcess.go(permitJson, 0, false),
+      LicenceNoStartDateImportProcess.go(permitJson, 0, false),
+      _licenceReturnsImport(licence, 0)
     ])
 
-    _logMessages(results, index, licence, messages)
+    _logMessages(results, 0, licence, messages)
 
     // This has to be persisted after LicencePermitImportProcess completes, because it depends on the `permit.licence`
     // record having been created for new licences
-    const crmMessages = await LicenceCrmImportProcess.go(permitJson, index, false)
+    const crmMessages = await LicenceCrmImportProcess.go(permitJson, 0, false)
 
     messages.push(...crmMessages)
   } catch (error) {
