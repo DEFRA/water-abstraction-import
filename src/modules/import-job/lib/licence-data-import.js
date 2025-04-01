@@ -87,7 +87,7 @@ async function _pmapProcess () {
 
   const licences = await _licences()
 
-  const allMessages = await pMap(licences, _processLicence, { concurrency: 50 })
+  const allMessages = await pMap(licences, _processLicence, { concurrency: 10 })
 
   if (config.featureFlags.disableReturnsImports) {
     allMessages.push('Skipped licence-returns-import because importing returns is disabled')
@@ -132,35 +132,35 @@ async function _processLicence (licence) {
   try {
     const permitJson = await PermitJson.go(licence)
 
-    processMessages = await LicencePermitImportProcess.go(permitJson, 0, false)
-    messages.push(processMessages)
+    // processMessages = await LicencePermitImportProcess.go(permitJson, 0, false)
+    // messages.push(processMessages)
 
-    processMessages = await LicenceCrmV2ImportProcess.go(permitJson, 0, false)
-    messages.push(processMessages)
+    // processMessages = await LicenceCrmV2ImportProcess.go(permitJson, 0, false)
+    // messages.push(processMessages)
 
-    processMessages = await LicenceNoStartDateImportProcess.go(permitJson, 0, false)
-    messages.push(processMessages)
+    // processMessages = await LicenceNoStartDateImportProcess.go(permitJson, 0, false)
+    // messages.push(processMessages)
 
-    processMessages = await _licenceReturnsImport(licence, 0)
-    messages.push(processMessages)
+    // processMessages = await _licenceReturnsImport(licence, 0)
+    // messages.push(processMessages)
 
-    processMessages = await LicenceCrmImportProcess.go(permitJson, 0, false)
-    messages.push(processMessages)
+    // processMessages = await LicenceCrmImportProcess.go(permitJson, 0, false)
+    // messages.push(processMessages)
 
-    // const results = await Promise.allSettled([
-    //   LicencePermitImportProcess.go(permitJson, index, false),
-    //   LicenceCrmV2ImportProcess.go(permitJson, index, false),
-    //   LicenceNoStartDateImportProcess.go(permitJson, index, false),
-    //   _licenceReturnsImport(licence, index)
-    // ])
+    const results = await Promise.allSettled([
+      LicencePermitImportProcess.go(permitJson, index, false),
+      LicenceCrmV2ImportProcess.go(permitJson, index, false),
+      LicenceNoStartDateImportProcess.go(permitJson, index, false),
+      _licenceReturnsImport(licence, index)
+    ])
 
-    // _logMessages(results, index, licence, messages)
+    _logMessages(results, index, licence, messages)
 
-    // // This has to be persisted after LicencePermitImportProcess completes, because it depends on the `permit.licence`
-    // // record having been created for new licences
-    // const crmMessages = await LicenceCrmImportProcess.go(permitJson, index, false)
+    // This has to be persisted after LicencePermitImportProcess completes, because it depends on the `permit.licence`
+    // record having been created for new licences
+    const crmMessages = await LicenceCrmImportProcess.go(permitJson, index, false)
 
-    // messages.push(...crmMessages)
+    messages.push(...crmMessages)
   } catch (error) {
     global.GlobalNotifier.omg(`import-job.${STEP_NAME}: errored`, { licence, error })
     messages.push(error.message)
