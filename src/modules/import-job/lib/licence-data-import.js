@@ -85,7 +85,7 @@ async function _processLicence (licence) {
     messages.push(processMessages)
 
     if (!config.featureFlags.disableReturnsImports) {
-      processMessages = LicenceReturnsImportProcess.go(licence, false)
+      processMessages = await LicenceReturnsImportProcess.go(licence, false)
       messages.push(processMessages)
     }
   } catch (err) {
