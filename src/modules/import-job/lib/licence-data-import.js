@@ -31,9 +31,21 @@ async function go () {
   return step
 }
 
+function _displayProgress (licence) {
+  const { LIC_NO, row_index: rowIndex } = licence
+
+  if (rowIndex % 1000 === 0) {
+    global.GlobalNotifier.omg(
+      `import-job.${STEP_NAME}: progress (${rowIndex})`,
+      { lastLicence: LIC_NO }
+    )
+  }
+}
+
 async function _licences () {
   return db.query(`
     SELECT
+      row_number() over() AS row_index,
       nal.*
     FROM
       "import"."NALD_ABS_LICENCES" nal
@@ -88,6 +100,8 @@ async function _processLicence (licence) {
       processMessages = await LicenceReturnsImportProcess.go(licence, false)
       messages.push(processMessages)
     }
+
+    _displayProgress(licence)
   } catch (err) {
     global.GlobalNotifier.omg(`import-job.${STEP_NAME}: errored`, { licence, err })
     messages.push(err.message)
