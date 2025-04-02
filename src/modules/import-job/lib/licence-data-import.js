@@ -85,20 +85,20 @@ async function _processLicence (licence) {
     const permitJson = await PermitJson.go(licence)
 
     processMessages = await LicencePermitImportProcess.go(permitJson, false)
-    messages.push(processMessages)
+    messages.push(...processMessages)
 
     processMessages = await LicenceCrmV2ImportProcess.go(permitJson, false)
-    messages.push(processMessages)
+    messages.push(...processMessages)
 
     processMessages = await LicenceNoStartDateImportProcess.go(permitJson, false)
-    messages.push(processMessages)
+    messages.push(...processMessages)
 
     processMessages = await LicenceCrmImportProcess.go(permitJson, false)
-    messages.push(processMessages)
+    messages.push(...processMessages)
 
     if (!config.featureFlags.disableReturnsImports) {
       processMessages = await LicenceReturnsImportProcess.go(licence, false)
-      messages.push(processMessages)
+      messages.push(...processMessages)
     }
 
     _displayProgress(licence)
