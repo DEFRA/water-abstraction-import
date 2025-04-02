@@ -32,11 +32,11 @@ async function go () {
 }
 
 function _displayProgress (licence) {
-  const { LIC_NO, row_index } = licence
+  const { LIC_NO, row_index: rowIndex } = licence
 
-  if (row_index % 1000 === 0) {
+  if (rowIndex % 1000 === 0) {
     global.GlobalNotifier.omg(
-      `import-job.${STEP_NAME}: progress (${row_index})`,
+      `import-job.${STEP_NAME}: progress (${rowIndex})`,
       { lastLicence: LIC_NO }
     )
   }
