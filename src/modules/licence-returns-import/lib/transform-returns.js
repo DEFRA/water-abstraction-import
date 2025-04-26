@@ -96,7 +96,11 @@ async function _naldLogs (formatId, regionCode) {
       (CASE
         WHEN l."RECD_DATE" = 'null' THEN NULL
         ELSE to_date(l."RECD_DATE", 'DD/MM/YYYY')
-      END) AS received_date
+      END) AS received_date,
+      (CASE
+        WHEN l."SENT_DATE" = 'null' THEN NULL
+        ELSE to_date(l."SENT_DATE", 'DD/MM/YYYY')
+      END) AS sent_date
     FROM
       "import"."NALD_RET_FORM_LOGS" l
     WHERE
@@ -188,24 +192,26 @@ async function _returnLog (cycle, naldLogs, licenceRef, format) {
 
   const returnId = getReturnId(format.FGAC_REGION_CODE, licenceRef, format.ID, startDate, endDate)
   const receivedDate = helpers.mapReceivedDate(naldLogs)
+  const sentDate = helpers.mapSentDate(naldLogs)
   const status = helpers.getStatus(receivedDate)
   const dueDate = await DueDate.go(endDate, format)
   const metadata = await _metadata(cycle, format)
 
   return {
-    return_id: returnId,
-    regime: 'water',
-    licence_type: 'abstraction',
-    licence_ref: licenceRef,
-    start_date: startDate,
-    end_date: endDate,
     due_date: dueDate,
-    returns_frequency: helpers.mapPeriod(format.ARTC_REC_FREQ_CODE),
-    status,
-    source: 'NALD',
+    end_date: endDate,
+    licence_ref: licenceRef,
+    licence_type: 'abstraction',
     metadata,
     received_date: receivedDate,
-    return_requirement: format.ID
+    regime: 'water',
+    return_id: returnId,
+    return_requirement: format.ID,
+    returns_frequency: helpers.mapPeriod(format.ARTC_REC_FREQ_CODE),
+    sent_date: sentDate,
+    source: 'NALD',
+    start_date: startDate,
+    status
   }
 }
 
