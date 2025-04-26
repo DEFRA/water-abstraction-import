@@ -16,19 +16,20 @@ const PersistReturns = require('../../../../src/modules/licence-returns-import/l
 
 experiment('modules/licence-returns-import/lib/persist-returns', () => {
   const naldReturn = {
-    return_id: 'v1:123:456',
-    regime: 'water',
-    licence_type: 'abstraction',
-    licence_ref: '01/234/567',
-    start_date: '2016-11-01',
+    due_date: '2017-11-28',
     end_date: '2017-10-31',
-    returns_frequency: 'month',
-    status: 'completed',
-    source: 'NALD',
+    licence_ref: '01/234/567',
+    licence_type: 'abstraction',
     metadata: JSON.stringify({ param: 'value', version: '1' }),
     received_date: '2017-11-24',
+    regime: 'water',
+    return_id: 'v1:123:456',
     return_requirement: '012345',
-    due_date: '2017-11-28'
+    returns_frequency: 'month',
+    sent_date: '2017-11-01',
+    source: 'NALD',
+    start_date: '2016-11-01',
+    status: 'completed'
   }
 
   afterEach(() => {
@@ -60,6 +61,7 @@ experiment('modules/licence-returns-import/lib/persist-returns', () => {
         'v1:123:456',
         '012345',
         'month',
+        '2017-11-01',
         'NALD',
         '2016-11-01',
         'completed',
@@ -75,7 +77,7 @@ experiment('modules/licence-returns-import/lib/persist-returns', () => {
         .onSecondCall().resolves()
     })
 
-    test("updates the return log's 'due_date', 'metadata', 'received_date', 'returns_frequency', and 'status'", async () => {
+    test("updates the return log's 'due_date', 'metadata', 'received_date', 'returns_frequency', 'sent_date', and 'status'", async () => {
       await PersistReturns.go([naldReturn], false)
 
       const params = db.query.secondCall.args[1]
@@ -86,6 +88,7 @@ experiment('modules/licence-returns-import/lib/persist-returns', () => {
         '{"param":"value","version":"1"}',
         '2017-11-24',
         'month',
+        '2017-11-01',
         'completed',
         'v1:123:456'
       ])
