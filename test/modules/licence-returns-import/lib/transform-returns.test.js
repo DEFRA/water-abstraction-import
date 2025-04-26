@@ -95,7 +95,7 @@ experiment('modules/licence-returns-import/lib/transform-returns.js', () => {
       beforeEach(() => {
         // Stubbing call to _naldLogs()
         dbStub.onCall(2).resolves([
-          { start_date: '2023-08-01', end_date: '2024-03-31', received_date: null }
+          { start_date: '2023-08-01', end_date: '2024-03-31', received_date: null, sent_date: '2024-04-01' }
         ])
       })
 
@@ -104,19 +104,20 @@ experiment('modules/licence-returns-import/lib/transform-returns.js', () => {
 
         expect(results).to.equal([
           {
-            return_id: 'v1:3:01/123:10061242:2023-08-17:2024-03-31',
-            regime: 'water',
-            licence_type: 'abstraction',
-            licence_ref: '01/123',
-            start_date: '2023-08-17',
-            end_date: '2024-03-31',
             due_date: '2024-04-28',
-            returns_frequency: 'month',
-            status: 'due',
-            source: 'NALD',
+            end_date: '2024-03-31',
+            licence_ref: '01/123',
+            licence_type: 'abstraction',
             metadata: '{"version":1,"description":"CATCH-PIT AT PLACE, TOWN, COUNTY","purposes":[{"primary":{"code":"C","description":"Crown And Government"},"secondary":{"code":"CRW","description":"Crown - Other"},"tertiary":{"code":"320","description":"Pollution Remediation"}}],"points":[{"ngr1":"NY 766 450","ngr2":null,"ngr3":null,"ngr4":null,"name":"CATCH-PIT AT NENT HAGGS ADIT, NENTSBERRY, CUMBRIA"}],"nald":{"regionCode":3,"areaCode":"NAREA","formatId":10061242,"periodStartDay":"1","periodStartMonth":"1","periodEndDay":"31","periodEndMonth":"12"},"isTwoPartTariff":false,"isSummer":false,"isUpload":false,"isCurrent":true,"isFinal":false}',
             received_date: null,
-            return_requirement: '10061242'
+            regime: 'water',
+            return_id: 'v1:3:01/123:10061242:2023-08-17:2024-03-31',
+            return_requirement: '10061242',
+            returns_frequency: 'month',
+            sent_date: '2024-04-01',
+            source: 'NALD',
+            start_date: '2023-08-17',
+            status: 'due'
           }
         ])
       })

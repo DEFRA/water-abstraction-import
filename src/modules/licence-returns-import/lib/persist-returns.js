@@ -55,6 +55,7 @@ async function _create (row, returnCycleId) {
     row.return_id,
     row.return_requirement,
     row.returns_frequency,
+    row.sent_date,
     row.source,
     row.start_date,
     row.status,
@@ -73,6 +74,7 @@ async function _create (row, returnCycleId) {
       return_id,
       return_requirement,
       returns_frequency,
+      sent_date,
       "source",
       start_date,
       status,
@@ -80,7 +82,7 @@ async function _create (row, returnCycleId) {
       created_at,
       updated_at
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, now(), now());
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, now(), now());
   `
 
   await db.query(query, params)
@@ -176,7 +178,7 @@ async function _returnDataExists (returnId) {
 }
 
 async function _update (row) {
-  const params = [row.due_date, row.metadata, row.received_date, row.returns_frequency, row.status, row.return_id]
+  const params = [row.due_date, row.metadata, row.received_date, row.returns_frequency, row.sent_date, row.status, row.return_id]
 
   const query = `
     UPDATE "returns"."returns" SET
@@ -184,9 +186,10 @@ async function _update (row) {
       metadata = $2,
       received_date = $3,
       returns_frequency = $4,
-      status = $5,
+      sent_date = $5,
+      status = $6,
       updated_at = now()
-    WHERE return_id=$6;
+    WHERE return_id=$7;
   `
 
   await db.query(query, params)

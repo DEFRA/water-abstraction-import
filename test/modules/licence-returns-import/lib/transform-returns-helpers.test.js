@@ -715,4 +715,21 @@ experiment('modules/licence-returns-import/lib/transform-returns-helpers', () =>
       expect(TransformReturnsHelpers.mapReceivedDate(logs)).to.equal('25/12/2017')
     })
   })
+
+  experiment('.mapSentDate', () => {
+    test('with no logs', async () => {
+      const logs = []
+      expect(TransformReturnsHelpers.mapSentDate(logs)).to.equal(null)
+    })
+
+    test('with a null value', async () => {
+      const logs = [{ sent_date: '01/01/2017' }, { sent_date: null }]
+      expect(TransformReturnsHelpers.mapSentDate(logs)).to.equal(null)
+    })
+
+    test('with valid dates', async () => {
+      const logs = [{ sent_date: '04/01/2017' }, { sent_date: '25/12/2017' }]
+      expect(TransformReturnsHelpers.mapSentDate(logs)).to.equal('25/12/2017')
+    })
+  })
 })
