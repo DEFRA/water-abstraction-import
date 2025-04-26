@@ -14,7 +14,7 @@ moment.locale('en-gb')
 // Thing under test
 const TransformReturnsHelpers = require('../../../../src/modules/licence-returns-import/lib/transform-returns-helpers.js')
 
-experiment('modules/licence-returns-import/lib/transform-returns-helpers', () => {
+experiment.only('modules/licence-returns-import/lib/transform-returns-helpers', () => {
   experiment('.addDate', () => {
     test('add a date if within range', async () => {
       expect(TransformReturnsHelpers.addDate([], '2018-12-01', '2018-01-01', '2018-12-31')).to.equal(['2018-12-01'])
@@ -713,6 +713,23 @@ experiment('modules/licence-returns-import/lib/transform-returns-helpers', () =>
     test('with valid dates', async () => {
       const logs = [{ received_date: '04/01/2017' }, { received_date: '25/12/2017' }]
       expect(TransformReturnsHelpers.mapReceivedDate(logs)).to.equal('25/12/2017')
+    })
+  })
+
+  experiment('.mapSentDate', () => {
+    test('with no logs', async () => {
+      const logs = []
+      expect(TransformReturnsHelpers.mapSentDate(logs)).to.equal(null)
+    })
+
+    test('with a null value', async () => {
+      const logs = [{ sent_date: '01/01/2017' }, { sent_date: null }]
+      expect(TransformReturnsHelpers.mapSentDate(logs)).to.equal(null)
+    })
+
+    test('with valid dates', async () => {
+      const logs = [{ sent_date: '04/01/2017' }, { sent_date: '25/12/2017' }]
+      expect(TransformReturnsHelpers.mapSentDate(logs)).to.equal('25/12/2017')
     })
   })
 })

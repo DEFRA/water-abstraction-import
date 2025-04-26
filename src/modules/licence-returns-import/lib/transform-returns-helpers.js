@@ -248,6 +248,23 @@ const mapReceivedDate = (logs) => {
   return logs[logs.length - 1].received_date
 }
 
+
+const mapSentDate = (logs) => {
+  if (logs.length === 0) {
+    return null
+  }
+
+  const unsentLog = logs.some((log) => {
+    return !log.sent_date
+  })
+
+  if (unsentLog) {
+    return null
+  }
+
+  return logs[logs.length - 1].sent_date
+}
+
 /**
  * A sort comparator that will sort moment dates in ascending order
  *
@@ -323,5 +340,6 @@ module.exports = {
   getStatus,
   mapPeriod,
   mapProductionMonth,
-  mapReceivedDate
+  mapReceivedDate,
+  mapSentDate
 }
