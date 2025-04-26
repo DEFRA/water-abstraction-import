@@ -14,7 +14,7 @@ moment.locale('en-gb')
 // Thing under test
 const TransformReturnsHelpers = require('../../../../src/modules/licence-returns-import/lib/transform-returns-helpers.js')
 
-experiment.only('modules/licence-returns-import/lib/transform-returns-helpers', () => {
+experiment('modules/licence-returns-import/lib/transform-returns-helpers', () => {
   experiment('.addDate', () => {
     test('add a date if within range', async () => {
       expect(TransformReturnsHelpers.addDate([], '2018-12-01', '2018-01-01', '2018-12-31')).to.equal(['2018-12-01'])
