@@ -248,7 +248,6 @@ const mapReceivedDate = (logs) => {
   return logs[logs.length - 1].received_date
 }
 
-
 const mapSentDate = (logs) => {
   if (logs.length === 0) {
     return null
