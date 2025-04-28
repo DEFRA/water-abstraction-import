@@ -8,10 +8,16 @@ const LicenceNoStartDateImportProcess = require('../../licence-no-start-date-imp
 const LicencePermitImportProcess = require('../../licence-permit-import/process.js')
 const LicenceReturnsImportProcess = require('../../licence-returns-import/process.js')
 const PermitJson = require('../../../lib/permit-json/permit-json.js')
+const ReturnCycleHelpers = require('../../licence-returns-import/lib/return-cycle-helpers.js')
 
 const config = require('../../../../config.js')
 
 const STEP_NAME = 'licence-data-import'
+
+// We have to make this a variable at the top level of the module because we need to instantiate it before we start
+// processing each licence in `process()`, but have it available when we call `_processLicence()`. pMap doesn't allow
+// us to provide any arguments other than the thing being iterated.
+let licenceDataImportReturnCycles
 
 async function go () {
   global.GlobalNotifier.omg(`import-job.${STEP_NAME}: started`)
@@ -67,6 +73,10 @@ async function _process () {
 
   const licences = await _licences()
 
+  if (!config.featureFlags.disableReturnsImports) {
+    licenceDataImportReturnCycles = await ReturnCycleHelpers.fetch()
+  }
+
   const allMessages = await pMap(licences, _processLicence, { concurrency: 5 })
 
   if (config.featureFlags.disableReturnsImports) {
@@ -97,7 +107,7 @@ async function _processLicence (licence) {
     messages.push(...processMessages)
 
     if (!config.featureFlags.disableReturnsImports) {
-      processMessages = await LicenceReturnsImportProcess.go(licence, false)
+      processMessages = await LicenceReturnsImportProcess.go(licence, licenceDataImportReturnCycles, false)
       messages.push(...processMessages)
     }
 

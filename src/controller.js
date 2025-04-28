@@ -151,7 +151,7 @@ async function licenceReturnsImport (request, h) {
   const query = 'SELECT l.* FROM "import"."NALD_ABS_LICENCES" l WHERE l."LIC_NO" = $1;'
   const results = await db.query(query, [licenceRef])
 
-  LicenceReturnsImportProcess.go(results[0], true)
+  LicenceReturnsImportProcess.go(results[0], null, true)
 
   return h.response().code(204)
 }
