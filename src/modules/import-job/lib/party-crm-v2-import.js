@@ -44,9 +44,13 @@ async function _process () {
 
   const parties = await _parties()
 
-  const allMessages = await pMap(parties, PartyCrmV2ImportProcess.go, { concurrency: 10 })
+  const allMessages = await pMap(parties, _processParty, { concurrency: 10 })
 
   return allMessages.flat()
+}
+
+async function _processParty (party) {
+  return PartyCrmV2ImportProcess.go(party, false)
 }
 
 module.exports = {

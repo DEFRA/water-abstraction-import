@@ -110,7 +110,7 @@ async function licenceCrmImport (request, h) {
 
   const permitJson = await PermitJson.go(licenceRef)
 
-  LicenceCrmImportProcess.go(permitJson, 0, true)
+  LicenceCrmImportProcess.go(permitJson, true)
 
   return h.response().code(204)
 }
@@ -120,7 +120,7 @@ async function licenceCrmV2Import (request, h) {
 
   const permitJson = await PermitJson.go(licenceRef)
 
-  LicenceCrmV2ImportProcess.go(permitJson, 0, true)
+  LicenceCrmV2ImportProcess.go(permitJson, true)
 
   return h.response().code(204)
 }
@@ -130,7 +130,7 @@ async function licenceNoStartDateImport (request, h) {
 
   const permitJson = await PermitJson.go(licenceRef)
 
-  LicenceNoStartDateImportProcess.go(permitJson, 0, true)
+  LicenceNoStartDateImportProcess.go(permitJson, true)
 
   return h.response().code(204)
 }
@@ -140,7 +140,7 @@ async function licencePermitImport (request, h) {
 
   const permitJson = await PermitJson.go(licenceRef)
 
-  LicencePermitImportProcess.go(permitJson, 0, true)
+  LicencePermitImportProcess.go(permitJson, true)
 
   return h.response().code(204)
 }
@@ -151,7 +151,7 @@ async function licenceReturnsImport (request, h) {
   const query = 'SELECT l.* FROM "import"."NALD_ABS_LICENCES" l WHERE l."LIC_NO" = $1;'
   const results = await db.query(query, [licenceRef])
 
-  LicenceReturnsImportProcess.go(results[0], 0, true)
+  LicenceReturnsImportProcess.go(results[0], null, true)
 
   return h.response().code(204)
 }
@@ -176,7 +176,7 @@ async function partyCrmV2Import (request, h) {
     [partyId, regionCode]
   )
 
-  PartyCrmV2ImportProcess.go(results[0], 0, true)
+  PartyCrmV2ImportProcess.go(results[0], true)
 
   return h.response().code(204)
 }
