@@ -5,7 +5,7 @@ const Extract = require('./lib/extract.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const Transformer = require('./lib/transformer.js')
 
-async function go (party, index = 0, log = false) {
+async function go (party, log = false) {
   const messages = []
 
   try {
@@ -22,10 +22,10 @@ async function go (party, index = 0, log = false) {
     await _persistCompanyAddresses(transformedPartyData)
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, `party-crm-v2-import: complete (${index})`)
+      calculateAndLogTimeTaken(startTime, 'party-crm-v2-import: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('party-crm-v2-import: errored', { party, index }, error)
+    global.GlobalNotifier.omfg('party-crm-v2-import: errored', { party }, error)
 
     messages.push(error.message)
   }

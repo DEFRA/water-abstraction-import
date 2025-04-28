@@ -176,7 +176,7 @@ async function partyCrmV2Import (request, h) {
     [partyId, regionCode]
   )
 
-  PartyCrmV2ImportProcess.go(results[0], 0, true)
+  PartyCrmV2ImportProcess.go(results[0], true)
 
   return h.response().code(204)
 }
