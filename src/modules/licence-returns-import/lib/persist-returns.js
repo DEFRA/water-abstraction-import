@@ -5,8 +5,6 @@
  * @module
  */
 
-const helpers = require('@envage/water-abstraction-helpers')
-
 const db = require('../../../lib/connectors/db.js')
 const ReplicateReturns = require('./replicate-returns.js')
 const ReturnCycleHelpers = require('./return-cycle-helpers.js')
@@ -60,7 +58,7 @@ async function _create (row) {
     row.metadata,
     row.received_date,
     row.regime,
-    row.return_cycle_id,
+    row.returnCycleId,
     row.return_id,
     row.return_requirement,
     row.returns_frequency,
@@ -98,9 +96,9 @@ async function _create (row) {
 
 async function _createOrUpdateReturn (row, oldLinesExist, returnCycles) {
   const returnDataExists = await _returnDataExists(row.return_id)
-  const { return_cycle_id } = ReturnCycleHelpers.match(returnCycles, row)
+  const { return_cycle_id: returnCycleId } = ReturnCycleHelpers.match(returnCycles, row)
 
-  row.return_cycle_id = return_cycle_id
+  row.returnCycleId = returnCycleId
 
   // Conditional update
   if (returnDataExists.return_log_exists) {
@@ -140,7 +138,7 @@ async function _update (row) {
     row.due_date,
     row.metadata,
     row.received_date,
-    row.return_cycle_id,
+    row.returnCycleId,
     row.returns_frequency,
     row.sent_date,
     row.status,
