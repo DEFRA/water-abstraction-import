@@ -200,6 +200,11 @@ function _populateBlankLines (row, version, blankLines, naldLines) {
 }
 
 async function _saveLines (lines) {
+  // NOTE: We make use of the PostgreSQL function json_array_elements() (see
+  // https://www.postgresql.org/docs/15/functions-json.html) to convert our array of line objects into rows of 'data'.
+  // From those we can then select specific columns for insertion into the lines table. In this way, we're able to
+  // perform a bulk insert of the lines, instead of firing individual insert statements for each one. For example, we
+  // go from making 365 INSERT queries for a daily return submission to just 1!
   const query = `
     INSERT INTO "returns".lines (
       end_date,
@@ -213,24 +218,26 @@ async function _saveLines (lines) {
       version_id,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())
+    )
+    SELECT
+      (data->>'end_date')::date AS end_date,
+      (data->>'line_id'),
+      (data->>'metadata')::jsonb AS metadata,
+      (data->>'quantity')::numeric AS quantity,
+      (data->>'reading_type') AS reading_type,
+      (data->>'start_date')::date AS start_date,
+      (data->>'time_period') AS time_period,
+      (data->>'user_unit') AS user_unit,
+      (data->>'version_id') AS version_id,
+      now() AS created_at,
+      now() AS updated_at
+    FROM (
+      SELECT json_array_elements($1) AS data
+    ) tmp;
   `
+  const params = [JSON.stringify(lines)]
 
-  for (const line of lines) {
-    const params = [
-      line.end_date,
-      line.line_id,
-      line.metadata,
-      line.quantity,
-      line.reading_type,
-      line.start_date,
-      line.time_period,
-      line.user_unit,
-      line.version_id
-    ]
-
-    await db.query(query, params)
-  }
+  await db.query(query, params)
 }
 
 async function _saveVersion (version) {
