@@ -96,9 +96,14 @@ async function _create (row) {
 
 async function _createOrUpdateReturn (row, oldLinesExist, returnCycles) {
   const returnDataExists = await _returnDataExists(row.return_id)
-  const { return_cycle_id: returnCycleId } = ReturnCycleHelpers.match(returnCycles, row)
 
-  row.returnCycleId = returnCycleId
+  try {
+    const { return_cycle_id: returnCycleId } = ReturnCycleHelpers.match(returnCycles, row)
+
+    row.returnCycleId = returnCycleId
+  } catch (error) {
+    global.GlobalNotifier.omg('licence-returns-import: errored', { row, error: error.message })
+  }
 
   // Conditional update
   if (returnDataExists.return_log_exists) {
