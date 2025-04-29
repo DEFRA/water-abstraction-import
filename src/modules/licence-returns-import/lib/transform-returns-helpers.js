@@ -19,7 +19,15 @@ const addDate = (dates, date, startDate, endDate) => {
   const m = moment(date)
   const dateStr = m.format('YYYY-MM-DD')
   const arr = dates.slice()
-  const isValid = m.isBetween(startDate, endDate, 'day', '()')
+  // NOTE: The `(]` tells moment whether the test should be inclusive or exclusive. Previously, it was `()` which tells
+  // moment to exclude start and end date i.e. if m === end date return false. But we found this led to invalid return
+  // logs when they are linked to a licence or return version that ends on the cycle date, for example, 2025-04-01 being
+  // tested. The result would be a single return log dated 2024-04-01 to 2025-04-01, when it should be two return logs:
+  // 2024-04-01 to 2025-03-31 and 2025-04-01 to 2025-04-01.
+  //
+  // So, now it means return false if `m === startDate` but true if `m === endDate`.
+  // (see https://momentjscom.readthedocs.io/en/latest/moment/05-query/06-is-between/)
+  const isValid = m.isBetween(startDate, endDate, 'day', '(]')
   const isUnique = !arr.includes(dateStr)
   if (isValid && isUnique) {
     arr.push(dateStr)
@@ -88,7 +96,9 @@ const getFormatCycles = (format, splitDate) => {
     endDate = moment(getPeriodStart(moment().add(1, 'years'), isSummer)).subtract(1, 'day').format('YYYY-MM-DD')
   }
 
-  return getReturnCycles(startDate, endDate, splitDate, isSummer)
+  const debug = ['10058869', '10058473', '10045292', '10053166'].includes(format.ID)
+
+  return getReturnCycles(startDate, endDate, splitDate, isSummer, debug)
 }
 
 /**
@@ -144,6 +154,22 @@ const getFormatStartDate = (format) => {
 /**
  * Gets summer/financial year return cycles, including splitting the cycles
  * by licence effective start date (split date)
+ *
+ * > This is misnamed! It's not getting 'return cycles' as we know them. Instead, it is getting the 'return periods' to
+ * > generate WRLS return logs from. For example, the format passed to getFormatCycles() determines a start date and
+ * > end date of 2022-06-23 to 2025-02-12 and is winter. What this returns is
+ * >
+ * > - 2022-06-23 to 2023-03-31
+ * > - 2023-04-01 to 2024-03-31
+ * > - 2024-04-01 to 2025-02-12
+ * >
+ * > Each represents a return log that needs creating/updating in WRLS. If it was actually return cycles the result
+ * > would be
+ * >
+ * > - 2022-04-01 to 2023-03-31
+ * > - 2023-04-01 to 2024-03-31
+ * > - 2024-04-01 to 2025-03-31
+ *
  * @param {String} startDate - YYYY-MM-DD
  * @param {String} endDate - YYYY-MM-DD
  * @param {String} splitDate - licence effective start date
@@ -151,6 +177,7 @@ const getFormatStartDate = (format) => {
  * @return {Array} of return cycle objects
  */
 const getReturnCycles = (startDate, endDate, splitDate, isSummer = false) => {
+  // NOTE: Misnamed. What they actually mean is period start dates
   let splits = []
 
   // Add split date
@@ -159,13 +186,18 @@ const getReturnCycles = (startDate, endDate, splitDate, isSummer = false) => {
   }
 
   // Date pointer should be within summer/financial year
-  let datePtr = moment().year()
+  // NOTE: We initialise the first date to check to be the start date minus 1 year. getPeriodStart() will convert this
+  // to be the start date for the period based on whether it is winter (start 1 April) or summer (start 1 November).
+  // Previously, `datePtr` was initialised to the current year (no date part!) When passed to getPeriodStart() instead
+  // of blowing up it fell back to 1970-01-01. This means every row, even if it starts in 2025, was being checked for
+  // every year from 1970 onwards, every time the import ran!!
+  let datePtr = moment(startDate).subtract(1, 'year')
   do {
     datePtr = getPeriodStart(datePtr, isSummer)
     splits = addDate(splits, datePtr, startDate, endDate)
     datePtr = moment(datePtr).add(1, 'year')
   }
-  while (moment(datePtr).isBefore(endDate))
+  while (moment(datePtr).isSameOrBefore(endDate))
 
   const dates = _chunk([startDate, ..._sortAndPairSplitDates(splits), endDate], 2)
 
