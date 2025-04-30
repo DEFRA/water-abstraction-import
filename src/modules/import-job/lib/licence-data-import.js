@@ -7,6 +7,8 @@ const LicenceCrmV2ImportProcess = require('../../licence-crm-v2-import/process.j
 const LicenceNoStartDateImportProcess = require('../../licence-no-start-date-import/process.js')
 const LicencePermitImportProcess = require('../../licence-permit-import/process.js')
 const LicenceReturnsImportProcess = require('../../licence-returns-import/process.js')
+const LicenceSubmissionsImportProcess = require('../../licence-submissions-import/process.js')
+const OldLinesCheck = require('../../licence-submissions-import/lib/old-lines-check.js')
 const PermitJson = require('../../../lib/permit-json/permit-json.js')
 const ReturnCycleHelpers = require('../../licence-returns-import/lib/return-cycle-helpers.js')
 
@@ -14,10 +16,11 @@ const config = require('../../../../config.js')
 
 const STEP_NAME = 'licence-data-import'
 
-// We have to make this a variable at the top level of the module because we need to instantiate it before we start
-// processing each licence in `process()`, but have it available when we call `_processLicence()`. pMap doesn't allow
+// We have to put these variables at the top level of the module because we need to instantiate them before we start
+// processing each licence in `process()`, but have them available when we call `_processLicence()`. pMap doesn't allow
 // us to provide any arguments other than the thing being iterated.
 let licenceDataImportReturnCycles
+let oldLinesExist
 
 async function go () {
   global.GlobalNotifier.omg(`import-job.${STEP_NAME}: started`)
@@ -75,6 +78,7 @@ async function _process () {
 
   if (!config.featureFlags.disableReturnsImports) {
     licenceDataImportReturnCycles = await ReturnCycleHelpers.fetch()
+    oldLinesExist = await OldLinesCheck.go()
   }
 
   const allMessages = await pMap(licences, _processLicence, { concurrency: 5 })
@@ -108,6 +112,9 @@ async function _processLicence (licence) {
 
     if (!config.featureFlags.disableReturnsImports) {
       processMessages = await LicenceReturnsImportProcess.go(licence, licenceDataImportReturnCycles, false)
+      messages.push(...processMessages)
+
+      processMessages = await LicenceSubmissionsImportProcess.go(licence, oldLinesExist, false)
       messages.push(...processMessages)
     }
 
