@@ -1,11 +1,34 @@
 'use strict'
 
+/**
+ * Process importing missing return submission data from NALD to WRLS for a licence
+ * @module
+ */
+
 const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const OldLinesCheck = require('./lib/old-lines-check.js')
 const PersistSubmissions = require('./lib/persist-submissions.js')
 const ReplicateSubmissions = require('./lib/replicate-submissions.js')
 
+/**
+ * Process importing missing return submission data from NALD to WRLS for a licence
+ *
+ * Until this change was made to replicate NALD submission data in WRLS, the import would just create the return log
+ * record. Generally, those marked 'complete' would be dated pre 2028-10-31. We recently found out that the legacy
+ * water-abstraction-service has logic to read the submission-data directly from NALD. Anything after 2018-10-31 was
+ * directly entered into WRLS, as that is when it took over from NALD as the place to submit returns.
+ *
+ * @param {object} licence - The NALD licence record representing the licence being imported
+ * @param {boolean} [oldLinesExist=null] - whether the one-off extract of pre-2013 NALD return lines exists for use when
+ * replicating NALD submission data. When called from the licence-data-import job it will tell us this. When called from
+ * the test endpoint, it'll be left null
+ * @param {boolean} log - flag denoting whether to log the time taken to process this one licence. When called from the
+ * licence-data-import job it will be false (too much noise!) When called from the test endpoint, it'll be true
+ *
+ * @returns {Promise<string[]>} an array of log messages generated whilst processing this licence. Only used by the
+ * licence-data-import for inclusion in the completion email
+ */
 async function go (licence, oldLinesExist = null, log = false) {
   const messages = []
 

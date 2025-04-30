@@ -49,12 +49,12 @@ experiment('modules/licence-returns-import/lib/persist-returns', () => {
   experiment('when a return log does not exist', () => {
     beforeEach(() => {
       Sinon.stub(db, 'query')
-        .onFirstCall().resolves([{ return_log_exists: false, return_submission_exists: true }])
+        .onFirstCall().resolves([{ return_log_exists: false }])
         .onSecondCall().resolves()
     })
 
     test('creates the return log', async () => {
-      await PersistReturns.go([naldReturn], false, returnCycles)
+      await PersistReturns.go([naldReturn], returnCycles)
 
       const params = db.query.secondCall.args[1]
 
@@ -82,12 +82,12 @@ experiment('modules/licence-returns-import/lib/persist-returns', () => {
   experiment('when the return already exists', () => {
     beforeEach(async () => {
       Sinon.stub(db, 'query')
-        .onFirstCall().resolves([{ return_log_exists: true, return_submission_exists: true }])
+        .onFirstCall().resolves([{ return_log_exists: true }])
         .onSecondCall().resolves()
     })
 
     test("updates the return log's 'due_date', 'metadata', 'received_date', 'return_cycle_id', 'returns_frequency', 'sent_date', and 'status'", async () => {
-      await PersistReturns.go([naldReturn], false, returnCycles)
+      await PersistReturns.go([naldReturn], returnCycles)
 
       const params = db.query.secondCall.args[1]
 
