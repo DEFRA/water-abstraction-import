@@ -9,7 +9,7 @@ const { returns: returnsHelpers } = require('@envage/water-abstraction-helpers')
 
 const db = require('../../../lib/connectors/db.js')
 const { generateUUID } = require('../../../lib/general.js')
-const { daysFromPeriod, weeksFromPeriod, monthsFromPeriod } = require('../../licence-returns-import/lib/return-helpers.js')
+const { daysFromPeriod, weeksFromPeriod, monthsFromPeriod } = require('./return-helpers.js')
 
 const OLD_LINES_CUT_OFF_DATE = new Date('2012-12-31')
 
