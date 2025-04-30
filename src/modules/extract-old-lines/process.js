@@ -21,6 +21,9 @@ const OLD_LINES_ZIP_FILE = 'old_nald_return_lines.zip'
 async function go (skip = false, log = false) {
   const messages = []
 
+  let oldLinesExist
+  let extractExists
+
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -32,7 +35,7 @@ async function go (skip = false, log = false) {
     }
 
     // Determine if the one-off pre-2013 NALD return lines data extract table exists and is populated
-    let oldLinesExist = await OldLinesCheck.go()
+    oldLinesExist = await OldLinesCheck.go()
 
     if (oldLinesExist) {
       global.GlobalNotifier.omg('extract-old-lines: skipped')
@@ -41,7 +44,7 @@ async function go (skip = false, log = false) {
       return messages
     }
 
-    const extractExists = await _oldLinesFileExists()
+    extractExists = await _oldLinesFileExists()
 
     if (extractExists) {
       const downloadLocalPath = await _downloadOldLinesFile()
@@ -56,10 +59,10 @@ async function go (skip = false, log = false) {
     oldLinesExist = true
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, 'extract-old-lines: complete', { oldLinesExist })
+      calculateAndLogTimeTaken(startTime, 'extract-old-lines: complete', { extractExists, oldLinesExist })
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('extract-old-lines: errored', {}, error)
+    global.GlobalNotifier.omfg('extract-old-lines: errored', { extractExists, oldLinesExist }, error)
 
     messages.push(error.message)
   }
