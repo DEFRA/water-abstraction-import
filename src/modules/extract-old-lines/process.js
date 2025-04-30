@@ -8,6 +8,7 @@ const processHelper = require('@envage/water-abstraction-helpers').process
 
 const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
+const OldLinesCheck = require('../licence-submissions-import/lib/old-lines-check.js')
 const s3 = require('../../lib/services/s3.js')
 
 const config = require('../../../config.js')
@@ -20,6 +21,9 @@ const OLD_LINES_ZIP_FILE = 'old_nald_return_lines.zip'
 async function go (skip = false, log = false) {
   const messages = []
 
+  let oldLinesExist
+  let extractExists
+
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -31,7 +35,7 @@ async function go (skip = false, log = false) {
     }
 
     // Determine if the one-off pre-2013 NALD return lines data extract table exists and is populated
-    let oldLinesExist = await _oldLinesExist()
+    oldLinesExist = await OldLinesCheck.go()
 
     if (oldLinesExist) {
       global.GlobalNotifier.omg('extract-old-lines: skipped')
@@ -40,7 +44,7 @@ async function go (skip = false, log = false) {
       return messages
     }
 
-    const extractExists = await _oldLinesFileExists()
+    extractExists = await _oldLinesFileExists()
 
     if (extractExists) {
       const downloadLocalPath = await _downloadOldLinesFile()
@@ -55,10 +59,10 @@ async function go (skip = false, log = false) {
     oldLinesExist = true
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, 'extract-old-lines: complete', { oldLinesExist })
+      calculateAndLogTimeTaken(startTime, 'extract-old-lines: complete', { extractExists, oldLinesExist })
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('extract-old-lines: errored', {}, error)
+    global.GlobalNotifier.omfg('extract-old-lines: errored', { extractExists, oldLinesExist }, error)
 
     messages.push(error.message)
   }
@@ -162,24 +166,6 @@ async function _loadOldLinesTable (extractLocalPath) {
   return localPath
 }
 
-async function _oldLinesDataExists () {
-  const query = 'SELECT COUNT(*) AS row_count FROM public."NALD_RET_LINES";'
-
-  const results = await db.query(query)
-
-  return results[0].row_count > 0
-}
-
-async function _oldLinesExist () {
-  const tableExists = await _oldLinesTableExists()
-
-  if (!tableExists) {
-    return false
-  }
-
-  return _oldLinesDataExists()
-}
-
 async function _oldLinesFileExists () {
   try {
     await s3.getHead(OLD_LINES_ZIP_FILE)
@@ -192,26 +178,6 @@ async function _oldLinesFileExists () {
 
     throw error // Handle other errors
   }
-}
-
-async function _oldLinesTableExists () {
-  const query = `
-    SELECT
-      EXISTS(
-        SELECT
-          1
-        FROM
-          information_schema.TABLES
-        WHERE
-          table_type = 'BASE TABLE'
-          AND table_schema = 'public'
-          AND table_name = 'NALD_RET_LINES'
-      )::bool AS table_exists
-  `
-
-  const results = await db.query(query)
-
-  return results[0].table_exists
 }
 
 module.exports = {

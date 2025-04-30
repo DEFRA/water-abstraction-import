@@ -137,6 +137,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/licence-submissions-import',
+    handler: Controller.licenceSubmissionsImport,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/licences-import',
     handler: Controller.licencesImport,
     config: {
