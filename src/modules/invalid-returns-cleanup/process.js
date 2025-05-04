@@ -1,5 +1,6 @@
 'use strict'
 
+const CleanNoRequirements = require('./lib/clean-no-requirement.js')
 const CleanSummer = require('./lib/clean-summer.js')
 const CleanWinter = require('./lib/clean-winter.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
@@ -12,6 +13,7 @@ async function go (log = false) {
 
     await CleanSummer.go()
     await CleanWinter.go()
+    await CleanNoRequirements.go()
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'invalid-returns-cleanup: complete')
