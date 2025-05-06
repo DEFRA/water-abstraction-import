@@ -91,7 +91,6 @@ async function _naldLinesCurrent (returnLog) {
         nrl."RET_QTY" IS NOT NULL
         AND nrl."RET_QTY" <> 'null'
         AND nrl."RET_QTY" <> ''
-        AND nrl."RET_QTY" <> '0'
         AND nrl."ARFL_ARTY_ID"=$1
         AND nrl."FGAC_REGION_CODE"=$2
         AND to_date(nrl."RET_DATE", 'YYYYMMDDHH24MISS') >= to_date($3, 'YYYY-MM-DD')
@@ -135,7 +134,6 @@ async function _naldLinesOld (returnLog) {
         nrl."RET_QTY" IS NOT NULL
         AND nrl."RET_QTY" <> 'null'
         AND nrl."RET_QTY" <> ''
-        AND nrl."RET_QTY" <> '0'
         AND nrl."ARFL_ARTY_ID" = $1
         AND nrl."FGAC_REGION_CODE" = $2
         AND to_date(nrl."RET_DATE", 'DD/MM/YYYY') >= to_date($3, 'YYYY-MM-DD')
