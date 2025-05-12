@@ -8,7 +8,8 @@ const getVersionFilter = (request) => {
   const { start, end } = request.query
   const filter = {
     current: true,
-    created_at: { $gte: start }
+    created_at: { $gte: start },
+    user_id: { $ne: 'imported@from.nald' }
   }
 
   if (end) {

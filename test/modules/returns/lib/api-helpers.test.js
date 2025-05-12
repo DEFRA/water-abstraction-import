@@ -19,7 +19,15 @@ experiment('getVersionFilter', () => {
 
     const data = getVersionFilter(request)
 
-    expect(data).to.equal({ current: true, created_at: { $gte: '2018-04-01' } })
+    expect(data).to.equal({
+      current: true,
+      created_at: {
+        $gte: '2018-04-01'
+      },
+      user_id: {
+        $ne: 'imported@from.nald'
+      }
+    })
   })
 
   it('Should get version filter with end date specified', async () => {
@@ -32,7 +40,16 @@ experiment('getVersionFilter', () => {
 
     const filter = getVersionFilter(request)
 
-    expect(filter).to.equal({ current: true, created_at: { $gte: '2018-04-01', $lte: '2018-05-12' } })
+    expect(filter).to.equal({
+      current: true,
+      created_at: {
+        $gte: '2018-04-01',
+        $lte: '2018-05-12'
+      },
+      user_id: {
+        $ne: 'imported@from.nald'
+      }
+    })
   })
 })
 
