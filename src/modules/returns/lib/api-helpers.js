@@ -9,7 +9,7 @@ const getVersionFilter = (request) => {
   const filter = {
     current: true,
     created_at: { $gte: start },
-    user_id: { $ne: 'imported@from.nald' }
+    user_id: { $ne: 'imported.from@nald.gov.uk' }
   }
 
   if (end) {
