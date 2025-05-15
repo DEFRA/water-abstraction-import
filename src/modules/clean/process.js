@@ -22,7 +22,7 @@ async function go (cleanLicences = false, skipReturnData = false, log = false) {
 
     if (skipReturnData) {
       global.GlobalNotifier.omg('clean: skipped return version data')
-      messages.push('Skipped because importing returns is disabled')
+      messages.push('Skipped cleaning return version data because importing NALD returns-leg is disabled')
 
       return messages
     }
