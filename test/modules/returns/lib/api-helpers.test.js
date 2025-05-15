@@ -25,7 +25,7 @@ experiment('getVersionFilter', () => {
         $gte: '2018-04-01'
       },
       user_id: {
-        $ne: 'imported@from.nald'
+        $ne: 'imported.from@nald.gov.uk'
       }
     })
   })
@@ -47,7 +47,7 @@ experiment('getVersionFilter', () => {
         $lte: '2018-05-12'
       },
       user_id: {
-        $ne: 'imported@from.nald'
+        $ne: 'imported.from@nald.gov.uk'
       }
     })
   })

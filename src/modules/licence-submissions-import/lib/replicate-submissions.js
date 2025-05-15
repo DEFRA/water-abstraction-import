@@ -247,7 +247,7 @@ function _version (returnLog, nilReturn) {
     metadata: {},
     nil_return: nilReturn,
     return_id: returnLog.return_id,
-    user_id: 'imported@from.nald',
+    user_id: 'imported.from@nald.gov.uk',
     user_type: 'system',
     version_id: generateUUID(),
     version_number: returnLog.version_number
