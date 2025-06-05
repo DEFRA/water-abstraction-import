@@ -3,6 +3,7 @@
 const db = require('../../lib/connectors/db.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
+const FAR_IN_THE_FUTURE = new Date('2099-12-31T23:59:59')
 const ROWS_PER_PAGE = 2000
 
 async function go (start, end) {
@@ -12,7 +13,7 @@ async function go (start, end) {
     const startTime = currentTimeInNanoseconds()
 
     if (!end) {
-      end = new Date('2099-12-31T23:59:59')
+      end = FAR_IN_THE_FUTURE
     }
 
     const returnLogs = await _fetchReturnLogs(start, end)
