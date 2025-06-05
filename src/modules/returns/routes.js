@@ -36,27 +36,7 @@ const getLinesForVersion = {
   path: '/etl/versions/{versionID}/lines'
 }
 
-const getReturns = {
-  method: 'GET',
-  handler: controller.getReturns,
-  options: {
-    description: 'Gets the returns which have returns.status events within a defined date range',
-    validate: {
-      query: {
-        start: Joi.string().isoDate().required(),
-        end: Joi.string().isoDate().optional(),
-        pagination: Joi.object().keys({
-          page: Joi.number(),
-          perPage: Joi.number()
-        }).optional()
-      }
-    }
-  },
-  path: '/etl/returns'
-}
-
 module.exports = [
   getVersions,
-  getLinesForVersion,
-  getReturns
+  getLinesForVersion
 ]

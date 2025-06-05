@@ -5,7 +5,6 @@ const { expect } = require('@hapi/code')
 
 const {
   getVersionFilter,
-  getEventFilter,
   getPagination
 } = require('../../../../src/modules/returns/lib/api-helpers')
 
@@ -50,31 +49,6 @@ experiment('getVersionFilter', () => {
         $ne: 'imported.from@nald.gov.uk'
       }
     })
-  })
-})
-
-experiment('getEventFilter', () => {
-  it('Should get event filter with no end date specified', async () => {
-    const request = {
-      query: {
-        start: '2018-04-01'
-      }
-    }
-
-    const filter = getEventFilter(request)
-    expect(filter).to.equal({ created: { $gte: '2018-04-01' }, type: 'return.status' })
-  })
-
-  it('Should get event filter with end date specified', async () => {
-    const request = {
-      query: {
-        start: '2018-04-01',
-        end: '2018-06-01'
-      }
-    }
-
-    const filter = getEventFilter(request)
-    expect(filter).to.equal({ created: { $gte: '2018-04-01', $lte: '2018-06-01' }, type: 'return.status' })
   })
 })
 

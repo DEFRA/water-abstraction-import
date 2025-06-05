@@ -1,5 +1,7 @@
 'use strict'
 
+const Joi = require('@hapi/joi')
+
 const Controller = require('./controller.js')
 
 const returnsRoutes = require('./modules/returns/routes')
@@ -19,6 +21,20 @@ module.exports = [
     handler: Controller.status,
     config: {
       auth: false
+    }
+  },
+  {
+    method: 'GET',
+    path: '/etl/returns',
+    handler: Controller.etlReturns,
+    options: {
+      description: 'Gets the returns which have returns.status events within a defined date range',
+      validate: {
+        query: {
+          start: Joi.string().isoDate().required(),
+          end: Joi.string().isoDate().optional()
+        }
+      }
     }
   },
   {

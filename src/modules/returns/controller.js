@@ -3,7 +3,6 @@
 const Boom = require('@hapi/boom')
 
 const { lines, returns, versions } = require('./lib/returns.js')
-const { events } = require('./lib/events.js')
 const {
   transformReturn,
   transformWeeklyLine,
@@ -11,7 +10,7 @@ const {
   filterLines
 } = require('./lib/transformers')
 const { generateNilLines } = require('./lib/generate-nil-lines')
-const { getVersionFilter, getEventFilter, getPagination } = require('./lib/api-helpers')
+const { getVersionFilter, getPagination } = require('./lib/api-helpers')
 
 /**
  * Gets an object containing all line information for a given
@@ -59,28 +58,6 @@ const getVersions = async (request, h) => {
   return versions.findMany(filter, {}, pagination, ['version_id', 'return_id', 'nil_return'])
 }
 
-/**
- * Gets returns where a return.status event has been recorded within a
- * certain date range
- */
-const getReturns = async (request, _h) => {
-  const filter = getEventFilter(request)
-  const pagination = getPagination(request)
-
-  const response = await events.findMany(filter, {}, pagination, ['metadata->>returnId'])
-  const tasks = response.data.map(row => _fetchReturn(row))
-
-  response.data = await Promise.all(tasks)
-
-  return response
-}
-
-const _fetchReturn = async (row) => {
-  const returnId = row['?column?']
-  const data = await _return(returnId)
-  return transformReturn(data, ['return_id'])
-}
-
 const _firstItemOrNotFound = (id, { data }) => {
   if (data.length === 0) {
     throw Boom.notFound(`Data not found for ${id}`)
@@ -117,6 +94,5 @@ const _version = async versionId => {
 
 module.exports = {
   getLinesForVersion,
-  getVersions,
-  getReturns
+  getVersions
 }
