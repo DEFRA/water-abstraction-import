@@ -16,16 +16,16 @@ async function go (start, end) {
       end = FAR_IN_THE_FUTURE
     }
 
-    const returnLogs = await _fetchReturnLogs(start, end)
+    const returnSubmissions = await _fetchReturnSubmissions(start, end)
 
-    if (returnLogs.length === 0) {
+    if (returnSubmissions.length === 0) {
       return response
     }
 
-    const totalRows = returnLogs.length
+    const totalRows = returnSubmissions.length
 
     response = {
-      data: returnLogs,
+      data: returnSubmissions,
       error: null,
       pagination: {
         perPage: ROWS_PER_PAGE,
@@ -61,7 +61,7 @@ function _emptyResponse () {
   }
 }
 
-async function _fetchReturnLogs (start, end) {
+async function _fetchReturnSubmissions (start, end) {
   const params = [start, end]
   const query = `
     SELECT
