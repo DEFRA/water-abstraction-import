@@ -38,6 +38,20 @@ module.exports = [
     }
   },
   {
+    method: 'GET',
+    path: '/etl/versions',
+    handler: Controller.etlVersions,
+    options: {
+      description: 'Gets the current versions with a defined date range',
+      validate: {
+        query: {
+          start: Joi.string().isoDate().required(),
+          end: Joi.string().isoDate().optional()
+        }
+      }
+    }
+  },
+  {
     method: 'POST',
     path: '/import-job',
     handler: Controller.importJob,

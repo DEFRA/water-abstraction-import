@@ -10,7 +10,6 @@ const {
   filterLines
 } = require('./lib/transformers')
 const { generateNilLines } = require('./lib/generate-nil-lines')
-const { getVersionFilter, getPagination } = require('./lib/api-helpers')
 
 /**
  * Gets an object containing all line information for a given
@@ -43,19 +42,6 @@ const getLinesForVersion = async (request, h) => {
       lines: filterLines(returnData, lines)
     }
   }
-}
-
-/**
- * Gets all the current versions that have a created_date
- * after the 'start' query params.
- *
- * Can optionally supply an 'end' query param to cap the range.
- */
-const getVersions = async (request, h) => {
-  const filter = getVersionFilter(request)
-  const pagination = getPagination(request)
-
-  return versions.findMany(filter, {}, pagination, ['version_id', 'return_id', 'nil_return'])
 }
 
 const _firstItemOrNotFound = (id, { data }) => {
@@ -93,6 +79,5 @@ const _version = async versionId => {
 }
 
 module.exports = {
-  getLinesForVersion,
-  getVersions
+  getLinesForVersion
 }

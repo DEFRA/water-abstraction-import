@@ -14,6 +14,7 @@ const CompletionEmailProcess = require('./modules/completion-email/process.js')
 const EndDateCheckProcess = require('./modules/end-date-check/process.js')
 const EndDateTriggerProcess = require('./modules/end-date-trigger/process.js')
 const EtlReturns = require('./modules/etl/returns.js')
+const EtlVersions = require('./modules/etl/versions.js')
 const ExtractNaldDataProcess = require('./modules/extract-nald-data/process.js')
 const ExtractOldLinesProcess = require('./modules/extract-old-lines/process.js')
 const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/process.js')
@@ -79,6 +80,14 @@ async function etlReturns (request, h) {
   const { start, end } = request.query
 
   const result = await EtlReturns.go(start, end)
+
+  return h.response(result).code(200)
+}
+
+async function etlVersions (request, h) {
+  const { start, end } = request.query
+
+  const result = await EtlVersions.go(start, end)
 
   return h.response(result).code(200)
 }
@@ -253,6 +262,7 @@ module.exports = {
   endDateCheck,
   endDateTrigger,
   etlReturns,
+  etlVersions,
   extractNaldData,
   extractOldLines,
   flagDeletedDocuments,
