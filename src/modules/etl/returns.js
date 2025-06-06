@@ -82,7 +82,8 @@ async function _fetchReturnLogs (start, end) {
       r.return_id,
       SUBSTRING(r.return_id, 4, 1) AS region_code,
       r.return_requirement,
-      to_char(r.start_date, 'YYYYMMDD000000') AS nald_date_from,
+      -- Get the 1st of the month for start_date, then convert it to the format NALD will expect
+      to_char(date_trunc('month', r.start_date)::date, 'YYYYMMDD000000') AS nald_date_from,
       to_char(r.received_date, 'YYYYMMDD000000') AS nald_ret_date,
       rc.start_date AS return_cycle_start
     FROM
