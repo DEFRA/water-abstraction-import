@@ -50,7 +50,6 @@ module.exports = {
   },
 
   services: {
-    returns: process.env.RETURNS_URI || 'http://127.0.0.1:8006/returns/1.0',
     system: process.env.SYSTEM_URI || 'http://127.0.0.1:8013'
   },
 
