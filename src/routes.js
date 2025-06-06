@@ -4,8 +4,6 @@ const Joi = require('@hapi/joi')
 
 const Controller = require('./controller.js')
 
-const returnsRoutes = require('./modules/returns/routes')
-
 module.exports = [
   {
     method: 'GET',
@@ -47,6 +45,19 @@ module.exports = [
         query: {
           start: Joi.string().isoDate().required(),
           end: Joi.string().isoDate().optional()
+        }
+      }
+    }
+  },
+  {
+    method: 'GET',
+    path: '/etl/versions/{versionId}/lines',
+    handler: Controller.etlVersionLines,
+    options: {
+      description: 'Gets the lines for the specified version id',
+      validate: {
+        params: {
+          versionId: Joi.string().uuid().required()
         }
       }
     }
@@ -220,6 +231,5 @@ module.exports = [
     config: {
       auth: false
     }
-  },
-  ...returnsRoutes
+  }
 ]
