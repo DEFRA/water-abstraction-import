@@ -93,7 +93,8 @@ async function _fetchReturnLogs (start, end) {
     INNER JOIN "returns".return_cycles rc
       ON rc.return_cycle_id = r.return_cycle_id
     WHERE
-      e."type" = 'return.status'
+      r."source" = 'NALD'
+      AND e."type" = 'return.status'
       AND e.created >= $1
       AND e.created <= $2;
   `

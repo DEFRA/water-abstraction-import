@@ -68,10 +68,14 @@ async function _fetchReturnSubmissions (start, end) {
       v.version_id,
       v.return_id,
       v.nil_return
-    FROM "returns".versions v
+    FROM
+      "returns".versions v
+    INNER JOIN "returns"."returns" r
+      ON r.return_id = v.return_id
     WHERE
       v.current = true
       AND v.user_id <> 'imported.from@nald.gov.uk'
+      AND r."source" = 'NALD'
       AND v.created_at >= $1
       AND v.created_at <= $2;
   `
