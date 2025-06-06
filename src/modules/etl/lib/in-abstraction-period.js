@@ -2,20 +2,20 @@
 
 const moment = require('moment')
 
-  /**
-   * Determines if a given date is within a given abstraction period.
-   *
-   * The abstraction period is defined by its start and end days and months.
-   * The period can span across two calendar years.
-   *
-   * @param {Date|string} dateToCheck - Date to check
-   * @param {number} startDay - Day of abstraction period start
-   * @param {number} startMonth - Month of abstraction period start
-   * @param {number} endDay - Day of abstraction period end
-   * @param {number} endMonth - Month of abstraction period end
-   *
-   * @returns {boolean} - True if date is within abstraction period, otherwise false
-   */
+/**
+ * Determines if a given date is within a given abstraction period.
+ *
+ * The abstraction period is defined by its start and end days and months.
+ * The period can span across two calendar years.
+ *
+ * @param {Date|string} dateToCheck - Date to check
+ * @param {number} startDay - Day of abstraction period start
+ * @param {number} startMonth - Month of abstraction period start
+ * @param {number} endDay - Day of abstraction period end
+ * @param {number} endMonth - Month of abstraction period end
+ *
+ * @returns {boolean} - True if date is within abstraction period, otherwise false
+ */
 function go (dateToCheck, startDay, startMonth, endDay, endMonth) {
   // Month and day of test date
   const month = moment(dateToCheck).locale('en').month() + 1

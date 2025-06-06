@@ -8,7 +8,7 @@ const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../li
 const GenerateNilLines = require('./lib/generate-nil-lines.js')
 
 async function go (returnSubmissionId) {
-  let response = { error: null }
+  const response = { error: null }
 
   try {
     const startTime = currentTimeInNanoseconds()
@@ -192,7 +192,7 @@ function _transformReturnSubmission (returnSubmission) {
     abs_period_end_day: parseInt(returnSubmission.abs_period_end_day),
     abs_period_end_month: parseInt(returnSubmission.abs_period_end_month),
     regionCode: parseInt(returnSubmission.region_code),
-    formatId: parseInt(returnSubmission.return_requirement),
+    formatId: parseInt(returnSubmission.return_requirement)
 
   }
 }
@@ -226,11 +226,11 @@ function _transformReturnSubmissionLines (returnSubmission, returnSubmissionLine
 
 function _weeklyLine (returnSubmission, line) {
   const { end_date: returnEnd, start_date: returnStart } = returnSubmission
-  const { reading_type, start_date, unit, user_unit } = line
+  const { reading_type: readingType, start_date: startDate, unit, user_unit: userUnit } = line
   const weeklyLines = []
 
   for (let numDaysForward = 0; numDaysForward < 7; numDaysForward++) {
-    const dailyDate = WeekDailyDate.go(returnStart, returnEnd, start_date, numDaysForward)
+    const dailyDate = WeekDailyDate.go(returnStart, returnEnd, startDate, numDaysForward)
 
     if (!dailyDate) {
       continue
@@ -240,11 +240,11 @@ function _weeklyLine (returnSubmission, line) {
       start_date: dailyDate,
       end_date: dailyDate,
       time_period: 'day',
-      reading_type,
+      reading_type: readingType,
       unit,
-      user_unit,
+      user_unit: userUnit,
       quantity: numDaysForward === 6 ? _quantity(line) : null,
-      nald_reading_type: reading_type[0].toUpperCase(),
+      nald_reading_type: readingType[0].toUpperCase(),
       nald_time_period: 'D',
       nald_units: _naldUnits(line)
     })

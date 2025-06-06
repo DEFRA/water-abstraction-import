@@ -33,21 +33,21 @@ const SATURDAY = 6
  * @return {object[]} the generated nil lines ready for inclusion in the API response
  */
 function go (returnSubmission) {
-  const { start_date, end_date, returns_frequency } = returnSubmission
+  const { start_date: startDate, end_date: endDate, returns_frequency: frequency } = returnSubmission
 
-  if (returns_frequency === 'year') {
-    return _yearlyLines(start_date, end_date)
+  if (frequency === 'year') {
+    return _yearlyLines(startDate, endDate)
   }
 
-  if (returns_frequency === 'month') {
-    return _monthlyLines(start_date, end_date, returnSubmission)
+  if (frequency === 'month') {
+    return _monthlyLines(startDate, endDate, returnSubmission)
   }
 
-  return _dailyLines(start_date, end_date, returnSubmission)
+  return _dailyLines(startDate, endDate, returnSubmission)
 }
 
 function _dailyLines (startDate, endDate, returnSubmission) {
-  const { returns_frequency } = returnSubmission
+  const { returns_frequency: frequency } = returnSubmission
   const lines = []
   const datePtr = moment(startDate).locale('en')
 
@@ -61,7 +61,7 @@ function _dailyLines (startDate, endDate, returnSubmission) {
       reading_type: 'measured',
       unit: 'm³',
       user_unit: 'm³',
-      quantity: _dailyOrwWeeklyQuantity(datePtr, inAbsPeriod, returns_frequency),
+      quantity: _dailyOrwWeeklyQuantity(datePtr, inAbsPeriod, frequency),
       nald_reading_type: 'M',
       nald_time_period: 'D',
       nald_units: 'M'
@@ -92,21 +92,15 @@ function _dailyOrwWeeklyQuantity (lineDate, inAbsPeriod, frequency) {
   return null
 }
 
-function _inAbstractionPeriod(dateToCheck, returnSubmission) {
+function _inAbstractionPeriod (dateToCheck, returnSubmission) {
   const {
-    abs_period_end_day,
-    abs_period_end_month,
-    abs_period_start_day,
-    abs_period_start_month
+    abs_period_end_day: endDay,
+    abs_period_end_month: endMonth,
+    abs_period_start_day: startDay,
+    abs_period_start_month: startMonth
   } = returnSubmission
 
-  return InAbstractionPeriod.go(
-    dateToCheck,
-    abs_period_start_day,
-    abs_period_start_month,
-    abs_period_end_day,
-    abs_period_end_month
-  )
+  return InAbstractionPeriod.go(dateToCheck, startDay, startMonth, endDay, endMonth)
 }
 
 function _monthlyLines (startDate, endDate, returnSubmission) {
