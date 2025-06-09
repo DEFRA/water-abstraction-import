@@ -80,10 +80,10 @@ function _sortDates (arr) {
   })
 
   mappedArray.sort(function (startDate1, startDate2) {
-    if ((startDate1.unix > startDate2.unix)) {
-      return -1
-    } else {
+    if ((startDate1.unix() > startDate2.unix())) {
       return 1
+    } else {
+      return -1
     }
   })
 

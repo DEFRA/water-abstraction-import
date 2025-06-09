@@ -65,7 +65,7 @@ experiment('modules/party-crm-v2-import/lib/transformer.js', () => {
         roleAddresses: [
           {
             role: 'licenceHolder',
-            startDate: moment('2015-08-13'),
+            startDate: moment('2015-04-01'),
             endDate: null,
             address: {
               address1: 'BIG MANOR FARM',
@@ -155,7 +155,7 @@ experiment('modules/party-crm-v2-import/lib/transformer.js', () => {
         roleAddresses: [
           {
             role: 'licenceHolder',
-            startDate: moment('2015-08-13'),
+            startDate: moment('2015-04-01'),
             endDate: null,
             address: {
               address1: 'BIG MANOR FARM',
