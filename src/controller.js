@@ -22,7 +22,6 @@ const LicenceCrmImportProcess = require('./modules/licence-crm-import/process.js
 const LicenceCrmV2ImportProcess = require('./modules/licence-crm-v2-import/process.js')
 const LicenceNoStartDateImportProcess = require('./modules/licence-no-start-date-import/process.js')
 const LicencePermitImportProcess = require('./modules/licence-permit-import/process.js')
-const LicenceReturnsImportProcess = require('./modules/licence-returns-import/process.js')
 const LicenceSubmissionsImportProcess = require('./modules/licence-submissions-import/process.js')
 const LicencesImportProcess = require('./modules/licences-import/process.js')
 const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
