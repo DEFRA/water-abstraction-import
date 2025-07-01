@@ -13,7 +13,6 @@ const LicencesImportStep = require('./lib/licences-import.js')
 const LinkToModLogsStep = require('./lib/link-to-mod-logs.js')
 const PartyCrmV2ImportStep = require('./lib/party-crm-v2-import.js')
 const ReferenceDataImportStep = require('./lib/reference-data-import.js')
-const ReturnVersionsImport = require('./lib/return-versions-import.js')
 
 async function go () {
   try {
@@ -37,9 +36,6 @@ async function go () {
     steps.push(step)
 
     step = await ReferenceDataImportStep.go()
-    steps.push(step)
-
-    step = await ReturnVersionsImport.go()
     steps.push(step)
 
     step = await PartyCrmV2ImportStep.go()
