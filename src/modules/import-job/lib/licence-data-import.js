@@ -6,18 +6,9 @@ const LicenceCrmImportProcess = require('../../licence-crm-import/process.js')
 const LicenceCrmV2ImportProcess = require('../../licence-crm-v2-import/process.js')
 const LicenceNoStartDateImportProcess = require('../../licence-no-start-date-import/process.js')
 const LicencePermitImportProcess = require('../../licence-permit-import/process.js')
-const LicenceSubmissionsImportProcess = require('../../licence-submissions-import/process.js')
-const OldLinesCheck = require('../../licence-submissions-import/lib/old-lines-check.js')
 const PermitJson = require('../../../lib/permit-json/permit-json.js')
 
-const config = require('../../../../config.js')
-
 const STEP_NAME = 'licence-data-import'
-
-// We have to put this variable at the top level of the module because we need to instantiate it before we start
-// processing each licence in `process()`, but have it available when we call `_processLicence()`. pMap doesn't allow
-// us to provide any arguments other than the thing being iterated.
-let oldLinesExist
 
 async function go () {
   global.GlobalNotifier.omg(`import-job.${STEP_NAME}: started`)
@@ -73,15 +64,7 @@ async function _process () {
 
   const licences = await _licences()
 
-  if (!config.featureFlags.disableReturnsImports) {
-    oldLinesExist = await OldLinesCheck.go()
-  }
-
   const allMessages = await pMap(licences, _processLicence, { concurrency: 5 })
-
-  if (config.featureFlags.disableReturnsImports) {
-    allMessages.push('Skipped licence-returns-import because importing returns is disabled')
-  }
 
   return allMessages.flat()
 }
@@ -105,11 +88,6 @@ async function _processLicence (licence) {
 
     processMessages = await LicenceCrmImportProcess.go(permitJson, false)
     messages.push(...processMessages)
-
-    if (!config.featureFlags.disableReturnsImports) {
-      processMessages = await LicenceSubmissionsImportProcess.go(licence, oldLinesExist, false)
-      messages.push(...processMessages)
-    }
 
     _displayProgress(licence)
   } catch (err) {
