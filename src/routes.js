@@ -72,11 +72,6 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/process/charge-versions-import',
-    handler: Controller.billRunsImport
-  },
-  {
-    method: 'POST',
     path: '/process/clean',
     handler: Controller.clean,
     config: {
