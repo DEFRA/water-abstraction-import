@@ -7,7 +7,6 @@ const exec = util.promisify(require('child_process').exec)
 const db = require('./lib/connectors/db.js')
 const PermitJson = require('./lib/permit-json/permit-json.js')
 
-const ChargeVersionsImportProcess = require('./modules/charge-versions-import/process.js')
 const CleanProcess = require('./modules/clean/process.js')
 const CompletionEmailProcess = require('./modules/completion-email/process.js')
 const EndDateCheckProcess = require('./modules/end-date-check/process.js')
@@ -33,12 +32,6 @@ const ReferenceDataImportProcess = require('./modules/reference-data-import/proc
 const ReturnVersionsImportProcess = require('./modules/return-versions-import/process.js')
 
 const config = require('../config.js')
-
-async function chargeVersionsImport (_request, h) {
-  ChargeVersionsImportProcess.go(true)
-
-  return h.response().code(204)
-}
 
 async function clean (_request, h) {
   CleanProcess.go(config.import.licences.isCleanLicenceImportsEnabled, true)
@@ -257,7 +250,6 @@ async function _commitHash () {
 }
 
 module.exports = {
-  chargeVersionsImport,
   clean,
   completionEmail,
   endDateCheck,
