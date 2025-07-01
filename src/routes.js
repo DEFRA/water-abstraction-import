@@ -120,14 +120,6 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/process/invalid-returns-cleanup',
-    handler: Controller.invalidReturnsCleanup,
-    config: {
-      auth: false
-    }
-  },
-  {
-    method: 'POST',
     path: '/process/licence-crm-import',
     handler: Controller.licenceCrmImport,
     config: {
