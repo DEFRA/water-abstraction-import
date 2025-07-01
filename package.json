@@ -27,8 +27,6 @@
     "aws-sdk": "^2.1657.0",
     "bluebird": "^3.7.2",
     "csv-stringify": "^5.5.0",
-    "db-migrate": "^0.11.14",
-    "db-migrate-pg": "^1.5.2",
     "dotenv": "^8.2.0",
     "firstline": "^2.0.2",
     "hapi-auth-jwt2": "^8.8.1",
