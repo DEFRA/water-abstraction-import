@@ -13,9 +13,7 @@
   "scripts": {
     "test": "lab --leaks",
     "lint": "standard",
-    "migrate": "node scripts/create-schema && node scripts/migrate",
-    "migrate:down": "db-migrate down",
-    "migrate:create": "db-migrate create --sql-file --",
+    "migrate": "node scripts/drop-schema",
     "version": "npx --yes auto-changelog -p --commit-limit false && git add CHANGELOG.md"
   },
   "dependencies": {
