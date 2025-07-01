@@ -2,11 +2,10 @@
 
 const DeletedLicences = require('./lib/deleted-licences.js')
 const DeletedLicenceData = require('./lib/deleted-licence-data.js')
-const DeletedReturnData = require('./lib/deleted-return-data.js')
 
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
-async function go (cleanLicences = false, skipReturnData = false, log = false) {
+async function go (cleanLicences = false, log = false) {
   const messages = []
 
   try {
@@ -19,15 +18,6 @@ async function go (cleanLicences = false, skipReturnData = false, log = false) {
       global.GlobalNotifier.omg('clean: skipped licences')
       messages.push('Skipped cleaning licences as not enabled')
     }
-
-    if (skipReturnData) {
-      global.GlobalNotifier.omg('clean: skipped return version data')
-      messages.push('Skipped cleaning return version data because importing NALD returns-leg is disabled')
-
-      return messages
-    }
-
-    await DeletedReturnData.go()
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'clean: complete')
