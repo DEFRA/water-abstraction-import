@@ -28,7 +28,6 @@ const LicencesImportProcess = require('./modules/licences-import/process.js')
 const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
 const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
-const ReturnVersionsImportProcess = require('./modules/return-versions-import/process.js')
 
 const config = require('../config.js')
 
@@ -212,12 +211,6 @@ async function referenceDataImport (_request, h) {
   return h.response().code(204)
 }
 
-async function returnVersionsImport (_request, h) {
-  ReturnVersionsImportProcess.go(config.featureFlags.disableReturnsImports, true)
-
-  return h.response().code(204)
-}
-
 function status (_request, _h) {
   return { status: 'alive' }
 }
@@ -265,6 +258,5 @@ module.exports = {
   linkToModLogs,
   partyCrmV2Import,
   referenceDataImport,
-  returnVersionsImport,
   status
 }
