@@ -5,19 +5,14 @@ const DeletedLicenceData = require('./lib/deleted-licence-data.js')
 
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
-async function go (cleanLicences = false, log = false) {
+async function go (log = false) {
   const messages = []
 
   try {
     const startTime = currentTimeInNanoseconds()
 
-    if (cleanLicences) {
-      await DeletedLicences.go()
-      await DeletedLicenceData.go()
-    } else {
-      global.GlobalNotifier.omg('clean: skipped licences')
-      messages.push('Skipped cleaning licences as not enabled')
-    }
+    await DeletedLicences.go()
+    await DeletedLicenceData.go()
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'clean: complete')
