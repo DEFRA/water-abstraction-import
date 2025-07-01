@@ -15,7 +15,6 @@ const EtlReturns = require('./modules/etl/returns.js')
 const EtlVersions = require('./modules/etl/versions.js')
 const EtlVersionLines = require('./modules/etl/version-lines.js')
 const ExtractNaldDataProcess = require('./modules/extract-nald-data/process.js')
-const ExtractOldLinesProcess = require('./modules/extract-old-lines/process.js')
 const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/process.js')
 const ImportJobProcess = require('./modules/import-job/process.js')
 const InvalidReturnsCleanupProcess = require('./modules/invalid-returns-cleanup/process.js')
@@ -89,12 +88,6 @@ async function etlVersionLines (request, h) {
 
 async function extractNaldData (_request, h) {
   ExtractNaldDataProcess.go(true)
-
-  return h.response().code(204)
-}
-
-async function extractOldLines (_request, h) {
-  ExtractOldLinesProcess.go(config.featureFlags.disableReturnsImports, true)
 
   return h.response().code(204)
 }
@@ -258,7 +251,6 @@ module.exports = {
   etlVersions,
   etlVersionLines,
   extractNaldData,
-  extractOldLines,
   flagDeletedDocuments,
   healthInfo,
   importJob,
