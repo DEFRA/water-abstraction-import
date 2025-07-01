@@ -26,10 +26,8 @@ const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
 const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
 
-const config = require('../config.js')
-
 async function clean (_request, h) {
-  CleanProcess.go(config.import.licences.isCleanLicenceImportsEnabled, true)
+  CleanProcess.go(true)
 
   return h.response().code(204)
 }
