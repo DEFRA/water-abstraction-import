@@ -22,7 +22,6 @@ const LicenceCrmImportProcess = require('./modules/licence-crm-import/process.js
 const LicenceCrmV2ImportProcess = require('./modules/licence-crm-v2-import/process.js')
 const LicenceNoStartDateImportProcess = require('./modules/licence-no-start-date-import/process.js')
 const LicencePermitImportProcess = require('./modules/licence-permit-import/process.js')
-const LicenceSubmissionsImportProcess = require('./modules/licence-submissions-import/process.js')
 const LicencesImportProcess = require('./modules/licences-import/process.js')
 const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
 const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
@@ -157,17 +156,6 @@ async function licencePermitImport (request, h) {
   return h.response().code(204)
 }
 
-async function licenceSubmissionsImport (request, h) {
-  const { licenceRef } = request.payload
-
-  const query = 'SELECT l.* FROM "import"."NALD_ABS_LICENCES" l WHERE l."LIC_NO" = $1;'
-  const results = await db.query(query, [licenceRef])
-
-  LicenceSubmissionsImportProcess.go(results[0], null, true)
-
-  return h.response().code(204)
-}
-
 async function licencesImport (_request, h) {
   LicencesImportProcess.go(true)
 
@@ -240,7 +228,6 @@ module.exports = {
   licenceCrmV2Import,
   licenceNoStartDateImport,
   licencePermitImport,
-  licenceSubmissionsImport,
   licencesImport,
   linkToModLogs,
   partyCrmV2Import,
