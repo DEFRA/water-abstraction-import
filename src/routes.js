@@ -160,14 +160,6 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/process/licence-returns-import',
-    handler: Controller.licenceReturnsImport,
-    config: {
-      auth: false
-    }
-  },
-  {
-    method: 'POST',
     path: '/process/licence-submissions-import',
     handler: Controller.licenceSubmissionsImport,
     config: {
