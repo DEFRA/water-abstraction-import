@@ -205,13 +205,5 @@ module.exports = [
     config: {
       auth: false
     }
-  },
-  {
-    method: 'POST',
-    path: '/process/return-versions-import',
-    handler: Controller.returnVersionsImport,
-    config: {
-      auth: false
-    }
   }
 ]
