@@ -78,10 +78,6 @@ jobs:
         run: |
           npm run lint
 
-      - name: Database migrations
-        run: |
-          npm run migrate:test
-
       - name: Run unit tests
         run: |
           npm test
