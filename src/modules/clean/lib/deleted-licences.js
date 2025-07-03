@@ -16,9 +16,53 @@ async function go () {
   await _licenceVersionPurposes()
   await _licenceVersions()
   await _chargeReferences()
+  await _billingVolumes()
+  await _billingBatchChargeVersionYears()
   await _chargeVersions()
   await _licenceDocuments()
   await _licences()
+}
+
+async function _billingBatchChargeVersionYears() {
+  // Delete any billing batch charge version years linked to charge versions linked to deleted NALD licences
+  await db.query(`
+    WITH licences_to_remove AS (
+      SELECT l.id AS licence_id
+      FROM public.licences l
+      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+    )
+    DELETE FROM water.billing_batch_charge_version_years bbcvy
+    WHERE bbcvy.charge_version_id IN (
+      SELECT cv.id FROM public.charge_versions cv
+        INNER JOIN licences_to_remove ltr
+          ON cv.licence_id = ltr.licence_id
+    );
+  `)
+}
+
+async function _billingVolumes() {
+  // Delete any billing volumes linked to charge elements linked to deleted NALD licences
+  await db.query(`
+    WITH licences_to_remove AS (
+      SELECT l.id AS licence_id
+      FROM public.licences l
+      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
+      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+    )
+    DELETE FROM water.billing_volumes bv
+    WHERE bv.charge_element_id  IN (
+      SELECT ce.charge_element_id FROM water.charge_elements ce
+        INNER JOIN water.charge_versions cv
+          ON ce.charge_version_id = cv.charge_version_id
+        INNER JOIN licences_to_remove ltr
+          ON cv.licence_id = ltr.licence_id
+    );
+  `)
 }
 
 async function _chargeElements () {
