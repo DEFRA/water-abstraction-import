@@ -23,7 +23,7 @@ async function go () {
   await _licences()
 }
 
-async function _billingBatchChargeVersionYears() {
+async function _billingBatchChargeVersionYears () {
   // Delete any billing batch charge version years linked to charge versions linked to deleted NALD licences
   await db.query(`
     WITH licences_to_remove AS (
@@ -43,7 +43,7 @@ async function _billingBatchChargeVersionYears() {
   `)
 }
 
-async function _billingVolumes() {
+async function _billingVolumes () {
   // Delete any billing volumes linked to charge elements linked to deleted NALD licences
   await db.query(`
     WITH licences_to_remove AS (
