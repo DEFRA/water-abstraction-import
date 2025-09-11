@@ -2,6 +2,33 @@
 
 const db = require('../../../lib/connectors/db.js')
 
+const LICENCES_TO_REMOVE_QUERY = `
+WITH nald_lics AS (
+  SELECT
+    nal.*
+  FROM
+    "import"."NALD_ABS_LICENCES" nal
+  WHERE EXISTS (
+    SELECT
+      1
+    FROM
+      "import"."NALD_ABS_LIC_VERSIONS" nalv
+    WHERE
+      nalv."AABL_ID" = nal."ID"
+      AND nalv."FGAC_REGION_CODE" = nal."FGAC_REGION_CODE"
+      AND nalv."STATUS" <> 'DRAFT'
+  )
+),
+licences_to_remove AS (
+  SELECT l.id AS licence_id, l.licence_ref
+  FROM public.licences l
+  WHERE NOT EXISTS (SELECT 1 FROM nald_lics nal WHERE nal."LIC_NO" = l.licence_ref)
+  AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
+  AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+  AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
+)
+`
+
 async function go () {
   await _chargeElements()
   await _chargeVersionNotes()
@@ -26,14 +53,7 @@ async function go () {
 async function _billingBatchChargeVersionYears () {
   // Delete any billing batch charge version years linked to charge versions linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.id AS licence_id
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM water.billing_batch_charge_version_years bbcvy
     WHERE bbcvy.charge_version_id IN (
       SELECT cv.id FROM public.charge_versions cv
@@ -46,14 +66,7 @@ async function _billingBatchChargeVersionYears () {
 async function _billingVolumes () {
   // Delete any billing volumes linked to charge elements linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.id AS licence_id
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM water.billing_volumes bv
     WHERE bv.charge_element_id  IN (
       SELECT ce.charge_element_id FROM water.charge_elements ce
@@ -68,14 +81,7 @@ async function _billingVolumes () {
 async function _chargeElements () {
   // Delete any charge elements linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.id AS licence_id
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.charge_elements ce
     WHERE ce.id IN (
       SELECT ce.id FROM public.charge_elements ce
@@ -92,14 +98,7 @@ async function _chargeElements () {
 async function _chargeReferences () {
   // Delete any charge references linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.id AS licence_id
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.charge_references cr
     WHERE cr.id IN (
       SELECT cr.id FROM public.charge_references cr
@@ -114,14 +113,7 @@ async function _chargeReferences () {
 async function _chargeVersionNotes () {
   // Delete any charge version notes linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.id AS licence_id
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.charge_version_notes cvn
     WHERE cvn.id IN (
       SELECT cv.note_id FROM public.charge_versions cv
@@ -134,14 +126,7 @@ async function _chargeVersionNotes () {
 async function _chargeVersions () {
   // Delete any charge versions linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.id AS licence_id
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.charge_versions cv
     WHERE cv.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
   `)
@@ -150,14 +135,7 @@ async function _chargeVersions () {
 async function _licenceAgreements () {
   // Delete any licence agreements linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.licence_ref
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.licence_agreements la
     WHERE la.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
   `)
@@ -166,14 +144,7 @@ async function _licenceAgreements () {
 async function _licenceDocumentHeaders () {
   // Delete any licence document headers linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.licence_ref
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.licence_document_headers ldh
     WHERE ldh.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
   `)
@@ -182,14 +153,7 @@ async function _licenceDocumentHeaders () {
 async function _licenceDocumentRoles () {
   // Delete any licence document roles linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.licence_ref
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.licence_document_roles ldr
     WHERE ldr.licence_document_id IN (
       SELECT ld.id FROM public.licence_documents ld
@@ -202,14 +166,7 @@ async function _licenceDocumentRoles () {
 async function _licenceDocuments () {
   // Delete any licence documents linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.licence_ref
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.licence_documents ld
     WHERE ld.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
   `)
@@ -218,14 +175,7 @@ async function _licenceDocuments () {
 async function _licenceMonitoringStations () {
   // Delete any licence monitoring stations linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.id AS licence_id
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.licence_monitoring_stations lms
     WHERE lms.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
   `)
@@ -234,25 +184,16 @@ async function _licenceMonitoringStations () {
 async function _licences () {
   // Delete any licences linked to deleted NALD licences
   await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.licences l
-    WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-    AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-    AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-    AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL);
+    WHERE EXISTS (SELECT 1 FROM licences_to_remove ltr WHERE ltr.licence_id = l.id);
   `)
 }
 
 async function _licenceVersionPurposeConditions () {
   // Delete any licence version purpose conditions linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.id AS licence_id
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.licence_version_purpose_conditions lvpc
       WHERE lvpc.licence_version_purpose_id IN (
         SELECT lvp.id FROM public.licence_version_purposes lvp
@@ -267,14 +208,7 @@ async function _licenceVersionPurposeConditions () {
 async function _licenceVersionPurposePoints () {
   // Delete any licence version purpose points linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.id AS licence_id
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.licence_version_purpose_points lvpp
     WHERE lvpp.licence_version_purpose_id IN (
       SELECT lvp.id FROM public.licence_version_purposes lvp
@@ -289,14 +223,7 @@ async function _licenceVersionPurposePoints () {
 async function _licenceVersionPurposes () {
   // Delete any licence version purposes linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.id AS licence_id
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.licence_version_purposes lvp
       WHERE lvp.licence_version_id IN (
         SELECT lv.id from public.licence_versions lv
@@ -309,14 +236,7 @@ async function _licenceVersionPurposes () {
 async function _licenceVersions () {
   // Delete any licence versions linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.id AS licence_id
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.licence_versions lv
       WHERE lv.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
   `)
@@ -325,14 +245,7 @@ async function _licenceVersions () {
 async function _licenceWorkflows () {
   // Delete any workflows linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.id AS licence_id
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.workflows w
     WHERE w.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
   `)
@@ -341,14 +254,7 @@ async function _licenceWorkflows () {
 async function _permitLicences () {
   // Delete any permit licences linked to deleted NALD licences
   await db.query(`
-    WITH licences_to_remove AS (
-      SELECT l.licence_ref
-      FROM public.licences l
-      WHERE NOT EXISTS (SELECT 1 FROM "import"."NALD_ABS_LICENCES" nal WHERE nal."LIC_NO" = l.licence_ref)
-      AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
-      AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
-    )
+    ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.permit_licences pl
     WHERE pl.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
   `)
