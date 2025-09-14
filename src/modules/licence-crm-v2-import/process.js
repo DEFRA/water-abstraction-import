@@ -2,13 +2,14 @@
 
 const Transformer = require('./lib/transformer.js')
 const db = require('../../lib/connectors/db.js')
-const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
+const { currentTimeInNanoseconds, calculateAndLogTimeTaken, timestampForPostgres } = require('../../lib/general.js')
 
 async function go (permitJson, log = false) {
   const messages = []
 
   try {
     const startTime = currentTimeInNanoseconds()
+    const startTimestamp = timestampForPostgres()
 
     if (!permitJson || permitJson.data.versions.length === 0) {
       global.GlobalNotifier.omg('licence-crm-v2-import: skipped')
@@ -24,6 +25,8 @@ async function go (permitJson, log = false) {
       await _persistDocumentRole(documentRole, documentId)
     }
 
+    await _cleanUp(documentId, startTimestamp)
+
     if (log) {
       calculateAndLogTimeTaken(startTime, 'licence-crm-v2-import: complete')
     }
@@ -34,6 +37,16 @@ async function go (permitJson, log = false) {
   }
 
   return messages
+}
+
+async function _cleanUp (documentId, startTimestamp) {
+  const params = [documentId, startTimestamp]
+  const query = `
+    DELETE FROM crm_v2.document_roles
+    WHERE document_id = $1 AND date_updated < $2;
+  `
+
+  return db.query(query, params)
 }
 
 async function _persistDocument (document) {
