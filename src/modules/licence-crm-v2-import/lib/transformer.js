@@ -1,6 +1,5 @@
 'use strict'
 
-const CurrentLicenceVersions = require('./current-licence-versions.js')
 const DateHelpers = require('../../../lib/date-helpers.js')
 
 function go (permitData) {
@@ -30,9 +29,9 @@ function _documentRoles (permitData, document) {
 }
 
 function _licenceHolderRoles (permitData, document) {
-  const currentLicenceVersions = CurrentLicenceVersions.go(permitData.data.versions)
+  const sortedLicenceVersions = _sortLicenceVersions(permitData.data.versions)
 
-  return currentLicenceVersions.map((licenceVersion) => {
+  return sortedLicenceVersions.map((licenceVersion) => {
     const licenceVersionStartDate = DateHelpers.mapNaldDate(licenceVersion.EFF_ST_DATE)
     const startDate = DateHelpers.getMaxDate([document.startDate, licenceVersionStartDate], false)
 
@@ -68,6 +67,36 @@ function _returnsToRoles (permitData) {
       contactExternalId: role.role_party.APAR_TYPE === 'PER' ? partyId : null,
       addressExternalId: `${permitData.FGAC_REGION_CODE}:${role.role_address.ID}`
     }
+  })
+}
+
+/**
+ * Sorts the licence versions in ascending order of issue number and increment number.
+ *
+ * @private
+ */
+function _sortLicenceVersions(licenceVersions) {
+  return licenceVersions.sort((licenceVersionA, licenceVersionB) => {
+    const versionA = { issueNo: parseInt(licenceVersionA.ISSUE_NO), increment: parseInt(licenceVersionA.INCR_NO) }
+    const versionB = { issueNo: parseInt(licenceVersionB.ISSUE_NO), increment: parseInt(licenceVersionB.INCR_NO) }
+
+    if (versionA.issueNo > versionB.issueNo) {
+      return 1
+    }
+
+    if (versionA.issueNo < versionB.issueNo) {
+      return -1
+    }
+
+    if (versionA.increment > versionB.increment) {
+      return 1
+    }
+
+    if (versionA.increment < versionB.increment) {
+      return -1
+    }
+
+    return 0
   })
 }
 
