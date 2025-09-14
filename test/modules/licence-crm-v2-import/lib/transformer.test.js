@@ -36,11 +36,11 @@ experiment('modules/licence-crm-v2-import/lib/transformer.js', () => {
       ),
       PermitDataFixture.createVersion(
         licence,
-        { ISSUE_NO: '2', INCR_NO: '1', EFF_ST_DATE: '01/04/2015', EFF_END_DATE: '05/07/2015' }
+        { ISSUE_NO: '2', INCR_NO: '1', EFF_ST_DATE: '06/07/2015', EFF_END_DATE: 'null' }
       ),
       PermitDataFixture.createVersion(
         licence,
-        { ISSUE_NO: '2', INCR_NO: '2', EFF_ST_DATE: '13/08/2015', EFF_END_DATE: 'null' }
+        { ISSUE_NO: '2', INCR_NO: '2', EFF_ST_DATE: '06/07/2015', EFF_END_DATE: 'null' }
       )
     ]
 
@@ -71,7 +71,23 @@ experiment('modules/licence-crm-v2-import/lib/transformer.js', () => {
       expect(result.documentRoles).to.equal([
         {
           role: 'licenceHolder',
-          startDate: moment('2015-08-13'),
+          startDate: moment('2015-04-01'),
+          endDate: moment('2015-07-05'),
+          companyExternalId: '1:1000',
+          contactExternalId: null,
+          addressExternalId: '1:1000'
+        },
+        {
+          role: 'licenceHolder',
+          startDate: moment('2015-07-06'),
+          endDate: null,
+          companyExternalId: '1:1000',
+          contactExternalId: null,
+          addressExternalId: '1:1000'
+        },
+        {
+          role: 'licenceHolder',
+          startDate: moment('2015-07-06'),
           endDate: null,
           companyExternalId: '1:1000',
           contactExternalId: null,
