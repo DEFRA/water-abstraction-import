@@ -75,7 +75,7 @@ function _returnsToRoles (permitData) {
  *
  * @private
  */
-function _sortLicenceVersions(licenceVersions) {
+function _sortLicenceVersions (licenceVersions) {
   return licenceVersions.sort((licenceVersionA, licenceVersionB) => {
     const versionA = { issueNo: parseInt(licenceVersionA.ISSUE_NO), increment: parseInt(licenceVersionA.INCR_NO) }
     const versionB = { issueNo: parseInt(licenceVersionB.ISSUE_NO), increment: parseInt(licenceVersionB.INCR_NO) }
