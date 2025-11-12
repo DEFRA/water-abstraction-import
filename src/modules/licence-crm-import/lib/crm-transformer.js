@@ -4,6 +4,9 @@ const { sentenceCase } = require('sentence-case')
 
 const helpers = require('@envage/water-abstraction-helpers')
 
+const { today } = require('../../../lib/general.js')
+const { compareDates, mapNaldDate } = require('../../../lib/date-helpers.js')
+
 function go (permitData) {
   const metadata = _metadata(permitData)
 
@@ -39,15 +42,47 @@ function _contacts (permitData) {
     ...helpers.nald.formatting.addressFormatter(licenceHolderAddress.party_address)
   }]
 
-  permitData.data.roles.forEach((role) => {
+  for (const role of permitData.data.roles) {
+    const importRole = _importRole(role)
+
+    if (!importRole) {
+      continue
+    }
+
     contacts.push({
       role: sentenceCase(role.role_type.DESCR),
       ...helpers.nald.formatting.crmNameFormatter(role.role_party),
       ...helpers.nald.formatting.addressFormatter(role.role_address)
     })
-  })
+  }
 
   return helpers.nald.transformNull(contacts)
+}
+
+function _importRole (role) {
+  // The role is disabled so ignore contacts of that type
+  const roleTypeDisabled = role.role_type.DISABLED === 'Y'
+
+  if (roleTypeDisabled) {
+    return false
+  }
+
+  // The role (contact) effective start date is populated and greater than today's date
+  const startDate = mapNaldDate(role.role_detail.EFF_ST_DATE)
+  const todaysDate = today()
+
+  if (startDate && (compareDates(new Date(startDate), todaysDate) !== -1)) {
+    return false
+  }
+
+  // The role (contact) effective end date is populated and less than today's date
+  const endDate = mapNaldDate(role.role_detail.EFF_END_DATE)
+
+  if (endDate && compareDates(new Date(endDate), todaysDate) === -1) {
+    return false
+  }
+
+  return true
 }
 
 function _metadata (permitData) {
