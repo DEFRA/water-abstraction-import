@@ -12,8 +12,15 @@ const { expect } = Code
 const GeneralLib = require('../../src/lib/general.js')
 
 experiment('src/lib/general.js', () => {
+  let clock
+  let testDate
+
   afterEach(() => {
     Sinon.restore()
+
+    if (clock) {
+      clock.restore()
+    }
   })
 
   experiment('#calculateAndLogTimeTaken', () => {
@@ -180,6 +187,21 @@ experiment('src/lib/general.js', () => {
       const result = GeneralLib.timestampForPostgres()
 
       expect(result).to.equal('2015-10-21T20:31:57.000Z')
+    })
+  })
+
+  experiment('#today', () => {
+    beforeEach(() => {
+      testDate = new Date(2025, 9, 19, 20, 31, 57, 234)
+
+      clock = Sinon.useFakeTimers(testDate)
+    })
+
+    test('returns the current date and time as date-only (time set to midnight)', () => {
+      const result = GeneralLib.today()
+
+      // We compare ISO strings as its a clearer way of ensuring the result is as expected
+      expect(result.toISOString()).to.equal('2025-10-19T00:00:00.000Z')
     })
   })
 })
