@@ -6,6 +6,25 @@ const DATE_FORMAT = 'YYYY-MM-DD'
 const NALD_FORMAT = 'DD/MM/YYYY'
 
 /**
+ * Compares two dates and returns:
+ *
+ * -1 if dateA is before dateB
+ * 1 if dateA is after dateB
+ * 0 if they are the same date
+ *
+ * This is useful as a helper for sorting dates.
+ *
+ * @param {Date} dateA - First date to compare
+ * @param {Date} dateB - Second date to compare
+ *
+ * @returns {number} -1 if dateA is before dateB, 1 if dateA is after dateB, 0 if they are the same date
+ */
+function compareDates (dateA, dateB) {
+  // Math.sign() clamps the result of the subtraction to a minimum of -1 and a maximum of 1
+  return Math.sign(dateA - dateB)
+}
+
+/**
  * Gets the end date for a company address from licence version data
  * @param {Object} row - from NALD licence/licence version data
  * @param {String,Null} currentEnd - the current value of the end date in the accumulator
@@ -91,6 +110,7 @@ function _sortDates (arr) {
 }
 
 module.exports = {
+  compareDates,
   getEndDate,
   getMinDate,
   getMaxDate,
