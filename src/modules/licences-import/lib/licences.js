@@ -7,10 +7,12 @@ async function go () {
     INSERT INTO water.licences (
       region_id,
       licence_ref,
+      application_number,
       is_water_undertaker,
       regions,
       start_date,
       expired_date,
+      issue_date,
       lapsed_date,
       revoked_date,
       date_created,
@@ -19,6 +21,10 @@ async function go () {
     SELECT
       r.region_id,
       nal."LIC_NO" AS licence_ref,
+      (CASE
+        WHEN nal."ORIG_APP_NO" = 'null' THEN NULL
+        ELSE nal."ORIG_APP_NO"
+      END) AS application_number,
       (CASE
         WHEN nal."AREP_EIUC_CODE" LIKE '%SWC' THEN TRUE
         ELSE FALSE
@@ -45,6 +51,10 @@ async function go () {
         WHEN nal."EXPIRY_DATE" = 'null' THEN NULL
         ELSE to_date(nal."EXPIRY_DATE", 'DD/MM/YYYY')
       END) AS expiry_date,
+      (CASE
+        WHEN nal."ORIG_SIG_DATE" = 'null' THEN NULL
+        ELSE to_date(nal."ORIG_SIG_DATE", 'DD/MM/YYYY')
+      END) AS issue_date,
       (CASE
         WHEN nal."LAPSED_DATE" = 'null' THEN NULL
         ELSE to_date(nal."LAPSED_DATE", 'DD/MM/YYYY')
@@ -73,10 +83,12 @@ async function go () {
       )
     ON CONFLICT (licence_ref)
     DO UPDATE SET
+      application_number = excluded.application_number,
       is_water_undertaker = excluded.is_water_undertaker,
       regions = excluded.regions,
       start_date = excluded.start_date,
       expired_date = excluded.expired_date,
+      issue_date = excluded.issue_date,
       lapsed_date = excluded.lapsed_date,
       revoked_date = excluded.revoked_date,
       date_updated = excluded.date_updated;
