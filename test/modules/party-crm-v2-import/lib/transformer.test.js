@@ -60,7 +60,7 @@ experiment('modules/party-crm-v2-import/lib/transformer.js', () => {
 
       expect(result).to.equal({
         type: 'person',
-        name: 'SIR JOHN DOE',
+        name: 'SIR J DOE',
         externalId: '1:1001',
         roleAddresses: [
           {
@@ -127,15 +127,15 @@ experiment('modules/party-crm-v2-import/lib/transformer.js', () => {
       })
     })
 
-    experiment('and when the person has no forename', () => {
+    experiment('and when the person has no initials', () => {
       beforeEach(() => {
-        party = PermitDataFixture.createPerson({ FORENAME: 'null' })
+        party = PermitDataFixture.createPerson({ INITIALS: 'null' })
       })
 
-      test('the initials are used as the first name', () => {
+      test('the forename is used instead', () => {
         const result = Transformer.go(party, licenceVersions, licenceRoles, naldAddresses)
 
-        expect(result.name).to.equal('SIR J DOE')
+        expect(result.name).to.equal('SIR JOHN DOE')
       })
     })
   })
