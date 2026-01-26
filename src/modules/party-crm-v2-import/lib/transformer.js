@@ -39,7 +39,8 @@ function _addresses (naldAddresses) {
 }
 
 function _company (party) {
-  const startName = party.FORENAME === 'null' ? party.INITIALS : party.FORENAME
+  // NOTE: Prioritise the initials and use the forename if initials is null
+  const startName = party.INITIALS === 'null' ? party.FORENAME : party.INITIALS
   const parts = [
     naldNull(party.SALUTATION),
     naldNull(startName),
