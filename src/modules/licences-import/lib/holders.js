@@ -25,6 +25,7 @@ async function go () {
       last_changed,
       disabled,
       external_id,
+      company_id,
       created_at,
       updated_at
     )
@@ -58,6 +59,7 @@ async function go () {
         ELSE TRUE
       END) AS disabled,
       concat_ws(':', np."FGAC_REGION_CODE", np."ID") AS external_id,
+      c.company_id AS company_id,
       NOW() AS created_at,
       NOW() AS updated_at
     FROM
@@ -71,6 +73,9 @@ async function go () {
     INNER JOIN
       "import"."NALD_ADDRESSES" na
       ON na."ID" = nalv."ACON_AADD_ID" AND na."FGAC_REGION_CODE" = nalv."FGAC_REGION_CODE"
+    LEFT JOIN
+      crm_v2.companies c
+      ON c.external_id = concat_ws(':', np."FGAC_REGION_CODE", np."ID")
     WHERE
       nalv."STATUS" <> 'DRAFT'
     ON CONFLICT(licence_version_id)
@@ -94,6 +99,7 @@ async function go () {
       last_changed = excluded.last_changed,
       disabled = excluded.disabled,
       external_id = excluded.external_id,
+      company_id = excluded.company_id,
       updated_at = excluded.updated_at;
   `)
 }
