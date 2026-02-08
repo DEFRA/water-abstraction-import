@@ -24,6 +24,7 @@ async function go () {
       local_name,
       last_changed,
       disabled,
+      external_id,
       created_at,
       updated_at
     )
@@ -56,6 +57,7 @@ async function go () {
         WHEN np."DISABLED" = 'N' THEN FALSE
         ELSE TRUE
       END) AS disabled,
+      concat_ws(':', np."FGAC_REGION_CODE", np."ID") AS external_id,
       NOW() AS created_at,
       NOW() AS updated_at
     FROM
@@ -91,6 +93,7 @@ async function go () {
       local_name = excluded.local_name,
       last_changed = excluded.last_changed,
       disabled = excluded.disabled,
+      external_id = excluded.external_id,
       updated_at = excluded.updated_at;
   `)
 }
