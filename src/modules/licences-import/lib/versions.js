@@ -14,6 +14,7 @@ async function go () {
       end_date,
       issue_date,
       external_id,
+      company_id,
       date_created,
       date_updated
     )
@@ -42,6 +43,7 @@ async function go () {
         ELSE to_date(nalv."LIC_SIG_DATE", 'DD/MM/YYYY')
       END) AS issue_date,
       concat_ws(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS external_id,
+      c.company_id,
       now() AS date_created,
       now() AS date_updated
     FROM
@@ -50,6 +52,8 @@ async function go () {
       ON nal."FGAC_REGION_CODE" = nalv."FGAC_REGION_CODE" AND nal."ID" = nalv."AABL_ID"
     INNER JOIN water.licences l
       ON l.licence_ref = nal."LIC_NO"
+    LEFT JOIN crm_v2.companies c
+      ON c.external_id = concat_ws(':', nalv."FGAC_REGION_CODE", nalv."ACON_APAR_ID")
     ON CONFLICT(external_id)
     DO UPDATE SET
       licence_id = excluded.licence_id,
@@ -58,6 +62,7 @@ async function go () {
       start_date = excluded.start_date,
       end_date = excluded.end_date,
       issue_date = excluded.issue_date,
+      company_id = excluded.company_id,
       date_updated = excluded.date_updated;
   `)
 }
