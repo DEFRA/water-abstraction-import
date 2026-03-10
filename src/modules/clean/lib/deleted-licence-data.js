@@ -10,6 +10,15 @@ async function go () {
   await _licenceVersionWorkflows()
   await _licenceVersions()
   await _licenceVersionHolders()
+  await _modLogs()
+}
+
+async function _modLogs () {
+  // Delete any mod logs linked to deleted NALD licence versions
+  await db.query(`
+    DELETE FROM public.mod_logs ml
+      WHERE NOT EXISTS (SELECT 1 FROM public.licence_versions lv WHERE ml.licence_version_id = lv.id);
+  `)
 }
 
 async function _licenceMonitoringStations () {

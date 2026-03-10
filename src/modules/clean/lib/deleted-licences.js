@@ -47,6 +47,7 @@ async function go () {
   await _returnRequirementPurposes()
   await _returnRequirements()
   await _returnVersions()
+  await _modLogs()
   await _chargeReferences()
   await _billingVolumes()
   await _billingBatchChargeVersionYears()
@@ -266,6 +267,15 @@ async function _licenceWorkflows () {
     ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.workflows w
     WHERE w.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
+  `)
+}
+
+async function _modLogs () {
+  // Delete any mod logs linked to deleted NALD licences
+  await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
+    DELETE FROM public.mod_logs ml
+    WHERE ml.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
   `)
 }
 
