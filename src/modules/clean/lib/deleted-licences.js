@@ -45,6 +45,7 @@ async function go () {
   await _licenceVersions()
   await _returnRequirementPoints()
   await _returnRequirementPurposes()
+  await _returnRequirements()
   await _chargeReferences()
   await _billingVolumes()
   await _billingBatchChargeVersionYears()
@@ -300,6 +301,19 @@ async function _returnRequirementPurposes () {
       SELECT rr.id FROM public.return_requirements rr
       INNER JOIN public.return_versions rv
         ON rv.id = rr.return_version_id
+      INNER JOIN licences_to_remove ltr
+        ON ltr.licence_id = rv.licence_id
+    );
+  `)
+}
+
+async function _returnRequirements () {
+  // Delete any return requirements linked to deleted NALD licences
+  await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
+    DELETE FROM public.return_requirements rr
+    WHERE rr.return_version_id IN (
+      SELECT rv.id FROM public.return_versions rv
       INNER JOIN licences_to_remove ltr
         ON ltr.licence_id = rv.licence_id
     );
