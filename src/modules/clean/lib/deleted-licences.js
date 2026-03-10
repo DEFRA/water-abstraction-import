@@ -41,7 +41,13 @@ async function go () {
   await _permitLicences()
   await _licenceVersionPurposeConditions()
   await _licenceVersionPurposes()
+  await _licenceVersionHolders()
   await _licenceVersions()
+  await _returnRequirementPoints()
+  await _returnRequirementPurposes()
+  await _returnRequirements()
+  await _returnVersions()
+  await _modLogs()
   await _chargeReferences()
   await _billingVolumes()
   await _billingBatchChargeVersionYears()
@@ -190,6 +196,19 @@ async function _licences () {
   `)
 }
 
+async function _licenceVersionHolders () {
+  // Delete any licence version holders linked to deleted NALD licences
+  await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
+    DELETE FROM public.licence_version_holders lvh
+      WHERE lvh.licence_version_id IN (
+        SELECT lv.id from public.licence_versions lv
+        INNER JOIN licences_to_remove ltr
+          ON ltr.licence_id = lv.licence_id
+      );
+  `)
+}
+
 async function _licenceVersionPurposeConditions () {
   // Delete any licence version purpose conditions linked to deleted NALD licences
   await db.query(`
@@ -251,12 +270,73 @@ async function _licenceWorkflows () {
   `)
 }
 
+async function _modLogs () {
+  // Delete any mod logs linked to deleted NALD licences
+  await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
+    DELETE FROM public.mod_logs ml
+    WHERE ml.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
+  `)
+}
+
 async function _permitLicences () {
   // Delete any permit licences linked to deleted NALD licences
   await db.query(`
     ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.permit_licences pl
     WHERE pl.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
+  `)
+}
+
+async function _returnRequirementPoints () {
+  // Delete any return requirement points linked to deleted NALD licences
+  await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
+    DELETE FROM public.return_requirement_points rrp
+    WHERE rrp.return_requirement_id IN (
+      SELECT rr.id FROM public.return_requirements rr
+      INNER JOIN public.return_versions rv
+        ON rv.id = rr.return_version_id
+      INNER JOIN licences_to_remove ltr
+        ON ltr.licence_id = rv.licence_id
+    );
+  `)
+}
+
+async function _returnRequirementPurposes () {
+  // Delete any return requirement purposes linked to deleted NALD licences
+  await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
+    DELETE FROM public.return_requirement_purposes rrp
+    WHERE rrp.return_requirement_id IN (
+      SELECT rr.id FROM public.return_requirements rr
+      INNER JOIN public.return_versions rv
+        ON rv.id = rr.return_version_id
+      INNER JOIN licences_to_remove ltr
+        ON ltr.licence_id = rv.licence_id
+    );
+  `)
+}
+
+async function _returnRequirements () {
+  // Delete any return requirements linked to deleted NALD licences
+  await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
+    DELETE FROM public.return_requirements rr
+    WHERE rr.return_version_id IN (
+      SELECT rv.id FROM public.return_versions rv
+      INNER JOIN licences_to_remove ltr
+        ON ltr.licence_id = rv.licence_id
+    );
+  `)
+}
+
+async function _returnVersions () {
+  // Delete any return versions linked to deleted NALD licences
+  await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
+    DELETE FROM public.return_versions rv
+    WHERE rv.licence_id IN (SELECT ltr.licence_id FROM licences_to_remove ltr);
   `)
 }
 
