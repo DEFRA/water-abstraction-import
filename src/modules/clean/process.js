@@ -2,6 +2,7 @@
 
 const DeletedLicences = require('./lib/deleted-licences.js')
 const DeletedLicenceData = require('./lib/deleted-licence-data.js')
+const DraftLicenceData = require('./lib/draft-licence-data.js')
 
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
@@ -13,6 +14,7 @@ async function go (log = false) {
 
     await DeletedLicences.go()
     await DeletedLicenceData.go()
+    await DraftLicenceData.go()
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'clean: complete')

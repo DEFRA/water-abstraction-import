@@ -54,6 +54,8 @@ async function go () {
       ON l.licence_ref = nal."LIC_NO"
     LEFT JOIN crm_v2.companies c
       ON c.external_id = concat_ws(':', nalv."FGAC_REGION_CODE", nalv."ACON_APAR_ID")
+    WHERE
+      nalv."STATUS" <> 'DRAFT'
     ON CONFLICT(external_id)
     DO UPDATE SET
       licence_id = excluded.licence_id,
