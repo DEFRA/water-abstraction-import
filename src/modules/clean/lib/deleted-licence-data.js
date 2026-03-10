@@ -9,6 +9,7 @@ async function go () {
   await _licenceVersionPurposes()
   await _licenceVersionWorkflows()
   await _licenceVersions()
+  await _licenceVersionHolders()
 }
 
 async function _licenceMonitoringStations () {
@@ -31,6 +32,14 @@ async function _licenceMonitoringStations () {
     )
     AND lms.licence_id IN (SELECT lstr.licence_id FROM licences_safe_to_remove lstr)
     AND lms.deleted_at IS NOT NULL;
+  `)
+}
+
+async function _licenceVersionHolders () {
+  // Delete any licence version holders linked to deleted NALD licence versions
+  await db.query(`
+    DELETE FROM public.licence_version_holders lvh
+      WHERE NOT EXISTS (SELECT 1 FROM public.licence_versions lv WHERE lvh.licence_version_id = lv.id);
   `)
 }
 

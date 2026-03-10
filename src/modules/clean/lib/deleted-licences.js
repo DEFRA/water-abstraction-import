@@ -41,6 +41,7 @@ async function go () {
   await _permitLicences()
   await _licenceVersionPurposeConditions()
   await _licenceVersionPurposes()
+  await _licenceVersionHolders()
   await _licenceVersions()
   await _chargeReferences()
   await _billingVolumes()
@@ -187,6 +188,19 @@ async function _licences () {
     ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.licences l
     WHERE EXISTS (SELECT 1 FROM licences_to_remove ltr WHERE ltr.licence_id = l.id);
+  `)
+}
+
+async function _licenceVersionHolders () {
+  // Delete any licence version holders linked to deleted NALD licences
+  await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
+    DELETE FROM public.licence_version_holders lvh
+      WHERE lvh.licence_version_id IN (
+        SELECT lv.id from public.licence_versions lv
+        INNER JOIN licences_to_remove ltr
+          ON ltr.licence_id = lv.licence_id
+      );
   `)
 }
 
