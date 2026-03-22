@@ -16,6 +16,7 @@ async function go () {
         nullif(np."INITIALS", 'null') AS initials,
         nullif(np."FORENAME", 'null') AS forename,
         nullif(np."NAME", 'null') AS name,
+        concat_ws(':', na."FGAC_REGION_CODE", na."ID") AS address_external_id,
         nullif(na."ADDR_LINE1", 'null') AS address_line_1,
         nullif(na."ADDR_LINE2", 'null') AS address_line_2,
         nullif(na."ADDR_LINE3", 'null') AS address_line_3,
@@ -80,12 +81,16 @@ async function go () {
           END),
           lh."name"
         ) AS derived_name,
-        c.company_id
+        c.company_id,
+        a.address_id
       FROM
         licence_holders lh
       LEFT JOIN
         crm_v2.companies c
         ON c.external_id = lh.external_id
+      LEFT JOIN
+        crm_v2.addresses a
+        ON a.external_id = lh.address_external_id
     )
     INSERT INTO water.licence_version_holders (
       licence_version_id,
@@ -110,6 +115,7 @@ async function go () {
       derived_name,
       external_id,
       company_id,
+      address_id,
       created_at,
       updated_at
     )
@@ -136,6 +142,7 @@ async function go () {
       dv.derived_name,
       dv.external_id,
       dv.company_id,
+      dv.address_id,
       NOW() AS created_at,
       NOW() AS updated_at
     FROM
@@ -163,6 +170,7 @@ async function go () {
       derived_name = excluded.derived_name,
       external_id = excluded.external_id,
       company_id = excluded.company_id,
+      address_id = excluded.address_id,
       updated_at = excluded.updated_at;
   `)
 }

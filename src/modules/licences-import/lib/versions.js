@@ -15,6 +15,7 @@ async function go () {
       issue_date,
       external_id,
       company_id,
+      address_id,
       date_created,
       date_updated
     )
@@ -44,6 +45,7 @@ async function go () {
       END) AS issue_date,
       concat_ws(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS external_id,
       c.company_id,
+      a.address_id,
       now() AS date_created,
       now() AS date_updated
     FROM
@@ -54,6 +56,8 @@ async function go () {
       ON l.licence_ref = nal."LIC_NO"
     LEFT JOIN crm_v2.companies c
       ON c.external_id = concat_ws(':', nalv."FGAC_REGION_CODE", nalv."ACON_APAR_ID")
+    LEFT JOIN crm_v2.addresses a
+      ON a.external_id = concat_ws(':', nalv."FGAC_REGION_CODE", nalv."ACON_AADD_ID")
     WHERE
       nalv."STATUS" <> 'DRAFT'
     ON CONFLICT(external_id)
@@ -65,6 +69,7 @@ async function go () {
       end_date = excluded.end_date,
       issue_date = excluded.issue_date,
       company_id = excluded.company_id,
+      address_id = excluded.address_id,
       date_updated = excluded.date_updated;
   `)
 }
