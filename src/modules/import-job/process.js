@@ -6,6 +6,7 @@ const CompletionEmail = require('../completion-email/process.js')
 const EndDateCheckStep = require('./lib/end-date-check.js')
 const EndDateTriggerStep = require('./lib/end-date-trigger.js')
 const ExtractNaldDataStep = require('./lib/extract-nald-data.js')
+const ExtractOldLinesStep = require('./lib/extract-old-lines.js')
 const FlagDeletedDocumentsStep = require('./lib/flag-deleted-documents.js')
 const LicenceDataImportStep = require('./lib/licence-data-import.js')
 const LicencesImportStep = require('./lib/licences-import.js')
@@ -23,6 +24,9 @@ async function go () {
     global.GlobalNotifier.omg('import-job started')
 
     step = await ExtractNaldDataStep.go()
+    steps.push(step)
+
+    step = await ExtractOldLinesStep.go()
     steps.push(step)
 
     step = await CleanStep.go()
