@@ -112,6 +112,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/extract-old-lines',
+    handler: Controller.extractOldLines,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/flag-deleted-documents',
     handler: Controller.flagDeletedDocuments,
     config: {
