@@ -26,6 +26,7 @@
     "@hapi/joi": "^15.1.1",
     "aws-sdk": "^2.1657.0",
     "bluebird": "^3.7.2",
+    "csv-parse": "^6.2.1",
     "csv-stringify": "^5.5.0",
     "dotenv": "^8.2.0",
     "firstline": "^2.0.2",
