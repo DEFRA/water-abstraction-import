@@ -3,8 +3,8 @@
 const fs = require('node:fs')
 
 const ConvertToJson = require('./lib/convert-to-json.js')
-const db = require('../../lib/connectors/db.js')
-const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
+const ProcessSubmissions = require('./lib/process-submissions.js')
+const { currentTimeInNanoseconds, calculateAndLogTimeTaken, timestampForPostgres } = require('../../lib/general.js')
 
 const LOCATION_OF_FILES = '/home/tmp/water-5481'
 
@@ -13,6 +13,7 @@ const LOCATION_OF_FILES = '/home/tmp/water-5481'
  */
 async function go(log = false) {
   const messages = []
+  const timestamp = timestampForPostgres()
 
   try {
     const startTime = currentTimeInNanoseconds()
@@ -20,8 +21,8 @@ async function go(log = false) {
     const files = _returnFiles()
 
     const submissions = ConvertToJson.go(LOCATION_OF_FILES, files[0])
-    console.log(submissions[0])
-    console.log(submissions[11])
+
+    await ProcessSubmissions.go(submissions, timestamp)
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'zero-return-lines: complete')
