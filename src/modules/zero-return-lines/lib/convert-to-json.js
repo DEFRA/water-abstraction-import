@@ -68,9 +68,13 @@ function _rows(unzippedData, filename) {
       })
     }
 
-    rowObject.process = rowObject.lines.some((line) => {
+    const hasZeroQuantityLines = rowObject.lines.some((line) => {
       return line.quantity === 0
     })
+
+    // There are some funnies in the file where we have a licence and reference, but no return ID. Fortunately they are
+    // never populated but just to be sure we only want to process rows where we have a return ID _and_ zero qty lines.
+    rowObject.process = hasZeroQuantityLines && rowObject.returnId ? true : false
 
     rows.push(rowObject)
   }

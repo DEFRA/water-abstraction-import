@@ -2,17 +2,15 @@
 
 const db = require('../../../lib/connectors/db.js')
 
-async function go (submissions, timestamp) {
-  const toBeProcessed = submissions.filter((submission) => {
-    return submission.process
+async function go (submission, timestamp) {
+  const { lines, returnId } = submission
+
+  const zeroQtyLines = lines.filter((line) => {
+    return line.quantity === 0
   })
 
-  if (toBeProcessed.length === 0) {
-    return
-  }
-
-  for (const submission of toBeProcessed) {
-    await _processSubmission(submission, timestamp)
+  for (const line of zeroQtyLines) {
+    await _updateLine(line, returnId, timestamp)
   }
 }
 
