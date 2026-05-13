@@ -1,12 +1,9 @@
 'use strict'
 
-const fs = require('node:fs')
-
 const ConvertToJson = require('./lib/convert-to-json.js')
 const ProcessSubmission = require('./lib/process-submission.js')
+const { checkFileExists, cleanUpFiles, downloadFile, extractFile, files, uploadFile } = require('./lib/file-manager.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken, timestampForPostgres } = require('../../lib/general.js')
-
-const LOCATION_OF_FILES = '/home/tmp/water-5481'
 
 /**
  * This is a temporary script
@@ -16,23 +13,33 @@ async function go(log = false) {
   const processResults = []
   const timestamp = timestampForPostgres()
 
+  let fileExists
+
   try {
     const startTime = currentTimeInNanoseconds()
 
-    const files = _returnFiles()
+    fileExists = await checkFileExists()
 
-    for (const file of files) {
-      const results = await _processFile(file, timestamp, messages)
+    if (fileExists) {
+      const downloadLocalPath = await downloadFile()
+      const extractLocalPath = await extractFile(downloadLocalPath)
+      const submissionFiles = files(extractLocalPath)
 
-      processResults.push(...results)
+      for (const submissionFile of submissionFiles) {
+        const results = await _processSubmissionFile(extractLocalPath, submissionFile, timestamp)
+
+        processResults.push(...results)
+      }
+
+      await _logResults(extractLocalPath, processResults, timestamp)
+
+      cleanUpFiles(downloadLocalPath, extractLocalPath)
     }
 
     _setMessages(processResults, messages)
 
-    _logResults(processResults, timestamp)
-
     if (log) {
-      calculateAndLogTimeTaken(startTime, 'zero-return-lines: complete')
+      calculateAndLogTimeTaken(startTime, 'zero-return-lines: complete', { messages })
     }
   } catch (error) {
     global.GlobalNotifier.omfg('zero-return-lines: errored', {}, error)
@@ -43,17 +50,17 @@ async function go(log = false) {
   return messages
 }
 
-function _logResults (logs, timestamp) {
+async function _logResults (extractLocalPath, logs, timestamp) {
   const logData = logs.map((log) => {
     return `${log.filename},${log.returnId},${log.process},${log.error || ''}`
   }).join('\n')
 
-  fs.writeFileSync(`${LOCATION_OF_FILES}/zero-return-lines-${timestamp}.csv`, logData)
+  await uploadFile(`zero-return-lines-log-${Date.parse(timestamp)}.csv`, logData)
 }
 
-async function _processFile (file, timestamp) {
+async function _processSubmissionFile (extractLocalPath, submissionFile, timestamp) {
   const logs = []
-  const submissions = ConvertToJson.go(LOCATION_OF_FILES, file)
+  const submissions = ConvertToJson.go(extractLocalPath, submissionFile)
 
   for (const submission of submissions) {
     const { filename, process, returnId } = submission
@@ -72,12 +79,6 @@ async function _processFile (file, timestamp) {
   }
 
   return logs
-}
-
-function _returnFiles() {
-  return fs.readdirSync(LOCATION_OF_FILES).filter((file) => {
-      return file.endsWith('.csv')
-    }).sort()
 }
 
 function _setMessages(processResults, messages) {
