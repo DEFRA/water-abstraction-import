@@ -161,12 +161,11 @@ async function _loadOldLinesTable (extractLocalPath) {
 
 async function _oldLinesFileExists () {
   try {
-    console.log('Hello')
     await s3.getHead(OLD_LINES_ZIP_FILE)
 
     return true
   } catch (error) {
-    if (error.name === 'NoSuchKey') {
+    if (['NotFound', 'NoSuchKey'].includes(error.name)) {
       return false // File does not exist
     }
 
