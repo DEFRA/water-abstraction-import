@@ -189,5 +189,13 @@ module.exports = [
     config: {
       auth: false
     }
+  },
+  {
+    method: 'POST',
+    path: '/process/zero-return-lines',
+    handler: Controller.zeroReturnLines,
+    config: {
+      auth: false
+    }
   }
 ]
