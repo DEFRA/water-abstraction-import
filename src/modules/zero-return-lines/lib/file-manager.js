@@ -8,8 +8,6 @@ const processHelper = require('@envage/water-abstraction-helpers').process
 
 const s3 = require('../../../lib/services/s3.js')
 
-const config = require('../../../../config.js')
-
 const ZERO_RETURN_LINES_ZIP_FILE = 'zero-return-lines.zip'
 
 async function checkFileExists () {
@@ -58,10 +56,10 @@ async function extractFile (downloadLocalPath) {
   return localPath
 }
 
-function files(extractLocalPath) {
+function files (extractLocalPath) {
   return fs.readdirSync(extractLocalPath).filter((file) => {
-      return file.endsWith('.csv')
-    }).sort()
+    return file.endsWith('.csv')
+  }).sort()
 }
 
 async function uploadFile (filename, data) {

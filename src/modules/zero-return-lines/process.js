@@ -8,7 +8,7 @@ const { currentTimeInNanoseconds, calculateAndLogTimeTaken, timestampForPostgres
 /**
  * This is a temporary script
  */
-async function go(log = false) {
+async function go (log = false) {
   const messages = []
   const processResults = []
   const timestamp = timestampForPostgres()
@@ -81,7 +81,7 @@ async function _processSubmissionFile (extractLocalPath, submissionFile, timesta
   return logs
 }
 
-function _setMessages(processResults, messages) {
+function _setMessages (processResults, messages) {
   const total = processResults.length
 
   const processedCount = processResults.filter((logEntry) => {

@@ -13,7 +13,7 @@ function go (path, filename) {
   return _rows(unzippedData, filename)
 }
 
-function _convertToBoolean(value) {
+function _convertToBoolean (value) {
   if (!value || value.toLowerCase() === 'n') {
     return false
   }
@@ -21,7 +21,7 @@ function _convertToBoolean(value) {
   return true
 }
 
-function _convertToNumber(value) {
+function _convertToNumber (value) {
   if (!value) {
     return null
   }
@@ -29,7 +29,7 @@ function _convertToNumber(value) {
   return Number(value)
 }
 
-function _parseDataToCsv(csvData) {
+function _parseDataToCsv (csvData) {
   const cleaned = csvData.toString().replace(/^\uFEFF/, '') // Remove BOM
 
   return parse(cleaned, {
@@ -39,7 +39,7 @@ function _parseDataToCsv(csvData) {
   })
 }
 
-function _rows(unzippedData, filename) {
+function _rows (unzippedData, filename) {
   const rows = []
 
   const headerLine = unzippedData[0]
@@ -74,7 +74,7 @@ function _rows(unzippedData, filename) {
 
     // There are some funnies in the file where we have a licence and reference, but no return ID. Fortunately they are
     // never populated but just to be sure we only want to process rows where we have a return ID _and_ zero qty lines.
-    rowObject.process = hasZeroQuantityLines && rowObject.returnId ? true : false
+    rowObject.process = hasZeroQuantityLines && !!rowObject.returnId
 
     rows.push(rowObject)
   }
@@ -82,7 +82,7 @@ function _rows(unzippedData, filename) {
   return rows
 }
 
-function _unzip(csvData) {
+function _unzip (csvData) {
   if (csvData.length === 0) {
     return []
   }

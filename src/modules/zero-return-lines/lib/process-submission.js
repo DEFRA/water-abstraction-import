@@ -14,19 +14,7 @@ async function go (submission, timestamp) {
   }
 }
 
-async function _processSubmission(submission, timestamp) {
-  const { lines, returnId } = submission
-
-  const zeroQtyLines = lines.filter((line) => {
-    return line.quantity === 0
-  })
-
-  for (const line of zeroQtyLines) {
-    await _updateLine(line, returnId, timestamp)
-  }
-}
-
-async function _updateLine(line, returnId, timestamp) {
+async function _updateLine (line, returnId, timestamp) {
   const params = [returnId, line.quantity, timestamp, line.endDate]
 
   const query = `WITH first_return_submission AS (
