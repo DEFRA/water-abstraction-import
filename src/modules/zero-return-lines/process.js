@@ -52,14 +52,14 @@ async function go (log = false) {
 
 async function _logResults (extractLocalPath, logs, timestamp) {
   const logData = logs.map((log) => {
-    return `${log.filename},${log.returnId},${log.process},${log.error || ''}`
+    return `${log.filename},${log.returnId},${log.process},${log.error || ''},`
   }).join('\n')
 
   await uploadFile(`zero-return-lines-log-${Date.parse(timestamp)}.csv`, logData)
 }
 
 async function _processSubmissionFile (extractLocalPath, submissionFile, timestamp) {
-  const logs = []
+  const results = []
   const submissions = ConvertToJson.go(extractLocalPath, submissionFile)
 
   for (const submission of submissions) {
@@ -75,10 +75,10 @@ async function _processSubmissionFile (extractLocalPath, submissionFile, timesta
       }
     }
 
-    logs.push(log)
+    results.push(log)
   }
 
-  return logs
+  return results
 }
 
 function _setMessages (processResults, messages) {
