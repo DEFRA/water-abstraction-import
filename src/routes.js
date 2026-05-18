@@ -175,6 +175,14 @@ module.exports = [
     }
   },
   {
+    method: 'POST',
+    path: '/process/missing-void-returns',
+    handler: Controller.missingVoidReturns,
+    config: {
+      auth: false
+    }
+  },
+  {
     method: 'post',
     handler: Controller.partyCrmV2Import,
     path: '/process/party-crm-v2-import',
