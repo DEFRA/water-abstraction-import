@@ -26,7 +26,6 @@ const LicencesImportProcess = require('./modules/licences-import/process.js')
 const LinkToModLogsProcess = require('./modules/link-to-mod-logs/process.js')
 const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
-const ZeroReturnLinesProcess = require('./modules/zero-return-lines/process.js')
 
 async function clean (_request, h) {
   CleanProcess.go(true)
@@ -190,12 +189,6 @@ function status (_request, _h) {
   return { status: 'alive' }
 }
 
-async function zeroReturnLines (_request, h) {
-  ZeroReturnLinesProcess.go(true)
-
-  return h.response().code(204)
-}
-
 async function _tagReference () {
   try {
     const { stdout, stderr } = await exec('git describe --always --tags')
@@ -237,6 +230,5 @@ module.exports = {
   linkToModLogs,
   partyCrmV2Import,
   referenceDataImport,
-  status,
-  zeroReturnLines
+  status
 }

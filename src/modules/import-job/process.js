@@ -13,7 +13,6 @@ const LicencesImportStep = require('./lib/licences-import.js')
 const LinkToModLogsStep = require('./lib/link-to-mod-logs.js')
 const PartyCrmV2ImportStep = require('./lib/party-crm-v2-import.js')
 const ReferenceDataImportStep = require('./lib/reference-data-import.js')
-const ZeroReturnLinesStep = require('./lib/zero-return-lines.js')
 
 async function go () {
   try {
@@ -55,9 +54,6 @@ async function go () {
     steps.push(step)
 
     step = await EndDateTriggerStep.go()
-    steps.push(step)
-
-    step = await ZeroReturnLinesStep.go()
     steps.push(step)
 
     await CompletionEmail.go(steps)
