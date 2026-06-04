@@ -25,6 +25,22 @@ function compareDates (dateA, dateB) {
 }
 
 /**
+ * Format the provided date in ISO format.
+ *
+ * @param {Date | string } date - a date object to be formatted
+ * @returns {Date | null} - the date formatted in YYYY-MM-DD.
+ */
+function formatDateObjectToISO(date) {
+  if (!date) {
+    return null
+  }
+
+  const localDate = new Date(date)
+
+  return localDate.toISOString().split('T')[0]
+}
+
+/**
  * Gets the end date for a company address from licence version data
  * @param {Object} row - from NALD licence/licence version data
  * @param {String,Null} currentEnd - the current value of the end date in the accumulator
@@ -111,6 +127,7 @@ function _sortDates (arr) {
 
 module.exports = {
   compareDates,
+  formatDateObjectToISO,
   getEndDate,
   getMinDate,
   getMaxDate,
