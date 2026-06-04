@@ -1,6 +1,7 @@
 'use strict'
 
 const CollateMissingVoidReturnLines = require('./lib/collate-missing-void-return-lines.js')
+const CreateMissingReturnLines = require('./lib/create-missing-return-lines.js')
 const CreateMissingReturnLog = require('./lib/create-missing-return-log.js')
 const CreateMissingReturnSubmission = require('./lib/create-missing-return-submission.js')
 const FetchMissingVoidReturnLines = require('./lib/fetch-missing-void-return-lines.js')
@@ -19,6 +20,7 @@ async function go (log = false) {
     const timestamp = timestampForPostgres()
 
     await _createMissingReturnLogs(collatedReturns, timestamp)
+
     await _processReturns(collatedReturns, timestamp)
 
     if (log) {
@@ -49,6 +51,8 @@ async function _createMissingReturnLogs (collatedReturns, timestamp) {
 async function _processReturns (collatedReturns, timestamp) {
   for (const collatedReturn of collatedReturns) {
     collatedReturn.versionId = await CreateMissingReturnSubmission.go(collatedReturn.returnLog, timestamp)
+
+    await CreateMissingReturnLines.go(collatedReturn, timestamp)
   }
 }
 
