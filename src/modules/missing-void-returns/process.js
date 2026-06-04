@@ -2,6 +2,7 @@
 
 const CollateMissingVoidReturnLines = require('./lib/collate-missing-void-return-lines.js')
 const CreateMissingReturnLog = require('./lib/create-missing-return-log.js')
+const CreateMissingReturnSubmission = require('./lib/create-missing-return-submission.js')
 const FetchMissingVoidReturnLines = require('./lib/fetch-missing-void-return-lines.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken, timestampForPostgres } = require('../../lib/general.js')
 
@@ -15,7 +16,10 @@ async function go (log = false) {
 
     const collatedReturns = CollateMissingVoidReturnLines.go(missingVoidReturnLines)
 
-    await _processMissingReturnLogs(collatedReturns)
+    const timestamp = timestampForPostgres()
+
+    await _createMissingReturnLogs(collatedReturns, timestamp)
+    await _processReturns(collatedReturns, timestamp)
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'missing-void-returns: complete', { messages })
@@ -29,18 +33,22 @@ async function go (log = false) {
   return messages
 }
 
-async function _processMissingReturnLogs (collatedReturns) {
+async function _createMissingReturnLogs (collatedReturns, timestamp) {
   const missingReturns = collatedReturns.filter((collatedReturn) => {
     return !collatedReturn.returnLog.id
   })
-
-  const timestamp = timestampForPostgres()
 
   for (const missingReturn of missingReturns) {
     const { id, returnId } = await CreateMissingReturnLog.go(missingReturn, timestamp)
 
     missingReturn.returnLog.id = id
     missingReturn.returnLog.returnId = returnId
+  }
+}
+
+async function _processReturns (collatedReturns, timestamp) {
+  for (const collatedReturn of collatedReturns) {
+    collatedReturn.versionId = await CreateMissingReturnSubmission.go(collatedReturn.returnLog, timestamp)
   }
 }
 
