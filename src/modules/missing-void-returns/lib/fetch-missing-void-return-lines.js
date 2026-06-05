@@ -305,7 +305,6 @@ SELECT
   *
 FROM
   combined_results cr
-WHERE cr.licence_ref IN ('6/33/40/*S/0070', '01/144')
 ORDER BY
   cr.external_id ASC,
   cr.return_date ASC;
