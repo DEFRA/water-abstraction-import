@@ -234,6 +234,23 @@ lines_plus_return_cycles AS (
     ON
       rc.return_cycle_id = lprci.return_cycle_id
 ),
+completed_void_return_logs AS (
+  SELECT
+    r.id
+  FROM
+    "returns"."returns" r
+  INNER JOIN
+    "returns".versions v
+    ON
+      v.return_log_id = r.id
+  INNER JOIN
+    lines_plus_return_cycles lprc
+    ON
+      lprc.licence_ref = r.licence_ref
+      AND lprc.format_id = r.return_requirement
+      AND lprc.return_cycle_start_date = r.start_date
+      AND r.status = 'void'
+),
 combined_results AS (
   SELECT
     (concat_ws(':', lprc.external_id, lprc.return_cycle_id)) AS id,
@@ -272,6 +289,15 @@ combined_results AS (
       AND r.return_requirement = lprc.format_id
       AND r.start_date = lprc.return_cycle_start_date
       AND r.status = 'void'
+  WHERE
+    NOT EXISTS (
+      SELECT
+        1
+      FROM
+        completed_void_return_logs cvrl
+      WHERE
+        cvrl.id = r.id
+    )
 )
 -- By SELECTing from our combined results, it makes it easier to filter and order them. These can be
 -- changed as needed when working with the results.
