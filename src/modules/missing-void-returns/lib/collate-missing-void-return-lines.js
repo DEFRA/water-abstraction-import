@@ -40,8 +40,8 @@ function _processLines (missingVoidReturnLines) {
     if (missingReturns[missingVoidReturnLine.id]) {
 
       missingReturns[missingVoidReturnLine.id].naldLines.push({
-        returnDate: missingVoidReturnLine.return_date,
-        qty: missingVoidReturnLine.return_qty
+        returnDate: new Date(missingVoidReturnLine.return_date),
+        qty: Number(missingVoidReturnLine.return_qty)
       })
 
       continue
