@@ -104,6 +104,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/extend-return-versions',
+    handler: Controller.extendReturnVersions,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/extract-nald-data',
     handler: Controller.extractNaldData,
     config: {
