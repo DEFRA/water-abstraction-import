@@ -12,6 +12,7 @@ const FlagDeletedDocumentsStep = require('./lib/flag-deleted-documents.js')
 const LicenceDataImportStep = require('./lib/licence-data-import.js')
 const LicencesImportStep = require('./lib/licences-import.js')
 const LinkToModLogsStep = require('./lib/link-to-mod-logs.js')
+const MissingReturnLogsStep = require('./lib/missing-return-logs.js')
 const MissingVoidReturnsStep = require('./lib/missing-void-returns.js')
 const PartyCrmV2ImportStep = require('./lib/party-crm-v2-import.js')
 const ReferenceDataImportStep = require('./lib/reference-data-import.js')
@@ -62,6 +63,9 @@ async function go () {
     steps.push(step)
 
     step = await ExtendReturnVersionsStep.go()
+    steps.push(step)
+
+    step = await MissingReturnLogsStep.go()
     steps.push(step)
 
     await CompletionEmail.go(steps)
