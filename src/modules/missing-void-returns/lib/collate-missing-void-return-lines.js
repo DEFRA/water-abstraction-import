@@ -38,7 +38,6 @@ function _processLines (missingVoidReturnLines) {
 
   for (const missingVoidReturnLine of missingVoidReturnLines) {
     if (missingReturns[missingVoidReturnLine.id]) {
-
       missingReturns[missingVoidReturnLine.id].naldLines.push({
         returnDate: new Date(missingVoidReturnLine.return_date),
         qty: Number(missingVoidReturnLine.return_qty)
@@ -80,7 +79,7 @@ function _processLines (missingVoidReturnLines) {
         id: missingVoidReturnLine.return_cycle_id,
         startDate,
         endDate,
-        dueDate,
+        dueDate
       },
       returnLog: {
         id: missingVoidReturnLine.return_log_id,

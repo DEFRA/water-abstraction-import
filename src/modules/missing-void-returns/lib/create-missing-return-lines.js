@@ -12,16 +12,16 @@ async function go (missingReturn, timestamp) {
 }
 
 async function _createReturnLine (line, versionId, reportingFrequency, timestamp) {
-  const { end_date, qty, start_date } = line
+  const { end_date: endDate, qty, start_date: startDate } = line
   const id = generateUUID()
-  const quantity = qty ? qty : null
+  const quantity = qty ?? null
 
   const params = [
     id,
     versionId,
     quantity,
-    start_date,
-    end_date,
+    startDate,
+    endDate,
     reportingFrequency,
     {},
     timestamp,

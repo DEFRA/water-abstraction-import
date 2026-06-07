@@ -11,14 +11,8 @@ async function go (missingReturn, timestamp) {
   return _returnLog(missingReturn, points, purposes, timestamp)
 }
 
-function _abstractionPeriodValue(value) {
+function _abstractionPeriodValue (value) {
   return value ? value.toString() : 'null'
-}
-
-function _createReturnLog(returnLogData) {
-  const params = [
-
-  ]
 }
 
 function _metadata (missingReturn, points, purposes) {

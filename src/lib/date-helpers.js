@@ -30,7 +30,7 @@ function compareDates (dateA, dateB) {
  * @param {Date | string } date - a date object to be formatted
  * @returns {Date | null} - the date formatted in YYYY-MM-DD.
  */
-function formatDateObjectToISO(date) {
+function formatDateObjectToISO (date) {
   if (!date) {
     return null
   }
