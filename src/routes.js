@@ -184,6 +184,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/missing-return-logs',
+    handler: Controller.missingReturnLogs,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/missing-void-returns',
     handler: Controller.missingVoidReturns,
     config: {

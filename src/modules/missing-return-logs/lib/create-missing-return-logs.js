@@ -1,14 +1,15 @@
 'use strict'
 
 const db = require('../../../lib/connectors/db.js')
-const FetchPointsPurposes = require('./fetch-points-purposes.js')
-const { formatDateObjectToISO } = require('../../../lib/date-helpers.js')
+const FetchPointsPurposes = require('../../missing-void-returns/lib/fetch-points-purposes.js')
 const { generateUUID } = require('../../../lib/general.js')
 
 async function go (missingReturn, timestamp) {
-  const { points, purposes } = await FetchPointsPurposes.go(missingReturn.returnRequirement.id)
+  const { points, purposes } = await FetchPointsPurposes.go(missingReturn.returnRequirementId)
 
-  return _returnLog(missingReturn, points, purposes, timestamp)
+  for (const returnLog of missingReturn.returnLogs) {
+    await _createReturnLog(missingReturn, returnLog, points, purposes, timestamp)
+  }
 }
 
 function _abstractionPeriodValue (value) {
@@ -16,23 +17,21 @@ function _abstractionPeriodValue (value) {
 }
 
 function _metadata (missingReturn, points, purposes) {
-  const { returnRequirement } = missingReturn
-
   return {
-    description: returnRequirement.siteDescription,
+    description: missingReturn.siteDescription,
     isCurrent: true,
     isFinal: false,
-    isSummer: returnRequirement.summer,
-    isTwoPartTariff: returnRequirement.twoPartTariff,
-    isUpload: returnRequirement.multipleUpload,
+    isSummer: missingReturn.summer,
+    isTwoPartTariff: missingReturn.twoPartTariff,
+    isUpload: missingReturn.multipleUpload,
     nald: {
       regionCode: missingReturn.regionId,
-      areaCode: returnRequirement.areaCode,
-      formatId: returnRequirement.reference,
-      periodStartDay: _abstractionPeriodValue(returnRequirement.abstractionPeriod.startDay),
-      periodStartMonth: _abstractionPeriodValue(returnRequirement.abstractionPeriod.startMonth),
-      periodEndDay: _abstractionPeriodValue(returnRequirement.abstractionPeriod.endDay),
-      periodEndMonth: _abstractionPeriodValue(returnRequirement.abstractionPeriod.endMonth)
+      areaCode: missingReturn.areaCode,
+      formatId: missingReturn.reference,
+      periodStartDay: _abstractionPeriodValue(missingReturn.abstractionPeriod.startDay),
+      periodStartMonth: _abstractionPeriodValue(missingReturn.abstractionPeriod.startMonth),
+      periodEndDay: _abstractionPeriodValue(missingReturn.abstractionPeriod.endDay),
+      periodEndMonth: _abstractionPeriodValue(missingReturn.abstractionPeriod.endMonth)
     },
     points: _points(points),
     purposes: _purposes(purposes),
@@ -88,34 +87,23 @@ function _returnsFrequency (reportingFrequency) {
   return reportingFrequency
 }
 
-function _returnId (missingReturn) {
-  const regionCode = missingReturn.regionId
-  const licenceReference = missingReturn.licenceRef
-  const returnReference = missingReturn.returnRequirement.reference
-  const startDateAsString = formatDateObjectToISO(missingReturn.returnCycle.startDate)
-  const endDateAsString = formatDateObjectToISO(missingReturn.returnCycle.endDate)
-
-  return `v1:${regionCode}:${licenceReference}:${returnReference}:${startDateAsString}:${endDateAsString}`
-}
-
-async function _returnLog (missingReturn, points, purposes, timestamp) {
-  const returnId = _returnId(missingReturn)
+async function _createReturnLog (missingReturn, returnLog, points, purposes, timestamp) {
   const id = generateUUID()
 
   const params = [
-    returnId,
-    missingReturn.licenceRef,
-    missingReturn.returnCycle.startDate,
-    missingReturn.returnCycle.endDate,
-    _returnsFrequency(missingReturn.returnRequirement.reportingFrequency),
+    returnLog.returnId,
+    missingReturn.licence.licenceRef,
+    returnLog.startDate,
+    returnLog.endDate,
+    _returnsFrequency(missingReturn.reportingFrequency),
     _metadata(missingReturn, points, purposes),
     timestamp,
     timestamp,
-    missingReturn.returnRequirement.reference,
-    missingReturn.returnCycle.dueDate,
-    missingReturn.returnCycle.id,
+    missingReturn.reference,
+    returnLog.dueDate,
+    returnLog.returnCycleId,
     id,
-    missingReturn.returnRequirement.id
+    missingReturn.returnRequirementId
   ]
 
   const query = `INSERT INTO "returns"."returns" (
@@ -146,7 +134,7 @@ VALUES (
   $3,
   $4,
   $5,
-  'void',
+  'due',
   'NALD',
   $6,
   $7,
@@ -160,9 +148,7 @@ VALUES (
 );
   `
 
-  await db.query(query, params)
-
-  return { id, returnId }
+  return db.query(query, params)
 }
 
 module.exports = {
