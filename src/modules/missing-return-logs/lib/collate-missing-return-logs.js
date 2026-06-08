@@ -10,17 +10,18 @@ function _processReturnLogs (missingReturnLogs) {
   const missingReturns = {}
 
   for (const missingReturnLog of missingReturnLogs) {
-    const { return_cycle_id: returnCycleId, return_requirement_id: returnRequirementId } = missingReturnLog
+    const { return_requirement_id: returnRequirementId } = missingReturnLog
 
-    const returnCycle = {
-      dueDate: new Date(missingReturnLog.return_cycle_due_date),
-      endDate: new Date(missingReturnLog.return_cycle_end_date),
-      id: returnCycleId,
-      startDate: new Date(missingReturnLog.return_cycle_start_date)
+    const returnLog = {
+      dueDate: new Date(missingReturnLog.return_period_due_date),
+      endDate: new Date(missingReturnLog.return_period_end_date),
+      returnCycleId: missingReturnLog.return_cycle_id,
+      returnId: missingReturnLog.return_id,
+      startDate: new Date(missingReturnLog.return_period_start_date)
     }
 
     if (missingReturns[returnRequirementId]) {
-      missingReturns[returnRequirementId].returnCycles.push(returnCycle)
+      missingReturns[returnRequirementId].returnLogs.push(returnLog)
 
       continue
     }
@@ -51,7 +52,7 @@ function _processReturnLogs (missingReturnLogs) {
       summer: missingReturnLog.summer,
       twoPartTariff: missingReturnLog.two_part_tariff,
       regionId: missingReturnLog.region_id,
-      returnCycles: [returnCycle]
+      returnLogs: [returnLog]
     }
   }
 
