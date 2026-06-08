@@ -1,9 +1,9 @@
 'use strict'
 
 const { currentTimeInNanoseconds, durations } = require('../../../lib/general.js')
-const ReturnLogStatusProcess = require('../../return-log-status/process.js')
+const MissingReturnSubmissionsProcess = require('../../missing-return-submissions/process.js')
 
-const STEP_NAME = 'return-log-status'
+const STEP_NAME = 'missing-return-submissions'
 
 async function go () {
   global.GlobalNotifier.omg(`import-job.${STEP_NAME}: started`)
@@ -12,7 +12,7 @@ async function go () {
 
   const startTime = currentTimeInNanoseconds()
 
-  step.messages = await ReturnLogStatusProcess.go(false)
+  step.messages = await MissingReturnSubmissionsProcess.go(false)
 
   const { timeTakenSs } = durations(startTime)
 

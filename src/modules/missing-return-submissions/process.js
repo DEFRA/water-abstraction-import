@@ -9,10 +9,10 @@ async function go (log = false) {
     const startTime = currentTimeInNanoseconds()
 
     if (log) {
-      calculateAndLogTimeTaken(startTime, 'return-log-status: complete', { messages })
+      calculateAndLogTimeTaken(startTime, 'missing-return-submissions: complete', { messages })
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('return-log-status: errored', {}, error)
+    global.GlobalNotifier.omfg('missing-return-submissions: errored', {}, error)
 
     messages.push(error.message)
   }

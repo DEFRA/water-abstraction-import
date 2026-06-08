@@ -200,6 +200,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/missing-return-submissions',
+    handler: Controller.missingReturnSubmissions,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/missing-void-returns',
     handler: Controller.missingVoidReturns,
     config: {
@@ -218,14 +226,6 @@ module.exports = [
     method: 'POST',
     path: '/process/reference-data-import',
     handler: Controller.referenceDataImport,
-    config: {
-      auth: false
-    }
-  },
-  {
-    method: 'POST',
-    path: '/process/return-log-status',
-    handler: Controller.returnLogStatus,
     config: {
       auth: false
     }
