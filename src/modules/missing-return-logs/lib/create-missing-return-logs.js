@@ -76,6 +76,18 @@ function _purposes (purposes) {
   })
 }
 
+function _returnsFrequency (reportingFrequency) {
+  if (reportingFrequency === 'year' || reportingFrequency === 'quarter') {
+    return 'month'
+  }
+
+  if (reportingFrequency === 'fortnight') {
+    return 'week'
+  }
+
+  return reportingFrequency
+}
+
 async function _createReturnLog (missingReturn, returnLog, points, purposes, timestamp) {
   const id = generateUUID()
 
@@ -84,7 +96,7 @@ async function _createReturnLog (missingReturn, returnLog, points, purposes, tim
     missingReturn.licence.licenceRef,
     returnLog.startDate,
     returnLog.endDate,
-    missingReturn.reportingFrequency,
+    _returnsFrequency(missingReturn.reportingFrequency),
     _metadata(missingReturn, points, purposes),
     timestamp,
     timestamp,
