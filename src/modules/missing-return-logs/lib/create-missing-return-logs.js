@@ -2,7 +2,6 @@
 
 const db = require('../../../lib/connectors/db.js')
 const FetchPointsPurposes = require('../../missing-void-returns/lib/fetch-points-purposes.js')
-const { formatDateObjectToISO } = require('../../../lib/date-helpers.js')
 const { generateUUID } = require('../../../lib/general.js')
 
 async function go (missingReturn, timestamp) {

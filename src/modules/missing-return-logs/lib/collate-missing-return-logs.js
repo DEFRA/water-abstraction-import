@@ -30,7 +30,7 @@ function _processReturnLogs (missingReturnLogs) {
       licence: {
         endDate: missingReturnLog.licence_end_date ? new Date(missingReturnLog.licence_end_date) : null,
         id: missingReturnLog.licence_id,
-        licenceRef: missingReturnLog.licence_ref,
+        licenceRef: missingReturnLog.licence_ref
       },
       returnVersion: {
         endDate: missingReturnLog.return_version_end_date ? new Date(missingReturnLog.return_version_end_date) : null,
@@ -47,7 +47,7 @@ function _processReturnLogs (missingReturnLogs) {
       multipleUpload: missingReturnLog.water_undertaker,
       reference: missingReturnLog.legacy_id,
       reportingFrequency: missingReturnLog.reporting_frequency,
-      returnRequirementId: returnRequirementId,
+      returnRequirementId,
       siteDescription: missingReturnLog.site_description,
       summer: missingReturnLog.summer,
       twoPartTariff: missingReturnLog.two_part_tariff,
