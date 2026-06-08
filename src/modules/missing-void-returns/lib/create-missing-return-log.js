@@ -76,6 +76,18 @@ function _purposes (purposes) {
   })
 }
 
+function _returnsFrequency (reportingFrequency) {
+  if (reportingFrequency === 'year' || reportingFrequency === 'quarter') {
+    return 'month'
+  }
+
+  if (reportingFrequency === 'fortnight') {
+    return 'week'
+  }
+
+  return reportingFrequency
+}
+
 function _returnId (missingReturn) {
   const regionCode = missingReturn.regionId
   const licenceReference = missingReturn.licenceRef
@@ -95,7 +107,7 @@ async function _returnLog (missingReturn, points, purposes, timestamp) {
     missingReturn.licenceRef,
     missingReturn.returnCycle.startDate,
     missingReturn.returnCycle.endDate,
-    missingReturn.returnRequirement.reportingFrequency,
+    _returnsFrequency(missingReturn.returnRequirement.reportingFrequency),
     _metadata(missingReturn, points, purposes),
     timestamp,
     timestamp,
