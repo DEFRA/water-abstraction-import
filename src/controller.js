@@ -30,6 +30,7 @@ const MissingReturnLogsProcess = require('./modules/missing-return-logs/process.
 const MissingVoidReturnsProcess = require('./modules/missing-void-returns/process.js')
 const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
+const ReturnLogStatusProcess = require('./modules/return-log-status/process.js')
 
 async function clean (_request, h) {
   CleanProcess.go(true)
@@ -213,6 +214,12 @@ async function referenceDataImport (_request, h) {
   return h.response().code(204)
 }
 
+async function returnLogStatus (_request, h) {
+  ReturnLogStatusProcess.go(true)
+
+  return h.response().code(204)
+}
+
 function status (_request, _h) {
   return { status: 'alive' }
 }
@@ -262,5 +269,6 @@ module.exports = {
   missingVoidReturns,
   partyCrmV2Import,
   referenceDataImport,
+  returnLogStatus,
   status
 }

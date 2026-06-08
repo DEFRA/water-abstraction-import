@@ -221,5 +221,13 @@ module.exports = [
     config: {
       auth: false
     }
+  },
+  {
+    method: 'POST',
+    path: '/process/return-log-status',
+    handler: Controller.returnLogStatus,
+    config: {
+      auth: false
+    }
   }
 ]
