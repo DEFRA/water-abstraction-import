@@ -116,7 +116,9 @@ returns_history AS (
     rc.return_cycle_id,
     rc.start_date AS return_cycle_start_date,
     rc.end_date AS return_cycle_end_date,
-    rc.due_date AS return_cycle_due_date
+    rc.due_date AS return_cycle_due_date,
+    GREATEST(rrh.return_version_start_date, rc.start_date) AS return_period_start_date,
+    LEAST(rrh.licence_end_date, rrh.return_version_end_date, rc.end_date) AS return_period_end_date
   FROM
     return_requirement_history rrh
   INNER JOIN
@@ -126,11 +128,32 @@ returns_history AS (
       AND rc.start_date <= rrh.calculated_return_version_end_date
       AND rc.end_date >= rrh.return_version_start_date
 ),
-returns_history_misses AS (
+returns_candidates AS (
   SELECT
-    rh.*
+    rh.*,
+    (CASE
+      WHEN rh.return_cycle_due_date IS NULL THEN
+        NULL
+      ELSE
+        rh.return_period_end_date + INTERVAL '28 day'
+    END) AS return_period_due_date,
+    concat_ws(
+      ':',
+      'v1',
+      rh.region_id,
+      rh.licence_ref,
+      rh.legacy_id,
+      to_char(rh.return_period_start_date, 'YYYY-MM-DD'),
+      to_char(rh.return_period_end_date, 'YYYY-MM-DD')
+    ) AS return_id
   FROM
     returns_history rh
+),
+returns_candidate_misses AS (
+  SELECT
+    rc.*
+  FROM
+    returns_candidates rc
   WHERE
     NOT EXISTS (
       SELECT
@@ -138,42 +161,45 @@ returns_history_misses AS (
       FROM
         "returns"."returns" r
       WHERE
-        r.return_cycle_id = rh.return_cycle_id
-        AND r.return_requirement_id = rh.return_requirement_id
+        r.return_id = rc.return_id
     )
 )
 SELECT
-  rhm.licence_id,
-  rhm.licence_ref,
-  rhm.water_undertaker,
-  rhm.area_code,
-  rhm.region_id,
-  rhm.licence_end_date,
-  rhm.calculated_end_date,
-  rhm.return_version_id,
-  rhm.return_version_start_date,
-  rhm.return_version_end_date,
-  rhm.return_requirement_id,
-  rhm.legacy_id,
-  rhm.reporting_frequency,
-  rhm.summer,
-  rhm.abstraction_period_start_day,
-  rhm.abstraction_period_start_month,
-  rhm.abstraction_period_end_day,
-  rhm.abstraction_period_end_month,
-  rhm.site_description,
-  rhm.two_part_tariff,
-  rhm.return_cycle_id,
-  rhm.return_cycle_start_date,
-  rhm.return_cycle_end_date,
-  rhm.return_cycle_due_date
+  rcm.licence_id,
+  rcm.licence_ref,
+  rcm.water_undertaker,
+  rcm.area_code,
+  rcm.region_id,
+  rcm.licence_end_date,
+  rcm.calculated_end_date,
+  rcm.return_version_id,
+  rcm.return_version_start_date,
+  rcm.return_version_end_date,
+  rcm.return_requirement_id,
+  rcm.legacy_id,
+  rcm.reporting_frequency,
+  rcm.summer,
+  rcm.abstraction_period_start_day,
+  rcm.abstraction_period_start_month,
+  rcm.abstraction_period_end_day,
+  rcm.abstraction_period_end_month,
+  rcm.site_description,
+  rcm.two_part_tariff,
+  rcm.return_cycle_id,
+  rcm.return_cycle_start_date,
+  rcm.return_cycle_end_date,
+  rcm.return_cycle_due_date,
+  rcm.return_period_start_date,
+  rcm.return_period_end_date,
+  rcm.return_period_due_date,
+  rcm.return_id
 FROM
-  returns_history_misses rhm
+  returns_candidate_misses rcm
 ORDER BY
-  rhm.licence_id,
-  rhm.return_version_id,
-  rhm.return_requirement_id,
-  rhm.return_cycle_start_date DESC;
+  rcm.licence_id,
+  rcm.return_version_id,
+  rcm.return_requirement_id,
+  rcm.return_cycle_start_date DESC;
   `)
 }
 
