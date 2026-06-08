@@ -96,7 +96,7 @@ function _lines (reportingFrequency, startDate, endDate) {
     return daysFromPeriod(startDate, endDate)
   }
 
-  if (reportingFrequency === 'week') {
+  if (reportingFrequency === 'fortnight' ||reportingFrequency === 'week') {
     return weeksFromPeriod(startDate, endDate)
   }
 
