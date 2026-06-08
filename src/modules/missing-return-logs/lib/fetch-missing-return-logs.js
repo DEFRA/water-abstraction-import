@@ -11,6 +11,7 @@ async function go () {
     water.return_versions rv
   WHERE
     rv.status = 'current'
+    AND rv.quarterly_returns = false
     AND (
       rv.reason IS NULL
       OR rv.reason NOT IN (
@@ -51,6 +52,7 @@ licences_with_return_versions AS (
       WHERE
         rv.licence_id = l.licence_id
         AND rv.status = 'current'
+        AND rv.quarterly_returns = false
         AND (
           rv.reason IS NULL
           OR rv.reason NOT IN (
