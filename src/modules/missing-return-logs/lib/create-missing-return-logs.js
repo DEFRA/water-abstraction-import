@@ -8,8 +8,8 @@ const { generateUUID } = require('../../../lib/general.js')
 async function go (missingReturn, timestamp) {
   const { points, purposes } = await FetchPointsPurposes.go(missingReturn.returnRequirementId)
 
-  for (const returnCycle of missingReturn.returnCycles) {
-    await _returnLog(missingReturn, returnCycle, points, purposes, timestamp)
+  for (const returnLog of missingReturn.returnLogs) {
+    await _createReturnLog(missingReturn, returnLog, points, purposes, timestamp)
   }
 }
 
@@ -76,33 +76,21 @@ function _purposes (purposes) {
   })
 }
 
-function _returnId (missingReturn, returnPeriod) {
-  const regionCode = missingReturn.regionId
-  const licenceReference = missingReturn.licenceRef
-  const returnReference = missingReturn.reference
-  const startDateAsString = formatDateObjectToISO(returnPeriod.startDate)
-  const endDateAsString = formatDateObjectToISO(returnPeriod.endDate)
-
-  return `v1:${regionCode}:${licenceReference}:${returnReference}:${startDateAsString}:${endDateAsString}`
-}
-
-async function _returnLog (missingReturn, returnCycle, points, purposes, timestamp) {
-  const returnPeriod = _returnPeriod(missingReturn, returnCycle)
-  const returnId = _returnId(missingReturn, returnPeriod)
+async function _createReturnLog (missingReturn, returnLog, points, purposes, timestamp) {
   const id = generateUUID()
 
   const params = [
-    returnId,
+    returnLog.returnId,
     missingReturn.licence.licenceRef,
-    returnPeriod.startDate,
-    returnPeriod.endDate,
+    returnLog.startDate,
+    returnLog.endDate,
     missingReturn.reportingFrequency,
     _metadata(missingReturn, points, purposes),
     timestamp,
     timestamp,
     missingReturn.reference,
-    returnPeriod.dueDate,
-    returnCycle.id,
+    returnLog.dueDate,
+    returnLog.returnCycleId,
     id,
     missingReturn.returnRequirementId
   ]
@@ -150,34 +138,6 @@ VALUES (
   `
 
   return db.query(query, params)
-}
-
-function _returnPeriod (missingReturn, returnCycle) {
-  // We use .filter() to remove any null timestamps, as Math.min() assumes a value of `0` for these
-  const startDates = [
-    missingReturn.returnVersion.startDate,
-    returnCycle.startDate
-  ].filter(Boolean)
-
-  const latestStartDate = Math.max(...startDates)
-
-  const endDates = [
-    missingReturn.licence.endDate,
-    missingReturn.returnVersion.endDate,
-    returnCycle.endDate
-  ].filter(Boolean)
-
-  const earliestEndDate = Math.min(...endDates)
-
-  const dueDate = new Date(earliestEndDate)
-
-  dueDate.setDate(dueDate.getDate() + 28)
-
-  return {
-    startDate: new Date(latestStartDate),
-    endDate: new Date(earliestEndDate),
-    dueDate
-  }
 }
 
 module.exports = {
