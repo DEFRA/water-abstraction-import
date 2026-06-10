@@ -94,8 +94,9 @@ calculated_gaps AS (
       datemultirange(
         daterange(
           rrd.return_version_start_date,
-          rrd.calculated_end_date, '[]')) - COALESCE(lg.logged_ranges, datemultirange()
+          rrd.calculated_end_date, '[]'
         )
+      ) - COALESCE(lg.logged_ranges, datemultirange())
     ) AS gap_multirange
   FROM
     return_requirement_details rrd
@@ -149,12 +150,12 @@ missing_return_requirement_cycles AS (
 missing_return_requirement_periods AS (
   SELECT
     mrrc.*,
-    (GREATEST(mrrc.return_version_start_date, mrrc.return_cycle_start_date)) AS return_period_start_date,
-    (LEAST(mrrc.return_version_end_date, mrrc.return_cycle_end_date)) AS return_period_end_date
+    (GREATEST(mrrc.return_version_start_date, mrrc.return_cycle_start_date, mrrc.gap_start_date)) AS return_period_start_date,
+    (LEAST(mrrc.licence_end_date, mrrc.return_version_end_date, mrrc.return_cycle_end_date, mrrc.gap_end_date)) AS return_period_end_date
   FROM
     missing_return_requirement_cycles mrrc
 ),
-missing_returns AS (
+missing_return_candidates AS (
   SELECT
     mrrp.*,
     (CASE
@@ -174,6 +175,21 @@ missing_returns AS (
     ) AS return_id
   FROM
     missing_return_requirement_periods mrrp
+),
+missing_returns AS (
+  SELECT
+    mrc.*
+  FROM
+    missing_return_candidates mrc
+  WHERE
+    NOT EXISTS (
+      SELECT
+        1
+      FROM
+        "returns"."returns" r
+      WHERE
+        r.return_id = mrc.return_id
+    )
 )
 SELECT
   mr.licence_id,
