@@ -14,9 +14,9 @@ async function go (log = false) {
     const returnLogsMissingSubmission = await FetchReturnLogsMissingSubmission.go()
     const collatedReturnLogs = CollateReturnLogsMissingSubmission.go(returnLogsMissingSubmission)
 
-    await _creatingMissingReturnSubmissions(collatedReturnLogs, timestampForPostgres())
-
     const timestamp = timestampForPostgres()
+
+    await _creatingMissingReturnSubmissions(collatedReturnLogs, timestamp)
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'missing-return-submissions: complete', { messages })

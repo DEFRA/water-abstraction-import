@@ -1,7 +1,6 @@
 'use strict'
 
 const db = require('../../../lib/connectors/db.js')
-const { compareDates } = require('../../../lib/date-helpers.js')
 
 async function go (regionId, returnReference) {
   const params = [regionId, returnReference]

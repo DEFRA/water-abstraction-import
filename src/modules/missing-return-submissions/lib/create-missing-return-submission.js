@@ -4,7 +4,6 @@ const CreateReturnLines = require('./create-return-lines.js')
 const CreateReturnSubmission = require('./create-return-submission.js')
 const db = require('../../../lib/connectors/db.js')
 const FetchNaldReturnLines = require('./fetch-nald-return-lines.js')
-const { generateUUID } = require('../../../lib/general.js')
 const { daysFromPeriod, weeksFromPeriod, monthsFromPeriod } = require('../../../lib/return-helpers.js')
 
 async function go (collatedReturnLog, timestamp) {
@@ -57,7 +56,7 @@ function _lines (returnsFrequency, startDate, endDate) {
     return daysFromPeriod(startDate, endDate)
   }
 
-  if (returnsFrequency === 'fortnight' ||returnsFrequency === 'week') {
+  if (returnsFrequency === 'fortnight' || returnsFrequency === 'week') {
     return weeksFromPeriod(startDate, endDate)
   }
 
@@ -65,7 +64,7 @@ function _lines (returnsFrequency, startDate, endDate) {
 }
 
 function _matchLines (returnLog, naldLines) {
-  const { endDate, id, returnId, returnsFrequency, startDate } = returnLog
+  const { endDate, returnsFrequency, startDate } = returnLog
 
   returnLog.lines = _lines(returnsFrequency, startDate, endDate)
 
@@ -75,7 +74,12 @@ function _matchLines (returnLog, naldLines) {
 async function _updateReturnLog (returnLogId, timestamp) {
   const params = [timestamp, returnLogId]
 
-  const query = `UPDATE "returns"."returns" r SET status = 'completed', updated_at = $1 WHERE r.id = $2;`
+  const query = `UPDATE "returns"."returns" r
+SET
+  status = 'completed',
+  updated_at = $1
+WHERE r.id = $2;
+  `
 
   await db.query(query, params)
 }
