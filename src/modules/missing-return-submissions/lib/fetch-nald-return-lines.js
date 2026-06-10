@@ -55,8 +55,9 @@ ORDER BY
 
   return rows.map((row) => {
     return {
-      returnDate: new Date(row.return_date),
-      qty: Number(row.return_qty)
+      matched: false,
+      qty: Number(row.return_qty),
+      returnDate: new Date(row.return_date)
     }
   })
 }
