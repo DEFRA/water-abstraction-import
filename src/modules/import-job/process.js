@@ -14,6 +14,7 @@ const LicencesImportStep = require('./lib/licences-import.js')
 const LinkToModLogsStep = require('./lib/link-to-mod-logs.js')
 const MissingReturnLogDataStep = require('./lib/missing-return-log-data.js')
 const MissingReturnLogsStep = require('./lib/missing-return-logs.js')
+const MissingReturnSubmissionsStep = require('./lib/missing-return-submissions.js')
 const MissingVoidReturnsStep = require('./lib/missing-void-returns.js')
 const PartyCrmV2ImportStep = require('./lib/party-crm-v2-import.js')
 const ReferenceDataImportStep = require('./lib/reference-data-import.js')
@@ -70,6 +71,9 @@ async function go () {
     steps.push(step)
 
     step = await MissingReturnLogsStep.go()
+    steps.push(step)
+
+    step = await MissingReturnSubmissionsStep.go()
     steps.push(step)
 
     await CompletionEmail.go(steps)
