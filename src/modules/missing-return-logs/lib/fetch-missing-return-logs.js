@@ -34,7 +34,9 @@ return_version_details AS (
   WHERE
     rv.status = 'current'
     AND rv.quarterly_returns = FALSE
-    AND rv.start_date <= ld.licence_end_date
+    AND (
+      ld.licence_end_date IS NULL OR rv.start_date <= ld.licence_end_date
+    )
     AND (
       rv.reason IS NULL
       OR rv.reason NOT IN (
