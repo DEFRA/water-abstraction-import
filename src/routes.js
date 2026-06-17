@@ -229,5 +229,13 @@ module.exports = [
     config: {
       auth: false
     }
+  },
+  {
+    method: 'POST',
+    path: '/process/void-return-logs',
+    handler: Controller.voidReturnLogs,
+    config: {
+      auth: false
+    }
   }
 ]
