@@ -205,6 +205,8 @@ lines_plus_requirements AS (
     ON
       wrr.external_id = rr.external_id
 ),
+-- Identify the return cycle for each of our lines, needed to create a void return log if
+-- one doesn't exist
 lines_plus_return_cycle_ids AS (
   SELECT
     lpr.*,
@@ -221,6 +223,8 @@ lines_plus_return_cycle_ids AS (
   FROM
     lines_plus_requirements lpr
 ),
+-- Extract the start, end and due dates from the return cycle so we have them if we need
+-- to create a void return log
 lines_plus_return_cycles AS (
   SELECT
     lprci.*,
@@ -234,6 +238,10 @@ lines_plus_return_cycles AS (
     ON
       rc.return_cycle_id = lprci.return_cycle_id
 ),
+-- Identify previously completed void return logs so we can exclude them from our results. This allows us to rerun the
+-- step repeatedly
+-- Note to future self. The difference between this and the WHERE clause in combined_results is the JOIN to
+-- returns.versions!
 completed_void_return_logs AS (
   SELECT
     r.id
