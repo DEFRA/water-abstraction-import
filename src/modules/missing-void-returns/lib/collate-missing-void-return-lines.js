@@ -82,8 +82,9 @@ function _processLines (missingVoidReturnLines) {
         dueDate
       },
       returnLog: {
-        id: missingVoidReturnLine.return_log_id,
-        returnId: missingVoidReturnLine.return_id
+        id: missingVoidReturnLine.existing_return_log_id,
+        returnId: missingVoidReturnLine.existing_return_id,
+        newReturnId: missingVoidReturnLine.new_return_id
       }
     }
   }
