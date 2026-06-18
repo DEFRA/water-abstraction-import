@@ -3,8 +3,7 @@
 const db = require('../../../lib/connectors/db.js')
 
 async function go () {
-  return db.query(`
-WITH raw_ended_licences AS (
+  return db.query(`WITH raw_ended_licences AS (
   SELECT
     nal."FGAC_REGION_CODE" AS region_id,
     nal."ID" AS licence_id,
@@ -205,6 +204,8 @@ lines_plus_requirements AS (
     ON
       wrr.external_id = rr.external_id
 ),
+-- Identify the return cycle for each of our lines, needed to create a void return log if
+-- one doesn't exist
 lines_plus_return_cycle_ids AS (
   SELECT
     lpr.*,
@@ -221,6 +222,8 @@ lines_plus_return_cycle_ids AS (
   FROM
     lines_plus_requirements lpr
 ),
+-- Extract the start, end and due dates from the return cycle so we have them if we need
+-- to create a void return log
 lines_plus_return_cycles AS (
   SELECT
     lprci.*,
@@ -234,6 +237,10 @@ lines_plus_return_cycles AS (
     ON
       rc.return_cycle_id = lprci.return_cycle_id
 ),
+-- Identify previously completed void return logs so we can exclude them from our results. This allows us to rerun the
+-- step repeatedly
+-- Note to future self. The difference between this and the WHERE clause in lines_with_existing_returns is the JOIN to
+-- returns.versions!
 completed_void_return_logs AS (
   SELECT
     r.id
@@ -251,35 +258,30 @@ completed_void_return_logs AS (
       AND lprc.return_cycle_start_date = r.start_date
       AND r.status = 'void'
 ),
-combined_results AS (
+-- Combine the lines we've got with existing incomplete VOID return logs. This tells us which lines can be assigned
+-- to an existing VOID return log, and which ones need one creating.
+-- We also generate an ID we can use to group the lines ready for assigning, and where a new return log is needed,
+-- what its return ID will be
+lines_with_existing_returns AS (
   SELECT
+    lprc.*,
     (concat_ws(':', lprc.external_id, lprc.return_cycle_id)) AS id,
-    lprc.region_id,
-    lprc.licence_id,
-    lprc.licence_ref,
-    lprc.area_code,
-    lprc.water_undertaker,
-    lprc.licence_end_date,
-    lprc.external_id,
-    lprc.return_requirement_id,
-    lprc.format_id,
-    lprc.reporting_frequency,
-    lprc.summer,
-    lprc.abstraction_period_start_day,
-    lprc.abstraction_period_start_month,
-    lprc.abstraction_period_end_day,
-    lprc.abstraction_period_end_month,
-    lprc.return_version_id,
-    lprc.site_description,
-    lprc.two_part_tariff,
-    lprc.return_date,
-    lprc.return_qty,
-    lprc.return_cycle_id,
-    lprc.return_cycle_start_date,
-    lprc.return_cycle_end_date,
-    lprc.return_cycle_due_date,
-    r.return_id,
-    r.id AS return_log_id
+    r.return_id AS existing_return_id,
+    r.id AS existing_return_log_id,
+    (CASE
+      WHEN r.id IS NOT NULL THEN
+        NULL
+      ELSE
+        concat_ws(
+          ':',
+          'v1',
+          lprc.region_id,
+          lprc.licence_ref,
+          lprc.format_id,
+          to_char(lprc.return_cycle_start_date, 'YYYY-MM-DD'),
+          to_char(lprc.return_cycle_end_date, 'YYYY-MM-DD')
+        )
+    END) AS new_return_id
   FROM
     lines_plus_return_cycles lprc
   LEFT JOIN
@@ -297,6 +299,51 @@ combined_results AS (
         completed_void_return_logs cvrl
       WHERE
         cvrl.id = r.id
+    )
+),
+-- Other than showing what we are actualy returning for processing, this step also filters out any proposed new
+-- return logs that have an existing match. This should not be the case, but we'd rather exclude them than throw
+-- an error and stop the rest from being processed.
+combined_results AS (
+  SELECT
+    lwer.id,
+    lwer.region_id,
+    lwer.licence_id,
+    lwer.licence_ref,
+    lwer.area_code,
+    lwer.water_undertaker,
+    lwer.licence_end_date,
+    lwer.external_id,
+    lwer.return_requirement_id,
+    lwer.format_id,
+    lwer.reporting_frequency,
+    lwer.summer,
+    lwer.abstraction_period_start_day,
+    lwer.abstraction_period_start_month,
+    lwer.abstraction_period_end_day,
+    lwer.abstraction_period_end_month,
+    lwer.return_version_id,
+    lwer.site_description,
+    lwer.two_part_tariff,
+    lwer.return_date,
+    lwer.return_qty,
+    lwer.return_cycle_id,
+    lwer.return_cycle_start_date,
+    lwer.return_cycle_end_date,
+    lwer.return_cycle_due_date,
+    lwer.existing_return_id,
+    lwer.existing_return_log_id,
+    lwer.new_return_id
+  FROM
+    lines_with_existing_returns lwer
+  WHERE
+    NOT EXISTS (
+      SELECT
+        1
+      FROM
+        "returns"."returns" r
+      WHERE
+        r.return_id = lwer.new_return_id
     )
 )
 -- By SELECTing from our combined results, it makes it easier to filter and order them. These can be

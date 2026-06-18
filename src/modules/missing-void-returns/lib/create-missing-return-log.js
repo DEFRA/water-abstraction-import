@@ -2,7 +2,6 @@
 
 const db = require('../../../lib/connectors/db.js')
 const FetchPointsPurposes = require('./fetch-points-purposes.js')
-const { formatDateObjectToISO } = require('../../../lib/date-helpers.js')
 const { generateUUID } = require('../../../lib/general.js')
 
 async function go (missingReturn, timestamp) {
@@ -88,22 +87,11 @@ function _returnsFrequency (reportingFrequency) {
   return reportingFrequency
 }
 
-function _returnId (missingReturn) {
-  const regionCode = missingReturn.regionId
-  const licenceReference = missingReturn.licenceRef
-  const returnReference = missingReturn.returnRequirement.reference
-  const startDateAsString = formatDateObjectToISO(missingReturn.returnCycle.startDate)
-  const endDateAsString = formatDateObjectToISO(missingReturn.returnCycle.endDate)
-
-  return `v1:${regionCode}:${licenceReference}:${returnReference}:${startDateAsString}:${endDateAsString}`
-}
-
 async function _returnLog (missingReturn, points, purposes, timestamp) {
-  const returnId = _returnId(missingReturn)
   const id = generateUUID()
 
   const params = [
-    returnId,
+    missingReturn.returnLog.newReturnId,
     missingReturn.licenceRef,
     missingReturn.returnCycle.startDate,
     missingReturn.returnCycle.endDate,
@@ -162,7 +150,7 @@ VALUES (
 
   await db.query(query, params)
 
-  return { id, returnId }
+  return { id, returnId: missingReturn.returnLog.newReturnId }
 }
 
 module.exports = {

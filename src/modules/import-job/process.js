@@ -18,6 +18,7 @@ const MissingReturnSubmissionsStep = require('./lib/missing-return-submissions.j
 const MissingVoidReturnsStep = require('./lib/missing-void-returns.js')
 const PartyCrmV2ImportStep = require('./lib/party-crm-v2-import.js')
 const ReferenceDataImportStep = require('./lib/reference-data-import.js')
+const VoidReturnLogsStep = require('./lib/void-return-logs.js')
 
 async function go () {
   try {
@@ -62,6 +63,9 @@ async function go () {
     steps.push(step)
 
     step = await MissingReturnLogDataStep.go()
+    steps.push(step)
+
+    step = await VoidReturnLogsStep.go()
     steps.push(step)
 
     step = await MissingVoidReturnsStep.go()
