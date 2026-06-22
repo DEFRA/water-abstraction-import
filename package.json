@@ -50,5 +50,9 @@
     "pino-pretty": "^9.1.1",
     "sinon": "^9.0.2",
     "standard": "^17.1.0"
+  },
+  "allowScripts": {
+    "aws-sdk@2.1693.0": true,
+    "es5-ext@0.10.63": true
   }
 }
