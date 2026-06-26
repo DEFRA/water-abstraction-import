@@ -56,17 +56,6 @@ async function go () {
   await _licences()
 }
 
-async function _returnLogs() {
-  // Delete any return logs linked to deleted NALD licences
-  await db.query(`
-    ${LICENCES_TO_REMOVE_QUERY}
-    DELETE FROM public.return_logs rl
-    WHERE
-      rl.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr)
-      AND rl.status = 'due';
-  `)
-}
-
 async function _billingBatchChargeVersionYears () {
   // Delete any billing batch charge version years linked to charge versions linked to deleted NALD licences
   await db.query(`
@@ -283,6 +272,17 @@ async function _permitLicences () {
     ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.permit_licences pl
     WHERE pl.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
+  `)
+}
+
+async function _returnLogs () {
+  // Delete any return logs linked to deleted NALD licences
+  await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
+    DELETE FROM public.return_logs rl
+    WHERE
+      rl.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr)
+      AND rl.status = 'due';
   `)
 }
 
