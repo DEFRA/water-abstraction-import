@@ -24,7 +24,7 @@ licences_to_remove AS (
   FROM public.licences l
   WHERE NOT EXISTS (SELECT 1 FROM nald_lics nal WHERE nal."LIC_NO" = l.licence_ref)
   AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-  AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+  AND NOT EXISTS (SELECT 1 FROM public.return_logs rl WHERE rl.licence_ref = l.licence_ref AND rl.status <> 'due')
   AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
 )
 `
@@ -46,6 +46,7 @@ async function go () {
   await _returnRequirementPurposes()
   await _returnRequirements()
   await _returnVersions()
+  await _returnLogs()
   await _modLogs()
   await _chargeReferences()
   await _billingVolumes()
@@ -271,6 +272,17 @@ async function _permitLicences () {
     ${LICENCES_TO_REMOVE_QUERY}
     DELETE FROM public.permit_licences pl
     WHERE pl.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr);
+  `)
+}
+
+async function _returnLogs () {
+  // Delete any return logs linked to deleted NALD licences
+  await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
+    DELETE FROM public.return_logs rl
+    WHERE
+      rl.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr)
+      AND rl.status = 'due';
   `)
 }
 
