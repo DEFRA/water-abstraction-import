@@ -24,7 +24,7 @@ licences_to_remove AS (
   FROM public.licences l
   WHERE NOT EXISTS (SELECT 1 FROM nald_lics nal WHERE nal."LIC_NO" = l.licence_ref)
   AND NOT EXISTS (SELECT 1 FROM public.bill_licences bl WHERE bl.licence_id = l.id)
-  AND NOT EXISTS (SELECT 1 FROM public.return_versions rv WHERE rv.licence_id = l.id)
+  AND NOT EXISTS (SELECT 1 FROM public.return_logs rl WHERE rl.licence_ref = l.licence_ref AND rl.status <> 'due')
   AND NOT EXISTS (SELECT 1 FROM public.licence_document_headers ldh WHERE ldh.licence_ref = l.licence_ref AND ldh.company_entity_id IS NOT NULL)
 )
 `
