@@ -51,7 +51,6 @@ async function go () {
   await _licenceVersionPurposePoints()
   await _licenceVersionPurposes()
   await _licenceVersionWorkflows()
-  await _licenceVersionHolders()
   await _licenceVersions()
 }
 
@@ -121,20 +120,6 @@ async function _licenceVersionWorkflows () {
 ${LICENCE_VERSIONS_TO_REMOVE_QUERY}
 DELETE FROM public.workflows w
 WHERE w.licence_version_id IN (
-  SELECT
-    lvtr.licence_version_id
-  FROM
-    licence_versions_to_remove lvtr
-);
-  `)
-}
-
-async function _licenceVersionHolders () {
-  // Delete any licence version holders linked to draft NALD licence versions
-  await db.query(`
-${LICENCE_VERSIONS_TO_REMOVE_QUERY}
-DELETE FROM public.licence_version_holders lvh
-WHERE lvh.licence_version_id IN (
   SELECT
     lvtr.licence_version_id
   FROM
