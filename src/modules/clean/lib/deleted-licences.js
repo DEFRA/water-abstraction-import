@@ -46,6 +46,7 @@ async function go () {
   await _returnRequirementPurposes()
   await _returnRequirements()
   await _returnVersions()
+  await _returnLogs()
   await _modLogs()
   await _chargeReferences()
   await _billingVolumes()
@@ -53,6 +54,17 @@ async function go () {
   await _chargeVersions()
   await _licenceDocuments()
   await _licences()
+}
+
+async function _returnLogs() {
+  // Delete any return logs linked to deleted NALD licences
+  await db.query(`
+    ${LICENCES_TO_REMOVE_QUERY}
+    DELETE FROM public.return_logs rl
+    WHERE
+      rl.licence_ref IN (SELECT ltr.licence_ref FROM licences_to_remove ltr)
+      AND rl.status = 'due';
+  `)
 }
 
 async function _billingBatchChargeVersionYears () {
