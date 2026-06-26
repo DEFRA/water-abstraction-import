@@ -2,7 +2,6 @@
 
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const Licences = require('./lib/licences.js')
-const LicenceVersionHolders = require('./lib/holders.js')
 const LicenceVersionPurposeConditions = require('./lib/conditions.js')
 const LicenceVersionPurposePoints = require('./lib/points.js')
 const LicenceVersionPurposes = require('./lib/purposes.js')
@@ -16,7 +15,6 @@ async function go (log = false) {
 
     await Licences.go()
     await LicenceVersions.go()
-    await LicenceVersionHolders.go()
     await LicenceVersionPurposes.go()
     await LicenceVersionPurposePoints.go()
     await LicenceVersionPurposeConditions.go()
