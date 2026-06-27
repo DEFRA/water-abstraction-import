@@ -95,7 +95,6 @@ async function _currentLicenceVersion (id, regionCode) {
         AND (l."EXPIRY_DATE" = 'null' OR to_date(l."EXPIRY_DATE", 'DD/MM/YYYY') > NOW())
         AND (l."LAPSED_DATE" = 'null' OR to_date(l."LAPSED_DATE", 'DD/MM/YYYY') > NOW())
         AND (l."REV_DATE" = 'null' OR to_date(l."REV_DATE", 'DD/MM/YYYY') > NOW())
-        AND (v."EFF_ST_DATE"='null' OR to_date(v."EFF_ST_DATE", 'DD/MM/YYYY') <= NOW())
       )
     ORDER BY
       "ISSUE_NO" DESC,
