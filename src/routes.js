@@ -176,14 +176,6 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/process/link-to-mod-logs',
-    handler: Controller.linkToModLogs,
-    config: {
-      auth: false
-    }
-  },
-  {
-    method: 'POST',
     path: '/process/missing-return-log-data',
     handler: Controller.missingReturnLogData,
     config: {
@@ -215,9 +207,9 @@ module.exports = [
     }
   },
   {
-    method: 'post',
-    handler: Controller.partyCrmV2Import,
-    path: '/process/party-crm-v2-import',
+    method: 'POST',
+    path: '/process/mod-logs-import',
+    handler: Controller.modLogsImport,
     config: {
       auth: false
     }
