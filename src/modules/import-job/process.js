@@ -11,7 +11,7 @@ const ExtractOldLinesStep = require('./lib/extract-old-lines.js')
 const FlagDeletedDocumentsStep = require('./lib/flag-deleted-documents.js')
 const LicenceDataImportStep = require('./lib/licence-data-import.js')
 const LicencesImportStep = require('./lib/licences-import.js')
-const LinkToModLogsStep = require('./lib/link-to-mod-logs.js')
+const ModLogsImportStep = require('./lib/mod-logs-import.js')
 const MissingReturnLogDataStep = require('./lib/missing-return-log-data.js')
 const MissingReturnLogsStep = require('./lib/missing-return-logs.js')
 const MissingReturnSubmissionsStep = require('./lib/missing-return-submissions.js')
@@ -56,7 +56,7 @@ async function go () {
     step = await LicencesImportStep.go()
     steps.push(step)
 
-    step = await LinkToModLogsStep.go()
+    step = await ModLogsImportStep.go()
     steps.push(step)
 
     step = await EndDateTriggerStep.go()
