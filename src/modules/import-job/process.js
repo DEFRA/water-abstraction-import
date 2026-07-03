@@ -5,20 +5,14 @@ const CleanStep = require('./lib/clean.js')
 const CompletionEmail = require('../completion-email/process.js')
 const EndDateCheckStep = require('./lib/end-date-check.js')
 const EndDateTriggerStep = require('./lib/end-date-trigger.js')
-const ExtendReturnVersionsStep = require('./lib/extend-return-versions.js')
 const ExtractNaldDataStep = require('./lib/extract-nald-data.js')
 const ExtractOldLinesStep = require('./lib/extract-old-lines.js')
 const FlagDeletedDocumentsStep = require('./lib/flag-deleted-documents.js')
 const LicenceDataImportStep = require('./lib/licence-data-import.js')
 const LicencesImportStep = require('./lib/licences-import.js')
 const ModLogsImportStep = require('./lib/mod-logs-import.js')
-const MissingReturnLogDataStep = require('./lib/missing-return-log-data.js')
-const MissingReturnLogsStep = require('./lib/missing-return-logs.js')
-const MissingReturnSubmissionsStep = require('./lib/missing-return-submissions.js')
-const MissingVoidReturnsStep = require('./lib/missing-void-returns.js')
 const PartyCrmV2ImportStep = require('./lib/party-crm-v2-import.js')
 const ReferenceDataImportStep = require('./lib/reference-data-import.js')
-const VoidReturnLogsStep = require('./lib/void-return-logs.js')
 
 async function go () {
   try {
@@ -60,24 +54,6 @@ async function go () {
     steps.push(step)
 
     step = await EndDateTriggerStep.go()
-    steps.push(step)
-
-    step = await MissingReturnLogDataStep.go()
-    steps.push(step)
-
-    step = await VoidReturnLogsStep.go()
-    steps.push(step)
-
-    step = await MissingVoidReturnsStep.go()
-    steps.push(step)
-
-    step = await ExtendReturnVersionsStep.go()
-    steps.push(step)
-
-    step = await MissingReturnLogsStep.go()
-    steps.push(step)
-
-    step = await MissingReturnSubmissionsStep.go()
     steps.push(step)
 
     await CompletionEmail.go(steps)
