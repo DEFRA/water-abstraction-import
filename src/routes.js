@@ -104,14 +104,6 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/process/extend-return-versions',
-    handler: Controller.extendReturnVersions,
-    config: {
-      auth: false
-    }
-  },
-  {
-    method: 'POST',
     path: '/process/extract-nald-data',
     handler: Controller.extractNaldData,
     config: {
@@ -176,38 +168,6 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/process/missing-return-log-data',
-    handler: Controller.missingReturnLogData,
-    config: {
-      auth: false
-    }
-  },
-  {
-    method: 'POST',
-    path: '/process/missing-return-logs',
-    handler: Controller.missingReturnLogs,
-    config: {
-      auth: false
-    }
-  },
-  {
-    method: 'POST',
-    path: '/process/missing-return-submissions',
-    handler: Controller.missingReturnSubmissions,
-    config: {
-      auth: false
-    }
-  },
-  {
-    method: 'POST',
-    path: '/process/missing-void-returns',
-    handler: Controller.missingVoidReturns,
-    config: {
-      auth: false
-    }
-  },
-  {
-    method: 'POST',
     path: '/process/mod-logs-import',
     handler: Controller.modLogsImport,
     config: {
@@ -218,14 +178,6 @@ module.exports = [
     method: 'POST',
     path: '/process/reference-data-import',
     handler: Controller.referenceDataImport,
-    config: {
-      auth: false
-    }
-  },
-  {
-    method: 'POST',
-    path: '/process/void-return-logs',
-    handler: Controller.voidReturnLogs,
     config: {
       auth: false
     }

@@ -14,7 +14,6 @@ const EndDateTriggerProcess = require('./modules/end-date-trigger/process.js')
 const EtlReturns = require('./modules/etl/returns.js')
 const EtlVersions = require('./modules/etl/versions.js')
 const EtlVersionLines = require('./modules/etl/version-lines.js')
-const ExtendReturnVersionsProcess = require('./modules/extend-return-versions/process.js')
 const ExtractNaldDataProcess = require('./modules/extract-nald-data/process.js')
 const ExtractOldLinesProcess = require('./modules/extract-old-lines/process.js')
 const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/process.js')
@@ -24,14 +23,9 @@ const LicenceCrmV2ImportProcess = require('./modules/licence-crm-v2-import/proce
 const LicenceNoStartDateImportProcess = require('./modules/licence-no-start-date-import/process.js')
 const LicencePermitImportProcess = require('./modules/licence-permit-import/process.js')
 const LicencesImportProcess = require('./modules/licences-import/process.js')
-const MissingReturnLogDataProcess = require('./modules/missing-return-log-data/process.js')
-const MissingReturnLogsProcess = require('./modules/missing-return-logs/process.js')
-const MissingVoidReturnsProcess = require('./modules/missing-void-returns/process.js')
 const ModLogsImportProcess = require('./modules/mod-logs-import/process.js')
 const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
-const MissingReturnSubmissionsProcess = require('./modules/missing-return-submissions/process.js')
-const VoidReturnLogsProcess = require('./modules/void-return-logs/process.js')
 
 async function clean (_request, h) {
   CleanProcess.go(true)
@@ -85,12 +79,6 @@ async function etlVersionLines (request, h) {
   const result = await EtlVersionLines.go(returnSubmissionId)
 
   return h.response(result).code(200)
-}
-
-async function extendReturnVersions (_request, h) {
-  ExtendReturnVersionsProcess.go(true)
-
-  return h.response().code(204)
 }
 
 async function extractNaldData (_request, h) {
@@ -172,30 +160,6 @@ async function licencesImport (_request, h) {
   return h.response().code(204)
 }
 
-async function missingReturnLogData (_request, h) {
-  MissingReturnLogDataProcess.go(true)
-
-  return h.response().code(204)
-}
-
-async function missingReturnLogs (_request, h) {
-  MissingReturnLogsProcess.go(true)
-
-  return h.response().code(204)
-}
-
-async function missingReturnSubmissions (_request, h) {
-  MissingReturnSubmissionsProcess.go(true)
-
-  return h.response().code(204)
-}
-
-async function missingVoidReturns (_request, h) {
-  MissingVoidReturnsProcess.go(true)
-
-  return h.response().code(204)
-}
-
 async function modLogsImport (_request, h) {
   ModLogsImportProcess.go(true)
 
@@ -217,12 +181,6 @@ async function partyCrmV2Import (request, h) {
 
 async function referenceDataImport (_request, h) {
   ReferenceDataImportProcess.go(true)
-
-  return h.response().code(204)
-}
-
-async function voidReturnLogs (_request, h) {
-  VoidReturnLogsProcess.go(true)
 
   return h.response().code(204)
 }
@@ -259,7 +217,6 @@ module.exports = {
   etlReturns,
   etlVersions,
   etlVersionLines,
-  extendReturnVersions,
   extractNaldData,
   extractOldLines,
   flagDeletedDocuments,
@@ -270,13 +227,8 @@ module.exports = {
   licenceNoStartDateImport,
   licencePermitImport,
   licencesImport,
-  missingReturnLogData,
-  missingReturnLogs,
-  missingReturnSubmissions,
-  missingVoidReturns,
   modLogsImport,
   partyCrmV2Import,
   referenceDataImport,
-  status,
-  voidReturnLogs
+  status
 }
