@@ -1,9 +1,9 @@
 'use strict'
 
+const ModLogsImportProcess = require('../../mod-logs-import/process.js')
 const { currentTimeInNanoseconds, durations } = require('../../../lib/general.js')
-const LinkToModLogsProcess = require('../../link-to-mod-logs/process.js')
 
-const STEP_NAME = 'link-to-mod-logs'
+const STEP_NAME = 'mod-logs-import'
 
 async function go () {
   global.GlobalNotifier.omg(`import-job.${STEP_NAME}: started`)
@@ -12,7 +12,7 @@ async function go () {
 
   const startTime = currentTimeInNanoseconds()
 
-  step.messages = await LinkToModLogsProcess.go(false)
+  step.messages = await ModLogsImportProcess.go(false)
 
   const { timeTakenSs } = durations(startTime)
 

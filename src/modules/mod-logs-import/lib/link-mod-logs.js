@@ -1,28 +1,12 @@
 'use strict'
 
-const db = require('../../lib/connectors/db.js')
-const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
+const db = require('../../../lib/connectors/db.js')
 
-async function go (log = false) {
-  const messages = []
-
-  try {
-    const startTime = currentTimeInNanoseconds()
-
-    await _linkLicencesToModLogs()
-    await _linkChargeVersionsToModLogs()
-    await _linkLicenceVersionsToModLogs()
-
-    if (log) {
-      calculateAndLogTimeTaken(startTime, 'link-to-mod-logs: complete')
-    }
-  } catch (error) {
-    global.GlobalNotifier.omfg('link-to-mod-logs: errored', {}, error)
-
-    messages.push(error.message)
-  }
-
-  return messages
+async function go () {
+  await _linkLicencesToModLogs()
+  await _linkChargeVersionsToModLogs()
+  await _linkLicenceVersionsToModLogs()
+  await _linkReturnVersionsToModLogs()
 }
 
 async function _linkLicencesToModLogs () {
@@ -58,6 +42,18 @@ async function _linkLicenceVersionsToModLogs () {
     FROM water.licence_versions lv
     WHERE lv.external_id = ml.licence_version_external_id
     AND ml.licence_version_id IS NULL;
+  `)
+}
+
+async function _linkReturnVersionsToModLogs () {
+  // This will link any newly imported mod log records to their return versions based on the external ID against each
+  // one
+  await db.query(`
+    UPDATE water.mod_logs ml
+    SET return_version_id = rv.return_version_id
+    FROM water.return_versions rv
+    WHERE rv.external_id = ml.return_version_external_id
+    AND ml.return_version_id IS NULL;
   `)
 }
 
