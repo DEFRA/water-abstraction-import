@@ -80,6 +80,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/clean-return-logs',
+    handler: Controller.cleanReturnLogs,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/completion-email',
     handler: Controller.completionEmail,
     config: {
