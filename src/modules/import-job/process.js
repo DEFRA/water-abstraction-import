@@ -2,6 +2,7 @@
 
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 const CleanStep = require('./lib/clean.js')
+const CleanReturnLogsStep = require('./lib/clean-return-logs.js')
 const CompletionEmail = require('../completion-email/process.js')
 const EndDateCheckStep = require('./lib/end-date-check.js')
 const EndDateTriggerStep = require('./lib/end-date-trigger.js')
@@ -54,6 +55,9 @@ async function go () {
     steps.push(step)
 
     step = await EndDateTriggerStep.go()
+    steps.push(step)
+
+    step = await CleanReturnLogsStep.go()
     steps.push(step)
 
     await CompletionEmail.go(steps)

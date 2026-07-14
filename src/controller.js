@@ -8,6 +8,7 @@ const db = require('./lib/connectors/db.js')
 const PermitJson = require('./lib/permit-json/permit-json.js')
 
 const CleanProcess = require('./modules/clean/process.js')
+const CleanReturnLogsProcess = require('./modules/clean-return-logs/process.js')
 const CompletionEmailProcess = require('./modules/completion-email/process.js')
 const EndDateCheckProcess = require('./modules/end-date-check/process.js')
 const EndDateTriggerProcess = require('./modules/end-date-trigger/process.js')
@@ -29,6 +30,12 @@ const ReferenceDataImportProcess = require('./modules/reference-data-import/proc
 
 async function clean (_request, h) {
   CleanProcess.go(true)
+
+  return h.response().code(204)
+}
+
+async function cleanReturnLogs (_request, h) {
+  CleanReturnLogsProcess.go(true)
 
   return h.response().code(204)
 }
@@ -211,6 +218,7 @@ async function _commitHash () {
 
 module.exports = {
   clean,
+  cleanReturnLogs,
   completionEmail,
   endDateCheck,
   endDateTrigger,
