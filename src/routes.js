@@ -189,5 +189,13 @@ module.exports = [
     config: {
       auth: false
     }
+  },
+  {
+    method: 'POST',
+    path: '/process/sync-nald-lines',
+    handler: Controller.syncNaldLines,
+    config: {
+      auth: false
+    }
   }
 ]

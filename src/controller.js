@@ -27,6 +27,7 @@ const LicencesImportProcess = require('./modules/licences-import/process.js')
 const ModLogsImportProcess = require('./modules/mod-logs-import/process.js')
 const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
+const SyncNaldLinesProcess = require('./modules/sync-nald-lines/process.js')
 
 async function clean (_request, h) {
   CleanProcess.go(true)
@@ -196,6 +197,12 @@ function status (_request, _h) {
   return { status: 'alive' }
 }
 
+async function syncNaldLines (_request, h) {
+  SyncNaldLinesProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function _tagReference () {
   try {
     const { stdout, stderr } = await exec('git describe --always --tags')
@@ -238,5 +245,6 @@ module.exports = {
   modLogsImport,
   partyCrmV2Import,
   referenceDataImport,
-  status
+  status,
+  syncNaldLines
 }
