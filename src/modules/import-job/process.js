@@ -14,6 +14,7 @@ const LicencesImportStep = require('./lib/licences-import.js')
 const ModLogsImportStep = require('./lib/mod-logs-import.js')
 const PartyCrmV2ImportStep = require('./lib/party-crm-v2-import.js')
 const ReferenceDataImportStep = require('./lib/reference-data-import.js')
+const SyncNaldLinesStep = require('./lib/sync-nald-lines.js')
 
 async function go () {
   try {
@@ -58,6 +59,9 @@ async function go () {
     steps.push(step)
 
     step = await CleanReturnLogsStep.go()
+    steps.push(step)
+
+    step = await SyncNaldLinesStep.go()
     steps.push(step)
 
     await CompletionEmail.go(steps)
