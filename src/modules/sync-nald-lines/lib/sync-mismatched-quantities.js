@@ -162,7 +162,8 @@ mismatched_lines AS (
 )
 UPDATE "returns".lines l
 SET
-  quantity = ml.nald_quantity
+  quantity = ml.nald_quantity,
+  updated_at = NOW()
 FROM
   mismatched_lines ml
 WHERE
