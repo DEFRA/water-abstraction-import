@@ -158,7 +158,9 @@ mismatched_lines AS (
   FROM
     line_quantities lq
   WHERE
-    lq.quantity <> lq.nald_quantity
+    -- If either value is NULL, using <> will return 'UNKNOWN', which means the row will be ignored. IS DISTINCT FROM
+    -- ensures that NULLs are treated as a value, so if one is NULL and the other isn't, the row will be returned.
+    lq.quantity IS DISTINCT FROM lq.nald_quantity
 )
 UPDATE "returns".lines l
 SET
