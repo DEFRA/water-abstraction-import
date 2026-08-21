@@ -27,6 +27,7 @@ const LicencesImportProcess = require('./modules/licences-import/process.js')
 const ModLogsImportProcess = require('./modules/mod-logs-import/process.js')
 const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
+const SyncEndOfPeriodProcess = require('./modules/sync-end-of-period/process.js')
 const SyncNaldLinesProcess = require('./modules/sync-nald-lines/process.js')
 
 async function clean (_request, h) {
@@ -197,6 +198,12 @@ function status (_request, _h) {
   return { status: 'alive' }
 }
 
+async function syncEndOfPeriod (_request, h) {
+  SyncEndOfPeriodProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function syncNaldLines (_request, h) {
   SyncNaldLinesProcess.go(true)
 
@@ -246,5 +253,6 @@ module.exports = {
   partyCrmV2Import,
   referenceDataImport,
   status,
+  syncEndOfPeriod,
   syncNaldLines
 }

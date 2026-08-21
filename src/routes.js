@@ -192,6 +192,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/sync-end-of-period',
+    handler: Controller.syncEndOfPeriod,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/sync-nald-lines',
     handler: Controller.syncNaldLines,
     config: {
