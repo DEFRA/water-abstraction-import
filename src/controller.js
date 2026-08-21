@@ -204,7 +204,6 @@ async function syncEndOfPeriod (_request, h) {
   return h.response().code(204)
 }
 
-
 async function syncNaldLines (_request, h) {
   SyncNaldLinesProcess.go(true)
 
