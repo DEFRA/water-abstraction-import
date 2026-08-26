@@ -1,11 +1,14 @@
 'use strict'
 
 const AlreadyRun = require('./lib/already-run.js')
+const CreateVoidReturns = require('./lib/create-void-returns.js')
 const RecordRun = require('./lib/record-run.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
 async function go (log = false) {
   const messages = []
+
+  let currentRegion
 
   try {
     const startTime = currentTimeInNanoseconds()
@@ -19,13 +22,21 @@ async function go (log = false) {
       return messages
     }
 
+    // Add the missing void return logs one region at a time
+    const regions = ['1', '2', '3', '4', '5', '6', '7', '8']
+
+    for (const region of regions) {
+      currentRegion = region
+      await CreateVoidReturns.go(region)
+    }
+
     await RecordRun.go()
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'missing-void-returns: complete', { messages })
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('missing-void-returns: errored', {}, error)
+    global.GlobalNotifier.omfg('missing-void-returns: errored', { currentRegion }, error)
 
     messages.push(error.message)
   }
