@@ -4,7 +4,7 @@ const db = require('../../../lib/connectors/db.js')
 const { generateUUID } = require('../../../lib/general.js')
 
 async function go () {
-  const params = [generateUUID(), 'sync-nald-lines-3', {}]
+  const params = [generateUUID(), 'missing-void-returns', {}]
   await db.query(`INSERT INTO water.application_state (
   application_state_id,
   "key",

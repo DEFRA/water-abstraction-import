@@ -11,6 +11,7 @@ const ExtractOldLinesStep = require('./lib/extract-old-lines.js')
 const FlagDeletedDocumentsStep = require('./lib/flag-deleted-documents.js')
 const LicenceDataImportStep = require('./lib/licence-data-import.js')
 const LicencesImportStep = require('./lib/licences-import.js')
+const MissingVoidReturnsStep = require('./lib/missing-void-returns.js')
 const ModLogsImportStep = require('./lib/mod-logs-import.js')
 const PartyCrmV2ImportStep = require('./lib/party-crm-v2-import.js')
 const ReferenceDataImportStep = require('./lib/reference-data-import.js')
@@ -60,6 +61,9 @@ async function go () {
     steps.push(step)
 
     step = await CleanReturnLogsStep.go()
+    steps.push(step)
+
+    step = await MissingVoidReturnsStep.go()
     steps.push(step)
 
     step = await SyncNaldLinesStep.go()
