@@ -8,7 +8,7 @@ async function go () {
 FROM
   water.application_state a
 WHERE
-  a."key" = 'sync-end-of-period';
+  a."key" = 'sync-end-of-period-2';
   `)
 
   return results.length > 0
