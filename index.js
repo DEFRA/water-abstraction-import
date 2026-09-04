@@ -2,7 +2,6 @@
 
 // -------------- Require vendor code -----------------
 const HapiAuthJwt2 = require('hapi-auth-jwt2')
-const cron = require('node-cron')
 const moment = require('moment')
 
 moment.locale('en-gb')
@@ -14,7 +13,6 @@ const routes = require('./src/routes.js')
 const AirbrakePlugin = require('./src/plugins/airbrake.plugin.js')
 const GlobalNotifierPlugin = require('./src/plugins/global-notifier.plugin.js')
 const HapiPinoPlugin = require('./src/plugins/hapi-pino.plugin.js')
-const ImportJob = require('./src/modules/import-job/process.js')
 
 // Define server
 const server = require('./server')
@@ -41,13 +39,6 @@ const start = async function () {
   configureServerAuthStrategy(server)
 
   server.route(routes)
-
-  if (config.import.schedule) {
-    global.GlobalNotifier.omg(`import-job scheduled for ${config.import.schedule}`)
-    cron.schedule(config.import.schedule, () => {
-      ImportJob.go()
-    })
-  }
 
   if (!module.parent) {
     await server.start()
