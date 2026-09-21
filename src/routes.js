@@ -200,6 +200,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/sync-end-of-licence',
+    handler: Controller.syncEndOfLicence,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/sync-end-of-period',
     handler: Controller.syncEndOfPeriod,
     config: {
