@@ -2,6 +2,7 @@
 
 const AlreadyRun = require('./lib/already-run.js')
 const RecordRun = require('./lib/record-run.js')
+const SyncMismatchedQuantities = require('./lib/sync-mismatched-quantities.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
 async function go (log = false) {
@@ -25,6 +26,14 @@ async function go (log = false) {
       messages.push('Skipped because they have already been synced')
 
       return messages
+    }
+
+    // Sync any mismatches between NALD and imported WRLS lines one region at a time
+    const regions = ['1', '2', '3', '4', '5', '6', '7', '8']
+
+    for (const region of regions) {
+      currentRegion = region
+      await SyncMismatchedQuantities.go(region)
     }
 
     await RecordRun.go()
