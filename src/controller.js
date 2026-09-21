@@ -28,6 +28,7 @@ const MissingVoidReturnsProcess = require('./modules/missing-void-returns/proces
 const ModLogsImportProcess = require('./modules/mod-logs-import/process.js')
 const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
+const SyncEndOfLicenceProcess = require('./modules/sync-end-of-licence/process.js')
 const SyncEndOfPeriodProcess = require('./modules/sync-end-of-period/process.js')
 const SyncNaldLinesProcess = require('./modules/sync-nald-lines/process.js')
 
@@ -205,6 +206,12 @@ function status (_request, _h) {
   return { status: 'alive' }
 }
 
+async function syncEndOfLicence (_request, h) {
+  SyncEndOfLicenceProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function syncEndOfPeriod (_request, h) {
   SyncEndOfPeriodProcess.go(true)
 
@@ -261,6 +268,7 @@ module.exports = {
   partyCrmV2Import,
   referenceDataImport,
   status,
+  syncEndOfLicence,
   syncEndOfPeriod,
   syncNaldLines
 }
