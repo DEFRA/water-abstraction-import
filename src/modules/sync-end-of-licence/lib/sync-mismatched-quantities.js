@@ -79,7 +79,7 @@ wrls_latest_submissions AS (
     r."source" = 'NALD'
     AND r."status" <> 'due'
     AND r.end_date = wrr.licence_end_date
-    -- AND r.end_date = wrr.return_version_end_date
+    AND v.user_type = 'system'
   ORDER BY
     v.return_log_id,
     v.version_number DESC
