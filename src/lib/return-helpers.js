@@ -1,5 +1,7 @@
 'use strict'
 
+const { formatDateObjectToISO } = require('./date-helpers.js')
+
 const DECEMBER = 11
 
 function daysFromPeriod (periodStartDate, periodEndDate) {
@@ -13,7 +15,11 @@ function daysFromPeriod (periodStartDate, periodEndDate) {
     const startDate = _cloneDate(clonedPeriodStartDate)
 
     // No jiggery-pokery needed. Simply add it to the days array as both the start and end date
-    days.push({ start_date: startDate, end_date: startDate })
+    days.push({
+      endDate: startDate,
+      readingKey: `${formatDateObjectToISO(startDate)}_${formatDateObjectToISO(startDate)}`,
+      startDate: startDate,
+    })
 
     // Move the date to the next day, and round we go again!
     clonedPeriodStartDate.setDate(clonedPeriodStartDate.getDate() + 1)
@@ -38,7 +44,11 @@ function weeksFromPeriod (periodStartDate, periodEndDate) {
       // Set the start date back to 6 days, which makes it the previous Sunday
       startDate.setDate(startDate.getDate() - 6)
 
-      weeks.push({ start_date: startDate, end_date: endDate })
+      weeks.push({
+        endDate: endDate,
+        readingKey: `${formatDateObjectToISO(startDate)}_${formatDateObjectToISO(endDate)}`,
+        startDate: startDate
+      })
 
       // Now we have found our first week, we can just move the date forward by 6 days to the next Saturday, thus saving
       // a bunch of loop iterations
@@ -70,7 +80,11 @@ function monthsFromPeriod (periodStartDate, periodEndDate) {
     // so we never have to worry about 28/29/30/31-day months or leap years
     const endDate = new Date(Date.UTC(year, month + 1, 0))
 
-    months.push({ startDate, endDate })
+    months.push({
+      endDate: endDate,
+      readingKey: `${formatDateObjectToISO(startDate)}_${formatDateObjectToISO(endDate)}`,
+      startDate: startDate
+    })
 
     // Advance to the next month, rolling into January of the next year when needed
     month++
