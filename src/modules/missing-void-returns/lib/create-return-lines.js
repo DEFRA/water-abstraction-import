@@ -19,7 +19,7 @@ async function go (missingVoidReturn, returnSubmissionId, timestamp) {
 }
 
 async function _createReturnLine (line, returnSubmissionId, reportingFrequency, timestamp) {
-  const { end_date: endDate, start_date: startDate } = line
+  const { endDate, startDate } = line
   const id = generateUUID()
 
   const params = [
