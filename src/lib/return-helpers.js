@@ -18,7 +18,7 @@ function daysFromPeriod (periodStartDate, periodEndDate) {
     days.push({
       endDate: startDate,
       readingKey: `${formatDateObjectToISO(startDate)}_${formatDateObjectToISO(startDate)}`,
-      startDate: startDate,
+      startDate
     })
 
     // Move the date to the next day, and round we go again!
@@ -45,9 +45,9 @@ function weeksFromPeriod (periodStartDate, periodEndDate) {
       startDate.setDate(startDate.getDate() - 6)
 
       weeks.push({
-        endDate: endDate,
+        endDate,
         readingKey: `${formatDateObjectToISO(startDate)}_${formatDateObjectToISO(endDate)}`,
-        startDate: startDate
+        startDate
       })
 
       // Now we have found our first week, we can just move the date forward by 6 days to the next Saturday, thus saving
@@ -81,9 +81,9 @@ function monthsFromPeriod (periodStartDate, periodEndDate) {
     const endDate = new Date(Date.UTC(year, month + 1, 0))
 
     months.push({
-      endDate: endDate,
+      endDate,
       readingKey: `${formatDateObjectToISO(startDate)}_${formatDateObjectToISO(endDate)}`,
-      startDate: startDate
+      startDate
     })
 
     // Advance to the next month, rolling into January of the next year when needed

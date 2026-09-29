@@ -66,7 +66,7 @@ function _populateNewLines (returnsFrequency, versionId, existingSubmissionLines
   for (const newSubmissionLine of newSubmissionLines) {
     newSubmissionLine.lineId = generateUUID()
     newSubmissionLine.quantity = null
-    newSubmissionLine.readingType = readingType,
+    newSubmissionLine.readingType = readingType
     newSubmissionLine.timePeriod = returnsFrequency
     newSubmissionLine.userUnit = userUnit
     newSubmissionLine.versionId = versionId
