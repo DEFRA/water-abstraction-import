@@ -120,9 +120,13 @@ split_return_requirements AS (
     rrl.total_logs > 1
 )
 SELECT
-  *
+  srl.return_requirement_id AS "returnRequirementId",
+  srl.return_cycle_id AS "returnCycleId"
 FROM
   split_return_requirements srl
+WHERE
+  srl.return_requirement_id = '8f9a2f1d-09c7-4e6f-b342-c2126097d3cf'
+  AND srl.return_cycle_id = 'caa8d42a-2781-4696-94b6-77cdc350dca0'
 ORDER BY
   srl.return_requirement_id ASC,
   srl.return_cycle_id ASC;
