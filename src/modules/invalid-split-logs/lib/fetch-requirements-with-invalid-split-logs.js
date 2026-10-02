@@ -125,8 +125,8 @@ SELECT
 FROM
   split_return_requirements srl
 WHERE
-  srl.return_requirement_id = '8f9a2f1d-09c7-4e6f-b342-c2126097d3cf'
-  AND srl.return_cycle_id = 'caa8d42a-2781-4696-94b6-77cdc350dca0'
+  srl.return_requirement_id = 'e628846e-bb0e-4358-8ba1-40239942d0ea'
+  AND srl.return_cycle_id = '8ae03d1c-4edd-4db1-bd44-7edfb2a1e798'
 ORDER BY
   srl.return_requirement_id ASC,
   srl.return_cycle_id ASC;

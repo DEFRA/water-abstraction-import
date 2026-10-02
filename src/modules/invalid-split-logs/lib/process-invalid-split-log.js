@@ -29,6 +29,16 @@ async function go (requirementWithInvalidSplitLog, timestamp) {
   return message
 }
 
+function _applyReturnId (mergedSplitLog) {
+  const regionCode = mergedSplitLog.returnId.charAt(3)
+  const licenceReference = mergedSplitLog.licenceRef
+  const returnReference = mergedSplitLog.returnReference
+  const startDateAsString = formatDateObjectToISO(mergedSplitLog.startDate)
+  const endDateAsString = formatDateObjectToISO(mergedSplitLog.endDate)
+
+  mergedSplitLog.returnId = `v1:${regionCode}:${licenceReference}:${returnReference}:${startDateAsString}:${endDateAsString}`
+}
+
 function _determineKeeper (invalidSplitLogs) {
   const sortedInvalidSplitLogs = invalidSplitLogs.sort((a, b) => {
     const scoreResult = a.score - b.score
@@ -98,16 +108,6 @@ function _mergeInvalidSplitLogData (invalidSplitLogs) {
   _applyReturnId(keeper.toKeep)
 
   return keeper
-}
-
-function _applyReturnId (mergedSplitLog) {
-  const regionCode = mergedSplitLog.returnId.charAt(3)
-  const licenceReference = mergedSplitLog.licenceRef
-  const returnReference = mergedSplitLog.returnReference
-  const startDateAsString = formatDateObjectToISO(mergedSplitLog.startDate)
-  const endDateAsString = formatDateObjectToISO(mergedSplitLog.endDate)
-
-  mergedSplitLog.returnId = `v1:${regionCode}:${licenceReference}:${returnReference}:${startDateAsString}:${endDateAsString}`
 }
 
 function _scoreInvalidSplitLog(splitLog) {
