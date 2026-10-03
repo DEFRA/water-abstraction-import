@@ -31,7 +31,10 @@ async function go (returnRequirementId, returnCycleId) {
     WHERE
       v.return_log_id = r.id
       AND v.user_type IN ('external', 'internal')
-  ) AS "userSubmission"
+  ) AS "userSubmission",
+  EXISTS(
+    SELECT 1 FROM "returns".versions v WHERE v.return_log_id = r.id AND v.nil_return = TRUE
+  ) AS "nilSubmission"
 FROM
   "returns"."returns" r
 WHERE

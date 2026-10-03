@@ -117,14 +117,29 @@ function _mergeInvalidSplitLogData (invalidSplitLogs) {
 }
 
 function _scoreInvalidSplitLog(splitLog) {
-  const { status, submissionCount, userSubmission } = splitLog
+  const { nilSubmission, status, submissionCount, userSubmission } = splitLog
 
   splitLog.score = submissionCount
 
+  // As user submission that is not a nil return scores the highest. This is the one we want to prioritize
+  if (userSubmission && !nilSubmission) {
+    splitLog.score += 10000
+  }
+
+  // As non-user submission that is not a nil return is next in priority. This handles where we have two 'complete'
+  // split-logs, but one of them has been marked as a 'nil return'. We don't want to keep the nil return and loose
+  // the submission data against the other one. Hence, we prioritize non-nil submissions.
+  if (submissionCount && !nilSubmission) {
+    splitLog.score += 1000
+  }
+
+  // If we're here, then we may be having to decide between a user submission and a non-user submission, both of which
+  // are either non-nil or nil returns. In this case we prioritize the user submission over the non-user submission.
   if (userSubmission) {
     splitLog.score += 100
   }
 
+  // Finally, we prioritize split logs that have a submission, over those that don't.
   if (status === 'completed') {
     splitLog.score += 10
   }
