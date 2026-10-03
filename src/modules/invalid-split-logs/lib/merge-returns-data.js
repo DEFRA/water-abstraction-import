@@ -71,7 +71,8 @@ async function _updateSubmissionLines (toKeepSplitLog, toDropIds, timestamp) {
   const { id: toKeepId } = toKeepSplitLog
 
   const params = [toKeepId, toDropIds, timestamp]
-  const query = `WITH latest_version_id AS (
+  const query = `WITH
+latest_keep_version AS (
   SELECT DISTINCT ON (v.return_log_id)
     v.version_id
   FROM
@@ -81,36 +82,49 @@ async function _updateSubmissionLines (toKeepSplitLog, toDropIds, timestamp) {
   ORDER BY
     v.return_log_id,
     v.version_number DESC
+  LIMIT 1
+),
+latest_drop_versions AS (
+  SELECT DISTINCT ON (v.return_log_id)
+    v.version_id
+  FROM
+    "returns".versions v
+  WHERE
+    v.return_log_id = ANY($2)
+  ORDER BY
+    v.return_log_id,
+    v.version_number DESC
 ),
 lines_to_update AS (
-SELECT
-  kl.line_id
-FROM
-  "returns".lines kl
-INNER JOIN
-  "returns".versions v
-  ON v.version_id = kl.version_id
-WHERE
-  v.return_log_id = ANY($2)
-  AND NOT EXISTS (
-    SELECT
-      1
-    FROM
-      "returns".lines dl
-    INNER JOIN
-      latest_version_id lv
-      ON lv.version_id = dl.version_id
-    WHERE
-      dl.start_date = kl.start_date
-  )
+  SELECT
+    l.version_id,
+    l.line_id,
+    l.start_date
+  FROM
+    "returns".lines l
+  INNER JOIN
+    latest_drop_versions ldv
+    ON ldv.version_id = l.version_id
+  WHERE
+    NOT EXISTS (
+      SELECT
+        1
+      FROM
+        "returns".lines keep_lines
+      INNER JOIN
+        latest_keep_version lkv
+        ON lkv.version_id = keep_lines.version_id
+      WHERE
+        l.start_date = keep_lines.start_date
+    )
 )
 UPDATE "returns".lines l
 SET
   version_id = (
     SELECT
-      lv.version_id
+      lkv.version_id
     FROM
-      latest_version_id lv
+      latest_keep_version lkv
     LIMIT 1
   ),
   updated_at = $3
