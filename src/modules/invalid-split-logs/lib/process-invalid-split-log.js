@@ -125,7 +125,7 @@ function _scoreInvalidSplitLog(splitLog) {
     splitLog.score += 100
   }
 
-  if (status === 'complete') {
+  if (status === 'completed') {
     splitLog.score += 10
   }
 }
