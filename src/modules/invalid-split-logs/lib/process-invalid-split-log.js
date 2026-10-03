@@ -41,7 +41,7 @@ function _applyReturnId (mergedSplitLog) {
 
 function _determineKeeper (invalidSplitLogs) {
   const sortedInvalidSplitLogs = invalidSplitLogs.sort((a, b) => {
-    const scoreResult = a.score - b.score
+    const scoreResult = b.score - a.score
 
     if (scoreResult !== 0) {
       return scoreResult
@@ -104,6 +104,12 @@ function _mergeInvalidSplitLogData (invalidSplitLogs) {
   keeper.toKeep.dueDate = _latestDate(dueDates)
   keeper.toKeep.sentDate = _latestDate(sentDates)
   keeper.toKeep.receivedDate = _latestDate(receivedDates)
+
+  // It wouldn't be possible to receive a return before it ends, so we nullify the received date if it is earlier than
+  // the end date
+  if (keeper.toKeep.receivedDate < keeper.toKeep.endDate) {
+    keeper.toKeep.receivedDate = null
+  }
 
   _applyReturnId(keeper.toKeep)
 
