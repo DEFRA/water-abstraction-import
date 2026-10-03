@@ -7,14 +7,13 @@ async function go (mergedSplitLogData, timestamp) {
 
   const toDropIds = _toDropIds(toDrop)
 
-  await _updateReturnLogAndSubmissions(toKeep, timestamp)
-
   if (toKeep.submissionCount > 0) {
     await _updateSubmissionLines(toKeep, toDropIds, timestamp)
     await _deleteSubmissionLines(toDropIds)
     await _deleteSubmissions(toDropIds)
   }
 
+  await _updateReturnLogAndSubmissions(toKeep, timestamp)
   await _deleteReturnLogs(toDropIds)
 }
 
