@@ -83,18 +83,24 @@ function _mergeInvalidSplitLogData (invalidSplitLogs) {
   const sentDates = []
   const startDates = []
 
+  let notCurrent = false
+
   for (const invalidSplitLog of invalidSplitLogs) {
     invalidSplitLog.submissionCount = Number(invalidSplitLog.submissionCount)
 
     _scoreInvalidSplitLog(invalidSplitLog)
 
-    const { dueDate, endDate, receivedDate, sentDate, startDate } = invalidSplitLog
+    const { dueDate, endDate, receivedDate, sentDate, startDate, isCurrent } = invalidSplitLog
 
     startDates.push(new Date(startDate))
     endDates.push(new Date(endDate))
     dueDates.push(new Date(dueDate))
     sentDates.push(new Date(sentDate))
     receivedDates.push(new Date(receivedDate))
+
+    if (!isCurrent) {
+      notCurrent = true
+    }
   }
 
   const keeper = _determineKeeper(invalidSplitLogs)
@@ -104,6 +110,7 @@ function _mergeInvalidSplitLogData (invalidSplitLogs) {
   keeper.toKeep.dueDate = _latestDate(dueDates)
   keeper.toKeep.sentDate = _latestDate(sentDates)
   keeper.toKeep.receivedDate = _latestDate(receivedDates)
+  keeper.toKeep.isCurrent = !notCurrent
 
   // It wouldn't be possible to receive a return before it ends, so we nullify the received date if it is earlier than
   // the end date

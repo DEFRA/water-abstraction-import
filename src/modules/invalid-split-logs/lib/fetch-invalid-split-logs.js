@@ -34,7 +34,8 @@ async function go (returnRequirementId, returnCycleId) {
   ) AS "userSubmission",
   EXISTS(
     SELECT 1 FROM "returns".versions v WHERE v.return_log_id = r.id AND v.nil_return = TRUE
-  ) AS "nilSubmission"
+  ) AS "nilSubmission",
+  (r.metadata->>'isCurrent')::bool AS "isCurrent"
 FROM
   "returns"."returns" r
 WHERE

@@ -31,9 +31,9 @@ function _toDropIds (toDrop) {
 }
 
 async function _updateReturnLogAndSubmissions (toKeepSplitLog, timestamp) {
-  const { dueDate, endDate, id, receivedDate, returnId, sentDate, startDate } = toKeepSplitLog
+  const { dueDate, endDate, id, isCurrent, receivedDate, returnId, sentDate, startDate } = toKeepSplitLog
 
-  const params = [dueDate, endDate, receivedDate, returnId, sentDate, startDate, timestamp, id, returnId, timestamp]
+  const params = [dueDate, endDate, receivedDate, returnId, sentDate, startDate, isCurrent, timestamp, id, returnId, timestamp]
 
   // The return log (returns.returns) and its submissions (returns.versions) both need to move to the new return_id at
   // the same time. versions.return_id has a foreign key to returns.return_id, so updating either table on its own
@@ -49,15 +49,16 @@ async function _updateReturnLogAndSubmissions (toKeepSplitLog, timestamp) {
     return_id = $4,
     sent_date = $5,
     start_date = $6,
-    updated_at = $7
+    metadata = jsonb_set(r.metadata, '{isCurrent}', to_jsonb($7::boolean)),
+    updated_at = $8
   WHERE
-    r.id = $8
+    r.id = $9
   RETURNING r.id
 )
 UPDATE "returns".versions v
 SET
-  return_id = $9,
-  updated_at = $10
+  return_id = $10,
+  updated_at = $11
 FROM
   updated_return_log url
 WHERE
