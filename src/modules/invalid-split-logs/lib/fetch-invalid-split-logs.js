@@ -31,6 +31,7 @@ invalid_split_logs AS (
   WHERE
     r.return_requirement_id = $1
     AND r.return_cycle_id = $2
+    AND r.status <> 'void'
 ),
 latest_return_submissions AS (
   SELECT DISTINCT ON (v.return_log_id)
