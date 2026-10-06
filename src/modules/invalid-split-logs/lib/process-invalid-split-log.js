@@ -50,7 +50,7 @@ function _determineKeeper (invalidSplitLogs) {
   }
 }
 
-function _earliestDate(dates) {
+function _earliestDate (dates) {
   const earliestDate = Math.min(...dates)
 
   if (earliestDate) {
@@ -60,7 +60,7 @@ function _earliestDate(dates) {
   return null
 }
 
-function _latestDate(dates) {
+function _latestDate (dates) {
   const latestDate = Math.max(...dates)
 
   if (latestDate) {
@@ -117,7 +117,7 @@ function _mergeInvalidSplitLogData (invalidSplitLogs) {
   return keeper
 }
 
-function _scoreInvalidSplitLog(splitLog) {
+function _scoreInvalidSplitLog (splitLog) {
   const { nilSubmission, status, submissionCount, userSubmission } = splitLog
 
   splitLog.score = submissionCount

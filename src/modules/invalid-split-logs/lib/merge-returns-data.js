@@ -21,7 +21,7 @@ async function go (mergedSplitLogData, timestamp) {
 
 async function _deleteReturnLogs (query, toDropIds) {
   const params = [toDropIds]
-  const sql = `DELETE FROM "returns"."returns" r WHERE r.id = ANY($1);`
+  const sql = 'DELETE FROM "returns"."returns" r WHERE r.id = ANY($1);'
 
   return query(sql, params)
 }
