@@ -9,6 +9,7 @@ const EndDateTriggerStep = require('./lib/end-date-trigger.js')
 const ExtractNaldDataStep = require('./lib/extract-nald-data.js')
 const ExtractOldLinesStep = require('./lib/extract-old-lines.js')
 const FlagDeletedDocumentsStep = require('./lib/flag-deleted-documents.js')
+const InvalidSplitLogsStep = require('./lib/invalid-split-logs.js')
 const LicenceDataImportStep = require('./lib/licence-data-import.js')
 const LicencesImportStep = require('./lib/licences-import.js')
 const MismatchedLinesStep = require('./lib/mismatched-lines.js')
@@ -63,6 +64,9 @@ async function go () {
     steps.push(step)
 
     step = await CleanReturnLogsStep.go()
+    steps.push(step)
+
+    step = await InvalidSplitLogsStep.go()
     steps.push(step)
 
     step = await MissingVoidReturnsStep.go()

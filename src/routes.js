@@ -136,6 +136,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/invalid-split-logs',
+    handler: Controller.invalidSplitLogs,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/licence-crm-import',
     handler: Controller.licenceCrmImport,
     config: {

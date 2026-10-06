@@ -19,6 +19,7 @@ const ExtractNaldDataProcess = require('./modules/extract-nald-data/process.js')
 const ExtractOldLinesProcess = require('./modules/extract-old-lines/process.js')
 const FlagDeletedDocumentsProcess = require('./modules/flag-deleted-documents/process.js')
 const ImportJobProcess = require('./modules/import-job/process.js')
+const InvalidSplitLogsProcess = require('./modules/invalid-split-logs/process.js')
 const LicenceCrmImportProcess = require('./modules/licence-crm-import/process.js')
 const LicenceCrmV2ImportProcess = require('./modules/licence-crm-v2-import/process.js')
 const LicenceNoStartDateImportProcess = require('./modules/licence-no-start-date-import/process.js')
@@ -122,6 +123,12 @@ async function healthInfo (_request, h) {
 
 async function importJob (_request, h) {
   ImportJobProcess.go()
+
+  return h.response().code(204)
+}
+
+async function invalidSplitLogs (_request, h) {
+  InvalidSplitLogsProcess.go(true)
 
   return h.response().code(204)
 }
@@ -265,6 +272,7 @@ module.exports = {
   flagDeletedDocuments,
   healthInfo,
   importJob,
+  invalidSplitLogs,
   licenceCrmImport,
   licenceCrmV2Import,
   licenceNoStartDateImport,
