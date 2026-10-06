@@ -7,21 +7,23 @@ async function go (mergedSplitLogData, timestamp) {
 
   const toDropIds = _toDropIds(toDrop)
 
-  if (toKeep.submissionCount > 0) {
-    await _updateSubmissionLines(toKeep, toDropIds, timestamp)
-    await _deleteSubmissionLines(toDropIds)
-    await _deleteSubmissions(toDropIds)
-  }
+  await db.transaction(async (query) => {
+    if (toKeep.submissionCount > 0) {
+      await _updateSubmissionLines(query, toKeep, toDropIds, timestamp)
+      await _deleteSubmissionLines(query, toDropIds)
+      await _deleteSubmissions(query, toDropIds)
+    }
 
-  await _updateReturnLogAndSubmissions(toKeep, timestamp)
-  await _deleteReturnLogs(toDropIds)
+    await _updateReturnLogAndSubmissions(query, toKeep, timestamp)
+    await _deleteReturnLogs(query, toDropIds)
+  })
 }
 
-async function _deleteReturnLogs (toDropIds) {
+async function _deleteReturnLogs (query, toDropIds) {
   const params = [toDropIds]
-  const query = `DELETE FROM "returns"."returns" r WHERE r.id = ANY($1);`
+  const sql = `DELETE FROM "returns"."returns" r WHERE r.id = ANY($1);`
 
-  return db.query(query, params)
+  return query(sql, params)
 }
 
 function _toDropIds (toDrop) {
@@ -30,7 +32,7 @@ function _toDropIds (toDrop) {
   })
 }
 
-async function _updateReturnLogAndSubmissions (toKeepSplitLog, timestamp) {
+async function _updateReturnLogAndSubmissions (query, toKeepSplitLog, timestamp) {
   const { dueDate, endDate, id, isCurrent, receivedDate, returnId, sentDate, startDate } = toKeepSplitLog
 
   const params = [dueDate, endDate, receivedDate, returnId, sentDate, startDate, isCurrent, timestamp, id, returnId, timestamp]
@@ -40,7 +42,7 @@ async function _updateReturnLogAndSubmissions (toKeepSplitLog, timestamp) {
   // breaks the constraint: update versions first and the new return_id does not exist yet; update returns first and the
   // existing versions rows are left pointing at the old return_id. Doing both in a single writable CTE statement means
   // the foreign key is only checked once, at the end of the statement, by which point both tables agree.
-  const query = `WITH updated_return_log AS (
+  const sql = `WITH updated_return_log AS (
   UPDATE "returns"."returns" r
   SET
     due_date = $1,
@@ -65,14 +67,14 @@ WHERE
   v.return_log_id = url.id;
   `
 
-  return db.query(query, params)
+  return query(sql, params)
 }
 
-async function _updateSubmissionLines (toKeepSplitLog, toDropIds, timestamp) {
+async function _updateSubmissionLines (query, toKeepSplitLog, toDropIds, timestamp) {
   const { id: toKeepId } = toKeepSplitLog
 
   const params = [toKeepId, toDropIds, timestamp]
-  const query = `WITH
+  const sql = `WITH
 latest_keep_version AS (
   SELECT DISTINCT ON (v.return_log_id)
     v.version_id
@@ -135,12 +137,12 @@ WHERE
   ltu.line_id = l.line_id;
   `
 
-  return db.query(query, params)
+  return query(sql, params)
 }
 
-async function _deleteSubmissionLines (toDropIds) {
+async function _deleteSubmissionLines (query, toDropIds) {
   const params = [toDropIds]
-  const query = `DELETE FROM "returns".lines l WHERE l.version_id IN (
+  const sql = `DELETE FROM "returns".lines l WHERE l.version_id IN (
 SELECT
   v.version_id
 FROM
@@ -150,14 +152,14 @@ WHERE
 );
   `
 
-  return db.query(query, params)
+  return query(sql, params)
 }
 
-async function _deleteSubmissions (toDropIds) {
+async function _deleteSubmissions (query, toDropIds) {
   const params = [toDropIds]
-  const query = 'DELETE FROM "returns".versions v WHERE v.return_log_id = ANY($1);'
+  const sql = 'DELETE FROM "returns".versions v WHERE v.return_log_id = ANY($1);'
 
-  return db.query(query, params)
+  return query(sql, params)
 }
 
 module.exports = {
