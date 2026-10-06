@@ -124,9 +124,6 @@ SELECT
   srl.return_cycle_id AS "returnCycleId"
 FROM
   split_return_requirements srl
-WHERE
-  srl.return_requirement_id = 'e628846e-bb0e-4358-8ba1-40239942d0ea'
-  AND srl.return_cycle_id = '8ae03d1c-4edd-4db1-bd44-7edfb2a1e798'
 ORDER BY
   srl.return_requirement_id ASC,
   srl.return_cycle_id ASC;

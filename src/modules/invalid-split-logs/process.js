@@ -17,20 +17,19 @@ async function go (log = false) {
 
     const hasAlreadyRun = await AlreadyRun.go()
 
-    // if (hasAlreadyRun) {
-    //   global.GlobalNotifier.omg('invalid-split-logs: skipped')
-    //   messages.push('Skipped because they have already been processed')
+    if (hasAlreadyRun) {
+      global.GlobalNotifier.omg('invalid-split-logs: skipped')
+      messages.push('Skipped because they have already been processed')
 
-    //   return messages
-    // }
+      return messages
+    }
 
     const timestamp = timestampForPostgres()
 
     await ProcessIrregularNilReturns.go(timestamp)
 
     // Add the missing void return logs one region at a time
-    // const regions = ['1', '2', '3', '4', '5', '6', '7', '8']
-    const regions = ['8']
+    const regions = ['1', '2', '3', '4', '5', '6', '7', '8']
 
     for (const region of regions) {
       currentRegion = region
@@ -46,7 +45,7 @@ async function go (log = false) {
       }
     }
 
-    // await RecordRun.go()
+    await RecordRun.go()
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'invalid-split-logs: complete', { messages })

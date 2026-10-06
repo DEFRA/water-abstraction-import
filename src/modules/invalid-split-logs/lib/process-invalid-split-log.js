@@ -11,18 +11,12 @@ async function go (requirementWithInvalidSplitLog, timestamp) {
 
   try {
     const invalidSplitLogs = await FetchInvalidSplitLogs.go(returnRequirementId, returnCycleId)
-    console.log('🚀🚀🚀 ~ invalidSplitLogs:')
-    console.dir(invalidSplitLogs, { depth: null, colors: true })
 
     const mergedInvalidSplitLogData = _mergeInvalidSplitLogData(invalidSplitLogs)
 
-    console.log('🚀🚀🚀 ~ mergedInvalidSplitLogData:')
-    console.dir(mergedInvalidSplitLogData, { depth: null, colors: true })
-
     await MergeReturnsData.go(mergedInvalidSplitLogData, timestamp)
   } catch (error) {
-    console.log('🚀🚀🚀 ~ error:')
-    console.dir(error, { depth: null, colors: true })
+    console.error(`Error: ${error.message}`, requirementWithInvalidSplitLog, error)
     message = `Ret. req. ${returnRequirementId} / Ret. cycle ${returnCycleId} error: ${error.message}`
   }
 
