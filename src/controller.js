@@ -26,6 +26,7 @@ const LicenceNoStartDateImportProcess = require('./modules/licence-no-start-date
 const LicencePermitImportProcess = require('./modules/licence-permit-import/process.js')
 const LicencesImportProcess = require('./modules/licences-import/process.js')
 const MismatchedLinesProcess = require('./modules/mismatched-lines/process.js')
+const MissingLinesProcess = require('./modules/missing-lines/process.js')
 const MissingVoidReturnsProcess = require('./modules/missing-void-returns/process.js')
 const ModLogsImportProcess = require('./modules/mod-logs-import/process.js')
 const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
@@ -185,6 +186,12 @@ async function mismatchedLines (_request, h) {
   return h.response().code(204)
 }
 
+async function missingLines (_request, h) {
+  MissingLinesProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function missingVoidReturns (_request, h) {
   MissingVoidReturnsProcess.go(true)
 
@@ -279,6 +286,7 @@ module.exports = {
   licencePermitImport,
   licencesImport,
   mismatchedLines,
+  missingLines,
   missingVoidReturns,
   modLogsImport,
   partyCrmV2Import,
