@@ -121,7 +121,15 @@ ORDER BY
   vwg.gap_end ASC,
   vwg.gap_middle ASC;`
 
-  return db.query(query, params)
+  const results = await db.query(query, params)
+
+  return results.map((result) => {
+    return {
+      ...result,
+      returnStartDate: new Date(result.returnStartDate),
+      returnEndDate: new Date(result.returnEndDate)
+    }
+  })
 }
 
 module.exports = {
