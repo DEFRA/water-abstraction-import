@@ -7,6 +7,8 @@ const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../li
 async function go (log = false) {
   const messages = []
 
+  let currentRegion
+
   try {
     const startTime = currentTimeInNanoseconds()
 
@@ -23,13 +25,20 @@ async function go (log = false) {
       return messages
     }
 
+    // Check for missing submission lines one region at a time
+    const regions = ['1', '2', '3', '4', '5', '6', '7', '8']
+
+    for (const region of regions) {
+      currentRegion = region
+    }
+
     await RecordRun.go()
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'missing-lines: complete')
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('missing-lines: errored', {}, error)
+    global.GlobalNotifier.omfg('missing-lines: errored', { currentRegion }, error)
 
     messages.push(error.message)
   }
