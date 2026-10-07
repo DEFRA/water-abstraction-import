@@ -1,6 +1,8 @@
 'use strict'
 
 const AlreadyRun = require('./lib/already-run.js')
+const FetchSubmissionsWithGaps = require('./lib/fetch-submissions-with-gaps.js')
+const ProcessSubmissionWithGap = require('./lib/process-submission-with-gap.js')
 const RecordRun = require('./lib/record-run.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
@@ -30,6 +32,16 @@ async function go (log = false) {
 
     for (const region of regions) {
       currentRegion = region
+
+      const submissionsWithGaps = await FetchSubmissionsWithGaps.go(region)
+
+      for (const submissionWithGap of submissionsWithGaps) {
+        const message = await ProcessSubmissionWithGap.go(submissionWithGap)
+
+        if (message) {
+          messages.push(message)
+        }
+      }
     }
 
     await RecordRun.go()
