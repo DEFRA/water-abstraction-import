@@ -4,7 +4,7 @@ const AlreadyRun = require('./lib/already-run.js')
 const FetchSubmissionsWithGaps = require('./lib/fetch-submissions-with-gaps.js')
 const ProcessSubmissionWithGap = require('./lib/process-submission-with-gap.js')
 const RecordRun = require('./lib/record-run.js')
-const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
+const { currentTimeInNanoseconds, calculateAndLogTimeTaken, timestampForPostgres } = require('../../lib/general.js')
 
 async function go (log = false) {
   const messages = []
@@ -27,6 +27,8 @@ async function go (log = false) {
       return messages
     }
 
+    const timestamp = timestampForPostgres()
+
     // Check for missing submission lines one region at a time
     const regions = ['1', '2', '3', '4', '5', '6', '7', '8']
 
@@ -36,7 +38,7 @@ async function go (log = false) {
       const submissionsWithGaps = await FetchSubmissionsWithGaps.go(region)
 
       for (const submissionWithGap of submissionsWithGaps) {
-        const message = await ProcessSubmissionWithGap.go(submissionWithGap)
+        const message = await ProcessSubmissionWithGap.go(submissionWithGap, timestamp)
 
         if (message) {
           messages.push(message)
