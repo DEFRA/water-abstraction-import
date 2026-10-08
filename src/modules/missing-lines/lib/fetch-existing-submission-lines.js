@@ -27,8 +27,6 @@ WHERE
       startDate: new Date(result.startDate)
     }
   })
-
-  return db.query(sql, params)
 }
 
 module.exports = {
