@@ -1,6 +1,7 @@
 'use strict'
 
 const AlreadyRun = require('./lib/already-run.js')
+const FetchReturnsMissingSubmissions = require('./lib/fetch-returns-missing-submissions.js')
 const RecordRun = require('./lib/record-run.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
@@ -26,6 +27,12 @@ async function go (log = false) {
 
     for (const region of regions) {
       currentRegion = region
+
+      const returnsMissingSubmissions = await FetchReturnsMissingSubmissions.go(region)
+
+      for (const returnMissingSubmission of returnsMissingSubmissions) {
+
+      }
     }
 
     await RecordRun.go()
