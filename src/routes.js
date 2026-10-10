@@ -208,6 +208,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/missing-weekly-returns',
+    handler: Controller.missingWeeklyReturns,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/mod-logs-import',
     handler: Controller.modLogsImport,
     config: {
