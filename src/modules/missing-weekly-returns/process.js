@@ -21,7 +21,7 @@ async function go (log = false) {
       messages.push('Skipped because they have already been synced')
 
       return messages
-    // }
+    }
 
     const timestamp = timestampForPostgres()
 
