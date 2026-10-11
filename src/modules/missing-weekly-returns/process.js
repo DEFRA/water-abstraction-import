@@ -2,8 +2,9 @@
 
 const AlreadyRun = require('./lib/already-run.js')
 const FetchReturnsMissingSubmissions = require('./lib/fetch-returns-missing-submissions.js')
+const ProcessReturnMissingSubmission = require('./lib/process-return-missing-submission.js')
 const RecordRun = require('./lib/record-run.js')
-const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
+const { currentTimeInNanoseconds, calculateAndLogTimeTaken, timestampForPostgres } = require('../../lib/general.js')
 
 async function go (log = false) {
   const messages = []
@@ -20,7 +21,9 @@ async function go (log = false) {
       messages.push('Skipped because they have already been synced')
 
       return messages
-    }
+    // }
+
+    const timestamp = timestampForPostgres()
 
     // Check for missing submission lines one region at a time
     const regions = ['1', '2', '3', '4', '5', '6', '7', '8']
@@ -31,7 +34,11 @@ async function go (log = false) {
       const returnsMissingSubmissions = await FetchReturnsMissingSubmissions.go(region)
 
       for (const returnMissingSubmission of returnsMissingSubmissions) {
+        const message = await ProcessReturnMissingSubmission.go(returnMissingSubmission, timestamp)
 
+        if (message) {
+          messages.push(message)
+        }
       }
     }
 
