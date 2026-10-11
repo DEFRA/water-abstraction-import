@@ -14,6 +14,7 @@ async function go (mergedSplitLogData, timestamp) {
       await _deleteSubmissions(query, toDropIds)
     }
 
+    await _deleteVoidReturnLogs(query, toKeep)
     await _updateReturnLogAndSubmissions(query, toKeep, timestamp)
     await _deleteReturnLogs(query, toDropIds)
   })
@@ -24,6 +25,16 @@ async function _deleteReturnLogs (query, toDropIds) {
   const sql = 'DELETE FROM "returns"."returns" r WHERE r.id = ANY($1);'
 
   return query(sql, params)
+}
+
+async function _deleteVoidReturnLogs (query, toKeepSplitLog) {
+  const { returnId } = toKeepSplitLog
+
+  const params = [returnId]
+
+  const sql = 'DELETE FROM "returns"."returns" r WHERE r.return_id = $1;'
+
+  await query(sql, params)
 }
 
 function _toDropIds (toDrop) {
