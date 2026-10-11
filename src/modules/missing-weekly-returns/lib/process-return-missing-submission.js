@@ -19,7 +19,6 @@ async function go (returnMissingSubmission, timestamp) {
       await _createMissingSubmissionLines(query, lines, versionId, timestamp)
       await _updateReturnLog(query, returnLogId, timestamp)
     })
-
   } catch (error) {
     console.error(`Error: ${error.message}`, returnMissingSubmission, error)
     message = `Ret. log ${returnLogId} error: ${error.message}`
@@ -69,7 +68,7 @@ async function _createMissingSubmission (query, returnMissingSubmission, version
     $6
   );`
 
-    await query(sql, params)
+  await query(sql, params)
 }
 
 async function _createMissingSubmissionLines (query, lines, versionId, timestamp) {
