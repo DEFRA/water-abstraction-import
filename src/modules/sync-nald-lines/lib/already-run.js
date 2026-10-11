@@ -8,7 +8,7 @@ async function go () {
 FROM
   water.application_state a
 WHERE
-  a."key" = 'sync-nald-lines-4';
+  a."key" = 'sync-nald-lines-5';
   `)
 
   return results.length > 0

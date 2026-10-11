@@ -15,7 +15,7 @@ const LicencesImportStep = require('./lib/licences-import.js')
 const MismatchedLinesStep = require('./lib/mismatched-lines.js')
 const MissingLinesStep = require('./lib/missing-lines.js')
 const MissingVoidReturnsStep = require('./lib/missing-void-returns.js')
-const MissingWeeklyLinesStep = require('./lib/missing-weekly-lines.js')
+const MissingWeeklyReturnsStep = require('./lib/missing-weekly-returns.js')
 const ModLogsImportStep = require('./lib/mod-logs-import.js')
 const PartyCrmV2ImportStep = require('./lib/party-crm-v2-import.js')
 const ReferenceDataImportStep = require('./lib/reference-data-import.js')
@@ -71,7 +71,7 @@ async function go () {
     step = await InvalidSplitLogsStep.go()
     steps.push(step)
 
-    step = await MissingWeeklyLinesStep.go()
+    step = await MissingWeeklyReturnsStep.go()
     steps.push(step)
 
     step = await MissingLinesStep.go()

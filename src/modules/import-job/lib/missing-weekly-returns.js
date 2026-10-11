@@ -1,9 +1,9 @@
 'use strict'
 
 const { currentTimeInNanoseconds, durations } = require('../../../lib/general.js')
-const MissingWeeklyLines = require('../../missing-weekly-lines/process.js')
+const MissingWeeklyReturns = require('../../missing-weekly-returns/process.js')
 
-const STEP_NAME = 'missing-weekly-lines'
+const STEP_NAME = 'missing-weekly-returns'
 
 async function go () {
   global.GlobalNotifier.omg(`import-job.${STEP_NAME}: started`)
@@ -12,7 +12,7 @@ async function go () {
 
   const startTime = currentTimeInNanoseconds()
 
-  step.messages = await MissingWeeklyLines.go(false)
+  step.messages = await MissingWeeklyReturns.go(false)
 
   const { timeTakenSs } = durations(startTime)
 
