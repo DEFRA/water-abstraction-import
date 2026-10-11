@@ -74,7 +74,7 @@ WHERE
 }
 
 function _toDeleteIds (toKeep, toDrop) {
-  const ids =  toDrop.map((splitLog) => {
+  const ids = toDrop.map((splitLog) => {
     return splitLog.id
   })
 
