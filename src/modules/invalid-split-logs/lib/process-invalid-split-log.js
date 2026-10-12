@@ -2,6 +2,8 @@
 
 const FetchInvalidSplitLogs = require('./fetch-invalid-split-logs.js')
 const MergeReturnsData = require('./merge-returns-data.js')
+const ProcessIrregularSplitReturn = require('./process-irregular-split-return.js')
+const db = require('../../../lib/connectors/db.js')
 const { formatDateObjectToISO } = require('../../../lib/date-helpers.js')
 
 async function go (requirementWithInvalidSplitLog, timestamp) {
@@ -14,7 +16,13 @@ async function go (requirementWithInvalidSplitLog, timestamp) {
 
     const mergedInvalidSplitLogData = _mergeInvalidSplitLogData(invalidSplitLogs)
 
-    await MergeReturnsData.go(mergedInvalidSplitLogData, timestamp)
+    const irregularSplitReturn = await _irregularSplitReturn(mergedInvalidSplitLogData)
+
+    if (irregularSplitReturn) {
+      await ProcessIrregularSplitReturn.go(mergedInvalidSplitLogData, timestamp)
+    } else {
+      await MergeReturnsData.go(mergedInvalidSplitLogData, timestamp)
+    }
   } catch (error) {
     console.error(`Error: ${error.message}`, requirementWithInvalidSplitLog, error)
     message = `Ret. req. ${returnRequirementId} / Ret. cycle ${returnCycleId} error: ${error.message}`
@@ -58,6 +66,27 @@ function _earliestDate (dates) {
   }
 
   return null
+}
+
+async function _irregularSplitReturn (mergedInvalidSplitLogData) {
+  const { returnId } = mergedInvalidSplitLogData.toKeep
+
+  const params = [returnId]
+
+  const sql = `SELECT
+  r.id
+FROM
+  "returns".versions v
+INNER JOIN
+  "returns"."returns" r
+  ON r.id = v.return_log_id
+WHERE
+  v.return_id = $1
+  AND r.status = 'void';`
+
+  const results = await db.query(sql, params)
+
+  return results.length > 0
 }
 
 function _latestDate (dates) {
