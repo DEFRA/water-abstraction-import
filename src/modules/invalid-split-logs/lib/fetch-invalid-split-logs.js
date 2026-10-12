@@ -60,7 +60,7 @@ SELECT
   isl.status,
   isl.submission_count AS "submissionCount",
   isl.is_current AS "isCurrent",
-  lrs.nil_return AS "nilReturn",
+  lrs.nil_return AS "nilSubmission",
   (CASE
     WHEN lrs.user_type IS NULL THEN
       FALSE
