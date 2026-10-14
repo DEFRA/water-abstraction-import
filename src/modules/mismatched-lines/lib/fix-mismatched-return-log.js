@@ -1,32 +1,36 @@
 'use strict'
 
 const FetchExistingSubmissionLines = require('./fetch-existing-submission-lines.js')
-const ResetSubmissionLines = require('./reset-submission-lines.js')
-const ResetSubmissionMetadata = require('./reset-submission-metadata.js')
+const ResetSubmission = require('./reset-submission.js')
 const { generateUUID } = require('../../../lib/general.js')
 const { daysFromPeriod, weeksFromPeriod, monthsFromPeriod } = require('../../../lib/return-helpers.js')
 
 async function go (mismatchedReturnLog, timestamp) {
+  let message
+
   const {
     end_date: endDate,
+    id: returnLogId,
     returns_frequency: returnsFrequency,
     start_date: startDate,
     version_id: versionId
   } = mismatchedReturnLog
 
-  const { existingSubmissionLines, needsAdjusting } = await FetchExistingSubmissionLines.go(versionId, returnsFrequency)
-  const newSubmissionLines = _lines(returnsFrequency, new Date(startDate), new Date(endDate))
+  try {
+    const { existingSubmissionLines, needsAdjusting } = await FetchExistingSubmissionLines.go(versionId, returnsFrequency)
+    const newSubmissionLines = _lines(returnsFrequency, new Date(startDate), new Date(endDate))
 
-  _populateNewLines(returnsFrequency, versionId, existingSubmissionLines, newSubmissionLines)
+    _populateNewLines(returnsFrequency, versionId, existingSubmissionLines, newSubmissionLines)
 
-  _mopUp(newSubmissionLines, existingSubmissionLines)
+    _mopUp(newSubmissionLines, existingSubmissionLines)
 
-  await ResetSubmissionLines.go(newSubmissionLines, existingSubmissionLines, timestamp)
-
-  // A return submitted using abstraction volumes can still have a meter, but won't have readings
-  if (mismatchedReturnLog.metadata?.meters.length && mismatchedReturnLog.metadata?.meters[0]?.readings) {
-    await ResetSubmissionMetadata.go(newSubmissionLines, versionId, mismatchedReturnLog.metadata, needsAdjusting, timestamp)
+    await ResetSubmission.go(mismatchedReturnLog, versionId, needsAdjusting, newSubmissionLines, existingSubmissionLines, timestamp)
+  } catch (error) {
+    console.error(`Error: ${error.message}`, mismatchedReturnLog, error)
+    message = `Ret. log ${returnLogId} error: ${error.message}`
   }
+
+  return message
 }
 
 function _lines (reportingFrequency, startDate, endDate) {
