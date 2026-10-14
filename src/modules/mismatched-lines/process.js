@@ -30,7 +30,11 @@ async function go (log = false) {
     for (let i = 0; i < mismatchedReturnLogs.length; i++) {
       mismatchedReturnLog = mismatchedReturnLogs[i]
 
-      await FixMismatchedReturnLog.go(mismatchedReturnLog, timestamp)
+      const message = await FixMismatchedReturnLog.go(mismatchedReturnLog, timestamp)
+
+      if (message) {
+        messages.push(message)
+      }
     }
 
     await RecordRun.go()
