@@ -1,13 +1,11 @@
 'use strict'
 
-const db = require('../../../lib/connectors/db.js')
-
-async function go (newSubmissionLines, existingSubmissionLines, timestamp) {
-  await _createNewSubmissionLines(newSubmissionLines, timestamp)
-  await _deleteExistingSubmissionLines(existingSubmissionLines)
+async function go (query, newSubmissionLines, existingSubmissionLines, timestamp) {
+  await _deleteExistingSubmissionLines(query, existingSubmissionLines)
+  await _createNewSubmissionLines(query, newSubmissionLines, timestamp)
 }
 
-async function _createNewSubmissionLines (newSubmissionLines, timestamp) {
+async function _createNewSubmissionLines (query, newSubmissionLines, timestamp) {
   for (const newSubmissionLine of newSubmissionLines) {
     const { endDate, lineId, quantity, readingType, startDate, timePeriod, userUnit, versionId } = newSubmissionLine
 
@@ -24,7 +22,7 @@ async function _createNewSubmissionLines (newSubmissionLines, timestamp) {
       readingType,
       userUnit
     ]
-    const query = `INSERT INTO "returns".lines (
+    const sql = `INSERT INTO "returns".lines (
   line_id,
   version_id,
   quantity,
@@ -51,16 +49,16 @@ VALUES (
   $11
 );`
 
-    await db.query(query, params)
+    await query(sql, params)
   }
 }
 
-async function _deleteExistingSubmissionLines (existingSubmissionLines) {
+async function _deleteExistingSubmissionLines (query, existingSubmissionLines) {
   for (const existingSubmissionLine of existingSubmissionLines) {
     const params = [existingSubmissionLine.lineId]
-    const query = 'DELETE FROM "returns".lines l WHERE l.line_id = $1;'
+    const sql = 'DELETE FROM "returns".lines l WHERE l.line_id = $1;'
 
-    await db.query(query, params)
+    await query(sql, params)
   }
 }
 
