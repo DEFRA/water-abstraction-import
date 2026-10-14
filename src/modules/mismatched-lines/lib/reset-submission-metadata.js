@@ -1,10 +1,9 @@
 'use strict'
 
 const AdjustForMonthlyToWeekly = require('./adjust-for-monthly-to-weekly.js')
-const db = require('../../../lib/connectors/db.js')
 const { formatDateObjectToISO } = require('../../../lib/date-helpers.js')
 
-async function go (newSubmissionLines, versionId, existingMetadata, needsAdjusting, timestamp) {
+async function go (query, newSubmissionLines, versionId, existingMetadata, needsAdjusting, timestamp) {
   const existingReadings = _existingReadings(existingMetadata)
 
   if (needsAdjusting) {
@@ -17,7 +16,7 @@ async function go (newSubmissionLines, versionId, existingMetadata, needsAdjusti
 
   newMetadata.meters[0].readings = _convertToMetadataReadings(newSubmissionLines)
 
-  await _updateMetadata(newMetadata, timestamp, versionId)
+  await _updateMetadata(query, newMetadata, timestamp, versionId)
 }
 
 function _convertToMetadataReadings (newSubmissionLines) {
@@ -79,16 +78,16 @@ function _populateNewReadings (newSubmissionLines, existingReadings) {
   }
 }
 
-async function _updateMetadata (metadata, timestamp, versionId) {
+async function _updateMetadata (query, metadata, timestamp, versionId) {
   const params = [metadata, timestamp, versionId]
-  const query = `UPDATE "returns".versions v
+  const sql = `UPDATE "returns".versions v
 SET
   metadata = $1,
   updated_at = $2
 WHERE
   v.version_id = $3;`
 
-  await db.query(query, params)
+  await query(sql, params)
 }
 
 module.exports = {
