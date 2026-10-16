@@ -47,7 +47,7 @@ async function go (log = false) {
       calculateAndLogTimeTaken(startTime, 'invalid-nil-returns: complete', { messages })
     }
   } catch (error) {
-    global.GlobalNotifier.omfg('invalid-nil-returns: errored', {}, error)
+    global.GlobalNotifier.omfg('invalid-nil-returns: errored', { currentRegion }, error)
 
     messages.push(error.message)
   }

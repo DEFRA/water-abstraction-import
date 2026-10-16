@@ -131,7 +131,7 @@ async function importJob (_request, h) {
   return h.response().code(204)
 }
 
-async function invalidNilReturns(_request, h) {
+async function invalidNilReturns (_request, h) {
   InvalidNilReturnsProcess.go(true)
 
   return h.response().code(204)

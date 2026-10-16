@@ -82,7 +82,7 @@ function _lines (reportingFrequency, startDate, endDate) {
   return lines.map((line) => {
     return {
       ...line,
-      timePeriod: reportingFrequency,
+      timePeriod: reportingFrequency
     }
   })
 }
