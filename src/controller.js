@@ -34,6 +34,7 @@ const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.j
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
 const SyncEndOfLicenceProcess = require('./modules/sync-end-of-licence/process.js')
 const SyncEndOfPeriodProcess = require('./modules/sync-end-of-period/process.js')
+const SyncFirstWeekVoidsProcess = require('./modules/sync-first-week-voids/process.js')
 const SyncNaldLinesProcess = require('./modules/sync-nald-lines/process.js')
 
 async function clean (_request, h) {
@@ -246,6 +247,12 @@ async function syncEndOfPeriod (_request, h) {
   return h.response().code(204)
 }
 
+async function syncFirstWeekVoids (_request, h) {
+  SyncFirstWeekVoidsProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function syncNaldLines (_request, h) {
   SyncNaldLinesProcess.go(true)
 
@@ -302,5 +309,6 @@ module.exports = {
   status,
   syncEndOfLicence,
   syncEndOfPeriod,
+  syncFirstWeekVoids,
   syncNaldLines
 }
