@@ -21,6 +21,7 @@ const PartyCrmV2ImportStep = require('./lib/party-crm-v2-import.js')
 const ReferenceDataImportStep = require('./lib/reference-data-import.js')
 const SyncEndOfLicenceStep = require('./lib/sync-end-of-licence.js')
 const SyncEndOfPeriodStep = require('./lib/sync-end-of-period.js')
+const SyncFirstWeekVoidsStep = require('./lib/sync-first-week-voids.js')
 const SyncNaldLinesStep = require('./lib/sync-nald-lines.js')
 
 async function go () {
@@ -90,6 +91,9 @@ async function go () {
     steps.push(step)
 
     step = await SyncEndOfLicenceStep.go()
+    steps.push(step)
+
+    step = await SyncFirstWeekVoidsStep.go()
     steps.push(step)
 
     await CompletionEmail.go(steps)
