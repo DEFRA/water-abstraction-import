@@ -136,6 +136,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/invalid-nil-returns',
+    handler: Controller.invalidNilReturns,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/invalid-split-logs',
     handler: Controller.invalidSplitLogs,
     config: {
