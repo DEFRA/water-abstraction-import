@@ -248,6 +248,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/sync-first-week-voids',
+    handler: Controller.syncFirstWeekVoids,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/sync-nald-lines',
     handler: Controller.syncNaldLines,
     config: {
