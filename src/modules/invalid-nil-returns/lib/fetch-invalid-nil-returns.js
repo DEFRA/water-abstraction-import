@@ -5,7 +5,7 @@ const db = require('../../../lib/connectors/db.js')
 async function go (regionCode) {
   const params = [regionCode]
   const sql = `WITH
-latest_weekly_nil_submissions AS (
+latest_nil_submissions AS (
   SELECT DISTINCT ON (v.return_log_id)
     v.return_log_id,
     v.version_id
@@ -18,13 +18,12 @@ latest_weekly_nil_submissions AS (
     v.user_type = 'system'
     AND v.nil_return = TRUE
     AND r."source" = 'NALD'
-    AND r.returns_frequency = 'week'
     AND SUBSTRING(r.return_id, 4, 1) = $1 -- Region partition filter
   ORDER BY
     v.return_log_id,
     v.version_number DESC
 ),
-weekly_nil_return_logs AS (
+nil_return_logs AS (
   SELECT
     SUBSTRING(r.return_id, 4, 1) AS region_code,
     r.licence_ref,
@@ -32,29 +31,35 @@ weekly_nil_return_logs AS (
     r.start_date AS return_start_date,
     r.end_date AS return_end_date,
     r.status AS return_status,
+    r.returns_frequency,
     r.return_requirement AS format_id,
-    -- Calculate First Sunday (Start of Week 1)
-    (
-      (r.start_date + ((6 - EXTRACT(DOW FROM r.start_date)::integer + 7) % 7) * INTERVAL '1 day')::date
-      - INTERVAL '6 days'
-    )::date AS weekly_window_start,
-    -- Calculate Last Saturday (End of Last Week)
-    (
-      r.end_date - ((EXTRACT(DOW FROM r.end_date)::integer - 6 + 7) % 7) * INTERVAL '1 day'
-    )::date AS weekly_window_end,
-    lwns.version_id
+    (CASE
+      WHEN r.returns_frequency = 'week' THEN
+        -- Calculate First Sunday (Start of Week 1)
+        ((r.start_date + ((6 - EXTRACT(DOW FROM r.start_date)::integer + 7) % 7) * INTERVAL '1 day')::date - INTERVAL '6 days')::date
+      ELSE
+        r.start_date
+    END) AS window_start,
+    (CASE
+      WHEN r.returns_frequency = 'week' THEN
+        -- Calculate Last Saturday (End of Last Week)
+        (r.end_date - ((EXTRACT(DOW FROM r.end_date)::integer - 6 + 7) % 7) * INTERVAL '1 day')::date
+      ELSE
+        r.end_date
+    END) AS window_end,
+    lns.version_id
   FROM
     "returns"."returns" r
   INNER JOIN
-    latest_weekly_nil_submissions lwns
-    ON lwns.return_log_id = r.id
+    latest_nil_submissions lns
+    ON lns.return_log_id = r.id
 ),
 date_bounds AS (
   -- OPTIMIZATION: Calculate date bounds to trim down the huge NALD source tables
   SELECT
-    MIN(wnrl.weekly_window_start) AS min_date,
-    MAX(wnrl.weekly_window_end) AS max_date
-  FROM weekly_nil_return_logs wnrl
+    MIN(nrl.window_start) AS min_date,
+    MAX(nrl.window_end) AS max_date
+  FROM nil_return_logs nrl
 ),
 old_return_lines AS (
   SELECT
@@ -67,7 +72,7 @@ old_return_lines AS (
   FROM
     public."NALD_RET_LINES" nrl
   INNER JOIN (
-    SELECT DISTINCT region_code, format_id FROM weekly_nil_return_logs
+    SELECT DISTINCT region_code, format_id FROM nil_return_logs
   ) wr ON wr.region_code = nrl."FGAC_REGION_CODE" AND wr.format_id = nrl."ARFL_ARTY_ID"
   CROSS JOIN date_bounds db
   WHERE
@@ -88,7 +93,7 @@ extract_return_lines AS (
   FROM
     "import"."NALD_RET_LINES" nrl
   INNER JOIN (
-    SELECT DISTINCT region_code, format_id FROM weekly_nil_return_logs
+    SELECT DISTINCT region_code, format_id FROM nil_return_logs
   ) wr ON wr.region_code = nrl."FGAC_REGION_CODE" AND wr.format_id = nrl."ARFL_ARTY_ID"
   CROSS JOIN date_bounds db
   WHERE
@@ -134,27 +139,27 @@ all_nald_lines AS (
 ),
 line_nald_quantities AS (
   SELECT
-    wnrl.return_log_id,
+    nrl.return_log_id,
     SUM(anl.quantity) AS nald_quantity
   FROM
-    weekly_nil_return_logs wnrl
+    nil_return_logs nrl
   LEFT JOIN
     all_nald_lines anl
-    ON anl.region_code = wnrl.region_code
-    AND anl.format_id = wnrl.format_id
-    AND anl.return_date BETWEEN wnrl.weekly_window_start AND wnrl.weekly_window_end
+    ON anl.region_code = nrl.region_code
+    AND anl.format_id = nrl.format_id
+    AND anl.return_date BETWEEN nrl.window_start AND nrl.window_end
   GROUP BY
-    wnrl.return_log_id
+    nrl.return_log_id
 ),
 invalid_nil_returns AS (
   SELECT
-    wnrl.*,
+    nrl.*,
     lnq.nald_quantity
   FROM
-    weekly_nil_return_logs wnrl
+    nil_return_logs nrl
   INNER JOIN
     line_nald_quantities lnq
-    ON lnq.return_log_id = wnrl.return_log_id
+    ON lnq.return_log_id = nrl.return_log_id
   WHERE
     lnq.nald_quantity IS NOT NULL
     OR lnq.nald_quantity <> 0
@@ -163,6 +168,7 @@ SELECT
   inr.return_log_id AS "returnLogId",
   inr.return_start_date AS "returnStartDate",
   inr.return_end_date AS "returnEndDate",
+  inr.returns_frequency AS "reportingFrequency",
   inr.version_id AS "versionId"
 FROM
   invalid_nil_returns inr;`
