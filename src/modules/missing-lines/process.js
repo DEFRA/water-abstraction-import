@@ -21,7 +21,7 @@ async function go (log = false) {
     const hasAlreadyRun = await AlreadyRun.go()
 
     if (hasAlreadyRun) {
-      global.GlobalNotifier.omg('sync-nald-lines: skipped')
+      global.GlobalNotifier.omg('missing-lines: skipped')
       messages.push('Skipped because they have already been synced')
 
       return messages
