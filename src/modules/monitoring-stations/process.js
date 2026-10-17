@@ -88,7 +88,7 @@ async function _fileExists () {
   }
 }
 
-function _loadFile(localPath) {
+function _loadFile (localPath) {
   const monitoringStations = require(localPath)
   return monitoringStations
 }

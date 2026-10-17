@@ -4,7 +4,7 @@ const db = require('../../../lib/connectors/db.js')
 const { generateUUID } = require('../../../lib/general.js')
 
 async function go (monitoringStations, timestamp) {
-  let messages = []
+  const messages = []
 
   for (const monitoringStation of monitoringStations) {
     const { label } = monitoringStation
