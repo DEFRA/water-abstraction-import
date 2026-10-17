@@ -1,7 +1,7 @@
 'use strict'
 
-const AlreadyRun = require('./lib/already-run.js')
-const RecordRun = require('./lib/record-run.js')
+const AlreadyRun = require('../../lib/services/already-run.js')
+const RecordRun = require('../../lib/services/record-run.js')
 const SyncMismatchedQuantities = require('./lib/sync-mismatched-quantities.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
@@ -19,7 +19,7 @@ async function go (log = false) {
     // We make use of a now defunct table. On the first run nothing will exist so the process will be allowed to
     // run. When finished we create a record in the table. On subsequent runs the record existing will cause the process
     // to be skipped.
-    const hasAlreadyRun = await AlreadyRun.go()
+    const hasAlreadyRun = await AlreadyRun.go('sync-end-of-licence')
 
     if (hasAlreadyRun) {
       global.GlobalNotifier.omg('sync-end-of-licence: skipped')
@@ -36,7 +36,7 @@ async function go (log = false) {
       await SyncMismatchedQuantities.go(region)
     }
 
-    await RecordRun.go()
+    await RecordRun.go('sync-end-of-licence')
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'sync-end-of-licence: complete')
