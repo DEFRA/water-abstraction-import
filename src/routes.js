@@ -232,6 +232,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/monitoring-stations',
+    handler: Controller.monitoringStations,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/reference-data-import',
     handler: Controller.referenceDataImport,
     config: {

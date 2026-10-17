@@ -1,7 +1,7 @@
 'use strict'
 
-const AlreadyRun = require('./lib/already-run.js')
-const RecordRun = require('./lib/record-run.js')
+const AlreadyRun = require('../../lib/services/already-run.js')
+const RecordRun = require('../../lib/services/record-run.js')
 const SyncFirstWeekVoidLines = require('./lib/sync-first-week-void-lines.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken } = require('../../lib/general.js')
 
@@ -13,7 +13,7 @@ async function go (log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 
-    const hasAlreadyRun = await AlreadyRun.go()
+    const hasAlreadyRun = await AlreadyRun.go('sync-first-week-voids')
 
     if (hasAlreadyRun) {
       global.GlobalNotifier.omg('sync-first-week-voids: skipped')
@@ -30,7 +30,7 @@ async function go (log = false) {
       await SyncFirstWeekVoidLines.go(region)
     }
 
-    await RecordRun.go()
+    await RecordRun.go('sync-first-week-voids')
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'sync-first-week-voids: complete')

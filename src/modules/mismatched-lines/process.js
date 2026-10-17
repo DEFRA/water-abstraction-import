@@ -1,9 +1,9 @@
 'use strict'
 
-const AlreadyRun = require('./lib/already-run.js')
+const AlreadyRun = require('../../lib/services/already-run.js')
 const FetchMismatchedReturnLogs = require('./lib/fetch-mismatched-return-logs.js')
 const FixMismatchedReturnLog = require('./lib/fix-mismatched-return-log.js')
-const RecordRun = require('./lib/record-run.js')
+const RecordRun = require('../../lib/services/record-run.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken, timestampForPostgres } = require('../../lib/general.js')
 
 async function go (log = false) {
@@ -14,7 +14,7 @@ async function go (log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 
-    const hasAlreadyRun = await AlreadyRun.go()
+    const hasAlreadyRun = await AlreadyRun.go('mismatched-lines')
 
     if (hasAlreadyRun) {
       global.GlobalNotifier.omg('mismatched-lines: skipped')
@@ -37,7 +37,7 @@ async function go (log = false) {
       }
     }
 
-    await RecordRun.go()
+    await RecordRun.go('mismatched-lines')
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'mismatched-lines: complete')

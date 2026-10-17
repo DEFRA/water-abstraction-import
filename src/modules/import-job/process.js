@@ -18,6 +18,7 @@ const MissingLinesStep = require('./lib/missing-lines.js')
 const MissingVoidReturnsStep = require('./lib/missing-void-returns.js')
 const MissingWeeklyReturnsStep = require('./lib/missing-weekly-returns.js')
 const ModLogsImportStep = require('./lib/mod-logs-import.js')
+const MonitoringStationsStep = require('./lib/monitoring-stations.js')
 const PartyCrmV2ImportStep = require('./lib/party-crm-v2-import.js')
 const ReferenceDataImportStep = require('./lib/reference-data-import.js')
 const SyncEndOfLicenceStep = require('./lib/sync-end-of-licence.js')
@@ -50,6 +51,9 @@ async function go () {
     steps.push(step)
 
     step = await ReferenceDataImportStep.go()
+    steps.push(step)
+
+    step = await MonitoringStationsStep.go()
     steps.push(step)
 
     step = await PartyCrmV2ImportStep.go()

@@ -1,9 +1,9 @@
 'use strict'
 
-const AlreadyRun = require('./lib/already-run.js')
+const AlreadyRun = require('../../lib/services/already-run.js')
 const FetchReturnsMissingSubmissions = require('./lib/fetch-returns-missing-submissions.js')
 const ProcessReturnMissingSubmission = require('./lib/process-return-missing-submission.js')
-const RecordRun = require('./lib/record-run.js')
+const RecordRun = require('../../lib/services/record-run.js')
 const { currentTimeInNanoseconds, calculateAndLogTimeTaken, timestampForPostgres } = require('../../lib/general.js')
 
 async function go (log = false) {
@@ -14,7 +14,7 @@ async function go (log = false) {
   try {
     const startTime = currentTimeInNanoseconds()
 
-    const hasAlreadyRun = await AlreadyRun.go()
+    const hasAlreadyRun = await AlreadyRun.go('missing-weekly-returns')
 
     if (hasAlreadyRun) {
       global.GlobalNotifier.omg('missing-weekly-returns: skipped')
@@ -42,7 +42,7 @@ async function go (log = false) {
       }
     }
 
-    await RecordRun.go()
+    await RecordRun.go('missing-weekly-returns')
 
     if (log) {
       calculateAndLogTimeTaken(startTime, 'missing-weekly-returns: complete', { messages })

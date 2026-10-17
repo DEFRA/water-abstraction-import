@@ -31,6 +31,7 @@ const MissingLinesProcess = require('./modules/missing-lines/process.js')
 const MissingVoidReturnsProcess = require('./modules/missing-void-returns/process.js')
 const MissingWeeklyReturnsProcess = require('./modules/missing-weekly-returns/process.js')
 const ModLogsImportProcess = require('./modules/mod-logs-import/process.js')
+const MonitoringStationsProcess = require('./modules/monitoring-stations/process.js')
 const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.js')
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
 const SyncEndOfLicenceProcess = require('./modules/sync-end-of-licence/process.js')
@@ -219,6 +220,12 @@ async function modLogsImport (_request, h) {
   return h.response().code(204)
 }
 
+async function monitoringStations (_request, h) {
+  MonitoringStationsProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function partyCrmV2Import (request, h) {
   const { partyId, regionCode } = request.payload
   const results = await db.query(
@@ -312,6 +319,7 @@ module.exports = {
   missingVoidReturns,
   missingWeeklyReturns,
   modLogsImport,
+  monitoringStations,
   partyCrmV2Import,
   referenceDataImport,
   status,
