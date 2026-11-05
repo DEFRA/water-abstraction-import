@@ -24,6 +24,7 @@ const ReferenceDataImportStep = require('./lib/reference-data-import.js')
 const SyncEndOfLicenceStep = require('./lib/sync-end-of-licence.js')
 const SyncEndOfPeriodStep = require('./lib/sync-end-of-period.js')
 const SyncFirstWeekVoidsStep = require('./lib/sync-first-week-voids.js')
+const SyncLastWeekCompletedNoVoidsStep = require('./lib/sync-last-week-completed-no-voids.js')
 const SyncNaldLinesStep = require('./lib/sync-nald-lines.js')
 
 async function go () {
@@ -102,6 +103,9 @@ async function go () {
     steps.push(step)
 
     step = await SyncFirstWeekVoidsStep.go()
+    steps.push(step)
+
+    step = await SyncLastWeekCompletedNoVoidsStep.go()
     steps.push(step)
 
     await CompletionEmail.go(steps)
