@@ -38,6 +38,7 @@ const SyncEndOfLicenceProcess = require('./modules/sync-end-of-licence/process.j
 const SyncEndOfPeriodProcess = require('./modules/sync-end-of-period/process.js')
 const SyncFirstWeekVoidsProcess = require('./modules/sync-first-week-voids/process.js')
 const SyncLastWeekCompletedNoVoidsProcess = require('./modules/sync-last-week-completed-no-voids/process.js')
+const SyncLastWeekCompletedVoidsProcess = require('./modules/sync-last-week-completed-voids/process.js')
 const SyncNaldLinesProcess = require('./modules/sync-nald-lines/process.js')
 
 async function clean (_request, h) {
@@ -274,6 +275,12 @@ async function syncLastWeekCompletedNoVoids (_request, h) {
   return h.response().code(204)
 }
 
+async function syncLastWeekCompletedVoids (_request, h) {
+  SyncLastWeekCompletedVoidsProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function syncNaldLines (_request, h) {
   SyncNaldLinesProcess.go(true)
 
@@ -334,5 +341,6 @@ module.exports = {
   syncEndOfPeriod,
   syncFirstWeekVoids,
   syncLastWeekCompletedNoVoids,
+  syncLastWeekCompletedVoids,
   syncNaldLines
 }

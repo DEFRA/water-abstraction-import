@@ -25,6 +25,7 @@ const SyncEndOfLicenceStep = require('./lib/sync-end-of-licence.js')
 const SyncEndOfPeriodStep = require('./lib/sync-end-of-period.js')
 const SyncFirstWeekVoidsStep = require('./lib/sync-first-week-voids.js')
 const SyncLastWeekCompletedNoVoidsStep = require('./lib/sync-last-week-completed-no-voids.js')
+const SyncLastWeekCompletedVoidsStep = require('./lib/sync-last-week-completed-voids.js')
 const SyncNaldLinesStep = require('./lib/sync-nald-lines.js')
 
 async function go () {
@@ -106,6 +107,9 @@ async function go () {
     steps.push(step)
 
     step = await SyncLastWeekCompletedNoVoidsStep.go()
+    steps.push(step)
+
+    step = await SyncLastWeekCompletedVoidsStep.go()
     steps.push(step)
 
     await CompletionEmail.go(steps)
