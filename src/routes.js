@@ -272,6 +272,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/sync-last-week-completed-no-voids',
+    handler: Controller.syncLastWeekCompletedNoVoids,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/sync-nald-lines',
     handler: Controller.syncNaldLines,
     config: {

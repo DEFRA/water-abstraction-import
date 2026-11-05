@@ -37,6 +37,7 @@ const ReferenceDataImportProcess = require('./modules/reference-data-import/proc
 const SyncEndOfLicenceProcess = require('./modules/sync-end-of-licence/process.js')
 const SyncEndOfPeriodProcess = require('./modules/sync-end-of-period/process.js')
 const SyncFirstWeekVoidsProcess = require('./modules/sync-first-week-voids/process.js')
+const SyncLastWeekCompletedNoVoidsProcess = require('./modules/sync-last-week-completed-no-voids/process.js')
 const SyncNaldLinesProcess = require('./modules/sync-nald-lines/process.js')
 
 async function clean (_request, h) {
@@ -267,6 +268,12 @@ async function syncFirstWeekVoids (_request, h) {
   return h.response().code(204)
 }
 
+async function syncLastWeekCompletedNoVoids (_request, h) {
+  SyncLastWeekCompletedNoVoidsProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function syncNaldLines (_request, h) {
   SyncNaldLinesProcess.go(true)
 
@@ -326,5 +333,6 @@ module.exports = {
   syncEndOfLicence,
   syncEndOfPeriod,
   syncFirstWeekVoids,
+  syncLastWeekCompletedNoVoids,
   syncNaldLines
 }
