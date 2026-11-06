@@ -216,6 +216,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/missing-void-submissions',
+    handler: Controller.missingVoidSubmissions,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/missing-weekly-returns',
     handler: Controller.missingWeeklyReturns,
     config: {
