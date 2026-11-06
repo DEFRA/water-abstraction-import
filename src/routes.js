@@ -301,5 +301,13 @@ module.exports = [
     config: {
       auth: false
     }
+  },
+  {
+    method: 'POST',
+    path: '/process/sync-void-nald-lines',
+    handler: Controller.syncVoidNaldLines,
+    config: {
+      auth: false
+    }
   }
 ]
