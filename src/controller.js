@@ -29,6 +29,7 @@ const LicencesImportProcess = require('./modules/licences-import/process.js')
 const MismatchedLinesProcess = require('./modules/mismatched-lines/process.js')
 const MissingLinesProcess = require('./modules/missing-lines/process.js')
 const MissingVoidReturnsProcess = require('./modules/missing-void-returns/process.js')
+const MissingVoidSubmissionsProcess = require('./modules/missing-void-submissions/process.js')
 const MissingWeeklyReturnsProcess = require('./modules/missing-weekly-returns/process.js')
 const ModLogsImportProcess = require('./modules/mod-logs-import/process.js')
 const MonitoringStationsProcess = require('./modules/monitoring-stations/process.js')
@@ -210,6 +211,12 @@ async function missingVoidReturns (_request, h) {
   return h.response().code(204)
 }
 
+async function missingVoidSubmissions (_request, h) {
+  MissingVoidSubmissionsProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function missingWeeklyReturns (_request, h) {
   MissingWeeklyReturnsProcess.go(true)
 
@@ -331,6 +338,7 @@ module.exports = {
   mismatchedLines,
   missingLines,
   missingVoidReturns,
+  missingVoidSubmissions,
   missingWeeklyReturns,
   modLogsImport,
   monitoringStations,

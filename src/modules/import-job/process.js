@@ -16,6 +16,7 @@ const LicencesImportStep = require('./lib/licences-import.js')
 const MismatchedLinesStep = require('./lib/mismatched-lines.js')
 const MissingLinesStep = require('./lib/missing-lines.js')
 const MissingVoidReturnsStep = require('./lib/missing-void-returns.js')
+const MissingVoidSubmissionsStep = require('./lib/missing-void-submissions.js')
 const MissingWeeklyReturnsStep = require('./lib/missing-weekly-returns.js')
 const ModLogsImportStep = require('./lib/mod-logs-import.js')
 const MonitoringStationsStep = require('./lib/monitoring-stations.js')
@@ -104,6 +105,9 @@ async function go () {
     steps.push(step)
 
     step = await SyncFirstWeekVoidsStep.go()
+    steps.push(step)
+
+    step = await MissingVoidSubmissionsStep.go()
     steps.push(step)
 
     step = await SyncLastWeekCompletedNoVoidsStep.go()
