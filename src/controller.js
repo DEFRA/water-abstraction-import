@@ -41,6 +41,7 @@ const SyncFirstWeekVoidsProcess = require('./modules/sync-first-week-voids/proce
 const SyncLastWeekCompletedNoVoidsProcess = require('./modules/sync-last-week-completed-no-voids/process.js')
 const SyncLastWeekCompletedVoidsProcess = require('./modules/sync-last-week-completed-voids/process.js')
 const SyncNaldLinesProcess = require('./modules/sync-nald-lines/process.js')
+const SyncVoidNaldLinesProcess = require('./modules/sync-void-nald-lines/process.js')
 
 async function clean (_request, h) {
   CleanProcess.go(true)
@@ -294,6 +295,12 @@ async function syncNaldLines (_request, h) {
   return h.response().code(204)
 }
 
+async function syncVoidNaldLines (_request, h) {
+  SyncVoidNaldLinesProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function _tagReference () {
   try {
     const { stdout, stderr } = await exec('git describe --always --tags')
@@ -350,5 +357,6 @@ module.exports = {
   syncFirstWeekVoids,
   syncLastWeekCompletedNoVoids,
   syncLastWeekCompletedVoids,
-  syncNaldLines
+  syncNaldLines,
+  syncVoidNaldLines
 }
