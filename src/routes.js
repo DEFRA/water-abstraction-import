@@ -272,6 +272,14 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: '/process/sync-end-of-period-voids',
+    handler: Controller.syncEndOfPeriodVoids,
+    config: {
+      auth: false
+    }
+  },
+  {
+    method: 'POST',
     path: '/process/sync-first-week-voids',
     handler: Controller.syncFirstWeekVoids,
     config: {
