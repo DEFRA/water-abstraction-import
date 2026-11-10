@@ -37,6 +37,7 @@ const PartyCrmV2ImportProcess = require('./modules/party-crm-v2-import/process.j
 const ReferenceDataImportProcess = require('./modules/reference-data-import/process.js')
 const SyncEndOfLicenceProcess = require('./modules/sync-end-of-licence/process.js')
 const SyncEndOfPeriodProcess = require('./modules/sync-end-of-period/process.js')
+const SyncEndOfPeriodVoidsProcess = require('./modules/sync-end-of-period-voids/process.js')
 const SyncFirstWeekVoidsProcess = require('./modules/sync-first-week-voids/process.js')
 const SyncLastWeekCompletedNoVoidsProcess = require('./modules/sync-last-week-completed-no-voids/process.js')
 const SyncLastWeekCompletedVoidsProcess = require('./modules/sync-last-week-completed-voids/process.js')
@@ -271,6 +272,12 @@ async function syncEndOfPeriod (_request, h) {
   return h.response().code(204)
 }
 
+async function syncEndOfPeriodVoids (_request, h) {
+  SyncEndOfPeriodVoidsProcess.go(true)
+
+  return h.response().code(204)
+}
+
 async function syncFirstWeekVoids (_request, h) {
   SyncFirstWeekVoidsProcess.go(true)
 
@@ -354,6 +361,7 @@ module.exports = {
   status,
   syncEndOfLicence,
   syncEndOfPeriod,
+  syncEndOfPeriodVoids,
   syncFirstWeekVoids,
   syncLastWeekCompletedNoVoids,
   syncLastWeekCompletedVoids,
