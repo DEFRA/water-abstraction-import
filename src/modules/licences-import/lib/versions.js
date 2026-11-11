@@ -16,6 +16,8 @@ async function go () {
       external_id,
       company_id,
       address_id,
+      criticality_code,
+      criticality_description,
       date_created,
       date_updated
     )
@@ -46,6 +48,8 @@ async function go () {
       concat_ws(':', nalv."FGAC_REGION_CODE", nalv."AABL_ID", nalv."ISSUE_NO", nalv."INCR_NO") AS external_id,
       c.company_id,
       a.address_id,
+      ncc."CODE" AS criticality_code,
+      ncc."DESCR" AS criticality_description,
       now() AS date_created,
       now() AS date_updated
     FROM
@@ -58,6 +62,8 @@ async function go () {
       ON c.external_id = concat_ws(':', nalv."FGAC_REGION_CODE", nalv."ACON_APAR_ID")
     LEFT JOIN crm_v2.addresses a
       ON a.external_id = concat_ws(':', nalv."FGAC_REGION_CODE", nalv."ACON_AADD_ID")
+    LEFT JOIN "import"."NALD_CRIT_CLASSES" ncc
+      ON ncc."CODE" = nalv."ACCL_CODE"
     WHERE
       nalv."STATUS" <> 'DRAFT'
     ON CONFLICT(external_id)
@@ -70,6 +76,8 @@ async function go () {
       issue_date = excluded.issue_date,
       company_id = excluded.company_id,
       address_id = excluded.address_id,
+      criticality_code = excluded.criticality_code,
+      criticality_description = excluded.criticality_description,
       date_updated = excluded.date_updated;
   `)
 }
